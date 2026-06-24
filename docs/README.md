@@ -33,6 +33,7 @@
 - [Финал и судьба игрока](systems/endgame-and-player-fate.md)
 - [Сеттинг и технологии](systems/setting-and-technology.md)
 - [Ресурсы, фермерство и рыбалка](systems/resources-farming-and-fishing.md)
+- [Потребности, питание и настроение](systems/needs-food-and-mood.md)
 
 ## Правило обновления
 
