@@ -31,6 +31,7 @@
 - [Традиции и праздники](systems/traditions-and-holidays.md)
 - [Угрозы, нападения и восстановление](systems/threats-and-recovery.md)
 - [Финал и судьба игрока](systems/endgame-and-player-fate.md)
+- [Сеттинг и технологии](systems/setting-and-technology.md)
 
 ## Правило обновления
 
