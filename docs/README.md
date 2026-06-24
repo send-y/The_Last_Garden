@@ -20,6 +20,7 @@
 - [Открытые вопросы](open-questions.md)
 - [Архитектурные принципы](architecture-principles.md)
 - [Дорожная карта](roadmap.md)
+- [Технический план первого среза](implementation/first-slice-technical-plan.md)
 
 ### Системы
 
