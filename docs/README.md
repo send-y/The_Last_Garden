@@ -35,6 +35,7 @@
 - [Ресурсы, фермерство и рыбалка](systems/resources-farming-and-fishing.md)
 - [Потребности, питание и настроение](systems/needs-food-and-mood.md)
 - [Работа NPC и обязательства](systems/npc-work-and-commitments.md)
+- [Общий вклад и справедливость](systems/settlement-economy-and-fairness.md)
 
 ## Правило обновления
 
