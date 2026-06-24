@@ -30,6 +30,7 @@
 - [NPC, отношения и диалоги](systems/npc-relationships-and-dialogue.md)
 - [Традиции и праздники](systems/traditions-and-holidays.md)
 - [Угрозы, нападения и восстановление](systems/threats-and-recovery.md)
+- [Финал и судьба игрока](systems/endgame-and-player-fate.md)
 
 ## Правило обновления
 
