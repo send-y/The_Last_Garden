@@ -28,6 +28,7 @@
 - [Время, климат и сезоны](systems/time-and-seasons.md)
 - [Работа, ремесло и исследования](systems/work-crafting-and-research.md)
 - [NPC, отношения и диалоги](systems/npc-relationships-and-dialogue.md)
+- [Традиции и праздники](systems/traditions-and-holidays.md)
 
 ## Правило обновления
 
