@@ -32,6 +32,7 @@
 - [Угрозы, нападения и восстановление](systems/threats-and-recovery.md)
 - [Финал и судьба игрока](systems/endgame-and-player-fate.md)
 - [Сеттинг и технологии](systems/setting-and-technology.md)
+- [Ресурсы, фермерство и рыбалка](systems/resources-farming-and-fishing.md)
 
 ## Правило обновления
 
