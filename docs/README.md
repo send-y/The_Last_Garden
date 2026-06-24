@@ -15,6 +15,7 @@
 ### Основа
 
 - [Видение игры](vision.md)
+- [Черновик основного игрового цикла](core-game-loop.md)
 - [Журнал дизайнерских решений](design-decisions.md)
 - [Открытые вопросы](open-questions.md)
 - [Архитектурные принципы](architecture-principles.md)
