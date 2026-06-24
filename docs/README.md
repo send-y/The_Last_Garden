@@ -28,6 +28,7 @@
 - [Время, климат и сезоны](systems/time-and-seasons.md)
 - [Работа, ремесло и исследования](systems/work-crafting-and-research.md)
 - [NPC, отношения и диалоги](systems/npc-relationships-and-dialogue.md)
+- [Модель отношений NPC](systems/npc-relationship-model.md)
 - [Традиции и праздники](systems/traditions-and-holidays.md)
 - [Угрозы, нападения и восстановление](systems/threats-and-recovery.md)
 - [Финал и судьба игрока](systems/endgame-and-player-fate.md)
