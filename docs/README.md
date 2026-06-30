@@ -19,6 +19,7 @@
 - [Журнал дизайнерских решений](design-decisions.md)
 - [Открытые вопросы](open-questions.md)
 - [Архитектурные принципы](architecture-principles.md)
+- [Рынок, позиционирование и границы продукта](market-and-positioning.md)
 - [Дорожная карта](roadmap.md)
 - [Технический план первого среза](implementation/first-slice-technical-plan.md)
 
