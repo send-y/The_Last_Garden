@@ -4,8 +4,9 @@ extends RefCounted
 signal event_emitted(event: Dictionary)
 
 const Content := preload("res://src/content/first_night_content.gd")
+const Npcs := preload("res://src/characters/npc_catalog.gd")
 
-const SAVE_VERSION: int = 2
+const SAVE_VERSION: int = 3
 const DEFAULT_SEED: int = 247061
 const START_MINUTE: int = 11 * 60
 const EVENING_MINUTE: int = 18 * 60
@@ -15,11 +16,13 @@ const MAX_CARRY_WEIGHT: float = 24.0
 
 var state: Dictionary
 var content: FirstNightContent
+var npc_catalog
 var _minute_accumulator: float = 0.0
 
 
 func _init(initial_state: Dictionary = {}) -> void:
 	content = Content.new()
+	npc_catalog = Npcs.new()
 	if initial_state.is_empty():
 		state = create_new_state()
 	else:
@@ -29,6 +32,7 @@ func _init(initial_state: Dictionary = {}) -> void:
 
 static func create_new_state(seed_value: int = DEFAULT_SEED) -> Dictionary:
 	var content_data: FirstNightContent = Content.new()
+	var npc_data := Npcs.new()
 	return {
 		"version": SAVE_VERSION,
 		"seed": seed_value,
@@ -37,6 +41,7 @@ static func create_new_state(seed_value: int = DEFAULT_SEED) -> Dictionary:
 		"player_position": [784.0, 944.0],
 		"inventory": content_data.create_empty_inventory(),
 		"collected": {},
+		"npcs": npc_data.create_initial_states(seed_value),
 		"flags": {
 			"house_inspected": false,
 			"tools_found": false,
@@ -95,6 +100,8 @@ func execute_interaction(object_id: String, kind: String) -> Dictionary:
 			return _advance_campfire()
 		"bed":
 			return _advance_bed()
+		"npc":
+			return _talk_to_npc(object_id)
 
 	if content.has_collect_rule(kind):
 		return _collect_resource(object_id, kind)
@@ -107,6 +114,10 @@ func get_inventory() -> Dictionary:
 
 func get_flags() -> Dictionary:
 	return state["flags"] as Dictionary
+
+
+func get_npcs() -> Dictionary:
+	return state["npcs"] as Dictionary
 
 
 func get_item_count(item_id: String) -> int:
@@ -164,9 +175,11 @@ func get_object_stage(kind: String) -> int:
 			return 0
 
 
-func get_object_label(kind: String, fallback: String) -> String:
+func get_object_label(kind: String, fallback: String, object_id: String = "") -> String:
 	var flags: Dictionary = get_flags()
 	match kind:
+		"npc":
+			return npc_catalog.get_label(get_npcs(), object_id, fallback)
 		"tools":
 			return content.get_stage_label(kind, 0, fallback)
 		"repair":
@@ -183,6 +196,8 @@ func get_object_label(kind: String, fallback: String) -> String:
 
 
 func should_hide_interactable(object_id: String, kind: String) -> bool:
+	if kind == "npc":
+		return not npc_catalog.is_visible(get_npcs(), object_id)
 	if kind == "tools":
 		return bool(get_flags().get("tools_found", false))
 	if content.has_collect_rule(kind) and not content.is_collect_rule_repeatable(kind):
@@ -190,9 +205,24 @@ func should_hide_interactable(object_id: String, kind: String) -> bool:
 	return false
 
 
+func is_npc_visible(npc_id: String) -> bool:
+	return npc_catalog.is_visible(get_npcs(), npc_id)
+
+
+func get_npc_position(npc_id: String, fallback: Vector2) -> Vector2:
+	return npc_catalog.get_position(get_npcs(), npc_id, fallback)
+
+
+func get_npc_appearance(npc_id: String) -> Dictionary:
+	return npc_catalog.get_appearance(get_npcs(), npc_id)
+
+
 func get_current_objective() -> String:
 	var flags: Dictionary = get_flags()
 	if bool(flags["first_night_complete"]):
+		var first_neighbor: Dictionary = get_npcs().get("core:first_neighbor", {}) as Dictionary
+		if bool(first_neighbor.get("active", false)) and int(first_neighbor.get("talk_count", 0)) <= 0:
+			return "Утром у Общего дома появился путник. Поговорите с ним."
 		return "Первое утро наступило. Срез пройден."
 	if not bool(flags["tools_found"]):
 		return "Осмотрите Общий дом и найдите инструменты."
@@ -304,6 +334,11 @@ func _advance_bed() -> Dictionary:
 	return _sleep_until_morning()
 
 
+func _talk_to_npc(npc_id: String) -> Dictionary:
+	var result: Dictionary = npc_catalog.talk(get_npcs(), npc_id)
+	return _emit_result(bool(result.get("success", false)), String(result.get("message", "")), bool(result.get("changed", false)))
+
+
 func _sleep_until_morning() -> Dictionary:
 	var flags: Dictionary = get_flags()
 	var outcomes: Array = []
@@ -325,7 +360,9 @@ func _sleep_until_morning() -> Dictionary:
 	state["day"] = get_day() + 1
 	state["minute_of_day"] = 7 * 60
 	flags["first_night_complete"] = true
-	return _emit_result(true, "Наступило новое утро. Итог: %s." % ", ".join(outcomes), true, true)
+	var npc_arrived: bool = npc_catalog.activate_after_first_night(get_npcs())
+	var morning_note: String = " На рассвете у Общего дома появился путник." if npc_arrived else ""
+	return _emit_result(true, "Наступило новое утро. Итог: %s.%s" % [", ".join(outcomes), morning_note], true, true)
 
 
 func _can_add_item(item_id: String, amount: int) -> bool:
@@ -380,6 +417,7 @@ func _normalize_state() -> void:
 
 	state["inventory"] = content.normalize_inventory(state["inventory"] as Dictionary)
 	state["collected"] = content.normalize_collected(state["collected"] as Dictionary)
+	state["npcs"] = npc_catalog.normalize_states(state.get("npcs", {}) as Dictionary, int(state["seed"]))
 
 	var flags: Dictionary = state["flags"] as Dictionary
 	var default_flags: Dictionary = defaults["flags"] as Dictionary
@@ -389,6 +427,8 @@ func _normalize_state() -> void:
 			flags[flag_id] = default_flags[flag_id]
 	flags["repair_stage"] = clampi(int(flags["repair_stage"]), 0, 3)
 	flags["campfire_stage"] = clampi(int(flags["campfire_stage"]), 0, 2)
+	if bool(flags["first_night_complete"]):
+		npc_catalog.activate_after_first_night(get_npcs())
 
 	var stored_position: Array = state.get("player_position", defaults["player_position"]) as Array
 	if stored_position.size() < 2:

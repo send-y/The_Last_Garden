@@ -1,6 +1,8 @@
 class_name InteractableView
 extends Area2D
 
+const CharacterVisualScene := preload("res://src/characters/character_visual.gd")
+
 var object_id: String
 var kind: String
 var base_label: String
@@ -8,6 +10,7 @@ var selection_radius: float = 22.0
 var _base_color: Color = Color.WHITE
 var _draw_size: Vector2 = Vector2(24.0, 20.0)
 var _is_selected: bool = false
+var _character_visual
 
 
 func configure(definition: Dictionary) -> void:
@@ -28,16 +31,28 @@ func configure(definition: Dictionary) -> void:
 	var collision := CollisionShape2D.new()
 	collision.shape = shape
 	add_child(collision)
+	if kind == "npc":
+		_character_visual = CharacterVisualScene.new()
+		add_child(_character_visual)
 	refresh_from_state()
 
 
 func refresh_from_state() -> void:
+	if kind == "npc":
+		visible = Session.is_npc_visible(object_id)
+		position = Session.get_npc_position(object_id, position)
+		if _character_visual != null:
+			_character_visual.set_appearance(Session.get_npc_appearance(object_id))
+			_character_visual.set_pose(Vector2.UP, 0, false)
+		queue_redraw()
+		return
+
 	visible = not Session.should_hide_interactable(object_id, kind)
 	queue_redraw()
 
 
 func get_display_label() -> String:
-	return Session.get_object_label(kind, base_label)
+	return Session.get_object_label(kind, base_label, object_id)
 
 
 func set_selected(value: bool) -> void:
@@ -56,6 +71,11 @@ func _draw() -> void:
 		return
 
 	var rect := Rect2(-_draw_size * 0.5, _draw_size)
+	if kind == "npc":
+		if _is_selected:
+			draw_rect(rect.grow(4.0), Color("f1d66b"), false, 2.0)
+		return
+
 	draw_ellipse_shadow()
 	draw_rect(rect, _base_color)
 	draw_rect(rect.grow(-3.0), _base_color.lightened(0.16))

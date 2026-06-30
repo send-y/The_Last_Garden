@@ -80,12 +80,24 @@ func get_object_stage(kind: String) -> int:
 	return simulation.get_object_stage(kind)
 
 
-func get_object_label(kind: String, fallback: String) -> String:
-	return simulation.get_object_label(kind, fallback)
+func get_object_label(kind: String, fallback: String, object_id: String = "") -> String:
+	return simulation.get_object_label(kind, fallback, object_id)
 
 
 func should_hide_interactable(object_id: String, kind: String) -> bool:
 	return simulation.should_hide_interactable(object_id, kind)
+
+
+func is_npc_visible(npc_id: String) -> bool:
+	return simulation.is_npc_visible(npc_id)
+
+
+func get_npc_position(npc_id: String, fallback: Vector2) -> Vector2:
+	return simulation.get_npc_position(npc_id, fallback)
+
+
+func get_npc_appearance(npc_id: String) -> Dictionary:
+	return simulation.get_npc_appearance(npc_id)
 
 
 func is_paused() -> bool:

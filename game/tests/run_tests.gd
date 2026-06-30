@@ -17,6 +17,7 @@ func _run() -> void:
 	_test_duplicate_collection_is_rejected()
 	_test_legacy_save_ids_are_migrated()
 	_test_character_appearance_generation()
+	_test_first_neighbor_arrives_and_talks()
 
 	if _failures == 0:
 		print("PASS: first-night simulation tests")
@@ -57,6 +58,7 @@ func _test_complete_first_night() -> void:
 	_expect(simulation.get_day() == 2, "sleep advances to day 2")
 	_expect(simulation.get_time_text() == "07:00", "sleep advances to 07:00")
 	_expect(bool(simulation.get_flags()["first_night_complete"]), "first night is marked complete")
+	_expect(simulation.is_npc_visible("core:first_neighbor"), "first neighbor appears after the first night")
 
 
 func _test_serialization_round_trip() -> void:
@@ -122,6 +124,49 @@ func _test_character_appearance_generation() -> void:
 	_expect(npc_a != npc_c, "NPC appearance generation changes with a different seed")
 	_expect(catalog.validate_appearance(npc_a).is_empty(), "generated NPC appearance is valid")
 	_expect(catalog.get_layered_parts(npc_a).size() >= 4, "generated NPC appearance has drawable parts")
+
+
+func _test_first_neighbor_arrives_and_talks() -> void:
+	var simulation: FirstNightSimulation = Simulation.new()
+	_expect(not simulation.is_npc_visible("core:first_neighbor"), "first neighbor is hidden before the first night is complete")
+	_complete_first_night_for_test(simulation)
+
+	_expect(simulation.is_npc_visible("core:first_neighbor"), "first neighbor is visible after sleeping")
+	_expect(simulation.get_object_label("npc", "?", "core:first_neighbor") == "Путник у Общего дома", "first neighbor starts unknown")
+	_expect(simulation.get_current_objective() == "Утром у Общего дома появился путник. Поговорите с ним.", "objective points to the first neighbor")
+
+	var talk_result: Dictionary = simulation.execute_interaction("core:first_neighbor", "npc")
+	_expect(bool(talk_result["success"]), "talking to first neighbor succeeds")
+	_expect(String(talk_result["message"]).begins_with("Мира:"), "first neighbor introduces herself by name")
+	_expect(simulation.get_object_label("npc", "?", "core:first_neighbor") == "Мира", "first neighbor label becomes known after talking")
+	_expect(simulation.get_current_objective() == "Первое утро наступило. Срез пройден.", "objective returns to completed slice after greeting")
+
+	var encoded: String = JSON.stringify(simulation.state)
+	var decoded: Variant = JSON.parse_string(encoded)
+	_expect(typeof(decoded) == TYPE_DICTIONARY, "NPC state serializes as a dictionary")
+	if typeof(decoded) != TYPE_DICTIONARY:
+		return
+	var restored: FirstNightSimulation = Simulation.new(decoded as Dictionary)
+	_expect(restored.is_npc_visible("core:first_neighbor"), "first neighbor visibility survives serialization")
+	_expect(restored.get_object_label("npc", "?", "core:first_neighbor") == "Мира", "known NPC label survives serialization")
+	_expect(not restored.get_npc_appearance("core:first_neighbor").is_empty(), "NPC appearance survives serialization")
+
+
+func _complete_first_night_for_test(simulation: FirstNightSimulation) -> void:
+	simulation.execute_interaction("old_tools", "tools")
+	for wood_id: String in ["wood_north", "wood_west", "wood_east"]:
+		simulation.execute_interaction(wood_id, "wood")
+	for stone_id: String in ["stone_south", "stone_east"]:
+		simulation.execute_interaction(stone_id, "stone")
+	simulation.execute_interaction("berry_bush", "food")
+	simulation.execute_interaction("shore_water", "water")
+	for _step: int in range(3):
+		simulation.execute_interaction("repair_room", "repair")
+	for _step: int in range(3):
+		simulation.execute_interaction("campfire_site", "campfire")
+	simulation.execute_interaction("bed_site", "bed")
+	simulation.advance_minutes(simulation.EVENING_MINUTE - simulation.get_minute_of_day())
+	simulation.execute_interaction("bed_site", "bed")
 
 
 func _expect(condition: bool, description: String) -> void:

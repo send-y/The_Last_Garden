@@ -22,6 +22,7 @@
 - [Рынок, позиционирование и границы продукта](market-and-positioning.md)
 - [Дорожная карта](roadmap.md)
 - [Технический план первого среза](implementation/first-slice-technical-plan.md)
+- [Технический план первого NPC](implementation/first-npc-technical-plan.md)
 
 ### Системы
 
