@@ -2,6 +2,7 @@ extends SceneTree
 
 const Simulation := preload("res://src/simulation/first_night_simulation.gd")
 const Content := preload("res://src/content/first_night_content.gd")
+const AppearanceCatalog := preload("res://src/characters/character_appearance.gd")
 
 var _failures: int = 0
 
@@ -15,6 +16,7 @@ func _run() -> void:
 	_test_serialization_round_trip()
 	_test_duplicate_collection_is_rejected()
 	_test_legacy_save_ids_are_migrated()
+	_test_character_appearance_generation()
 
 	if _failures == 0:
 		print("PASS: first-night simulation tests")
@@ -102,6 +104,24 @@ func _test_legacy_save_ids_are_migrated() -> void:
 	_expect(simulation.get_item_count(FirstNightContent.STONE_ID) == 1, "legacy stone id migrates to core namespaced id")
 	_expect(simulation.get_item_count(FirstNightContent.RAW_WATER_ID) == 1, "legacy water id migrates to core namespaced id")
 	_expect(simulation.is_collected("core:wood_north"), "legacy collected object id migrates to core namespaced id")
+
+
+func _test_character_appearance_generation() -> void:
+	var catalog := AppearanceCatalog.new()
+	_expect(catalog.get_frame_size() == Vector2i(32, 32), "character appearance uses 32x32 frames")
+	_expect(catalog.get_frames_per_direction() == 4, "character appearance uses four walk frames")
+
+	var player_appearance: Dictionary = catalog.get_default_player_appearance()
+	_expect(catalog.validate_appearance(player_appearance).is_empty(), "default player appearance is valid")
+	_expect(String(player_appearance.get("cloak", "")) == "core:cloak_charcoal", "default player appearance uses the placeholder cloak")
+
+	var npc_a: Dictionary = catalog.generate_npc_appearance(247061)
+	var npc_b: Dictionary = catalog.generate_npc_appearance(247061)
+	var npc_c: Dictionary = catalog.generate_npc_appearance(247062)
+	_expect(npc_a == npc_b, "NPC appearance generation is deterministic for the same seed")
+	_expect(npc_a != npc_c, "NPC appearance generation changes with a different seed")
+	_expect(catalog.validate_appearance(npc_a).is_empty(), "generated NPC appearance is valid")
+	_expect(catalog.get_layered_parts(npc_a).size() >= 4, "generated NPC appearance has drawable parts")
 
 
 func _expect(condition: bool, description: String) -> void:
