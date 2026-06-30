@@ -1,0 +1,233 @@
+{
+  "schema_version": 1,
+  "frame": {
+    "size": [32, 32],
+    "directions": ["down", "left", "right", "up"],
+    "frames_per_direction": 4
+  },
+  "slots": [
+    {
+      "id": "cloak",
+      "required": true
+    },
+    {
+      "id": "pants",
+      "required": true
+    },
+    {
+      "id": "boots",
+      "required": true
+    },
+    {
+      "id": "body",
+      "required": true
+    },
+    {
+      "id": "shirt",
+      "required": true
+    },
+    {
+      "id": "hair",
+      "required": true
+    },
+    {
+      "id": "scarf",
+      "required": true
+    },
+    {
+      "id": "held_item",
+      "required": true
+    }
+  ],
+  "parts": [
+    {
+      "id": "core:cloak_none",
+      "slot": "cloak",
+      "label": "Без плаща",
+      "layer": 10,
+      "empty": true,
+      "weight": 3
+    },
+    {
+      "id": "core:cloak_charcoal",
+      "slot": "cloak",
+      "label": "Тёмный дорожный плащ",
+      "layer": 10,
+      "color": "2f302f",
+      "shadow": "202120",
+      "weight": 2
+    },
+    {
+      "id": "core:cloak_moss",
+      "slot": "cloak",
+      "label": "Плащ цвета мха",
+      "layer": 10,
+      "color": "3f4a32",
+      "shadow": "2b3324",
+      "weight": 1
+    },
+    {
+      "id": "core:pants_dark",
+      "slot": "pants",
+      "label": "Тёмные штаны",
+      "layer": 20,
+      "color": "34353a",
+      "shadow": "24252a",
+      "weight": 4
+    },
+    {
+      "id": "core:pants_ash",
+      "slot": "pants",
+      "label": "Пепельные штаны",
+      "layer": 20,
+      "color": "46464a",
+      "shadow": "303034",
+      "weight": 2
+    },
+    {
+      "id": "core:boots_brown",
+      "slot": "boots",
+      "label": "Коричневые ботинки",
+      "layer": 30,
+      "color": "8a4a1f",
+      "shadow": "4a3326",
+      "weight": 4
+    },
+    {
+      "id": "core:boots_dark",
+      "slot": "boots",
+      "label": "Тёмные сапоги",
+      "layer": 30,
+      "color": "4a3326",
+      "shadow": "2b2521",
+      "weight": 2
+    },
+    {
+      "id": "core:body_warm",
+      "slot": "body",
+      "label": "Тёплый тон кожи",
+      "layer": 40,
+      "color": "c88a5a",
+      "shadow": "8a5a3f",
+      "highlight": "e0b07a",
+      "weight": 3
+    },
+    {
+      "id": "core:body_light",
+      "slot": "body",
+      "label": "Светлый тон кожи",
+      "layer": 40,
+      "color": "d6aa78",
+      "shadow": "9c6d4b",
+      "highlight": "ebc28e",
+      "weight": 2
+    },
+    {
+      "id": "core:shirt_green",
+      "slot": "shirt",
+      "label": "Зелёная рабочая куртка",
+      "layer": 50,
+      "color": "4f8a65",
+      "shadow": "2f5a48",
+      "highlight": "6ca87b",
+      "weight": 3
+    },
+    {
+      "id": "core:shirt_moss",
+      "slot": "shirt",
+      "label": "Куртка цвета мха",
+      "layer": 50,
+      "color": "5f7044",
+      "shadow": "3f4a32",
+      "highlight": "87935f",
+      "weight": 3
+    },
+    {
+      "id": "core:shirt_linen",
+      "slot": "shirt",
+      "label": "Светлая рубаха",
+      "layer": 50,
+      "color": "c7b58f",
+      "shadow": "8a7355",
+      "highlight": "ded0a8",
+      "weight": 2
+    },
+    {
+      "id": "core:hair_short_dark",
+      "slot": "hair",
+      "label": "Короткие тёмные волосы",
+      "layer": 60,
+      "color": "1e1b18",
+      "shadow": "11100f",
+      "highlight": "34313a",
+      "weight": 4
+    },
+    {
+      "id": "core:hair_short_brown",
+      "slot": "hair",
+      "label": "Короткие каштановые волосы",
+      "layer": 60,
+      "color": "5a3824",
+      "shadow": "3a2418",
+      "highlight": "755033",
+      "weight": 3
+    },
+    {
+      "id": "core:scarf_none",
+      "slot": "scarf",
+      "label": "Без шарфа",
+      "layer": 70,
+      "empty": true,
+      "weight": 2
+    },
+    {
+      "id": "core:scarf_ochre",
+      "slot": "scarf",
+      "label": "Охристый шарф",
+      "layer": 70,
+      "color": "d0a21e",
+      "shadow": "936f12",
+      "highlight": "f0c547",
+      "weight": 2
+    },
+    {
+      "id": "core:scarf_green",
+      "slot": "scarf",
+      "label": "Зелёный шарф",
+      "layer": 70,
+      "color": "2f5a48",
+      "shadow": "1d392f",
+      "highlight": "4f8a65",
+      "weight": 2
+    },
+    {
+      "id": "core:held_none",
+      "slot": "held_item",
+      "label": "Пустые руки",
+      "layer": 80,
+      "empty": true,
+      "weight": 5
+    },
+    {
+      "id": "core:held_tool_bundle",
+      "slot": "held_item",
+      "label": "Связка инструментов",
+      "layer": 80,
+      "color": "4a3326",
+      "highlight": "b68b4c",
+      "weight": 1
+    }
+  ],
+  "outfits": {
+    "core:player_placeholder": {
+      "body": "core:body_warm",
+      "hair": "core:hair_short_dark",
+      "shirt": "core:shirt_green",
+      "pants": "core:pants_dark",
+      "boots": "core:boots_brown",
+      "cloak": "core:cloak_charcoal",
+      "scarf": "core:scarf_ochre",
+      "held_item": "core:held_none"
+    }
+  }
+}
