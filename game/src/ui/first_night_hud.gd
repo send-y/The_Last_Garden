@@ -1,6 +1,8 @@
 class_name FirstNightHud
 extends Control
 
+const Content := preload("res://src/content/first_night_content.gd")
+
 var _time_label: Label
 var _inventory_label: Label
 var _objective_label: Label
@@ -91,11 +93,11 @@ func _format_inventory() -> String:
 	return "Вес %.1f/%.0f кг\nДерево %d  Камень %d  Вода %d/%d  Еда %d%s" % [
 		Session.get_inventory_weight(),
 		Session.get_max_carry_weight(),
-		int(inventory.get("wood", 0)),
-		int(inventory.get("stone", 0)),
-		int(inventory.get("raw_water", 0)),
-		int(inventory.get("boiled_water", 0)),
-		int(inventory.get("food", 0)),
+		int(inventory.get(FirstNightContent.WOOD_ID, 0)),
+		int(inventory.get(FirstNightContent.STONE_ID, 0)),
+		int(inventory.get(FirstNightContent.RAW_WATER_ID, 0)),
+		int(inventory.get(FirstNightContent.BOILED_WATER_ID, 0)),
+		int(inventory.get(FirstNightContent.FOOD_ID, 0)),
 		"  Инструменты ✓" if bool(Session.get_flags().get("tools_found", false)) else "",
 	]
 

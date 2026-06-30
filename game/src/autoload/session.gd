@@ -84,6 +84,10 @@ func get_object_label(kind: String, fallback: String) -> String:
 	return simulation.get_object_label(kind, fallback)
 
 
+func should_hide_interactable(object_id: String, kind: String) -> bool:
+	return simulation.should_hide_interactable(object_id, kind)
+
+
 func is_paused() -> bool:
 	return _is_paused
 

@@ -32,12 +32,7 @@ func configure(definition: Dictionary) -> void:
 
 
 func refresh_from_state() -> void:
-	var should_hide: bool = false
-	if kind in ["wood", "stone", "food"]:
-		should_hide = Session.is_collected(object_id)
-	elif kind == "tools":
-		should_hide = bool(Session.get_flags().get("tools_found", false))
-	visible = not should_hide
+	visible = not Session.should_hide_interactable(object_id, kind)
 	queue_redraw()
 
 

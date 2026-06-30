@@ -1,6 +1,7 @@
 extends SceneTree
 
 const Simulation := preload("res://src/simulation/first_night_simulation.gd")
+const Content := preload("res://src/content/first_night_content.gd")
 
 var _failures: int = 0
 
@@ -13,6 +14,7 @@ func _run() -> void:
 	_test_complete_first_night()
 	_test_serialization_round_trip()
 	_test_duplicate_collection_is_rejected()
+	_test_legacy_save_ids_are_migrated()
 
 	if _failures == 0:
 		print("PASS: first-night simulation tests")
@@ -70,7 +72,7 @@ func _test_serialization_round_trip() -> void:
 	var restored: FirstNightSimulation = Simulation.new(decoded as Dictionary)
 	_expect(restored.get_time_text() == original.get_time_text(), "time survives serialization")
 	_expect(restored.get_player_position().is_equal_approx(original.get_player_position()), "position survives serialization")
-	_expect(restored.get_item_count("wood") == 3, "inventory survives serialization")
+	_expect(restored.get_item_count(FirstNightContent.WOOD_ID) == 3, "inventory survives serialization")
 	_expect(bool(restored.get_flags()["tools_found"]), "flags survive serialization")
 
 
@@ -80,7 +82,26 @@ func _test_duplicate_collection_is_rejected() -> void:
 	var second: Dictionary = simulation.execute_interaction("wood_north", "wood")
 	_expect(bool(first["success"]), "first resource collection succeeds")
 	_expect(not bool(second["success"]), "duplicate resource collection is rejected")
-	_expect(simulation.get_item_count("wood") == 3, "duplicate collection does not create resources")
+	_expect(simulation.get_item_count(FirstNightContent.WOOD_ID) == 3, "duplicate collection does not create resources")
+
+
+func _test_legacy_save_ids_are_migrated() -> void:
+	var legacy_state: Dictionary = Simulation.create_new_state()
+	legacy_state["version"] = 1
+	legacy_state["inventory"] = {
+		"wood": 2,
+		"stone": 1,
+		"raw_water": 1,
+	}
+	legacy_state["collected"] = {
+		"wood_north": true,
+	}
+
+	var simulation: FirstNightSimulation = Simulation.new(legacy_state)
+	_expect(simulation.get_item_count(FirstNightContent.WOOD_ID) == 2, "legacy wood id migrates to core namespaced id")
+	_expect(simulation.get_item_count(FirstNightContent.STONE_ID) == 1, "legacy stone id migrates to core namespaced id")
+	_expect(simulation.get_item_count(FirstNightContent.RAW_WATER_ID) == 1, "legacy water id migrates to core namespaced id")
+	_expect(simulation.is_collected("core:wood_north"), "legacy collected object id migrates to core namespaced id")
 
 
 func _expect(condition: bool, description: String) -> void:

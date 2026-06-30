@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "items": [
+    {
+      "id": "core:wood",
+      "label": "Древесина",
+      "weight": 1.0
+    },
+    {
+      "id": "core:stone",
+      "label": "Камень",
+      "weight": 1.5
+    },
+    {
+      "id": "core:raw_water",
+      "label": "Небезопасная вода",
+      "weight": 1.0
+    },
+    {
+      "id": "core:boiled_water",
+      "label": "Кипячёная вода",
+      "weight": 1.0
+    },
+    {
+      "id": "core:food",
+      "label": "Еда",
+      "weight": 0.5
+    }
+  ]
+}
