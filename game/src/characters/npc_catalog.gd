@@ -48,9 +48,20 @@ func create_initial_states(world_seed: int) -> Dictionary:
 func normalize_states(raw_npcs: Dictionary, world_seed: int) -> Dictionary:
 	var defaults: Dictionary = create_initial_states(world_seed)
 	var normalized: Dictionary = {}
+	for raw_id_variant: Variant in raw_npcs.keys():
+		var raw_id: String = String(raw_id_variant)
+		if _definitions_by_id.has(raw_id):
+			continue
+		var unknown_state: Variant = raw_npcs[raw_id_variant]
+		if typeof(unknown_state) == TYPE_DICTIONARY:
+			normalized[raw_id] = (unknown_state as Dictionary).duplicate(true)
+
 	for npc_id: String in _definition_order:
 		var default_state: Dictionary = defaults[npc_id] as Dictionary
-		var raw_state: Dictionary = raw_npcs.get(npc_id, {}) as Dictionary
+		var raw_value: Variant = raw_npcs.get(npc_id, {})
+		var raw_state: Dictionary = {}
+		if typeof(raw_value) == TYPE_DICTIONARY:
+			raw_state = raw_value as Dictionary
 		var npc_state: Dictionary = default_state.duplicate(true)
 
 		for key_variant: Variant in raw_state.keys():
@@ -58,20 +69,29 @@ func normalize_states(raw_npcs: Dictionary, world_seed: int) -> Dictionary:
 			npc_state[key] = raw_state[key_variant]
 
 		npc_state["id"] = npc_id
-		npc_state["active"] = bool(npc_state.get("active", false))
-		npc_state["known"] = bool(npc_state.get("known", false))
-		npc_state["talk_count"] = max(0, int(npc_state.get("talk_count", 0)))
-		npc_state["appearance_seed"] = int(npc_state.get("appearance_seed", default_state["appearance_seed"]))
+		npc_state["active"] = _safe_bool(npc_state.get("active"), bool(default_state["active"]))
+		npc_state["known"] = _safe_bool(npc_state.get("known"), bool(default_state["known"]))
+		npc_state["talk_count"] = maxi(0, _safe_int(npc_state.get("talk_count"), int(default_state["talk_count"])))
+		npc_state["appearance_seed"] = _safe_int(
+			npc_state.get("appearance_seed"),
+			int(default_state["appearance_seed"])
+		)
 
-		var position: Array = npc_state.get("position", default_state["position"]) as Array
-		if position.size() < 2:
+		var position_value: Variant = npc_state.get("position", default_state["position"])
+		if not _is_valid_position(position_value):
 			npc_state["position"] = default_state["position"]
 		else:
+			var position: Array = position_value as Array
 			npc_state["position"] = [float(position[0]), float(position[1])]
 
-		var appearance: Dictionary = npc_state.get("appearance", {}) as Dictionary
+		var appearance_value: Variant = npc_state.get("appearance", {})
+		var appearance: Dictionary = {}
+		if typeof(appearance_value) == TYPE_DICTIONARY:
+			appearance = appearance_value as Dictionary
 		if not _appearance_catalog.validate_appearance(appearance).is_empty():
 			npc_state["appearance"] = _appearance_catalog.generate_npc_appearance(int(npc_state["appearance_seed"]))
+		else:
+			npc_state["appearance"] = appearance.duplicate(true)
 
 		normalized[npc_id] = npc_state
 	return normalized
@@ -174,6 +194,38 @@ func talk(npcs: Dictionary, npc_id: String) -> Dictionary:
 func _cell_center_array(x: int, y: int) -> Array[float]:
 	var position: Vector2 = FirstNightContentScript.cell_center(x, y)
 	return [position.x, position.y]
+
+
+func _safe_bool(value: Variant, fallback: bool) -> bool:
+	if typeof(value) != TYPE_BOOL:
+		return fallback
+	return value
+
+
+func _safe_int(value: Variant, fallback: int) -> int:
+	if typeof(value) == TYPE_INT:
+		return int(value)
+	if typeof(value) != TYPE_FLOAT:
+		return fallback
+	var number: float = float(value)
+	if not is_finite(number) or number != floor(number):
+		return fallback
+	return int(number)
+
+
+func _is_valid_position(value: Variant) -> bool:
+	if typeof(value) != TYPE_ARRAY:
+		return false
+	var position: Array = value as Array
+	if position.size() < 2:
+		return false
+	for index: int in range(2):
+		var coordinate: Variant = position[index]
+		if typeof(coordinate) != TYPE_INT and typeof(coordinate) != TYPE_FLOAT:
+			return false
+		if not is_finite(float(coordinate)):
+			return false
+	return true
 
 
 func _load() -> void:

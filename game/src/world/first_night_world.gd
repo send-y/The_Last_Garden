@@ -60,18 +60,16 @@ func interact_with_selection() -> void:
 		Session.notify_player("Сначала выберите объект левой кнопкой мыши.")
 		return
 
-	var distance: float = _player.global_position.distance_to(_selected.global_position)
-	if distance > Catalog.INTERACTION_RANGE:
-		Session.notify_player("Слишком далеко: подойдите ближе к выбранному объекту.")
-		selection_changed.emit(_selected.get_display_label(), false)
-		return
-
-	Session.execute_interaction(_selected.object_id, _selected.kind)
+	Session.execute_interaction(_selected.object_id)
 	_refresh_interactables()
 	if not _selected.visible:
 		_set_selected(null)
 	else:
-		selection_changed.emit(_selected.get_display_label(), true)
+		var in_range: bool = (
+			_player.global_position.distance_to(_selected.global_position)
+			<= Catalog.INTERACTION_RANGE
+		)
+		selection_changed.emit(_selected.get_display_label(), in_range)
 
 
 func _set_selected(value: InteractableView) -> void:

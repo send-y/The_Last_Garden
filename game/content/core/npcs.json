@@ -7,7 +7,7 @@
       "unknown_label": "Путник у Общего дома",
       "role": "first_neighbor",
       "spawn": "after_first_night",
-      "position_cell": [24, 29],
+      "position_cell": [26, 29],
       "appearance_seed_offset": 9101,
       "facing": "up",
       "greeting": "Я увидела дым от костра. Не думала, что здесь ещё кто-то сможет переночевать.",
