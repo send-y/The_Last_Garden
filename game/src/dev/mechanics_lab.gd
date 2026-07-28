@@ -231,8 +231,7 @@ func _make_button(
 
 func _on_construction_cursor_cell_selected(cell: Vector2i) -> void:
 	var command: Dictionary = ConstructionCommand.place_wall_blueprint(cell)
-	var validation: Dictionary = (
-		ConstructionValidator.validate_place_blueprint(command)
-	)
-	print("BUILD VALIDATION: ", JSON.stringify(validation))
+	var result: Dictionary = Session.execute_construction_command(command)
+
+	print("BUILD RESULT: ", JSON.stringify(result))
 	print("BLUEPRINTS IN STATE: ", Session.get_blueprints().size())

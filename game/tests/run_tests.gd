@@ -63,6 +63,7 @@ func _run() -> void:
 	_test_mira_autonomy_is_deterministic_and_serialized()
 	_test_construction_command_payload()
 	_test_construction_command_validation()
+	_test_blueprint_command_execution()
 	_test_lab_rejects_unknown_scenario()
 	_test_lab_fresh_start()
 	_test_lab_prepared_evening()
@@ -599,12 +600,32 @@ func _test_v5_blueprints_are_migrated() -> void:
 	_expect(migrated_simulation.get_blueprints().is_empty(), "v5 save gains empty blueprints")
 
 	var state_with_blueprint: Dictionary = Simulation.create_new_state()
-	state_with_blueprint["blueprints"] = [{
-		"building_id": "core:wood_wall",
-		"cell": [22, 29],
-	}]
+	state_with_blueprint["blueprints"] = [
+		{
+			"building_id": "core:wood_wall",
+			"cell": [22, 29],
+		},
+		{
+			"building_id": "core:wood_wall",
+			"cell": [22, 29],
+			"stage_id": "corrupt:stage",
+		},
+		{
+			"building_id": "core:wood_wall",
+			"cell": [19, 22],
+		},
+		{
+			"building_id": "core:wood_wall",
+			"cell": [22.5, 30],
+		},
+	]
 	var simulation: FirstNightSimulation = Simulation.new(state_with_blueprint)
 	var snapshot: Array = simulation.get_blueprints()
+	_expect(snapshot.size() == 1, "blueprint normalization rejects duplicates and invalid cells")
+	_expect(
+		String((snapshot[0] as Dictionary).get("stage_id", "")) == "core:blueprint",
+		"blueprint normalization restores the canonical stage"
+	)
 	(snapshot[0] as Dictionary)["cell"] = [99, 99]
 	_expect(
 		(simulation.get_blueprints()[0] as Dictionary).get("cell", []) == [22, 29],
@@ -818,6 +839,78 @@ func _test_construction_command_validation() -> void:
 	_expect(
 		String(forged_result.get("reason_id", "")) == "core:unknown_actor",
 		"forged construction actor has a stable reason id"
+	)
+
+
+func _test_blueprint_command_execution() -> void:
+	var simulation: FirstNightSimulation = Simulation.new()
+	var first_command: Dictionary = (
+		ConstructionCommandScript.place_wall_blueprint(Vector2i(22, 29))
+	)
+	var first_result: Dictionary = simulation.execute_construction_command(first_command)
+	_expect(bool(first_result.get("success", false)), "valid construction command places a blueprint")
+	_expect(bool(first_result.get("changed", false)), "blueprint placement reports a state change")
+
+	var blueprints: Array = simulation.get_blueprints()
+	_expect(blueprints.size() == 1, "blueprint placement adds one state entry")
+	if blueprints.size() == 1:
+		var first_blueprint: Dictionary = blueprints[0] as Dictionary
+		_expect(
+			String(first_blueprint.get("building_id", "")) == "core:wood_wall",
+			"placed blueprint preserves the building id"
+		)
+		_expect(first_blueprint.get("cell", []) == [22, 29], "placed blueprint preserves the cell")
+		_expect(
+			String(first_blueprint.get("stage_id", "")) == "core:blueprint",
+			"placed blueprint uses the blueprint stage"
+		)
+
+	var duplicate_result: Dictionary = simulation.execute_construction_command(first_command)
+	_expect(
+		not bool(duplicate_result.get("success", true)),
+		"duplicate blueprint placement is rejected"
+	)
+	_expect(
+		String(duplicate_result.get("reason_id", "")) == "core:occupied_cell",
+		"duplicate blueprint placement has a stable reason id"
+	)
+	_expect(simulation.get_blueprints().size() == 1, "duplicate placement does not mutate state")
+
+	var blocked_command: Dictionary = (
+		ConstructionCommandScript.place_wall_blueprint(Vector2i(19, 22))
+	)
+	var blocked_result: Dictionary = simulation.execute_construction_command(blocked_command)
+	_expect(
+		String(blocked_result.get("reason_id", "")) == "core:blocked_cell",
+		"blocked blueprint execution preserves validation failure"
+	)
+	_expect(simulation.get_blueprints().size() == 1, "blocked placement does not mutate state")
+
+	var forged_command: Dictionary = first_command.duplicate(true)
+	forged_command["actor_id"] = "core:forged_actor"
+	var forged_result: Dictionary = simulation.execute_construction_command(forged_command)
+	_expect(
+		String(forged_result.get("reason_id", "")) == "core:unknown_actor",
+		"blueprint execution rejects a forged actor"
+	)
+	_expect(simulation.get_blueprints().size() == 1, "forged placement does not mutate state")
+
+	var second_command: Dictionary = (
+		ConstructionCommandScript.place_wall_blueprint(Vector2i(23, 29))
+	)
+	var second_result: Dictionary = simulation.execute_construction_command(second_command)
+	_expect(bool(second_result.get("success", false)), "a second free cell accepts a blueprint")
+	_expect(simulation.get_blueprints().size() == 2, "two free cells store two blueprints")
+
+	var expected_blueprints: Array = simulation.get_blueprints()
+	var decoded: Variant = JSON.parse_string(JSON.stringify(simulation.export_state()))
+	_expect(typeof(decoded) == TYPE_DICTIONARY, "blueprint state survives JSON encoding")
+	if typeof(decoded) != TYPE_DICTIONARY:
+		return
+	var restored: FirstNightSimulation = Simulation.new(decoded as Dictionary)
+	_expect(
+		restored.get_blueprints() == expected_blueprints,
+		"placed blueprints survive save round trip"
 	)
 
 
