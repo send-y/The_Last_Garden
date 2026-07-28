@@ -1,12 +1,16 @@
-[gd_scene load_steps=3 format=3]
+[gd_scene format=3 uid="uid://cukkejn03egth"]
 
-[ext_resource type="Script" path="res://src/dev/mechanics_lab.gd" id="1_lab"]
+[ext_resource type="Script" uid="uid://sgjwpwq5vbca" path="res://src/dev/mechanics_lab.gd" id="1_lab"]
 [ext_resource type="PackedScene" path="res://src/main/main.tscn" id="2_game"]
+[ext_resource type="Script" uid="uid://dv5nnmx54ujlp" path="res://src/construction/construction_cursor.gd" id="3_hcqur"]
 
-[node name="MechanicsLab" type="Node"]
+[node name="MechanicsLab" type="Node" unique_id=459650924]
 script = ExtResource("1_lab")
 
-[node name="Game" parent="." instance=ExtResource("2_game")]
+[node name="Game" parent="." unique_id=1329062172 instance=ExtResource("2_game")]
 
-[node name="DevUi" type="CanvasLayer" parent="."]
+[node name="DevUi" type="CanvasLayer" parent="." unique_id=1383665692]
 layer = 50
+
+[node name="ConstructionCursor" type="Node2D" parent="." unique_id=275974230]
+script = ExtResource("3_hcqur")

@@ -1,0 +1,37 @@
+class_name ConstructionCursor
+extends Node2D
+
+const CELL_SIZE: int = 32
+
+var _cell: Vector2i = Vector2i(-1, -1)
+
+
+func _ready() -> void:
+	z_index = 20
+
+
+func _process(_delta: float) -> void:
+	var mouse_position: Vector2 = get_global_mouse_position()
+	var next_cell := Vector2i(
+		floori(mouse_position.x / CELL_SIZE),
+		floori(mouse_position.y / CELL_SIZE)
+	)
+
+	if next_cell == _cell:
+		return
+
+	_cell = next_cell
+	position = Vector2(
+		_cell.x * CELL_SIZE,
+		_cell.y * CELL_SIZE
+	)
+	queue_redraw()
+
+
+func _draw() -> void:
+	var rect := Rect2(
+		Vector2.ZERO,
+		Vector2(CELL_SIZE, CELL_SIZE)
+	)
+	draw_rect(rect, Color(0.95, 0.78, 0.25, 0.22), true)
+	draw_rect(rect, Color(0.95, 0.78, 0.25, 0.95), false, 2.0)
