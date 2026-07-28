@@ -25,6 +25,7 @@
 - [Технический план 2A: первый NPC](implementation/first-npc-technical-plan.md)
 - [Технический план Mechanics Lab](implementation/mechanics-lab-technical-plan.md)
 - [Технический план L2: фундамент локализации](implementation/localization-foundation-technical-plan.md)
+- [Технический план 2B: потребности, движение и распорядок](implementation/npc-needs-schedule-technical-plan.md)
 
 ### Системы
 
@@ -39,6 +40,7 @@
 - [Финал и судьба игрока](systems/endgame-and-player-fate.md)
 - [Сеттинг и технологии](systems/setting-and-technology.md)
 - [Ресурсы, фермерство и рыбалка](systems/resources-farming-and-fishing.md)
+- [Строительство и области](systems/construction-and-areas.md)
 - [Потребности, питание и настроение](systems/needs-food-and-mood.md)
 - [Работа NPC и обязательства](systems/npc-work-and-commitments.md)
 - [Общий вклад и справедливость](systems/settlement-economy-and-fairness.md)
