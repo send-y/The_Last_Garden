@@ -2,6 +2,7 @@ class_name FirstNightHud
 extends Control
 
 const Content := preload("res://src/content/first_night_content.gd")
+const Localized := preload("res://src/localization/localized_text.gd")
 
 var _time_label: Label
 var _inventory_label: Label
@@ -22,21 +23,37 @@ func _ready() -> void:
 	refresh()
 
 
-func set_selection(label: String, in_range: bool) -> void:
-	if label.is_empty() or label.begins_with("Клетка -1"):
-		_selection_label.text = "Выбор: —"
+func set_selection(selection: Dictionary) -> void:
+	var kind: String = String(selection.get("kind", "none"))
+	if kind == "cell":
+		_selection_label.text = Localized.resolve("ui.hud.selection.cell", {
+			"x": int(selection.get("x", -1)),
+			"y": int(selection.get("y", -1)),
+		})
 		return
-	if label.begins_with("Клетка"):
-		_selection_label.text = "Выбор: %s" % label
+	if kind == "interactable":
+		var selection_key: String = (
+			"ui.hud.selection.in_range"
+			if bool(selection.get("in_range", false))
+			else "ui.hud.selection.out_of_range"
+		)
+		_selection_label.text = Localized.resolve(selection_key, {
+			"label": String(selection.get("label", "")),
+		})
 		return
-	var suffix: String = "  [E / ПКМ]" if in_range else "  [подойдите ближе]"
-	_selection_label.text = "Выбор: %s%s" % [label, suffix]
+	_selection_label.text = Localized.resolve("ui.hud.selection.none")
 
 
 func refresh() -> void:
-	_time_label.text = "День %d  %s%s" % [Session.get_day(), Session.get_time_text(), "  ПАУЗА" if Session.is_paused() else ""]
+	var time_key: String = "ui.hud.day_time_paused" if Session.is_paused() else "ui.hud.day_time"
+	_time_label.text = Localized.resolve(time_key, {
+		"day": Session.get_day(),
+		"time": Session.get_time_text(),
+	})
 	_inventory_label.text = _format_inventory()
-	_objective_label.text = "Цель: %s" % Session.get_current_objective()
+	_objective_label.text = Localized.resolve("ui.hud.objective", {
+		"objective": Session.get_current_objective(),
+	})
 
 
 func _build_ui() -> void:
@@ -67,14 +84,14 @@ func _build_ui() -> void:
 	bottom_panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(bottom_panel)
 	_selection_label = _make_label(bottom_panel, Vector2(8.0, 3.0), Vector2(608.0, 17.0), 11)
-	_selection_label.text = "Выбор: —"
+	_selection_label.text = Localized.resolve("ui.hud.selection.none")
 	_message_label = _make_label(bottom_panel, Vector2(8.0, 20.0), Vector2(608.0, 26.0), 11)
 	_message_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	_message_label.text = "Осмотрите Общий дом. ЛКМ выбирает объект, ПКМ взаимодействует."
+	_message_label.text = Localized.resolve("ui.hud.intro")
 
 	_controls_label = _make_label(self, Vector2(376.0, 68.0), Vector2(256.0, 42.0), 10)
 	_controls_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
-	_controls_label.text = "WASD/стрелки — движение   Space — пауза\nF5 — сохранить   F9 — загрузить"
+	_controls_label.text = Localized.resolve("ui.hud.controls")
 
 
 func _make_label(parent: Node, at: Vector2, label_size: Vector2, font_size: int) -> Label:
@@ -90,16 +107,20 @@ func _make_label(parent: Node, at: Vector2, label_size: Vector2, font_size: int)
 
 func _format_inventory() -> String:
 	var inventory: Dictionary = Session.get_inventory()
-	return "Вес %.1f/%.0f кг\nДерево %d  Камень %d  Вода %d/%d  Еда %d%s" % [
-		Session.get_inventory_weight(),
-		Session.get_max_carry_weight(),
-		int(inventory.get(FirstNightContent.WOOD_ID, 0)),
-		int(inventory.get(FirstNightContent.STONE_ID, 0)),
-		int(inventory.get(FirstNightContent.RAW_WATER_ID, 0)),
-		int(inventory.get(FirstNightContent.BOILED_WATER_ID, 0)),
-		int(inventory.get(FirstNightContent.FOOD_ID, 0)),
-		"  Инструменты ✓" if bool(Session.get_flags().get("tools_found", false)) else "",
-	]
+	var inventory_key: String = (
+		"ui.hud.inventory_with_tools"
+		if bool(Session.get_flags().get("tools_found", false))
+		else "ui.hud.inventory"
+	)
+	return Localized.resolve(inventory_key, {
+		"weight": String.num(Session.get_inventory_weight(), 1),
+		"max_weight": String.num(Session.get_max_carry_weight(), 0),
+		"wood": int(inventory.get(FirstNightContent.WOOD_ID, 0)),
+		"stone": int(inventory.get(FirstNightContent.STONE_ID, 0)),
+		"raw_water": int(inventory.get(FirstNightContent.RAW_WATER_ID, 0)),
+		"boiled_water": int(inventory.get(FirstNightContent.BOILED_WATER_ID, 0)),
+		"food": int(inventory.get(FirstNightContent.FOOD_ID, 0)),
+	})
 
 
 func _on_pause_changed(_paused: bool) -> void:

@@ -1,5 +1,5 @@
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "frame": {
     "size": [32, 32],
     "directions": ["down", "left", "right", "up"],
@@ -43,7 +43,7 @@
     {
       "id": "core:cloak_none",
       "slot": "cloak",
-      "label": "Без плаща",
+      "label_key": "character_part.core.cloak_none.name",
       "layer": 10,
       "empty": true,
       "weight": 3
@@ -51,7 +51,7 @@
     {
       "id": "core:cloak_charcoal",
       "slot": "cloak",
-      "label": "Тёмный дорожный плащ",
+      "label_key": "character_part.core.cloak_charcoal.name",
       "layer": 10,
       "color": "2f302f",
       "shadow": "202120",
@@ -60,7 +60,7 @@
     {
       "id": "core:cloak_moss",
       "slot": "cloak",
-      "label": "Плащ цвета мха",
+      "label_key": "character_part.core.cloak_moss.name",
       "layer": 10,
       "color": "3f4a32",
       "shadow": "2b3324",
@@ -69,7 +69,7 @@
     {
       "id": "core:pants_dark",
       "slot": "pants",
-      "label": "Тёмные штаны",
+      "label_key": "character_part.core.pants_dark.name",
       "layer": 20,
       "color": "34353a",
       "shadow": "24252a",
@@ -78,7 +78,7 @@
     {
       "id": "core:pants_ash",
       "slot": "pants",
-      "label": "Пепельные штаны",
+      "label_key": "character_part.core.pants_ash.name",
       "layer": 20,
       "color": "46464a",
       "shadow": "303034",
@@ -87,7 +87,7 @@
     {
       "id": "core:boots_brown",
       "slot": "boots",
-      "label": "Коричневые ботинки",
+      "label_key": "character_part.core.boots_brown.name",
       "layer": 30,
       "color": "8a4a1f",
       "shadow": "4a3326",
@@ -96,7 +96,7 @@
     {
       "id": "core:boots_dark",
       "slot": "boots",
-      "label": "Тёмные сапоги",
+      "label_key": "character_part.core.boots_dark.name",
       "layer": 30,
       "color": "4a3326",
       "shadow": "2b2521",
@@ -105,7 +105,7 @@
     {
       "id": "core:body_warm",
       "slot": "body",
-      "label": "Тёплый тон кожи",
+      "label_key": "character_part.core.body_warm.name",
       "layer": 40,
       "color": "c88a5a",
       "shadow": "8a5a3f",
@@ -115,7 +115,7 @@
     {
       "id": "core:body_light",
       "slot": "body",
-      "label": "Светлый тон кожи",
+      "label_key": "character_part.core.body_light.name",
       "layer": 40,
       "color": "d6aa78",
       "shadow": "9c6d4b",
@@ -125,7 +125,7 @@
     {
       "id": "core:shirt_green",
       "slot": "shirt",
-      "label": "Зелёная рабочая куртка",
+      "label_key": "character_part.core.shirt_green.name",
       "layer": 50,
       "color": "4f8a65",
       "shadow": "2f5a48",
@@ -135,7 +135,7 @@
     {
       "id": "core:shirt_moss",
       "slot": "shirt",
-      "label": "Куртка цвета мха",
+      "label_key": "character_part.core.shirt_moss.name",
       "layer": 50,
       "color": "5f7044",
       "shadow": "3f4a32",
@@ -145,7 +145,7 @@
     {
       "id": "core:shirt_linen",
       "slot": "shirt",
-      "label": "Светлая рубаха",
+      "label_key": "character_part.core.shirt_linen.name",
       "layer": 50,
       "color": "c7b58f",
       "shadow": "8a7355",
@@ -155,7 +155,7 @@
     {
       "id": "core:hair_short_dark",
       "slot": "hair",
-      "label": "Короткие тёмные волосы",
+      "label_key": "character_part.core.hair_short_dark.name",
       "layer": 60,
       "color": "1e1b18",
       "shadow": "11100f",
@@ -165,7 +165,7 @@
     {
       "id": "core:hair_short_brown",
       "slot": "hair",
-      "label": "Короткие каштановые волосы",
+      "label_key": "character_part.core.hair_short_brown.name",
       "layer": 60,
       "color": "5a3824",
       "shadow": "3a2418",
@@ -175,7 +175,7 @@
     {
       "id": "core:scarf_none",
       "slot": "scarf",
-      "label": "Без шарфа",
+      "label_key": "character_part.core.scarf_none.name",
       "layer": 70,
       "empty": true,
       "weight": 2
@@ -183,7 +183,7 @@
     {
       "id": "core:scarf_ochre",
       "slot": "scarf",
-      "label": "Охристый шарф",
+      "label_key": "character_part.core.scarf_ochre.name",
       "layer": 70,
       "color": "d0a21e",
       "shadow": "936f12",
@@ -193,7 +193,7 @@
     {
       "id": "core:scarf_green",
       "slot": "scarf",
-      "label": "Зелёный шарф",
+      "label_key": "character_part.core.scarf_green.name",
       "layer": 70,
       "color": "2f5a48",
       "shadow": "1d392f",
@@ -203,7 +203,7 @@
     {
       "id": "core:held_none",
       "slot": "held_item",
-      "label": "Пустые руки",
+      "label_key": "character_part.core.held_none.name",
       "layer": 80,
       "empty": true,
       "weight": 5
@@ -211,7 +211,7 @@
     {
       "id": "core:held_tool_bundle",
       "slot": "held_item",
-      "label": "Связка инструментов",
+      "label_key": "character_part.core.held_tool_bundle.name",
       "layer": 80,
       "color": "4a3326",
       "highlight": "b68b4c",

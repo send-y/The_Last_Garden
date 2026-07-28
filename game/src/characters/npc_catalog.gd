@@ -3,6 +3,7 @@ extends RefCounted
 
 const Appearance := preload("res://src/characters/character_appearance.gd")
 const FirstNightContentScript := preload("res://src/content/first_night_content.gd")
+const Localized := preload("res://src/localization/localized_text.gd")
 
 const NPCS_PATH: String = "res://content/core/npcs.json"
 
@@ -105,7 +106,12 @@ func get_interactables() -> Array[Dictionary]:
 		result.append({
 			"id": npc_id,
 			"kind": "npc",
-			"label": String(definition.get("unknown_label", definition.get("name", npc_id))),
+			"label_key": String(
+				definition.get(
+					"unknown_label_key",
+					definition.get("name_key", "npc.generic.traveler.name")
+				)
+			),
 			"position": FirstNightContentScript.cell_center(int(cell[0]), int(cell[1])),
 			"color": Color("eee7d5"),
 			"size": Vector2(24.0, 32.0),
@@ -133,14 +139,14 @@ func is_visible(npcs: Dictionary, npc_id: String) -> bool:
 	return bool(npc_state.get("active", false))
 
 
-func get_label(npcs: Dictionary, npc_id: String, fallback: String) -> String:
+func get_label_key(npcs: Dictionary, npc_id: String, fallback_key: String) -> String:
 	var definition: Dictionary = get_definition(npc_id)
 	if definition.is_empty() or not npcs.has(npc_id):
-		return fallback
+		return fallback_key
 	var npc_state: Dictionary = npcs[npc_id] as Dictionary
 	if bool(npc_state.get("known", false)):
-		return String(definition.get("name", fallback))
-	return String(definition.get("unknown_label", fallback))
+		return String(definition.get("name_key", fallback_key))
+	return String(definition.get("unknown_label_key", fallback_key))
 
 
 func get_position(npcs: Dictionary, npc_id: String, fallback: Vector2) -> Vector2:
@@ -164,7 +170,8 @@ func talk(npcs: Dictionary, npc_id: String) -> Dictionary:
 	if not npcs.has(npc_id):
 		return {
 			"success": false,
-			"message": "Здесь никого нет.",
+			"message_key": "interaction.failure.no_npc",
+			"message_args": {},
 			"changed": false,
 		}
 
@@ -172,21 +179,28 @@ func talk(npcs: Dictionary, npc_id: String) -> Dictionary:
 	if not bool(npc_state.get("active", false)):
 		return {
 			"success": false,
-			"message": "Здесь никого нет.",
+			"message_key": "interaction.failure.no_npc",
+			"message_args": {},
 			"changed": false,
 		}
 
 	var definition: Dictionary = get_definition(npc_id)
 	var talk_count: int = int(npc_state.get("talk_count", 0))
-	var message: String = String(definition.get("greeting", "..."))
+	var line_key: String = String(definition.get("greeting_key", ""))
 	if talk_count > 0:
-		message = String(definition.get("repeat_line", message))
+		line_key = String(definition.get("repeat_line_key", line_key))
 
 	npc_state["known"] = true
 	npc_state["talk_count"] = talk_count + 1
 	return {
 		"success": true,
-		"message": "%s: %s" % [definition.get("name", "Путник"), message],
+		"message_key": "ui.dialogue.speaker_line",
+		"message_args": {
+			"speaker": Localized.text_reference(
+				String(definition.get("name_key", "npc.generic.traveler.name"))
+			),
+			"line": Localized.text_reference(line_key),
+		},
 		"changed": true,
 	}
 
@@ -246,8 +260,14 @@ func _validate_content() -> void:
 		if not npc_id.contains(":"):
 			push_error("NPC id should be namespaced: %s." % npc_id)
 		var definition: Dictionary = _definitions_by_id[npc_id] as Dictionary
-		if String(definition.get("name", "")).is_empty():
-			push_error("NPC %s has no name." % npc_id)
+		if String(definition.get("name_key", "")).is_empty():
+			push_error("NPC %s has no name_key." % npc_id)
+		if String(definition.get("unknown_label_key", "")).is_empty():
+			push_error("NPC %s has no unknown_label_key." % npc_id)
+		if String(definition.get("greeting_key", "")).is_empty():
+			push_error("NPC %s has no greeting_key." % npc_id)
+		if String(definition.get("repeat_line_key", "")).is_empty():
+			push_error("NPC %s has no repeat_line_key." % npc_id)
 		var cell: Array = definition.get("position_cell", []) as Array
 		if cell.size() < 2:
 			push_error("NPC %s has invalid position_cell." % npc_id)

@@ -5,7 +5,7 @@ const CharacterVisualScene := preload("res://src/characters/character_visual.gd"
 
 var object_id: String
 var kind: String
-var base_label: String
+var base_label_key: String
 var selection_radius: float = 22.0
 var _base_color: Color = Color.WHITE
 var _draw_size: Vector2 = Vector2(24.0, 20.0)
@@ -16,7 +16,7 @@ var _character_visual
 func configure(definition: Dictionary) -> void:
 	object_id = String(definition["id"])
 	kind = String(definition["kind"])
-	base_label = String(definition["label"])
+	base_label_key = String(definition["label_key"])
 	position = definition["position"] as Vector2
 	_base_color = definition["color"] as Color
 	_draw_size = definition.get("size", Vector2(24.0, 20.0)) as Vector2
@@ -52,7 +52,7 @@ func refresh_from_state() -> void:
 
 
 func get_display_label() -> String:
-	return Session.get_object_label(kind, base_label, object_id)
+	return Session.get_object_label(kind, base_label_key, object_id)
 
 
 func set_selected(value: bool) -> void:

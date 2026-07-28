@@ -1,29 +1,29 @@
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "items": [
     {
       "id": "core:wood",
-      "label": "Древесина",
+      "label_key": "item.core.wood.name",
       "weight": 1.0
     },
     {
       "id": "core:stone",
-      "label": "Камень",
+      "label_key": "item.core.stone.name",
       "weight": 1.5
     },
     {
       "id": "core:raw_water",
-      "label": "Небезопасная вода",
+      "label_key": "item.core.raw_water.name",
       "weight": 1.0
     },
     {
       "id": "core:boiled_water",
-      "label": "Кипячёная вода",
+      "label_key": "item.core.boiled_water.name",
       "weight": 1.0
     },
     {
       "id": "core:food",
-      "label": "Еда",
+      "label_key": "item.core.food.name",
       "weight": 0.5
     }
   ]

@@ -6,8 +6,24 @@ const AppearanceCatalog := preload("res://src/characters/character_appearance.gd
 const SaveStore := preload("res://src/save/first_night_save_store.gd")
 const SessionNodeScript := preload("res://src/autoload/session.gd")
 const LabScenarios := preload("res://src/dev/mechanics_lab_scenarios.gd")
+const Localized := preload("res://src/localization/localized_text.gd")
 const TEST_SAVE_PATH: String = "user://first_night_save_store_test.json"
 const TEST_LAB_SAVE_PATH: String = "user://mechanics_lab_session_test.json"
+const LOCALIZATION_PATH: String = "res://localization/core.csv"
+const LOCALIZATION_SOURCE_PATHS: Array[String] = [
+	"res://content/core/character_parts.json",
+	"res://content/core/first_night_objects.json",
+	"res://content/core/first_night_progression.json",
+	"res://content/core/items.json",
+	"res://content/core/npcs.json",
+	"res://src/autoload/session.gd",
+	"res://src/characters/npc_catalog.gd",
+	"res://src/content/first_night_content.gd",
+	"res://src/save/first_night_save_store.gd",
+	"res://src/simulation/first_night_simulation.gd",
+	"res://src/ui/first_night_hud.gd",
+	"res://src/world/first_night_world.gd",
+]
 
 var _failures: int = 0
 
@@ -17,6 +33,8 @@ func _initialize() -> void:
 
 
 func _run() -> void:
+	TranslationServer.set_locale("ru")
+	_test_localization_catalog_and_resolver()
 	_test_complete_first_night()
 	_test_serialization_round_trip()
 	_test_duplicate_collection_is_rejected()
@@ -29,6 +47,7 @@ func _run() -> void:
 	_test_save_store_rotates_and_recovers_backup()
 	_test_session_uses_backup_for_invalid_header_only()
 	_test_legacy_save_ids_are_migrated()
+	_test_v3_outcomes_are_migrated()
 	_test_character_appearance_generation()
 	_test_first_neighbor_arrives_and_talks()
 	_test_lab_rejects_unknown_scenario()
@@ -45,6 +64,70 @@ func _run() -> void:
 	else:
 		push_error("FAIL: %d first-night simulation assertion(s)" % _failures)
 		quit(1)
+
+
+func _test_localization_catalog_and_resolver() -> void:
+	var catalog: Dictionary = {}
+	var duplicate_keys: Array[String] = []
+	var file: FileAccess = FileAccess.open(LOCALIZATION_PATH, FileAccess.READ)
+	_expect(file != null, "Russian localization CSV is readable")
+	if file == null:
+		return
+
+	var header: PackedStringArray = file.get_csv_line()
+	_expect(header.size() >= 2 and header[0] == "keys" and header[1] == "ru", "localization CSV has keys and ru columns")
+	while file.get_position() < file.get_length():
+		var row: PackedStringArray = file.get_csv_line()
+		if row.is_empty() or String(row[0]).is_empty():
+			continue
+		var key: String = String(row[0])
+		if catalog.has(key):
+			duplicate_keys.append(key)
+			continue
+		catalog[key] = String(row[1]) if row.size() > 1 else ""
+	file.close()
+	_expect(duplicate_keys.is_empty(), "localization keys are unique")
+
+	var key_pattern := RegEx.new()
+	var compile_error: Error = key_pattern.compile(
+		"\"((?:item|object|character_part|npc|dialogue|ui|first_night|interaction|system|save)\\.[a-z0-9_.]+)\""
+	)
+	_expect(compile_error == OK, "localization key audit pattern compiles")
+	var missing_keys: Array[String] = []
+	if compile_error == OK:
+		for source_path: String in LOCALIZATION_SOURCE_PATHS:
+			var source_file: FileAccess = FileAccess.open(source_path, FileAccess.READ)
+			_expect(source_file != null, "localization source is readable: %s" % source_path)
+			if source_file == null:
+				continue
+			var source_text: String = source_file.get_as_text()
+			source_file.close()
+			for match_result: RegExMatch in key_pattern.search_all(source_text):
+				var referenced_key: String = match_result.get_string(1)
+				if not catalog.has(referenced_key) and not missing_keys.has(referenced_key):
+					missing_keys.append(referenced_key)
+	_expect(missing_keys.is_empty(), "all runtime localization keys exist: %s" % [missing_keys])
+
+	var greeting: String = Localized.resolve("ui.dialogue.speaker_line", {
+		"speaker": Localized.text_reference("npc.core.first_neighbor.name"),
+		"line": Localized.text_reference("dialogue.core.first_neighbor.greeting"),
+	})
+	_expect(greeting.begins_with("Мира:"), "nested localized speaker and line resolve in Russian")
+	_expect(
+		Localized.resolve("ui.hud.day_time", {"day": 2, "time": "07:00"}) == "День 2  07:00",
+		"named localization arguments resolve in Russian"
+	)
+	_expect(Localized.resolve("ui.hud.controls").contains("\n"), "escaped CSV newline is imported")
+	TranslationServer.set_locale("en")
+	_expect(
+		Localized.resolve("system.save.success") == "Состояние сохранено.",
+		"unsupported locale falls back to Russian"
+	)
+	TranslationServer.set_locale("ru")
+	_expect(
+		Localized.resolve("missing.localization.key") == "missing.localization.key",
+		"missing localization key remains visibly detectable"
+	)
 
 
 func _test_complete_first_night() -> void:
@@ -75,6 +158,13 @@ func _test_complete_first_night() -> void:
 	simulation.advance_minutes(simulation.EVENING_MINUTE - simulation.get_minute_of_day())
 	var sleep_result: Dictionary = _interact_near(simulation, "bed_site")
 	_expect(bool(sleep_result["success"]), "sleep command succeeds after 18:00")
+	_expect(not sleep_result.has("message"), "sleep result contains no localized copy")
+	var localized_morning: String = Localized.resolve(
+		String(sleep_result.get("message_key", "")),
+		sleep_result.get("message_args", {}) as Dictionary
+	)
+	_expect(localized_morning.contains("сухая комната"), "morning summary localizes outcome ids")
+	_expect(not localized_morning.contains("core:"), "morning summary exposes no technical ids")
 	_expect(simulation.get_day() == 2, "sleep advances to day 2")
 	_expect(simulation.get_time_text() == "07:00", "sleep advances to 07:00")
 	_expect(bool(simulation.get_flags()["first_night_complete"]), "first night is marked complete")
@@ -200,6 +290,10 @@ func _test_corrupt_nested_state_uses_defaults() -> void:
 		"invalid player position falls back to default"
 	)
 	_expect(not restored.is_npc_visible("core:first_neighbor"), "invalid NPC falls back to default")
+	_expect(
+		(restored.export_state().get("outcomes", []) as Array).is_empty(),
+		"invalid outcomes fall back to empty"
+	)
 
 	var invalid_numbers: Dictionary = Simulation.create_new_state()
 	invalid_numbers["inventory"] = {
@@ -220,7 +314,7 @@ func _test_corrupt_nested_state_uses_defaults() -> void:
 
 
 func _test_save_header_validation() -> void:
-	for version: int in [1, 2, 3]:
+	for version: int in range(1, Simulation.SAVE_VERSION + 1):
 		var compatible: Dictionary = Simulation.create_new_state()
 		compatible["version"] = version
 		var result: Dictionary = Simulation.validate_save_header(compatible)
@@ -359,6 +453,46 @@ func _test_legacy_save_ids_are_migrated() -> void:
 	_expect(simulation.is_collected("core:wood_north"), "legacy collected object id migrates to core namespaced id")
 
 
+func _test_v3_outcomes_are_migrated() -> void:
+	var legacy_state: Dictionary = Simulation.create_new_state()
+	legacy_state["version"] = 3
+	legacy_state["outcomes"] = [
+		"сухая комната",
+		"холодный сквозняк",
+		"остаточное тепло",
+		"безопасная вода",
+		"лёгкий ужин",
+		"голодный сон",
+		"mod:custom_outcome",
+		"неизвестный старый результат",
+		42,
+	]
+
+	var simulation: FirstNightSimulation = Simulation.new(legacy_state)
+	var expected: Array[String] = [
+		Simulation.OUTCOME_DRY_ROOM_ID,
+		Simulation.OUTCOME_COLD_DRAFT_ID,
+		Simulation.OUTCOME_RESIDUAL_WARMTH_ID,
+		Simulation.OUTCOME_SAFE_WATER_ID,
+		Simulation.OUTCOME_LIGHT_SUPPER_ID,
+		Simulation.OUTCOME_HUNGRY_SLEEP_ID,
+		"mod:custom_outcome",
+	]
+	var migrated_state: Dictionary = simulation.export_state()
+	_expect(int(migrated_state.get("version", 0)) == 4, "v3 save migrates to save version 4")
+	_expect(migrated_state.get("outcomes", []) == expected, "v3 outcome copy migrates to stable ids")
+
+	var encoded: String = JSON.stringify(migrated_state)
+	var decoded: Variant = JSON.parse_string(encoded)
+	_expect(typeof(decoded) == TYPE_DICTIONARY, "migrated outcomes survive JSON encoding")
+	if typeof(decoded) == TYPE_DICTIONARY:
+		var restored: FirstNightSimulation = Simulation.new(decoded as Dictionary)
+		_expect(
+			restored.export_state().get("outcomes", []) == expected,
+			"stable outcome ids survive a save round trip"
+		)
+
+
 func _test_character_appearance_generation() -> void:
 	var catalog := AppearanceCatalog.new()
 	_expect(catalog.get_frame_size() == Vector2i(32, 32), "character appearance uses 32x32 frames")
@@ -383,14 +517,43 @@ func _test_first_neighbor_arrives_and_talks() -> void:
 	_complete_first_night_for_test(simulation)
 
 	_expect(simulation.is_npc_visible("core:first_neighbor"), "first neighbor is visible after sleeping")
-	_expect(simulation.get_object_label("npc", "?", "core:first_neighbor") == "Путник у Общего дома", "first neighbor starts unknown")
-	_expect(simulation.get_current_objective() == "Утром у Общего дома появился путник. Поговорите с ним.", "objective points to the first neighbor")
+	_expect(
+		simulation.get_object_label_key(
+			"npc",
+			"npc.generic.traveler.name",
+			"core:first_neighbor"
+		) == "npc.core.first_neighbor.unknown",
+		"first neighbor starts with an unknown label key"
+	)
+	_expect(
+		simulation.get_current_objective_key() == "first_night.objective.meet_neighbor",
+		"objective points to the first neighbor"
+	)
 
 	var talk_result: Dictionary = _interact_near(simulation, "core:first_neighbor")
 	_expect(bool(talk_result["success"]), "talking to first neighbor succeeds")
-	_expect(String(talk_result["message"]).begins_with("Мира:"), "first neighbor introduces herself by name")
-	_expect(simulation.get_object_label("npc", "?", "core:first_neighbor") == "Мира", "first neighbor label becomes known after talking")
-	_expect(simulation.get_current_objective() == "Первое утро наступило. Срез пройден.", "objective returns to completed slice after greeting")
+	_expect(
+		String(talk_result.get("message_key", "")) == "ui.dialogue.speaker_line",
+		"NPC result exposes a localization key"
+	)
+	_expect(not talk_result.has("message"), "simulation does not return localized NPC copy")
+	var localized_talk: String = Localized.resolve(
+		String(talk_result.get("message_key", "")),
+		talk_result.get("message_args", {}) as Dictionary
+	)
+	_expect(localized_talk.begins_with("Мира:"), "first neighbor introduces herself by name")
+	_expect(
+		simulation.get_object_label_key(
+			"npc",
+			"npc.generic.traveler.name",
+			"core:first_neighbor"
+		) == "npc.core.first_neighbor.name",
+		"first neighbor label becomes known after talking"
+	)
+	_expect(
+		simulation.get_current_objective_key() == "first_night.objective.complete",
+		"objective returns to completed slice after greeting"
+	)
 
 	var encoded: String = JSON.stringify(simulation.export_state())
 	var decoded: Variant = JSON.parse_string(encoded)
@@ -399,7 +562,14 @@ func _test_first_neighbor_arrives_and_talks() -> void:
 		return
 	var restored: FirstNightSimulation = Simulation.new(decoded as Dictionary)
 	_expect(restored.is_npc_visible("core:first_neighbor"), "first neighbor visibility survives serialization")
-	_expect(restored.get_object_label("npc", "?", "core:first_neighbor") == "Мира", "known NPC label survives serialization")
+	_expect(
+		restored.get_object_label_key(
+			"npc",
+			"npc.generic.traveler.name",
+			"core:first_neighbor"
+		) == "npc.core.first_neighbor.name",
+		"known NPC label key survives serialization"
+	)
 	_expect(not restored.get_npc_appearance("core:first_neighbor").is_empty(), "NPC appearance survives serialization")
 
 
@@ -453,6 +623,10 @@ func _test_lab_prepared_evening() -> void:
 		"prepared evening places the player by the bed"
 	)
 	_expect(_all_lab_steps_succeeded(result), "prepared evening completes every canonical step")
+	_expect(
+		_lab_interaction_steps_have_message_keys(result),
+		"prepared evening keeps localization descriptors for diagnostics"
+	)
 
 
 func _test_lab_morning_with_mira() -> void:
@@ -471,7 +645,7 @@ func _test_lab_morning_with_mira() -> void:
 	_expect(not bool(mira.get("known", true)), "Mira is still unknown in the morning scenario")
 	_expect(int(mira.get("talk_count", -1)) == 0, "Mira has not been greeted in the morning scenario")
 	_expect(
-		simulation.get_current_objective() == "Утром у Общего дома появился путник. Поговорите с ним.",
+		simulation.get_current_objective_key() == "first_night.objective.meet_neighbor",
 		"morning lab objective points to the traveler"
 	)
 	_expect(
@@ -483,15 +657,19 @@ func _test_lab_morning_with_mira() -> void:
 	)
 	_expect(
 		simulation.export_state().get("outcomes", []) == [
-			"сухая комната",
-			"остаточное тепло",
-			"безопасная вода",
-			"лёгкий ужин",
+			Simulation.OUTCOME_DRY_ROOM_ID,
+			Simulation.OUTCOME_RESIDUAL_WARMTH_ID,
+			Simulation.OUTCOME_SAFE_WATER_ID,
+			Simulation.OUTCOME_LIGHT_SUPPER_ID,
 		],
 		"morning lab scenario preserves the real sleep outcomes"
 	)
 	_expect(simulation.get_item_count(FirstNightContent.FOOD_ID) == 1, "morning lab scenario consumed one food")
 	_expect(_all_lab_steps_succeeded(result), "morning lab completes every canonical step")
+	_expect(
+		_lab_interaction_steps_have_message_keys(result),
+		"morning lab keeps localization descriptors for diagnostics"
+	)
 
 
 func _test_lab_scenarios_are_deterministic() -> void:
@@ -590,6 +768,19 @@ func _all_lab_steps_succeeded(build_result: Dictionary) -> bool:
 	for step_variant: Variant in steps:
 		var step: Dictionary = step_variant as Dictionary
 		if not bool(step.get("success", false)):
+			return false
+	return true
+
+
+func _lab_interaction_steps_have_message_keys(build_result: Dictionary) -> bool:
+	var steps: Array = build_result.get("steps", []) as Array
+	for step_variant: Variant in steps:
+		var step: Dictionary = step_variant as Dictionary
+		if String(step.get("kind", "")) != "interaction":
+			continue
+		if String(step.get("message_key", "")).is_empty():
+			return false
+		if typeof(step.get("message_args", {})) != TYPE_DICTIONARY:
 			return false
 	return true
 

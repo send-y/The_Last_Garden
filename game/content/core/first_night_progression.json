@@ -1,35 +1,35 @@
 {
-  "schema_version": 1,
-  "messages": {
-    "house_first": "Внутри Общего дома видны старые инструменты и комната с повреждённой крышей.",
-    "house_repeat": "Общий дом сильно повреждён, но одну комнату ещё можно спасти.",
-    "tools_first": "Найдены изношенные топорик, молоток, пила, нож и котелок.",
-    "tools_repeat": "Инструменты уже у вас.",
-    "repair_stage_0": "Вы расчистили завал и добрались до повреждённой крыши.",
-    "repair_stage_1": "Крыша укреплена. Осталось закрыть щели в комнате.",
-    "repair_stage_2": "Комната укрыта от ветра и готова к первой ночи.",
-    "repair_done": "Отремонтированная комната выдержит эту ночь.",
-    "campfire_stage_0": "Кострище сложено. Взаимодействуйте снова, чтобы разжечь огонь.",
-    "campfire_stage_1": "Огонь разгорелся и начал прогревать двор.",
-    "water_boiled": "Вода прокипела и теперь безопасна.",
-    "bed_ready": "Временная постель готова. После 18:00 здесь можно завершить день."
+  "schema_version": 2,
+  "message_keys": {
+    "house_first": "first_night.message.house.first",
+    "house_repeat": "first_night.message.house.repeat",
+    "tools_first": "first_night.message.tools.first",
+    "tools_repeat": "first_night.message.tools.repeat",
+    "repair_stage_0": "first_night.message.repair.cleared",
+    "repair_stage_1": "first_night.message.repair.roof_strengthened",
+    "repair_stage_2": "first_night.message.repair.finished",
+    "repair_done": "first_night.message.repair.already_done",
+    "campfire_stage_0": "first_night.message.campfire.built",
+    "campfire_stage_1": "first_night.message.campfire.lit",
+    "water_boiled": "first_night.message.water.boiled",
+    "bed_ready": "first_night.message.bed.ready"
   },
-  "failure_messages": {
-    "repair_tools_required": "Для ремонта нужен найденный набор инструментов.",
-    "repair_stage_1_cost": "Для ремонта крыши нужно 3 древесины и 2 камня.",
-    "repair_stage_2_cost": "Для завершения комнаты нужно ещё 2 древесины.",
-    "campfire_stage_0_cost": "Для костра нужно 2 древесины и 2 камня.",
-    "campfire_tools_required": "Без инструментов и старого огнива разжечь костёр не получится.",
-    "water_required": "Принесите котелок сырой воды, чтобы вскипятить её.",
-    "bed_repair_required": "Сначала нужно закончить ремонт комнаты.",
-    "bed_cost": "Для основания временной постели нужна 1 древесина.",
-    "bed_too_early": "Ещё слишком рано спать. Используйте оставшееся дневное время."
+  "failure_message_keys": {
+    "repair_tools_required": "first_night.failure.repair.tools_required",
+    "repair_stage_1_cost": "first_night.failure.repair.roof_resources",
+    "repair_stage_2_cost": "first_night.failure.repair.finish_resources",
+    "campfire_stage_0_cost": "first_night.failure.campfire.resources",
+    "campfire_tools_required": "first_night.failure.campfire.tools_required",
+    "water_required": "first_night.failure.water.raw_required",
+    "bed_repair_required": "first_night.failure.bed.room_required",
+    "bed_cost": "first_night.failure.bed.resources",
+    "bed_too_early": "first_night.failure.bed.too_early"
   },
-  "stage_labels": {
-    "tools": ["Набор инструментов"],
-    "repair": ["Заваленная комната", "Расчищенная комната", "Повреждённая крыша", "Укрытая комната"],
-    "campfire": ["Место для костра", "Сложенный костёр", "Горящий костёр"],
-    "bed": ["Место для постели", "Временная постель"]
+  "stage_label_keys": {
+    "tools": ["object.core.old_tools.state.available"],
+    "repair": ["object.core.repair_room.name", "object.core.repair_room.state.cleared", "object.core.repair_room.state.roof_damaged", "object.core.repair_room.state.sheltered"],
+    "campfire": ["object.core.campfire_site.name", "object.core.campfire_site.state.built", "object.core.campfire_site.state.lit"],
+    "bed": ["object.core.bed_site.name", "object.core.bed_site.state.ready"]
   },
   "costs": {
     "repair_stage_1": {

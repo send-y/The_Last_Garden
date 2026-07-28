@@ -1,3 +1,6 @@
 # Godot 4+ specific ignores
 .godot/
 /android/
+
+# Imported translations are generated from localization CSV files.
+*.translation

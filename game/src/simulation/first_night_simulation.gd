@@ -5,8 +5,9 @@ signal event_emitted(event: Dictionary)
 
 const Content := preload("res://src/content/first_night_content.gd")
 const Npcs := preload("res://src/characters/npc_catalog.gd")
+const Localized := preload("res://src/localization/localized_text.gd")
 
-const SAVE_VERSION: int = 3
+const SAVE_VERSION: int = 4
 const DEFAULT_SEED: int = 247061
 const START_MINUTE: int = 11 * 60
 const EVENING_MINUTE: int = 18 * 60
@@ -15,6 +16,31 @@ const GAME_MINUTES_PER_SECOND: float = 0.75
 const MAX_CARRY_WEIGHT: float = 24.0
 const PLAYER_ACTOR_ID: String = "core:player"
 const ACTION_INTERACT: String = "core:interact"
+const OUTCOME_DRY_ROOM_ID: String = "core:dry_room"
+const OUTCOME_COLD_DRAFT_ID: String = "core:cold_draft"
+const OUTCOME_RESIDUAL_WARMTH_ID: String = "core:residual_warmth"
+const OUTCOME_SAFE_WATER_ID: String = "core:safe_water"
+const OUTCOME_LIGHT_SUPPER_ID: String = "core:light_supper"
+const OUTCOME_HUNGRY_SLEEP_ID: String = "core:hungry_sleep"
+
+const OUTCOME_LABEL_KEYS: Dictionary = {
+	OUTCOME_DRY_ROOM_ID: "first_night.outcome.dry_room",
+	OUTCOME_COLD_DRAFT_ID: "first_night.outcome.cold_draft",
+	OUTCOME_RESIDUAL_WARMTH_ID: "first_night.outcome.residual_warmth",
+	OUTCOME_SAFE_WATER_ID: "first_night.outcome.safe_water",
+	OUTCOME_LIGHT_SUPPER_ID: "first_night.outcome.light_supper",
+	OUTCOME_HUNGRY_SLEEP_ID: "first_night.outcome.hungry_sleep",
+}
+
+# These Russian values are fingerprints of save versions 1-3, not display copy.
+const LEGACY_V3_OUTCOME_IDS: Dictionary = {
+	"сухая комната": OUTCOME_DRY_ROOM_ID,
+	"холодный сквозняк": OUTCOME_COLD_DRAFT_ID,
+	"остаточное тепло": OUTCOME_RESIDUAL_WARMTH_ID,
+	"безопасная вода": OUTCOME_SAFE_WATER_ID,
+	"лёгкий ужин": OUTCOME_LIGHT_SUPPER_ID,
+	"голодный сон": OUTCOME_HUNGRY_SLEEP_ID,
+}
 
 var state: Dictionary
 var content: FirstNightContent
@@ -32,7 +58,7 @@ func _init(initial_state: Dictionary = {}) -> void:
 		if bool(header_result.get("success", false)):
 			state = initial_state.duplicate(true)
 		else:
-			push_error(String(header_result.get("message", "Сохранение несовместимо.")))
+			push_error("Save state rejected: %s." % String(header_result.get("code", "unknown")))
 			state = create_new_state()
 	_normalize_state()
 
@@ -69,7 +95,8 @@ static func validate_save_header(raw_state: Dictionary) -> Dictionary:
 		return {
 			"success": false,
 			"code": "missing_version",
-			"message": "Сохранение повреждено: отсутствует версия формата.",
+			"message_key": "save.error.missing_version",
+			"message_args": {},
 		}
 
 	var raw_version: Variant = raw_state["version"]
@@ -77,7 +104,8 @@ static func validate_save_header(raw_state: Dictionary) -> Dictionary:
 		return {
 			"success": false,
 			"code": "invalid_version",
-			"message": "Сохранение повреждено: версия формата имеет неверный тип.",
+			"message_key": "save.error.version_type",
+			"message_args": {},
 		}
 
 	var numeric_version: float = float(raw_version)
@@ -85,7 +113,8 @@ static func validate_save_header(raw_state: Dictionary) -> Dictionary:
 		return {
 			"success": false,
 			"code": "invalid_version",
-			"message": "Сохранение повреждено: версия формата должна быть целым числом.",
+			"message_key": "save.error.version_integer",
+			"message_args": {},
 		}
 
 	var version: int = int(numeric_version)
@@ -93,13 +122,15 @@ static func validate_save_header(raw_state: Dictionary) -> Dictionary:
 		return {
 			"success": false,
 			"code": "invalid_version",
-			"message": "Сохранение повреждено: версия формата вне допустимого диапазона.",
+			"message_key": "save.error.version_range",
+			"message_args": {},
 		}
 	if version > SAVE_VERSION:
 		return {
 			"success": false,
 			"code": "future_version",
-			"message": "Сохранение создано более новой версией игры.",
+			"message_key": "save.error.future_version",
+			"message_args": {},
 		}
 	return {
 		"success": true,
@@ -135,10 +166,10 @@ func _advance_clock(amount: int) -> bool:
 	var flags: Dictionary = _flags_mutable()
 	if previous_minute < 17 * 60 and next_minute >= 17 * 60 and not bool(flags["dusk_warned"]):
 		flags["dusk_warned"] = true
-		_emit_result(true, "Солнце садится. Пора заканчивать подготовку к ночи.", true)
+		_emit_result(true, "first_night.message.dusk", true)
 	if next_minute >= LATEST_MINUTE and not bool(flags["late_warned"]):
 		flags["late_warned"] = true
-		_emit_result(true, "Вы слишком устали. Подготовьте постель и завершите день.", true)
+		_emit_result(true, "first_night.message.exhausted", true)
 
 	event_emitted.emit({"type": "time_changed", "minute": next_minute})
 	return next_minute != previous_minute
@@ -150,22 +181,22 @@ func execute_interaction(target_id: String) -> Dictionary:
 
 func execute_command(actor_id: String, target_id: String, action_id: String) -> Dictionary:
 	if actor_id != PLAYER_ACTOR_ID:
-		return _emit_result(false, "Неизвестный участник действия.")
+		return _emit_result(false, "interaction.failure.unknown_actor")
 	if action_id != ACTION_INTERACT:
-		return _emit_result(false, "Это действие пока недоступно.")
+		return _emit_result(false, "interaction.failure.unsupported_action")
 
 	var target: Dictionary = _resolve_interaction_target(target_id)
 	if target.is_empty():
-		return _emit_result(false, "Такой цели здесь нет.")
+		return _emit_result(false, "interaction.failure.missing_target")
 
 	var resolved_target_id: String = String(target.get("id", ""))
 	var kind: String = String(target.get("kind", ""))
 	if should_hide_interactable(resolved_target_id, kind):
-		return _emit_result(false, "Сейчас с этим нельзя взаимодействовать.")
+		return _emit_result(false, "interaction.failure.target_unavailable")
 
 	var target_position: Vector2 = target.get("position", Vector2.ZERO) as Vector2
 	if get_player_position().distance_to(target_position) > FirstNightContent.INTERACTION_RANGE:
-		return _emit_result(false, "Слишком далеко: подойдите ближе к выбранному объекту.")
+		return _emit_result(false, "interaction.failure.too_far")
 
 	return _execute_resolved_interaction(resolved_target_id, kind)
 
@@ -187,7 +218,7 @@ func _execute_resolved_interaction(target_id: String, kind: String) -> Dictionar
 
 	if content.has_collect_rule(kind):
 		return _collect_resource(target_id, kind)
-	return _emit_result(false, "С этим пока нельзя взаимодействовать.")
+	return _emit_result(false, "interaction.failure.unsupported_target")
 
 
 func get_interaction_target_position(target_id: String, fallback: Vector2 = Vector2.ZERO) -> Vector2:
@@ -268,24 +299,24 @@ func get_object_stage(kind: String) -> int:
 			return 0
 
 
-func get_object_label(kind: String, fallback: String, object_id: String = "") -> String:
+func get_object_label_key(kind: String, fallback_key: String, object_id: String = "") -> String:
 	var flags: Dictionary = get_flags()
 	match kind:
 		"npc":
-			return npc_catalog.get_label(get_npcs(), object_id, fallback)
+			return npc_catalog.get_label_key(get_npcs(), object_id, fallback_key)
 		"tools":
-			return content.get_stage_label(kind, 0, fallback)
+			return content.get_stage_label_key(kind, 0, fallback_key)
 		"repair":
 			var stage: int = int(flags["repair_stage"])
-			return content.get_stage_label(kind, stage, fallback)
+			return content.get_stage_label_key(kind, stage, fallback_key)
 		"campfire":
 			var fire_stage: int = int(flags["campfire_stage"])
-			return content.get_stage_label(kind, fire_stage, fallback)
+			return content.get_stage_label_key(kind, fire_stage, fallback_key)
 		"bed":
 			var bed_stage: int = 1 if bool(flags["bed_ready"]) else 0
-			return content.get_stage_label(kind, bed_stage, fallback)
+			return content.get_stage_label_key(kind, bed_stage, fallback_key)
 		_:
-			return fallback
+			return fallback_key
 
 
 func should_hide_interactable(object_id: String, kind: String) -> bool:
@@ -324,42 +355,56 @@ func _resolve_interaction_target(target_id: String) -> Dictionary:
 	}
 
 
-func get_current_objective() -> String:
+func get_current_objective_key() -> String:
 	var flags: Dictionary = get_flags()
 	if bool(flags["first_night_complete"]):
 		var first_neighbor: Dictionary = get_npcs().get("core:first_neighbor", {}) as Dictionary
 		if bool(first_neighbor.get("active", false)) and int(first_neighbor.get("talk_count", 0)) <= 0:
-			return "Утром у Общего дома появился путник. Поговорите с ним."
-		return "Первое утро наступило. Срез пройден."
+			return "first_night.objective.meet_neighbor"
+		return "first_night.objective.complete"
 	if not bool(flags["tools_found"]):
-		return "Осмотрите Общий дом и найдите инструменты."
+		return "first_night.objective.find_tools"
 	if int(flags["repair_stage"]) < 3:
-		return "Соберите древесину и камень, затем отремонтируйте комнату."
+		return "first_night.objective.repair_room"
 	if int(flags["campfire_stage"]) < 2:
-		return "Соберите костёр из древесины и камня, затем разожгите его."
+		return "first_night.objective.light_campfire"
 	if not bool(flags["water_boiled"]):
-		return "Наберите воду у берега и вскипятите её на костре."
+		return "first_night.objective.boil_water"
 	if not bool(flags["bed_ready"]):
-		return "Подготовьте временную постель в отремонтированной комнате."
+		return "first_night.objective.prepare_bed"
 	if get_minute_of_day() < EVENING_MINUTE:
-		return "Подготовка закончена. Дождитесь 18:00 или исследуйте карту."
-	return "Вернитесь к постели и завершите первую ночь."
+		return "first_night.objective.wait_for_evening"
+	return "first_night.objective.sleep"
 
 
 func _inspect_house() -> Dictionary:
 	var flags: Dictionary = _flags_mutable()
 	if bool(flags["house_inspected"]):
-		return _emit_result(true, content.get_message("house_repeat", "Общий дом сильно повреждён, но одну комнату ещё можно спасти."))
+		return _emit_result(
+			true,
+			content.get_message_key("house_repeat", "first_night.message.house.repeat")
+		)
 	flags["house_inspected"] = true
-	return _emit_result(true, content.get_message("house_first", "Внутри Общего дома видны старые инструменты и комната с повреждённой крышей."), true)
+	return _emit_result(
+		true,
+		content.get_message_key("house_first", "first_night.message.house.first"),
+		true
+	)
 
 
 func _find_tools() -> Dictionary:
 	var flags: Dictionary = _flags_mutable()
 	if bool(flags["tools_found"]):
-		return _emit_result(true, content.get_message("tools_repeat", "Инструменты уже у вас."))
+		return _emit_result(
+			true,
+			content.get_message_key("tools_repeat", "first_night.message.tools.repeat")
+		)
 	flags["tools_found"] = true
-	return _emit_result(true, content.get_message("tools_first", "Найдены изношенные топорик, молоток, пила, нож и котелок."), true)
+	return _emit_result(
+		true,
+		content.get_message_key("tools_first", "first_night.message.tools.first"),
+		true
+	)
 
 
 func _collect_resource(object_id: String, kind: String) -> Dictionary:
@@ -369,39 +414,96 @@ func _collect_resource(object_id: String, kind: String) -> Dictionary:
 	var repeatable: bool = bool(rule.get("repeatable", false))
 
 	if not repeatable and is_collected(object_id):
-		return _emit_result(false, String(rule.get("empty_message", "Здесь больше ничего нет.")))
+		return _emit_result(
+			false,
+			String(rule.get("empty_message_key", "first_night.collect.empty"))
+		)
 	if not _can_add_item(item_id, amount):
-		return _emit_result(false, String(rule.get("full_message", "Слишком тяжело. Сначала потратьте или оставьте часть ресурсов.")))
+		return _emit_result(
+			false,
+			String(rule.get("full_message_key", "first_night.inventory.too_heavy"))
+		)
 
 	if not repeatable:
 		var collected: Dictionary = state["collected"] as Dictionary
 		collected[content.normalize_object_id(object_id)] = true
 	_add_item(item_id, amount)
-	return _emit_result(true, String(rule.get("message", "Ресурс собран.")), true)
+	return _emit_result(
+		true,
+		String(rule.get("message_key", "first_night.collect.generic.success")),
+		true,
+		false,
+		{"amount": amount}
+	)
 
 
 func _advance_repair() -> Dictionary:
 	var flags: Dictionary = _flags_mutable()
 	if not bool(flags["tools_found"]):
-		return _emit_result(false, content.get_failure_message("repair_tools_required", "Для ремонта нужен найденный набор инструментов."))
+		return _emit_result(
+			false,
+			content.get_failure_message_key(
+				"repair_tools_required",
+				"first_night.failure.repair.tools_required"
+			)
+		)
 
 	var stage: int = int(flags["repair_stage"])
 	match stage:
 		0:
 			flags["repair_stage"] = 1
-			return _emit_result(true, content.get_message("repair_stage_0", "Вы расчистили завал и добрались до повреждённой крыши."), true)
+			return _emit_result(
+				true,
+				content.get_message_key(
+					"repair_stage_0",
+					"first_night.message.repair.cleared"
+				),
+				true
+			)
 		1:
 			if not _consume_items(content.get_cost("repair_stage_1")):
-				return _emit_result(false, content.get_failure_message("repair_stage_1_cost", "Для ремонта крыши нужно 3 древесины и 2 камня."))
+				return _emit_result(
+					false,
+					content.get_failure_message_key(
+						"repair_stage_1_cost",
+						"first_night.failure.repair.roof_resources"
+					)
+				)
 			flags["repair_stage"] = 2
-			return _emit_result(true, content.get_message("repair_stage_1", "Крыша укреплена. Осталось закрыть щели в комнате."), true)
+			return _emit_result(
+				true,
+				content.get_message_key(
+					"repair_stage_1",
+					"first_night.message.repair.roof_strengthened"
+				),
+				true
+			)
 		2:
 			if not _consume_items(content.get_cost("repair_stage_2")):
-				return _emit_result(false, content.get_failure_message("repair_stage_2_cost", "Для завершения комнаты нужно ещё 2 древесины."))
+				return _emit_result(
+					false,
+					content.get_failure_message_key(
+						"repair_stage_2_cost",
+						"first_night.failure.repair.finish_resources"
+					)
+				)
 			flags["repair_stage"] = 3
-			return _emit_result(true, content.get_message("repair_stage_2", "Комната укрыта от ветра и готова к первой ночи."), true)
+			return _emit_result(
+				true,
+				content.get_message_key(
+					"repair_stage_2",
+					"first_night.message.repair.finished"
+				),
+				true
+			)
 		_:
-			return _emit_result(true, content.get_message("repair_done", "Отремонтированная комната выдержит эту ночь."))
+			return _emit_result(
+				true,
+				content.get_message_key(
+					"repair_done",
+					"first_night.message.repair.already_done"
+				)
+			)
 
 
 func _advance_campfire() -> Dictionary:
@@ -410,70 +512,143 @@ func _advance_campfire() -> Dictionary:
 	match stage:
 		0:
 			if not _consume_items(content.get_cost("campfire_stage_0")):
-				return _emit_result(false, content.get_failure_message("campfire_stage_0_cost", "Для костра нужно 2 древесины и 2 камня."))
+				return _emit_result(
+					false,
+					content.get_failure_message_key(
+						"campfire_stage_0_cost",
+						"first_night.failure.campfire.resources"
+					)
+				)
 			flags["campfire_stage"] = 1
-			return _emit_result(true, content.get_message("campfire_stage_0", "Кострище сложено. Взаимодействуйте снова, чтобы разжечь огонь."), true)
+			return _emit_result(
+				true,
+				content.get_message_key(
+					"campfire_stage_0",
+					"first_night.message.campfire.built"
+				),
+				true
+			)
 		1:
 			if not bool(flags["tools_found"]):
-				return _emit_result(false, content.get_failure_message("campfire_tools_required", "Без инструментов и старого огнива разжечь костёр не получится."))
+				return _emit_result(
+					false,
+					content.get_failure_message_key(
+						"campfire_tools_required",
+						"first_night.failure.campfire.tools_required"
+					)
+				)
 			flags["campfire_stage"] = 2
-			return _emit_result(true, content.get_message("campfire_stage_1", "Огонь разгорелся и начал прогревать двор."), true)
+			return _emit_result(
+				true,
+				content.get_message_key(
+					"campfire_stage_1",
+					"first_night.message.campfire.lit"
+				),
+				true
+			)
 		_:
 			if get_item_count(FirstNightContent.RAW_WATER_ID) <= 0:
-				return _emit_result(false, content.get_failure_message("water_required", "Принесите котелок сырой воды, чтобы вскипятить её."))
+				return _emit_result(
+					false,
+					content.get_failure_message_key(
+						"water_required",
+						"first_night.failure.water.raw_required"
+					)
+				)
 			_consume_items(content.get_cost("boil_water"))
 			_add_item(FirstNightContent.BOILED_WATER_ID, 1)
 			flags["water_boiled"] = true
-			return _emit_result(true, content.get_message("water_boiled", "Вода прокипела и теперь безопасна."), true)
+			return _emit_result(
+				true,
+				content.get_message_key(
+					"water_boiled",
+					"first_night.message.water.boiled"
+				),
+				true
+			)
 
 
 func _advance_bed() -> Dictionary:
 	var flags: Dictionary = _flags_mutable()
 	if int(flags["repair_stage"]) < 3:
-		return _emit_result(false, content.get_failure_message("bed_repair_required", "Сначала нужно закончить ремонт комнаты."))
+		return _emit_result(
+			false,
+			content.get_failure_message_key(
+				"bed_repair_required",
+				"first_night.failure.bed.room_required"
+			)
+		)
 	if not bool(flags["bed_ready"]):
 		if not _consume_items(content.get_cost("bed")):
-			return _emit_result(false, content.get_failure_message("bed_cost", "Для основания временной постели нужна 1 древесина."))
+			return _emit_result(
+				false,
+				content.get_failure_message_key(
+					"bed_cost",
+					"first_night.failure.bed.resources"
+				)
+			)
 		flags["bed_ready"] = true
-		return _emit_result(true, content.get_message("bed_ready", "Временная постель готова. После 18:00 здесь можно завершить день."), true)
+		return _emit_result(
+			true,
+			content.get_message_key("bed_ready", "first_night.message.bed.ready"),
+			true
+		)
 	if get_minute_of_day() < EVENING_MINUTE:
-		return _emit_result(false, content.get_failure_message("bed_too_early", "Ещё слишком рано спать. Используйте оставшееся дневное время."))
+		return _emit_result(
+			false,
+			content.get_failure_message_key(
+				"bed_too_early",
+				"first_night.failure.bed.too_early"
+			)
+		)
 	return _sleep_until_morning()
 
 
 func _talk_to_npc(npc_id: String) -> Dictionary:
 	var result: Dictionary = npc_catalog.talk(_npcs_mutable(), npc_id)
-	return _emit_result(bool(result.get("success", false)), String(result.get("message", "")), bool(result.get("changed", false)))
+	return _emit_result(
+		bool(result.get("success", false)),
+		String(result.get("message_key", "interaction.failure.no_npc")),
+		bool(result.get("changed", false)),
+		false,
+		(result.get("message_args", {}) as Dictionary).duplicate(true)
+	)
 
 
 func _sleep_until_morning() -> Dictionary:
 	var flags: Dictionary = _flags_mutable()
-	var outcomes: Array = []
+	var outcomes: Array[String] = []
 	if int(flags["repair_stage"]) >= 3:
-		outcomes.append("сухая комната")
+		outcomes.append(OUTCOME_DRY_ROOM_ID)
 	else:
-		outcomes.append("холодный сквозняк")
+		outcomes.append(OUTCOME_COLD_DRAFT_ID)
 	if int(flags["campfire_stage"]) >= 2:
-		outcomes.append("остаточное тепло")
+		outcomes.append(OUTCOME_RESIDUAL_WARMTH_ID)
 	if get_item_count(FirstNightContent.BOILED_WATER_ID) > 0:
-		outcomes.append("безопасная вода")
+		outcomes.append(OUTCOME_SAFE_WATER_ID)
 	if get_item_count(FirstNightContent.FOOD_ID) > 0:
 		_consume_items(content.get_cost("sleep_food"))
-		outcomes.append("лёгкий ужин")
+		outcomes.append(OUTCOME_LIGHT_SUPPER_ID)
 	else:
-		outcomes.append("голодный сон")
+		outcomes.append(OUTCOME_HUNGRY_SLEEP_ID)
 
 	state["outcomes"] = outcomes
 	state["day"] = get_day() + 1
 	state["minute_of_day"] = 7 * 60
 	flags["first_night_complete"] = true
 	var npc_arrived: bool = npc_catalog.activate_after_first_night(_npcs_mutable())
-	var morning_note: String = " На рассвете у Общего дома появился путник." if npc_arrived else ""
 	var result: Dictionary = _emit_result(
 		true,
-		"Наступило новое утро. Итог: %s.%s" % [", ".join(outcomes), morning_note],
+		(
+			"first_night.message.morning.summary_with_neighbor"
+			if npc_arrived
+			else "first_night.message.morning.summary"
+		),
 		true,
-		true
+		true,
+		{
+			"outcomes": Localized.text_reference_list(_get_outcome_label_keys(outcomes)),
+		}
 	)
 	event_emitted.emit({"type": "time_changed", "minute": get_minute_of_day()})
 	return result
@@ -504,11 +679,27 @@ func _consume_items(costs: Dictionary) -> bool:
 	return true
 
 
-func _emit_result(success: bool, message: String, changed: bool = false, auto_save: bool = false) -> Dictionary:
+func _get_outcome_label_keys(outcome_ids: Array[String]) -> Array[String]:
+	var label_keys: Array[String] = []
+	for outcome_id: String in outcome_ids:
+		var label_key: String = String(OUTCOME_LABEL_KEYS.get(outcome_id, ""))
+		if not label_key.is_empty():
+			label_keys.append(label_key)
+	return label_keys
+
+
+func _emit_result(
+	success: bool,
+	message_key: String,
+	changed: bool = false,
+	auto_save: bool = false,
+	message_args: Dictionary = {}
+) -> Dictionary:
 	var event: Dictionary = {
 		"type": "command_result",
 		"success": success,
-		"message": message,
+		"message_key": message_key,
+		"message_args": message_args.duplicate(true),
 		"changed": changed,
 		"auto_save": auto_save,
 	}
@@ -559,7 +750,7 @@ func _normalize_state() -> void:
 	else:
 		var stored_position: Array = stored_position_value as Array
 		state["player_position"] = [float(stored_position[0]), float(stored_position[1])]
-	state["outcomes"] = _normalize_outcomes(state.get("outcomes"))
+	state["outcomes"] = _normalize_outcomes(state.get("outcomes"), loaded_version)
 
 	if loaded_version != SAVE_VERSION:
 		push_warning("Save version %s migrated into prototype version %s." % [loaded_version, SAVE_VERSION])
@@ -615,12 +806,16 @@ static func _is_valid_position(value: Variant) -> bool:
 	return true
 
 
-static func _normalize_outcomes(value: Variant) -> Array[String]:
+static func _normalize_outcomes(value: Variant, loaded_version: int) -> Array[String]:
 	var outcomes: Array[String] = []
 	if typeof(value) != TYPE_ARRAY:
 		return outcomes
 	var raw_outcomes: Array = value as Array
 	for entry: Variant in raw_outcomes:
 		if typeof(entry) == TYPE_STRING or typeof(entry) == TYPE_STRING_NAME:
-			outcomes.append(String(entry))
+			var outcome_id: String = String(entry)
+			if loaded_version <= 3:
+				outcome_id = String(LEGACY_V3_OUTCOME_IDS.get(outcome_id, outcome_id))
+			if not outcome_id.is_empty() and outcome_id.contains(":"):
+				outcomes.append(outcome_id)
 	return outcomes

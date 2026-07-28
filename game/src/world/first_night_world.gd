@@ -1,7 +1,7 @@
 class_name FirstNightWorld
 extends Node2D
 
-signal selection_changed(label: String, in_range: bool)
+signal selection_changed(selection: Dictionary)
 
 const Catalog := preload("res://src/world/first_night_catalog.gd")
 const Interactable := preload("res://src/world/interactable_view.gd")
@@ -57,11 +57,13 @@ func select_at_world_position(world_position: Vector2) -> void:
 
 func interact_with_selection() -> void:
 	if _selected == null or not is_instance_valid(_selected) or not _selected.visible:
-		Session.notify_player("Сначала выберите объект левой кнопкой мыши.")
+		Session.notify_player_key("interaction.prompt.select_object")
 		return
 
 	Session.execute_interaction(_selected.object_id)
 	_refresh_interactables()
+	if _selected == null or not is_instance_valid(_selected):
+		return
 	if not _selected.visible:
 		_set_selected(null)
 	else:
@@ -69,7 +71,11 @@ func interact_with_selection() -> void:
 			_player.global_position.distance_to(_selected.global_position)
 			<= Catalog.INTERACTION_RANGE
 		)
-		selection_changed.emit(_selected.get_display_label(), in_range)
+		selection_changed.emit({
+			"kind": "interactable",
+			"label": _selected.get_display_label(),
+			"in_range": in_range,
+		})
 
 
 func _set_selected(value: InteractableView) -> void:
@@ -77,11 +83,22 @@ func _set_selected(value: InteractableView) -> void:
 		_selected.set_selected(false)
 	_selected = value
 	if _selected == null:
-		selection_changed.emit("Клетка %d, %d" % [_selected_cell.x, _selected_cell.y], false)
+		if _selected_cell.x < 0 or _selected_cell.y < 0:
+			selection_changed.emit({"kind": "none"})
+		else:
+			selection_changed.emit({
+				"kind": "cell",
+				"x": _selected_cell.x,
+				"y": _selected_cell.y,
+			})
 		return
 	_selected.set_selected(true)
 	var in_range: bool = _player.global_position.distance_to(_selected.global_position) <= Catalog.INTERACTION_RANGE
-	selection_changed.emit(_selected.get_display_label(), in_range)
+	selection_changed.emit({
+		"kind": "interactable",
+		"label": _selected.get_display_label(),
+		"in_range": in_range,
+	})
 
 
 func _spawn_interactables() -> void:
@@ -107,7 +124,11 @@ func _on_state_changed() -> void:
 		_set_selected(null)
 		return
 	var in_range: bool = _player.global_position.distance_to(_selected.global_position) <= Catalog.INTERACTION_RANGE
-	selection_changed.emit(_selected.get_display_label(), in_range)
+	selection_changed.emit({
+		"kind": "interactable",
+		"label": _selected.get_display_label(),
+		"in_range": in_range,
+	})
 
 
 func _on_state_reloaded() -> void:
