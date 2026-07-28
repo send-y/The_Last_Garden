@@ -235,3 +235,4 @@ func _on_construction_cursor_cell_selected(cell: Vector2i) -> void:
 		ConstructionValidator.validate_place_blueprint(command)
 	)
 	print("BUILD VALIDATION: ", JSON.stringify(validation))
+	print("BLUEPRINTS IN STATE: ", Session.get_blueprints().size())

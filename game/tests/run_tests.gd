@@ -55,6 +55,7 @@ func _run() -> void:
 	_test_legacy_save_ids_are_migrated()
 	_test_v3_outcomes_are_migrated()
 	_test_v4_npc_state_is_migrated()
+	_test_v5_blueprints_are_migrated()
 	_test_character_appearance_generation()
 	_test_first_neighbor_arrives_and_talks()
 	_test_grid_pathfinder_avoids_static_obstacles()
@@ -304,6 +305,7 @@ func _test_corrupt_nested_state_uses_defaults() -> void:
 	corrupt["collected"] = "bad"
 	corrupt["flags"] = "bad"
 	corrupt["npcs"] = {"core:first_neighbor": "bad"}
+	corrupt["blueprints"] = "bad"
 	corrupt["player_position"] = {"x": 1}
 	corrupt["outcomes"] = "bad"
 
@@ -317,6 +319,7 @@ func _test_corrupt_nested_state_uses_defaults() -> void:
 		"invalid player position falls back to default"
 	)
 	_expect(not restored.is_npc_visible("core:first_neighbor"), "invalid NPC falls back to default")
+	_expect(restored.get_blueprints().is_empty(), "invalid blueprints fall back to empty")
 	_expect(
 		(restored.export_state().get("outcomes", []) as Array).is_empty(),
 		"invalid outcomes fall back to empty"
@@ -544,7 +547,7 @@ func _test_v3_outcomes_are_migrated() -> void:
 		"mod:custom_outcome",
 	]
 	var migrated_state: Dictionary = simulation.export_state()
-	_expect(int(migrated_state.get("version", 0)) == 5, "v3 save migrates to save version 5")
+	_expect(int(migrated_state.get("version", 0)) == 6, "v3 save migrates to save version 6")
 	_expect(migrated_state.get("outcomes", []) == expected, "v3 outcome copy migrates to stable ids")
 
 	var encoded: String = JSON.stringify(migrated_state)
@@ -577,11 +580,36 @@ func _test_v4_npc_state_is_migrated() -> void:
 	var simulation: FirstNightSimulation = Simulation.new(legacy_state)
 	var migrated: Dictionary = simulation.export_state()
 	var mira: Dictionary = (migrated["npcs"] as Dictionary)["core:first_neighbor"] as Dictionary
-	_expect(int(migrated.get("version", 0)) == 5, "v4 save migrates to save version 5")
+	_expect(int(migrated.get("version", 0)) == 6, "v4 save migrates to save version 6")
 	_expect(typeof(mira.get("needs")) == TYPE_DICTIONARY, "v4 NPC gains normalized needs")
 	_expect(String(mira.get("activity_id", "")).contains(":"), "v4 NPC gains stable activity id")
 	_expect(int((mira.get("personal_inventory", {}) as Dictionary).get("core:food", -1)) == 2, "v4 NPC gains initial personal food")
 	_expect(typeof(mira.get("target_cell")) == TYPE_ARRAY, "v4 NPC gains a target cell")
+
+
+func _test_v5_blueprints_are_migrated() -> void:
+	var legacy_state: Dictionary = Simulation.create_new_state()
+	legacy_state["version"] = 5
+	legacy_state.erase("blueprints")
+	var migrated_simulation: FirstNightSimulation = Simulation.new(legacy_state)
+	_expect(
+		int(migrated_simulation.export_state().get("version", 0)) == 6,
+		"v5 save migrates to save version 6"
+	)
+	_expect(migrated_simulation.get_blueprints().is_empty(), "v5 save gains empty blueprints")
+
+	var state_with_blueprint: Dictionary = Simulation.create_new_state()
+	state_with_blueprint["blueprints"] = [{
+		"building_id": "core:wood_wall",
+		"cell": [22, 29],
+	}]
+	var simulation: FirstNightSimulation = Simulation.new(state_with_blueprint)
+	var snapshot: Array = simulation.get_blueprints()
+	(snapshot[0] as Dictionary)["cell"] = [99, 99]
+	_expect(
+		(simulation.get_blueprints()[0] as Dictionary).get("cell", []) == [22, 29],
+		"blueprint query is isolated from simulation state"
+	)
 
 
 func _test_character_appearance_generation() -> void:

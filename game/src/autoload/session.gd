@@ -148,6 +148,10 @@ func is_mechanics_lab_active() -> bool:
 	return _mechanics_lab_active
 
 
+func get_blueprints() -> Array:
+	return simulation.get_blueprints()
+
+
 func apply_debug_state(
 	initial_state: Dictionary,
 	scenario_label: String = "",

@@ -8,7 +8,7 @@ const Npcs := preload("res://src/characters/npc_catalog.gd")
 const NpcAutonomyScript := preload("res://src/simulation/npc_autonomy.gd")
 const Localized := preload("res://src/localization/localized_text.gd")
 
-const SAVE_VERSION: int = 5
+const SAVE_VERSION: int = 6
 const DEFAULT_SEED: int = 247061
 const START_MINUTE: int = 11 * 60
 const EVENING_MINUTE: int = 18 * 60
@@ -90,6 +90,7 @@ static func create_new_state(seed_value: int = DEFAULT_SEED) -> Dictionary:
 			"first_night_complete": false,
 		},
 		"outcomes": [],
+		"blueprints": [],
 	}
 
 
@@ -244,6 +245,10 @@ func export_state() -> Dictionary:
 
 func get_inventory() -> Dictionary:
 	return _inventory_mutable().duplicate(true)
+
+
+func get_blueprints() -> Array:
+	return (state.get("blueprints", []) as Array).duplicate(true)
 
 
 func get_flags() -> Dictionary:
@@ -780,6 +785,18 @@ func _normalize_state() -> void:
 	state["inventory"] = content.normalize_inventory(_as_dictionary(state.get("inventory")))
 	state["collected"] = content.normalize_collected(_as_dictionary(state.get("collected")))
 	state["npcs"] = npc_catalog.normalize_states(_as_dictionary(state.get("npcs")), seed_value)
+
+	var normalized_blueprints: Array[Dictionary] = []
+	var blueprints_value: Variant = state.get("blueprints", [])
+
+	if typeof(blueprints_value) == TYPE_ARRAY:
+		for blueprint_value: Variant in (blueprints_value as Array):
+			if typeof(blueprint_value) == TYPE_DICTIONARY:
+				normalized_blueprints.append(
+					(blueprint_value as Dictionary).duplicate(true)
+				)
+
+	state["blueprints"] = normalized_blueprints
 
 	var flags: Dictionary = _as_dictionary(state.get("flags"))
 	var default_flags: Dictionary = defaults["flags"] as Dictionary
