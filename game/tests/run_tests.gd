@@ -11,6 +11,7 @@ const LocalGridPathfinderScript := preload("res://src/simulation/local_grid_path
 const FirstNightNavigationScript := preload("res://src/simulation/first_night_navigation.gd")
 const NpcAutonomyScript := preload("res://src/simulation/npc_autonomy.gd")
 const ConstructionCommandScript := preload("res://src/construction/construction_command.gd")
+const ConstructionValidatorScript := preload("res://src/construction/construction_validator.gd")
 const TEST_SAVE_PATH: String = "user://first_night_save_store_test.json"
 const TEST_LAB_SAVE_PATH: String = "user://mechanics_lab_session_test.json"
 const LOCALIZATION_PATH: String = "res://localization/core.csv"
@@ -60,6 +61,7 @@ func _run() -> void:
 	_test_mira_needs_schedule_and_personal_food()
 	_test_mira_autonomy_is_deterministic_and_serialized()
 	_test_construction_command_payload()
+	_test_construction_command_validation()
 	_test_lab_rejects_unknown_scenario()
 	_test_lab_fresh_start()
 	_test_lab_prepared_evening()
@@ -756,6 +758,38 @@ func _test_construction_command_payload() -> void:
 	_expect(
 		command.get("cell", []) == [22, 29],
 		"construction command serializes the selected cell as integers"
+	)
+
+
+func _test_construction_command_validation() -> void:
+	var valid_command: Dictionary = ConstructionCommandScript.place_wall_blueprint(Vector2i(22, 29))
+	var valid_result: Dictionary = ConstructionValidatorScript.validate_place_blueprint(valid_command)
+	_expect(bool(valid_result.get("success", false)), "construction validator accepts free ground")
+	_expect(valid_result.get("cell", []) == [22, 29], "construction validator preserves a valid cell")
+
+	var blocked_command: Dictionary = ConstructionCommandScript.place_wall_blueprint(Vector2i(19, 22))
+	var blocked_result: Dictionary = ConstructionValidatorScript.validate_place_blueprint(blocked_command)
+	_expect(not bool(blocked_result.get("success", true)), "construction validator rejects a wall cell")
+	_expect(
+		String(blocked_result.get("reason_id", "")) == "core:blocked_cell",
+		"blocked construction has a stable reason id"
+	)
+
+	var outside_command: Dictionary = ConstructionCommandScript.place_wall_blueprint(Vector2i(-1, 20))
+	var outside_result: Dictionary = ConstructionValidatorScript.validate_place_blueprint(outside_command)
+	_expect(not bool(outside_result.get("success", true)), "construction validator rejects outside map")
+	_expect(
+		String(outside_result.get("reason_id", "")) == "core:outside_map",
+		"outside construction has a stable reason id"
+	)
+
+	var forged_command: Dictionary = valid_command.duplicate(true)
+	forged_command["actor_id"] = "core:forged_actor"
+	var forged_result: Dictionary = ConstructionValidatorScript.validate_place_blueprint(forged_command)
+	_expect(not bool(forged_result.get("success", true)), "construction validator rejects forged actor")
+	_expect(
+		String(forged_result.get("reason_id", "")) == "core:unknown_actor",
+		"forged construction actor has a stable reason id"
 	)
 
 
