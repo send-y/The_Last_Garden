@@ -8,6 +8,7 @@ signal pause_changed(is_paused: bool)
 
 const Simulation := preload("res://src/simulation/first_night_simulation.gd")
 const SaveStore := preload("res://src/save/first_night_save_store.gd")
+const Localized := preload("res://src/localization/localized_text.gd")
 const SAVE_PATH: String = "user://first_night_save.json"
 
 var simulation: FirstNightSimulation
@@ -68,7 +69,7 @@ func get_time_text() -> String:
 
 
 func get_current_objective() -> String:
-	return simulation.get_current_objective()
+	return Localized.resolve(simulation.get_current_objective_key())
 
 
 func get_player_position() -> Vector2:
@@ -87,8 +88,8 @@ func get_object_stage(kind: String) -> int:
 	return simulation.get_object_stage(kind)
 
 
-func get_object_label(kind: String, fallback: String, object_id: String = "") -> String:
-	return simulation.get_object_label(kind, fallback, object_id)
+func get_object_label(kind: String, fallback_key: String, object_id: String = "") -> String:
+	return Localized.resolve(simulation.get_object_label_key(kind, fallback_key, object_id))
 
 
 func should_hide_interactable(object_id: String, kind: String) -> bool:
@@ -129,8 +130,9 @@ func apply_debug_state(
 		return false
 	var header_result: Dictionary = Simulation.validate_save_header(initial_state)
 	if not bool(header_result.get("success", false)):
-		message_emitted.emit(
-			String(header_result.get("message", "Отладочный сценарий повреждён.")),
+		_emit_player_message_key(
+			String(header_result.get("message_key", "system.load.incompatible")),
+			header_result.get("message_args", {}) as Dictionary,
 			false
 		)
 		return false
@@ -158,11 +160,23 @@ func is_paused() -> bool:
 func toggle_pause() -> void:
 	_is_paused = not _is_paused
 	pause_changed.emit(_is_paused)
-	message_emitted.emit("Время остановлено." if _is_paused else "Время снова идёт.", true)
+	_emit_player_message_key(
+		"system.pause.enabled" if _is_paused else "system.pause.disabled",
+		{},
+		true
+	)
 
 
 func notify_player(message: String, success: bool = false) -> void:
 	message_emitted.emit(message, success)
+
+
+func notify_player_key(
+	message_key: String,
+	message_args: Dictionary = {},
+	success: bool = false
+) -> void:
+	_emit_player_message_key(message_key, message_args, success)
 
 
 func save_game(show_message: bool = true) -> bool:
@@ -172,10 +186,14 @@ func save_game(show_message: bool = true) -> bool:
 		return false
 	var result: Dictionary = _save_store.write_state(simulation.export_state())
 	if not bool(result.get("success", false)):
-		message_emitted.emit(String(result.get("message", "Не удалось сохранить состояние.")), false)
+		_emit_player_message_key(
+			String(result.get("message_key", "system.save.failed")),
+			result.get("message_args", {}) as Dictionary,
+			false
+		)
 		return false
 	if show_message:
-		message_emitted.emit("Состояние сохранено.", true)
+		_emit_player_message_key("system.save.success", {}, true)
 	return true
 
 
@@ -185,7 +203,11 @@ func load_game() -> bool:
 		return false
 	var read_result: Dictionary = _save_store.read_state()
 	if not bool(read_result.get("success", false)):
-		message_emitted.emit(String(read_result.get("message", "Не удалось прочитать сохранение.")), false)
+		_emit_player_message_key(
+			String(read_result.get("message_key", "system.load.failed")),
+			read_result.get("message_args", {}) as Dictionary,
+			false
+		)
 		return false
 
 	var loaded_state: Dictionary = read_result.get("state", {}) as Dictionary
@@ -204,15 +226,19 @@ func load_game() -> bool:
 				loaded_state = backup_state
 				header_result = backup_header
 	if not bool(header_result.get("success", false)):
-		message_emitted.emit(String(header_result.get("message", "Сохранение несовместимо.")), false)
+		_emit_player_message_key(
+			String(header_result.get("message_key", "system.load.incompatible")),
+			header_result.get("message_args", {}) as Dictionary,
+			false
+		)
 		return false
 
 	_replace_simulation(loaded_state)
 	_publish_reloaded_state()
 	if bool(read_result.get("recovered_from_backup", false)):
-		message_emitted.emit("Основное сохранение повреждено. Загружена резервная копия.", true)
+		_emit_player_message_key("system.load.recovered_backup", {}, true)
 	else:
-		message_emitted.emit("Состояние загружено.", true)
+		_emit_player_message_key("system.load.success", {}, true)
 	return true
 
 
@@ -240,11 +266,23 @@ func _on_simulation_event(event: Dictionary) -> void:
 		return
 
 	if event_type == "command_result":
-		message_emitted.emit(String(event.get("message", "")), bool(event.get("success", false)))
+		_emit_player_message_key(
+			String(event.get("message_key", "")),
+			event.get("message_args", {}) as Dictionary,
+			bool(event.get("success", false))
+		)
 		if bool(event.get("changed", false)):
 			state_changed.emit()
 		if bool(event.get("auto_save", false)) and not _mechanics_lab_active:
 			save_game(false)
+
+
+func _emit_player_message_key(
+	message_key: String,
+	message_args: Dictionary,
+	success: bool
+) -> void:
+	message_emitted.emit(Localized.resolve(message_key, message_args), success)
 
 
 func _register_input_actions() -> void:

@@ -184,6 +184,8 @@ func _validate_content() -> void:
 		var slot_id: String = String(part.get("slot", ""))
 		if not _required_slots.has(slot_id):
 			push_error("Character appearance part %s references unknown slot %s." % [part_id, slot_id])
+		if String(part.get("label_key", "")).is_empty():
+			push_error("Character appearance part %s has no label_key." % part_id)
 
 	for outfit_id_variant: Variant in _outfits.keys():
 		var outfit_id: String = String(outfit_id_variant)

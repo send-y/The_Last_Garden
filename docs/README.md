@@ -24,6 +24,7 @@
 - [Технический план первого среза](implementation/first-slice-technical-plan.md)
 - [Технический план 2A: первый NPC](implementation/first-npc-technical-plan.md)
 - [Технический план Mechanics Lab](implementation/mechanics-lab-technical-plan.md)
+- [Технический план L2: фундамент локализации](implementation/localization-foundation-technical-plan.md)
 
 ### Системы
 

@@ -15,7 +15,7 @@ func _init(save_path: String) -> void:
 func write_state(snapshot: Dictionary) -> Dictionary:
 	var file: FileAccess = FileAccess.open(_temp_path, FileAccess.WRITE)
 	if file == null:
-		return _failure("Не удалось открыть временный файл сохранения.")
+		return _failure("save.error.temp_open")
 
 	file.store_string(JSON.stringify(snapshot, "\t"))
 	file.flush()
@@ -23,12 +23,12 @@ func write_state(snapshot: Dictionary) -> Dictionary:
 	file.close()
 	if write_error != OK:
 		_remove_if_exists(_temp_path)
-		return _failure("Не удалось полностью записать временное сохранение.")
+		return _failure("save.error.temp_write")
 
 	var verification: Dictionary = _read_path(_temp_path)
 	if not bool(verification.get("success", false)):
 		_remove_if_exists(_temp_path)
-		return _failure("Временное сохранение не прошло проверку JSON.")
+		return _failure("save.error.temp_verify_json")
 
 	var replace_result: Dictionary = _replace_main_file()
 	if not bool(replace_result.get("success", false)):
@@ -48,7 +48,12 @@ func read_state() -> Dictionary:
 
 	var backup: Dictionary = read_backup_state()
 	if bool(backup.get("success", false)):
-		backup["primary_error"] = String(primary.get("message", "Основное сохранение недоступно."))
+		backup["primary_error_key"] = String(
+			primary.get("message_key", "save.error.primary_unavailable")
+		)
+		backup["primary_error_args"] = (
+			primary.get("message_args", {}) as Dictionary
+		).duplicate(true)
 		return backup
 	return primary
 
@@ -65,14 +70,14 @@ func _replace_main_file() -> Dictionary:
 	if save_exists:
 		var remove_backup_error: Error = _remove_if_exists(_backup_path)
 		if remove_backup_error != OK:
-			return _failure("Не удалось подготовить резервную копию сохранения.")
+			return _failure("save.error.backup_prepare")
 
 		var backup_error: Error = DirAccess.rename_absolute(
 			ProjectSettings.globalize_path(_save_path),
 			ProjectSettings.globalize_path(_backup_path)
 		)
 		if backup_error != OK:
-			return _failure("Не удалось создать резервную копию сохранения.")
+			return _failure("save.error.backup_create")
 
 	var replace_error: Error = DirAccess.rename_absolute(
 		ProjectSettings.globalize_path(_temp_path),
@@ -86,16 +91,16 @@ func _replace_main_file() -> Dictionary:
 			ProjectSettings.globalize_path(_backup_path),
 			ProjectSettings.globalize_path(_save_path)
 		)
-	return _failure("Не удалось заменить основной файл сохранения.")
+	return _failure("save.error.replace_primary")
 
 
 func _read_path(path: String) -> Dictionary:
 	if not FileAccess.file_exists(path):
-		return _failure("Файл сохранения ещё не создан.", true)
+		return _failure("save.error.not_found", {}, true)
 
 	var file: FileAccess = FileAccess.open(path, FileAccess.READ)
 	if file == null:
-		return _failure("Не удалось прочитать файл сохранения.")
+		return _failure("save.error.read_failed")
 	var text: String = file.get_as_text()
 	file.close()
 
@@ -103,11 +108,12 @@ func _read_path(path: String) -> Dictionary:
 	var parse_error: Error = json.parse(text)
 	if parse_error != OK:
 		return _failure(
-			"Сохранение повреждено: ошибка JSON в строке %d." % json.get_error_line()
+			"save.error.json_line",
+			{"line": json.get_error_line()}
 		)
 	var parsed: Variant = json.data
 	if typeof(parsed) != TYPE_DICTIONARY:
-		return _failure("Сохранение повреждено: ожидался объект JSON.")
+		return _failure("save.error.expected_object")
 	return {
 		"success": true,
 		"state": (parsed as Dictionary).duplicate(true),
@@ -121,9 +127,14 @@ func _remove_if_exists(path: String) -> Error:
 	return DirAccess.remove_absolute(ProjectSettings.globalize_path(path))
 
 
-func _failure(message: String, missing: bool = false) -> Dictionary:
+func _failure(
+	message_key: String,
+	message_args: Dictionary = {},
+	missing: bool = false
+) -> Dictionary:
 	return {
 		"success": false,
-		"message": message,
+		"message_key": message_key,
+		"message_args": message_args.duplicate(true),
 		"missing": missing,
 	}

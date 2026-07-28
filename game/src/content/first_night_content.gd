@@ -43,9 +43,9 @@ var _item_order: Array[String] = []
 var _object_defs: Dictionary = {}
 var _object_order: Array[String] = []
 var _collect_rules: Dictionary = {}
-var _messages: Dictionary = {}
-var _failure_messages: Dictionary = {}
-var _stage_labels: Dictionary = {}
+var _message_keys: Dictionary = {}
+var _failure_message_keys: Dictionary = {}
+var _stage_label_keys: Dictionary = {}
 var _costs: Dictionary = {}
 
 
@@ -78,10 +78,10 @@ func item_weight(item_id: String) -> float:
 	return float(definition.get("weight", 0.0))
 
 
-func item_label(item_id: String) -> String:
+func item_label_key(item_id: String) -> String:
 	var normalized_id: String = normalize_item_id(item_id)
 	var definition: Dictionary = _item_defs.get(normalized_id, {}) as Dictionary
-	return String(definition.get("label", normalized_id))
+	return String(definition.get("label_key", normalized_id))
 
 
 func create_empty_inventory() -> Dictionary:
@@ -142,20 +142,20 @@ func is_collect_rule_repeatable(kind: String) -> bool:
 	return bool(rule.get("repeatable", false))
 
 
-func get_message(message_id: String, fallback: String = "") -> String:
-	return String(_messages.get(message_id, fallback))
+func get_message_key(message_id: String, fallback_key: String = "") -> String:
+	return String(_message_keys.get(message_id, fallback_key))
 
 
-func get_failure_message(message_id: String, fallback: String = "") -> String:
-	return String(_failure_messages.get(message_id, fallback))
+func get_failure_message_key(message_id: String, fallback_key: String = "") -> String:
+	return String(_failure_message_keys.get(message_id, fallback_key))
 
 
-func get_stage_label(kind: String, stage: int, fallback: String) -> String:
-	var labels: Array = _stage_labels.get(kind, []) as Array
-	if labels.is_empty():
-		return fallback
-	var safe_stage: int = clampi(stage, 0, labels.size() - 1)
-	return String(labels[safe_stage])
+func get_stage_label_key(kind: String, stage: int, fallback_key: String) -> String:
+	var label_keys: Array = _stage_label_keys.get(kind, []) as Array
+	if label_keys.is_empty():
+		return fallback_key
+	var safe_stage: int = clampi(stage, 0, label_keys.size() - 1)
+	return String(label_keys[safe_stage])
 
 
 func get_cost(cost_id: String) -> Dictionary:
@@ -168,7 +168,7 @@ func _build_interactable(object_id: String, definition: Dictionary) -> Dictionar
 	return {
 		"id": object_id,
 		"kind": String(definition.get("kind", "")),
-		"label": String(definition.get("label", object_id)),
+		"label_key": String(definition.get("label_key", object_id)),
 		"position": cell_center(int(cell[0]), int(cell[1])),
 		"color": Color(String(definition.get("color", "ffffff"))),
 		"size": Vector2(float(size[0]), float(size[1])),
@@ -219,9 +219,9 @@ func _load_objects() -> void:
 
 func _load_progression() -> void:
 	var data: Dictionary = _read_json(PROGRESSION_PATH)
-	_messages = (data.get("messages", {}) as Dictionary).duplicate(true)
-	_failure_messages = (data.get("failure_messages", {}) as Dictionary).duplicate(true)
-	_stage_labels = (data.get("stage_labels", {}) as Dictionary).duplicate(true)
+	_message_keys = (data.get("message_keys", {}) as Dictionary).duplicate(true)
+	_failure_message_keys = (data.get("failure_message_keys", {}) as Dictionary).duplicate(true)
+	_stage_label_keys = (data.get("stage_label_keys", {}) as Dictionary).duplicate(true)
 
 	var costs: Dictionary = data.get("costs", {}) as Dictionary
 	for cost_variant: Variant in costs.keys():
@@ -250,6 +250,9 @@ func _validate() -> void:
 	for item_id: String in _item_order:
 		if not item_id.contains(":"):
 			push_error("Item id should be namespaced: %s." % item_id)
+		var item_definition: Dictionary = _item_defs[item_id] as Dictionary
+		if String(item_definition.get("label_key", "")).is_empty():
+			push_error("Item %s has no label_key." % item_id)
 
 	for object_id: String in _object_order:
 		if not object_id.contains(":"):
@@ -257,12 +260,25 @@ func _validate() -> void:
 		var definition: Dictionary = _object_defs[object_id] as Dictionary
 		if String(definition.get("kind", "")).is_empty():
 			push_error("Object %s has no interaction kind." % object_id)
+		if String(definition.get("label_key", "")).is_empty():
+			push_error("Object %s has no label_key." % object_id)
 
 	for kind_variant: Variant in _collect_rules.keys():
 		var rule: Dictionary = _collect_rules[kind_variant] as Dictionary
 		var item_id: String = String(rule.get("item_id", ""))
 		if not _item_defs.has(item_id):
 			push_error("Collect rule %s references unknown item %s." % [kind_variant, item_id])
+		if String(rule.get("message_key", "")).is_empty():
+			push_error("Collect rule %s has no message_key." % kind_variant)
+		if String(rule.get("full_message_key", "")).is_empty():
+			push_error("Collect rule %s has no full_message_key." % kind_variant)
+
+	for message_id_variant: Variant in _message_keys.keys():
+		if String(_message_keys[message_id_variant]).is_empty():
+			push_error("Progression message %s has no localization key." % message_id_variant)
+	for failure_id_variant: Variant in _failure_message_keys.keys():
+		if String(_failure_message_keys[failure_id_variant]).is_empty():
+			push_error("Progression failure %s has no localization key." % failure_id_variant)
 
 	for cost_variant: Variant in _costs.keys():
 		var cost: Dictionary = _costs[cost_variant] as Dictionary

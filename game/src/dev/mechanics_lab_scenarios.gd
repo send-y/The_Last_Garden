@@ -124,7 +124,8 @@ static func _interact(
 		"kind": "interaction",
 		"target_id": target_id,
 		"success": bool(result.get("success", false)),
-		"message": String(result.get("message", "")),
+		"message_key": String(result.get("message_key", "")),
+		"message_args": (result.get("message_args", {}) as Dictionary).duplicate(true),
 	})
 	return bool(result.get("success", false))
 

@@ -28,6 +28,11 @@ window/size/window_height_override=720
 window/stretch/mode="canvas_items"
 window/stretch/aspect="expand"
 
+[internationalization]
+
+locale/fallback="ru"
+locale/translations=PackedStringArray("res://localization/core.ru.translation")
+
 [physics]
 
 3d/physics_engine="Jolt Physics"
