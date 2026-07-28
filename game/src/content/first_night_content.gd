@@ -95,7 +95,12 @@ func normalize_inventory(raw_inventory: Dictionary) -> Dictionary:
 	var inventory: Dictionary = create_empty_inventory()
 	for item_variant: Variant in raw_inventory.keys():
 		var item_id: String = normalize_item_id(String(item_variant))
-		var amount: int = int(raw_inventory[item_variant])
+		if not item_id.contains(":"):
+			continue
+		var raw_amount: Variant = raw_inventory[item_variant]
+		if not _is_finite_integer(raw_amount):
+			continue
+		var amount: int = maxi(0, int(raw_amount))
 		inventory[item_id] = int(inventory.get(item_id, 0)) + amount
 	return inventory
 
@@ -104,24 +109,23 @@ func normalize_collected(raw_collected: Dictionary) -> Dictionary:
 	var collected: Dictionary = {}
 	for object_variant: Variant in raw_collected.keys():
 		var object_id: String = normalize_object_id(String(object_variant))
-		collected[object_id] = bool(raw_collected[object_variant])
+		if not object_id.contains(":") or typeof(raw_collected[object_variant]) != TYPE_BOOL:
+			continue
+		collected[object_id] = raw_collected[object_variant]
 	return collected
+
+
+func get_interactable(object_id: String) -> Dictionary:
+	var normalized_id: String = normalize_object_id(object_id)
+	if not _object_defs.has(normalized_id):
+		return {}
+	return _build_interactable(normalized_id, _object_defs[normalized_id] as Dictionary)
 
 
 func interactables() -> Array[Dictionary]:
 	var result: Array[Dictionary] = []
 	for object_id: String in _object_order:
-		var definition: Dictionary = _object_defs[object_id] as Dictionary
-		var cell: Array = definition.get("cell", [0, 0]) as Array
-		var size: Array = definition.get("size", [24.0, 20.0]) as Array
-		result.append({
-			"id": object_id,
-			"kind": String(definition.get("kind", "")),
-			"label": String(definition.get("label", object_id)),
-			"position": cell_center(int(cell[0]), int(cell[1])),
-			"color": Color(String(definition.get("color", "ffffff"))),
-			"size": Vector2(float(size[0]), float(size[1])),
-		})
+		result.append(_build_interactable(object_id, _object_defs[object_id] as Dictionary))
 	return result
 
 
@@ -156,6 +160,19 @@ func get_stage_label(kind: String, stage: int, fallback: String) -> String:
 
 func get_cost(cost_id: String) -> Dictionary:
 	return (_costs.get(cost_id, {}) as Dictionary).duplicate(true)
+
+
+func _build_interactable(object_id: String, definition: Dictionary) -> Dictionary:
+	var cell: Array = definition.get("cell", [0, 0]) as Array
+	var size: Array = definition.get("size", [24.0, 20.0]) as Array
+	return {
+		"id": object_id,
+		"kind": String(definition.get("kind", "")),
+		"label": String(definition.get("label", object_id)),
+		"position": cell_center(int(cell[0]), int(cell[1])),
+		"color": Color(String(definition.get("color", "ffffff"))),
+		"size": Vector2(float(size[0]), float(size[1])),
+	}
 
 
 func _load_items() -> void:
@@ -218,6 +235,15 @@ func _normalize_cost(raw_cost: Dictionary) -> Dictionary:
 		var item_id: String = normalize_item_id(String(item_variant))
 		cost[item_id] = int(raw_cost[item_variant])
 	return cost
+
+
+func _is_finite_integer(value: Variant) -> bool:
+	if typeof(value) == TYPE_INT:
+		return true
+	if typeof(value) != TYPE_FLOAT:
+		return false
+	var number: float = float(value)
+	return is_finite(number) and number == floor(number)
 
 
 func _validate() -> void:
