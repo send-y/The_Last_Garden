@@ -17,7 +17,7 @@ func _ready() -> void:
 	_build_static_collision()
 	_spawn_interactables()
 	Session.state_changed.connect(_on_state_changed)
-	Session.state_reloaded.connect(_on_state_changed)
+	Session.state_reloaded.connect(_on_state_reloaded)
 	queue_redraw()
 
 
@@ -100,9 +100,20 @@ func _refresh_interactables() -> void:
 
 func _on_state_changed() -> void:
 	_refresh_interactables()
-	if _selected != null and is_instance_valid(_selected) and _selected.visible:
-		var in_range: bool = _player.global_position.distance_to(_selected.global_position) <= Catalog.INTERACTION_RANGE
-		selection_changed.emit(_selected.get_display_label(), in_range)
+	if _selected == null or not is_instance_valid(_selected):
+		return
+	if not _selected.visible:
+		_selected_cell = Vector2i(-1, -1)
+		_set_selected(null)
+		return
+	var in_range: bool = _player.global_position.distance_to(_selected.global_position) <= Catalog.INTERACTION_RANGE
+	selection_changed.emit(_selected.get_display_label(), in_range)
+
+
+func _on_state_reloaded() -> void:
+	_refresh_interactables()
+	_selected_cell = Vector2i(-1, -1)
+	_set_selected(null)
 
 
 func _build_static_collision() -> void:

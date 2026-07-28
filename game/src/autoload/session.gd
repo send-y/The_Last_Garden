@@ -12,6 +12,7 @@ const SAVE_PATH: String = "user://first_night_save.json"
 
 var simulation: FirstNightSimulation
 var _is_paused: bool = false
+var _mechanics_lab_active: bool = false
 var _save_store := SaveStore.new(SAVE_PATH)
 
 
@@ -106,6 +107,50 @@ func get_npc_appearance(npc_id: String) -> Dictionary:
 	return simulation.get_npc_appearance(npc_id)
 
 
+func set_mechanics_lab_active(active: bool) -> bool:
+	if active and not OS.is_debug_build():
+		push_warning("The mechanics lab is unavailable in release builds.")
+		return false
+	_mechanics_lab_active = active
+	return true
+
+
+func is_mechanics_lab_active() -> bool:
+	return _mechanics_lab_active
+
+
+func apply_debug_state(
+	initial_state: Dictionary,
+	scenario_label: String = "",
+	start_paused: bool = true
+) -> bool:
+	if not OS.is_debug_build() or not _mechanics_lab_active:
+		push_warning("Debug state replacement is unavailable in release builds.")
+		return false
+	var header_result: Dictionary = Simulation.validate_save_header(initial_state)
+	if not bool(header_result.get("success", false)):
+		message_emitted.emit(
+			String(header_result.get("message", "Отладочный сценарий повреждён.")),
+			false
+		)
+		return false
+
+	_replace_simulation(initial_state)
+	_publish_reloaded_state(start_paused)
+	var label_suffix: String = " «%s»" % scenario_label if not scenario_label.is_empty() else ""
+	message_emitted.emit("Загружен сценарий лаборатории%s." % label_suffix, true)
+	return true
+
+
+func advance_debug_minutes(amount: int) -> bool:
+	if not OS.is_debug_build() or not _mechanics_lab_active:
+		push_warning("Debug time controls are unavailable in release builds.")
+		return false
+	if amount <= 0:
+		return false
+	return simulation.advance_minutes(amount)
+
+
 func is_paused() -> bool:
 	return _is_paused
 
@@ -121,6 +166,10 @@ func notify_player(message: String, success: bool = false) -> void:
 
 
 func save_game(show_message: bool = true) -> bool:
+	if _mechanics_lab_active:
+		if show_message:
+			message_emitted.emit("Лаборатория не записывает обычные сохранения.", false)
+		return false
 	var result: Dictionary = _save_store.write_state(simulation.export_state())
 	if not bool(result.get("success", false)):
 		message_emitted.emit(String(result.get("message", "Не удалось сохранить состояние.")), false)
@@ -131,6 +180,9 @@ func save_game(show_message: bool = true) -> bool:
 
 
 func load_game() -> bool:
+	if _mechanics_lab_active:
+		message_emitted.emit("Обычная загрузка отключена внутри лаборатории.", false)
+		return false
 	var read_result: Dictionary = _save_store.read_state()
 	if not bool(read_result.get("success", false)):
 		message_emitted.emit(String(read_result.get("message", "Не удалось прочитать сохранение.")), false)
@@ -156,11 +208,7 @@ func load_game() -> bool:
 		return false
 
 	_replace_simulation(loaded_state)
-	_is_paused = false
-	state_reloaded.emit()
-	state_changed.emit()
-	time_changed.emit()
-	pause_changed.emit(false)
+	_publish_reloaded_state()
 	if bool(read_result.get("recovered_from_backup", false)):
 		message_emitted.emit("Основное сохранение повреждено. Загружена резервная копия.", true)
 	else:
@@ -177,6 +225,14 @@ func _replace_simulation(initial_state: Dictionary) -> void:
 	simulation.event_emitted.connect(_on_simulation_event)
 
 
+func _publish_reloaded_state(start_paused: bool = false) -> void:
+	_is_paused = start_paused
+	state_reloaded.emit()
+	state_changed.emit()
+	time_changed.emit()
+	pause_changed.emit(_is_paused)
+
+
 func _on_simulation_event(event: Dictionary) -> void:
 	var event_type: String = String(event.get("type", ""))
 	if event_type == "time_changed":
@@ -187,7 +243,7 @@ func _on_simulation_event(event: Dictionary) -> void:
 		message_emitted.emit(String(event.get("message", "")), bool(event.get("success", false)))
 		if bool(event.get("changed", false)):
 			state_changed.emit()
-		if bool(event.get("auto_save", false)):
+		if bool(event.get("auto_save", false)) and not _mechanics_lab_active:
 			save_game(false)
 
 

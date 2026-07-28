@@ -23,6 +23,7 @@
 - [Дорожная карта](roadmap.md)
 - [Технический план первого среза](implementation/first-slice-technical-plan.md)
 - [Технический план 2A: первый NPC](implementation/first-npc-technical-plan.md)
+- [Технический план Mechanics Lab](implementation/mechanics-lab-technical-plan.md)
 
 ### Системы
 

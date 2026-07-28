@@ -118,8 +118,18 @@ func tick(real_delta: float) -> bool:
 		return false
 
 	_minute_accumulator -= float(whole_minutes)
+	return _advance_clock(whole_minutes)
+
+
+func advance_minutes(amount: int) -> bool:
+	if amount <= 0:
+		return false
+	return _advance_clock(amount)
+
+
+func _advance_clock(amount: int) -> bool:
 	var previous_minute: int = get_minute_of_day()
-	var next_minute: int = mini(previous_minute + whole_minutes, LATEST_MINUTE)
+	var next_minute: int = mini(previous_minute + amount, LATEST_MINUTE)
 	state["minute_of_day"] = next_minute
 
 	var flags: Dictionary = _flags_mutable()
@@ -131,12 +141,7 @@ func tick(real_delta: float) -> bool:
 		_emit_result(true, "Вы слишком устали. Подготовьте постель и завершите день.", true)
 
 	event_emitted.emit({"type": "time_changed", "minute": next_minute})
-	return true
-
-
-func advance_minutes(amount: int) -> void:
-	state["minute_of_day"] = clampi(get_minute_of_day() + amount, 0, LATEST_MINUTE)
-	event_emitted.emit({"type": "time_changed", "minute": get_minute_of_day()})
+	return next_minute != previous_minute
 
 
 func execute_interaction(target_id: String) -> Dictionary:
@@ -464,7 +469,14 @@ func _sleep_until_morning() -> Dictionary:
 	flags["first_night_complete"] = true
 	var npc_arrived: bool = npc_catalog.activate_after_first_night(_npcs_mutable())
 	var morning_note: String = " На рассвете у Общего дома появился путник." if npc_arrived else ""
-	return _emit_result(true, "Наступило новое утро. Итог: %s.%s" % [", ".join(outcomes), morning_note], true, true)
+	var result: Dictionary = _emit_result(
+		true,
+		"Наступило новое утро. Итог: %s.%s" % [", ".join(outcomes), morning_note],
+		true,
+		true
+	)
+	event_emitted.emit({"type": "time_changed", "minute": get_minute_of_day()})
+	return result
 
 
 func _can_add_item(item_id: String, amount: int) -> bool:
