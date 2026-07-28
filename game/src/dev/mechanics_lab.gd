@@ -43,8 +43,8 @@ func _build_ui() -> void:
 	_dev_ui.add_child(root)
 
 	var panel := ColorRect.new()
-	panel.position = Vector2(394.0, 108.0)
-	panel.size = Vector2(238.0, 184.0)
+	panel.position = Vector2(394.0, 84.0)
+	panel.size = Vector2(238.0, 208.0)
 	panel.color = Color(0.055, 0.065, 0.06, 0.94)
 	panel.mouse_filter = Control.MOUSE_FILTER_STOP
 	root.add_child(panel)
@@ -81,7 +81,7 @@ func _build_ui() -> void:
 	var reset := _make_button(panel, "Сбросить сценарий", Vector2(8.0, 110.0), Vector2(222.0, 24.0))
 	reset.pressed.connect(_reset_scenario)
 
-	_status_label = _make_label(panel, Vector2(8.0, 137.0), Vector2(222.0, 42.0), 9)
+	_status_label = _make_label(panel, Vector2(8.0, 137.0), Vector2(222.0, 66.0), 9)
 	_status_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 
 
@@ -167,16 +167,33 @@ func _refresh_status() -> void:
 	if bool(mira.get("active", false)):
 		mira_status = "знакома" if bool(mira.get("known", false)) else "неизвестна"
 	var player: Vector2 = Session.get_player_position()
+	var mira_position: Vector2 = Session.get_npc_position(FIRST_NEIGHBOR_ID, Vector2.ZERO)
+	var mira_target: Vector2i = Session.get_npc_target_cell(FIRST_NEIGHBOR_ID)
+	var mira_needs: Dictionary = Session.get_npc_needs(FIRST_NEIGHBOR_ID)
+	var mira_activity: String = Session.get_npc_activity_id(FIRST_NEIGHBOR_ID).trim_prefix("core:")
 	var event_text: String = _last_message if not _last_message.is_empty() else "Событие: —"
 	if event_text.length() > 54:
 		event_text = event_text.left(51) + "..."
-	_status_label.text = "День %d · %s · %s\nИгрок %.0f, %.0f · Мира %s\n%s" % [
+	_status_label.text = (
+		"День %d · %s · %s\n"
+		+ "Игрок %.0f, %.0f · Мира %s\n"
+		+ "%s · голод %.0f · силы %.0f · еда %d\n"
+		+ "Мира %.0f, %.0f → %d, %d\n%s"
+	) % [
 		Session.get_day(),
 		Session.get_time_text(),
 		"ПАУЗА" if Session.is_paused() else "ИДЁТ",
 		player.x,
 		player.y,
 		mira_status,
+		mira_activity,
+		float(mira_needs.get("hunger", 0.0)),
+		float(mira_needs.get("energy", 0.0)),
+		Session.get_npc_personal_food(FIRST_NEIGHBOR_ID),
+		mira_position.x,
+		mira_position.y,
+		mira_target.x,
+		mira_target.y,
 		event_text,
 	]
 

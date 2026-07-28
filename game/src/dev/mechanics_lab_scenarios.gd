@@ -6,6 +6,7 @@ const Simulation := preload("res://src/simulation/first_night_simulation.gd")
 const FRESH_START: StringName = &"fresh_start"
 const PREPARED_EVENING: StringName = &"prepared_evening"
 const MORNING_WITH_MIRA: StringName = &"morning_with_mira"
+const MIRA_RESTING: StringName = &"mira_resting"
 const PREPARED_MINUTE: int = 17 * 60 + 50
 
 
@@ -25,6 +26,11 @@ static func definitions() -> Array[Dictionary]:
 			"id": MORNING_WITH_MIRA,
 			"label": "Первое утро",
 			"description": "День 2, 07:00. Мира появилась, но ещё неизвестна.",
+		},
+		{
+			"id": MIRA_RESTING,
+			"label": "Поздний вечер Миры",
+			"description": "День 2, 22:00. Мира прожила день и отдыхает.",
 		},
 	]
 
@@ -48,13 +54,20 @@ static func build(scenario_id: StringName) -> Dictionary:
 
 	var simulation: FirstNightSimulation = Simulation.new()
 	var steps: Array[Dictionary] = []
-	if scenario_id == PREPARED_EVENING or scenario_id == MORNING_WITH_MIRA:
+	if (
+		scenario_id == PREPARED_EVENING
+		or scenario_id == MORNING_WITH_MIRA
+		or scenario_id == MIRA_RESTING
+	):
 		if not _prepare_evening(simulation, steps):
 			return _failed_build(scenario_id, simulation, steps)
-	if scenario_id == MORNING_WITH_MIRA:
+	if scenario_id == MORNING_WITH_MIRA or scenario_id == MIRA_RESTING:
 		if not _advance_to(simulation, simulation.EVENING_MINUTE, steps):
 			return _failed_build(scenario_id, simulation, steps)
 		if not _interact(simulation, "core:bed_site", steps):
+			return _failed_build(scenario_id, simulation, steps)
+	if scenario_id == MIRA_RESTING:
+		if not _advance_to(simulation, 22 * 60, steps):
 			return _failed_build(scenario_id, simulation, steps)
 
 	return {

@@ -108,6 +108,34 @@ func get_npc_appearance(npc_id: String) -> Dictionary:
 	return simulation.get_npc_appearance(npc_id)
 
 
+func get_npc_activity(npc_id: String) -> String:
+	return Localized.resolve(simulation.get_npc_activity_key(npc_id))
+
+
+func get_npc_activity_id(npc_id: String) -> String:
+	return simulation.get_npc_activity_id(npc_id)
+
+
+func get_npc_needs(npc_id: String) -> Dictionary:
+	return simulation.get_npc_needs(npc_id)
+
+
+func get_npc_personal_food(npc_id: String) -> int:
+	return simulation.get_npc_personal_food(npc_id)
+
+
+func get_npc_target_cell(npc_id: String) -> Vector2i:
+	return simulation.get_npc_target_cell(npc_id)
+
+
+func get_npc_facing(npc_id: String) -> Vector2:
+	return simulation.get_npc_facing(npc_id)
+
+
+func is_npc_moving(npc_id: String) -> bool:
+	return simulation.is_npc_moving(npc_id)
+
+
 func set_mechanics_lab_active(active: bool) -> bool:
 	if active and not OS.is_debug_build():
 		push_warning("The mechanics lab is unavailable in release builds.")
@@ -263,6 +291,10 @@ func _on_simulation_event(event: Dictionary) -> void:
 	var event_type: String = String(event.get("type", ""))
 	if event_type == "time_changed":
 		time_changed.emit()
+		return
+
+	if event_type == "state_changed":
+		state_changed.emit()
 		return
 
 	if event_type == "command_result":

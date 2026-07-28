@@ -32,13 +32,24 @@ func set_selection(selection: Dictionary) -> void:
 		})
 		return
 	if kind == "interactable":
-		var selection_key: String = (
-			"ui.hud.selection.in_range"
-			if bool(selection.get("in_range", false))
-			else "ui.hud.selection.out_of_range"
-		)
+		var status: String = String(selection.get("status", ""))
+		var in_range: bool = bool(selection.get("in_range", false))
+		var selection_key: String
+		if in_range:
+			selection_key = (
+				"ui.hud.selection.in_range_with_status"
+				if not status.is_empty()
+				else "ui.hud.selection.in_range"
+			)
+		else:
+			selection_key = (
+				"ui.hud.selection.out_of_range_with_status"
+				if not status.is_empty()
+				else "ui.hud.selection.out_of_range"
+			)
 		_selection_label.text = Localized.resolve(selection_key, {
 			"label": String(selection.get("label", "")),
+			"status": status,
 		})
 		return
 	_selection_label.text = Localized.resolve("ui.hud.selection.none")

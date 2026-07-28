@@ -1,5 +1,5 @@
 {
-  "schema_version": 2,
+  "schema_version": 3,
   "npcs": [
     {
       "id": "core:first_neighbor",
@@ -11,7 +11,17 @@
       "appearance_seed_offset": 9101,
       "facing": "up",
       "greeting_key": "dialogue.core.first_neighbor.greeting",
-      "repeat_line_key": "dialogue.core.first_neighbor.repeat"
+      "repeat_line_key": "dialogue.core.first_neighbor.repeat",
+      "autonomy": {
+        "initial_hunger": 72.0,
+        "initial_energy": 82.0,
+        "personal_food": 2,
+        "meal_cell": [20, 28],
+        "rest_cell": [25, 23],
+        "morning_cell": [24, 29],
+        "day_cell": [16, 30],
+        "evening_cell": [21, 28]
+      }
     }
   ]
 }
