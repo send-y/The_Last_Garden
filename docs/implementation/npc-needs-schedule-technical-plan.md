@@ -5,7 +5,7 @@
 - **Зависимости:** 2A, Mechanics Lab и L2 слиты в `main`.
 - **Реализация первого инкремента:** завершена в рабочей ветке.
 - **Автоматическая проверка:** пройдена.
-- **Ручная проверка движения и читаемости:** при первом проходе обнаружена коллизия скрытой Миры на клетке 26, 29; исправлена в рабочей ветке, повторная проверка не выполнена.
+- **Ручная проверка движения и читаемости:** обнаружены коллизия скрытой Миры и отставание физического тела от спрайта; оба дефекта исправлены, повторная проверка не выполнена.
 - **Слияние:** не выполнено.
 
 ## Цель
@@ -136,6 +136,7 @@ Mechanics Lab показывает:
 ```powershell
 godot --headless --editor --path game --quit
 godot --headless --path game --script res://tests/run_tests.gd
+godot --headless --path game res://tests/npc_collision_integration_test.tscn
 godot --headless --path game --quit-after 3
 godot --headless --path game res://src/dev/mechanics_lab.tscn --quit-after 3 -- --lab-scenario=morning_with_mira
 ```

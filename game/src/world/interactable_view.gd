@@ -51,18 +51,21 @@ func configure(definition: Dictionary) -> void:
 		body_collision.shape = body_shape
 		_physical_body.add_child(body_collision)
 		add_child(_physical_body)
-		set_process(true)
+		_physical_body.top_level = true
+		_sync_physical_body()
+		set_physics_process(true)
 	else:
-		set_process(false)
+		set_physics_process(false)
 	refresh_from_state(true)
 
 
-func _process(delta: float) -> void:
+func _physics_process(delta: float) -> void:
 	if kind != "npc" or not visible or Session.is_paused():
 		return
 	var distance: float = position.distance_to(_target_position)
 	if distance <= 0.25:
 		position = _target_position
+		_sync_physical_body()
 		_walk_time = 0.0
 		_walk_frame = 0
 		if _character_visual != null:
@@ -71,6 +74,7 @@ func _process(delta: float) -> void:
 
 	var direction: Vector2 = position.direction_to(_target_position)
 	position = position.move_toward(_target_position, NPC_PRESENTATION_SPEED * delta)
+	_sync_physical_body()
 	_walk_time += delta
 	if _walk_time >= 0.16:
 		_walk_time -= 0.16
@@ -87,6 +91,7 @@ func refresh_from_state(snap: bool = false) -> void:
 		_target_position = Session.get_npc_position(object_id, position)
 		if snap or position.distance_to(_target_position) > NPC_SNAP_DISTANCE:
 			position = _target_position
+		_sync_physical_body()
 		if _character_visual != null:
 			_character_visual.set_appearance(Session.get_npc_appearance(object_id))
 			_character_visual.set_pose(
@@ -99,6 +104,12 @@ func refresh_from_state(snap: bool = false) -> void:
 
 	visible = not Session.should_hide_interactable(object_id, kind)
 	queue_redraw()
+
+
+func _sync_physical_body() -> void:
+	if _physical_body == null:
+		return
+	_physical_body.global_position = global_position
 
 
 func get_display_label() -> String:
