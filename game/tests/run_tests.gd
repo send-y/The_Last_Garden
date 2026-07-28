@@ -7,6 +7,9 @@ const SaveStore := preload("res://src/save/first_night_save_store.gd")
 const SessionNodeScript := preload("res://src/autoload/session.gd")
 const LabScenarios := preload("res://src/dev/mechanics_lab_scenarios.gd")
 const Localized := preload("res://src/localization/localized_text.gd")
+const LocalGridPathfinderScript := preload("res://src/simulation/local_grid_pathfinder.gd")
+const FirstNightNavigationScript := preload("res://src/simulation/first_night_navigation.gd")
+const NpcAutonomyScript := preload("res://src/simulation/npc_autonomy.gd")
 const TEST_SAVE_PATH: String = "user://first_night_save_store_test.json"
 const TEST_LAB_SAVE_PATH: String = "user://mechanics_lab_session_test.json"
 const LOCALIZATION_PATH: String = "res://localization/core.csv"
@@ -21,6 +24,7 @@ const LOCALIZATION_SOURCE_PATHS: Array[String] = [
 	"res://src/content/first_night_content.gd",
 	"res://src/save/first_night_save_store.gd",
 	"res://src/simulation/first_night_simulation.gd",
+	"res://src/simulation/npc_autonomy.gd",
 	"res://src/ui/first_night_hud.gd",
 	"res://src/world/first_night_world.gd",
 ]
@@ -48,12 +52,17 @@ func _run() -> void:
 	_test_session_uses_backup_for_invalid_header_only()
 	_test_legacy_save_ids_are_migrated()
 	_test_v3_outcomes_are_migrated()
+	_test_v4_npc_state_is_migrated()
 	_test_character_appearance_generation()
 	_test_first_neighbor_arrives_and_talks()
+	_test_grid_pathfinder_avoids_static_obstacles()
+	_test_mira_needs_schedule_and_personal_food()
+	_test_mira_autonomy_is_deterministic_and_serialized()
 	_test_lab_rejects_unknown_scenario()
 	_test_lab_fresh_start()
 	_test_lab_prepared_evening()
 	_test_lab_morning_with_mira()
+	_test_lab_mira_resting()
 	_test_lab_scenarios_are_deterministic()
 	_test_lab_rebuild_discards_previous_changes()
 	_test_session_installs_lab_state_without_aliasing_or_save()
@@ -116,6 +125,14 @@ func _test_localization_catalog_and_resolver() -> void:
 	_expect(
 		Localized.resolve("ui.hud.day_time", {"day": 2, "time": "07:00"}) == "День 2  07:00",
 		"named localization arguments resolve in Russian"
+	)
+	_expect(Localized.resolve("npc.activity.resting") == "Отдыхает", "NPC activity resolves in Russian")
+	_expect(
+		Localized.resolve("ui.hud.selection.in_range_with_status", {
+			"label": "Мира",
+			"status": "Отдыхает",
+		}).contains("Мира — Отдыхает"),
+		"NPC selection renders a whole localized status variant"
 	)
 	_expect(Localized.resolve("ui.hud.controls").contains("\n"), "escaped CSV newline is imported")
 	TranslationServer.set_locale("en")
@@ -267,6 +284,12 @@ func _test_query_snapshots_are_isolated() -> void:
 	_expect(simulation.get_item_count(FirstNightContent.STONE_ID) == 0, "exported state is isolated")
 	_expect(not bool(simulation.get_flags()["tools_found"]), "flags query cannot mutate simulation")
 	_expect(not simulation.is_npc_visible("core:first_neighbor"), "NPC query cannot mutate simulation")
+	var queried_needs: Dictionary = simulation.get_npc_needs("core:first_neighbor")
+	queried_needs["hunger"] = 0.0
+	_expect(
+		float(simulation.get_npc_needs("core:first_neighbor").get("hunger", 0.0)) == 72.0,
+		"NPC needs query is isolated"
+	)
 
 
 func _test_corrupt_nested_state_uses_defaults() -> void:
@@ -311,6 +334,44 @@ func _test_corrupt_nested_state_uses_defaults() -> void:
 	_expect(normalized_numbers.get_item_count(FirstNightContent.FOOD_ID) == 2, "valid amount survives")
 	_expect(not bool(normalized_numbers.get_flags()["tools_found"]), "string boolean stays false")
 	_expect(normalized_numbers.get_object_stage("repair") == 0, "fractional stage falls back")
+
+	var invalid_npc_state: Dictionary = Simulation.create_new_state()
+	var invalid_mira: Dictionary = (
+		invalid_npc_state["npcs"] as Dictionary
+	)["core:first_neighbor"] as Dictionary
+	invalid_mira["needs"] = {
+		"hunger": -20.0,
+		"energy": "bad",
+	}
+	invalid_mira["activity_id"] = "not_namespaced"
+	invalid_mira["target_cell"] = [999, -5]
+	invalid_mira["personal_inventory"] = {
+		"core:food": -2,
+		"bad": 3,
+	}
+	invalid_mira["facing"] = [0.0, 0.0]
+	invalid_mira["moving"] = "yes"
+	var normalized_npc: FirstNightSimulation = Simulation.new(invalid_npc_state)
+	var normalized_needs: Dictionary = normalized_npc.get_npc_needs("core:first_neighbor")
+	_expect(float(normalized_needs["hunger"]) == 0.0, "NPC hunger is clamped")
+	_expect(float(normalized_needs["energy"]) == 82.0, "invalid NPC energy uses default")
+	_expect(
+		normalized_npc.get_npc_activity_id("core:first_neighbor") == &"core:arriving",
+		"invalid NPC activity uses default"
+	)
+	_expect(
+		normalized_npc.get_npc_target_cell("core:first_neighbor") == Vector2i(47, 0),
+		"NPC target cell is clamped to the map"
+	)
+	_expect(
+		normalized_npc.get_npc_personal_food("core:first_neighbor") == 2,
+		"invalid personal food uses default"
+	)
+	_expect(
+		normalized_npc.get_npc_facing("core:first_neighbor") == Vector2.UP,
+		"invalid NPC facing uses default"
+	)
+	_expect(not normalized_npc.is_npc_moving("core:first_neighbor"), "invalid moving flag uses default")
 
 
 func _test_save_header_validation() -> void:
@@ -479,7 +540,7 @@ func _test_v3_outcomes_are_migrated() -> void:
 		"mod:custom_outcome",
 	]
 	var migrated_state: Dictionary = simulation.export_state()
-	_expect(int(migrated_state.get("version", 0)) == 4, "v3 save migrates to save version 4")
+	_expect(int(migrated_state.get("version", 0)) == 5, "v3 save migrates to save version 5")
 	_expect(migrated_state.get("outcomes", []) == expected, "v3 outcome copy migrates to stable ids")
 
 	var encoded: String = JSON.stringify(migrated_state)
@@ -491,6 +552,32 @@ func _test_v3_outcomes_are_migrated() -> void:
 			restored.export_state().get("outcomes", []) == expected,
 			"stable outcome ids survive a save round trip"
 		)
+
+
+func _test_v4_npc_state_is_migrated() -> void:
+	var legacy_state: Dictionary = Simulation.create_new_state()
+	legacy_state["version"] = 4
+	var legacy_npcs: Dictionary = legacy_state["npcs"] as Dictionary
+	var legacy_mira: Dictionary = legacy_npcs["core:first_neighbor"] as Dictionary
+	for key: String in [
+		"needs",
+		"activity_id",
+		"activity_started_minute",
+		"target_cell",
+		"personal_inventory",
+		"facing",
+		"moving",
+	]:
+		legacy_mira.erase(key)
+
+	var simulation: FirstNightSimulation = Simulation.new(legacy_state)
+	var migrated: Dictionary = simulation.export_state()
+	var mira: Dictionary = (migrated["npcs"] as Dictionary)["core:first_neighbor"] as Dictionary
+	_expect(int(migrated.get("version", 0)) == 5, "v4 save migrates to save version 5")
+	_expect(typeof(mira.get("needs")) == TYPE_DICTIONARY, "v4 NPC gains normalized needs")
+	_expect(String(mira.get("activity_id", "")).contains(":"), "v4 NPC gains stable activity id")
+	_expect(int((mira.get("personal_inventory", {}) as Dictionary).get("core:food", -1)) == 2, "v4 NPC gains initial personal food")
+	_expect(typeof(mira.get("target_cell")) == TYPE_ARRAY, "v4 NPC gains a target cell")
 
 
 func _test_character_appearance_generation() -> void:
@@ -571,6 +658,83 @@ func _test_first_neighbor_arrives_and_talks() -> void:
 		"known NPC label key survives serialization"
 	)
 	_expect(not restored.get_npc_appearance("core:first_neighbor").is_empty(), "NPC appearance survives serialization")
+
+
+func _test_grid_pathfinder_avoids_static_obstacles() -> void:
+	var pathfinder := LocalGridPathfinderScript.new(
+		FirstNightNavigationScript.MAP_SIZE,
+		FirstNightNavigationScript.CELL_SIZE,
+		FirstNightNavigationScript.blocked_cells()
+	)
+	_expect(not pathfinder.is_walkable(Vector2i(2, 25)), "water cell is blocked")
+	_expect(not pathfinder.is_walkable(Vector2i(19, 22)), "house wall cell is blocked")
+	_expect(pathfinder.is_walkable(Vector2i(24, 25)), "house doorway is walkable")
+
+	var current := Vector2i(26, 29)
+	var target := Vector2i(25, 23)
+	var visited: Array[Vector2i] = [current]
+	for _step: int in range(32):
+		if current == target:
+			break
+		current = pathfinder.next_cell(current, target)
+		visited.append(current)
+	_expect(current == target, "grid path reaches the shelter rest cell")
+	_expect(visited.has(Vector2i(24, 25)), "grid path enters the house through its doorway")
+	for cell: Vector2i in visited:
+		_expect(pathfinder.is_walkable(cell), "grid path never enters a blocked cell: %s" % cell)
+
+
+func _test_mira_needs_schedule_and_personal_food() -> void:
+	var simulation: FirstNightSimulation = Simulation.new()
+	_complete_first_night_for_test(simulation)
+	var start_position: Vector2 = simulation.get_npc_position("core:first_neighbor", Vector2.ZERO)
+	var start_needs: Dictionary = simulation.get_npc_needs("core:first_neighbor")
+	_expect(simulation.get_npc_personal_food("core:first_neighbor") == 2, "Mira arrives with two personal food portions")
+
+	simulation.advance_minutes(5 * 60)
+	var midday_position: Vector2 = simulation.get_npc_position("core:first_neighbor", Vector2.ZERO)
+	var midday_needs: Dictionary = simulation.get_npc_needs("core:first_neighbor")
+	_expect(not midday_position.is_equal_approx(start_position), "Mira changes position during her morning")
+	_expect(float(midday_needs.get("energy", 100.0)) < float(start_needs.get("energy", 0.0)), "Mira spends energy while awake")
+	_expect(simulation.get_npc_personal_food("core:first_neighbor") == 1, "Mira eats one personal portion before noon")
+	_expect(float(midday_needs.get("hunger", 0.0)) > 45.0, "Mira restores hunger after eating")
+
+	simulation.advance_minutes(simulation.LATEST_MINUTE - simulation.get_minute_of_day())
+	var night_needs: Dictionary = simulation.get_npc_needs("core:first_neighbor")
+	_expect(
+		simulation.get_npc_activity_id("core:first_neighbor") == NpcAutonomyScript.ACTIVITY_RESTING,
+		"Mira rests at the end of the day"
+	)
+	_expect(simulation.get_npc_personal_food("core:first_neighbor") == 0, "Mira uses both travel portions across the day")
+	_expect(float(night_needs.get("energy", 0.0)) > 20.0, "rest begins restoring Mira's energy")
+
+
+func _test_mira_autonomy_is_deterministic_and_serialized() -> void:
+	var first_result: Dictionary = LabScenarios.build(LabScenarios.MORNING_WITH_MIRA)
+	var second_result: Dictionary = LabScenarios.build(LabScenarios.MORNING_WITH_MIRA)
+	_expect(bool(first_result.get("success", false)), "first autonomy scenario builds")
+	_expect(bool(second_result.get("success", false)), "second autonomy scenario builds")
+	if not bool(first_result.get("success", false)) or not bool(second_result.get("success", false)):
+		return
+
+	var first: FirstNightSimulation = first_result["simulation"] as FirstNightSimulation
+	var second: FirstNightSimulation = second_result["simulation"] as FirstNightSimulation
+	first.advance_minutes(7 * 60)
+	second.advance_minutes(7 * 60)
+	_expect(first.get_npcs() == second.get_npcs(), "equal state and elapsed minutes produce identical NPC autonomy")
+
+	var encoded: String = JSON.stringify(first.export_state())
+	var decoded: Variant = JSON.parse_string(encoded)
+	_expect(typeof(decoded) == TYPE_DICTIONARY, "autonomy state survives JSON encoding")
+	if typeof(decoded) != TYPE_DICTIONARY:
+		return
+	var restored: FirstNightSimulation = Simulation.new(decoded as Dictionary)
+	var expected_npcs: Dictionary = first.get_npcs()
+	var restored_npcs: Dictionary = restored.get_npcs()
+	_expect(
+		JSON.stringify(restored_npcs) == JSON.stringify(expected_npcs),
+		"NPC needs, activity and position survive save round trip"
+	)
 
 
 func _test_lab_rejects_unknown_scenario() -> void:
@@ -670,6 +834,23 @@ func _test_lab_morning_with_mira() -> void:
 		_lab_interaction_steps_have_message_keys(result),
 		"morning lab keeps localization descriptors for diagnostics"
 	)
+
+
+func _test_lab_mira_resting() -> void:
+	var result: Dictionary = LabScenarios.build(LabScenarios.MIRA_RESTING)
+	_expect(bool(result.get("success", false)), "resting Mira lab scenario builds")
+	if not bool(result.get("success", false)):
+		return
+	var simulation: FirstNightSimulation = result["simulation"] as FirstNightSimulation
+	var needs: Dictionary = simulation.get_npc_needs("core:first_neighbor")
+	_expect(simulation.get_day() == 2, "resting Mira scenario remains on day 2")
+	_expect(simulation.get_time_text() == "22:00", "resting Mira scenario starts at 22:00")
+	_expect(
+		simulation.get_npc_activity_id("core:first_neighbor") == NpcAutonomyScript.ACTIVITY_RESTING,
+		"resting Mira scenario reaches the real resting activity"
+	)
+	_expect(simulation.get_npc_personal_food("core:first_neighbor") == 0, "resting Mira scenario consumed two travel portions")
+	_expect(float(needs.get("hunger", 100.0)) >= 0.0, "resting Mira scenario exposes normalized hunger")
 
 
 func _test_lab_scenarios_are_deterministic() -> void:

@@ -5,9 +5,10 @@ signal event_emitted(event: Dictionary)
 
 const Content := preload("res://src/content/first_night_content.gd")
 const Npcs := preload("res://src/characters/npc_catalog.gd")
+const NpcAutonomyScript := preload("res://src/simulation/npc_autonomy.gd")
 const Localized := preload("res://src/localization/localized_text.gd")
 
-const SAVE_VERSION: int = 4
+const SAVE_VERSION: int = 5
 const DEFAULT_SEED: int = 247061
 const START_MINUTE: int = 11 * 60
 const EVENING_MINUTE: int = 18 * 60
@@ -45,12 +46,14 @@ const LEGACY_V3_OUTCOME_IDS: Dictionary = {
 var state: Dictionary
 var content: FirstNightContent
 var npc_catalog
+var npc_autonomy
 var _minute_accumulator: float = 0.0
 
 
 func _init(initial_state: Dictionary = {}) -> void:
 	content = Content.new()
 	npc_catalog = Npcs.new()
+	npc_autonomy = NpcAutonomyScript.new(npc_catalog)
 	if initial_state.is_empty():
 		state = create_new_state()
 	else:
@@ -140,9 +143,6 @@ static func validate_save_header(raw_state: Dictionary) -> Dictionary:
 
 
 func tick(real_delta: float) -> bool:
-	if bool(get_flags().get("first_night_complete", false)):
-		return false
-
 	_minute_accumulator += real_delta * GAME_MINUTES_PER_SECOND
 	var whole_minutes: int = int(floor(_minute_accumulator))
 	if whole_minutes <= 0:
@@ -161,7 +161,15 @@ func advance_minutes(amount: int) -> bool:
 func _advance_clock(amount: int) -> bool:
 	var previous_minute: int = get_minute_of_day()
 	var next_minute: int = mini(previous_minute + amount, LATEST_MINUTE)
+	if next_minute == previous_minute:
+		return false
 	state["minute_of_day"] = next_minute
+	var npcs_changed: bool = npc_autonomy.advance_minutes(
+		_npcs_mutable(),
+		previous_minute,
+		next_minute,
+		get_player_position()
+	)
 
 	var flags: Dictionary = _flags_mutable()
 	if previous_minute < 17 * 60 and next_minute >= 17 * 60 and not bool(flags["dusk_warned"]):
@@ -171,8 +179,10 @@ func _advance_clock(amount: int) -> bool:
 		flags["late_warned"] = true
 		_emit_result(true, "first_night.message.exhausted", true)
 
+	if npcs_changed:
+		event_emitted.emit({"type": "state_changed"})
 	event_emitted.emit({"type": "time_changed", "minute": next_minute})
-	return next_minute != previous_minute
+	return true
 
 
 func execute_interaction(target_id: String) -> Dictionary:
@@ -339,6 +349,47 @@ func get_npc_position(npc_id: String, fallback: Vector2) -> Vector2:
 
 func get_npc_appearance(npc_id: String) -> Dictionary:
 	return npc_catalog.get_appearance(get_npcs(), npc_id)
+
+
+func get_npc_activity_id(npc_id: String) -> String:
+	var npc: Dictionary = get_npcs().get(npc_id, {}) as Dictionary
+	return String(npc.get("activity_id", NpcAutonomyScript.ACTIVITY_ARRIVING))
+
+
+func get_npc_activity_key(npc_id: String) -> String:
+	return npc_autonomy.get_activity_key(get_npc_activity_id(npc_id))
+
+
+func get_npc_needs(npc_id: String) -> Dictionary:
+	var npc: Dictionary = get_npcs().get(npc_id, {}) as Dictionary
+	return (npc.get("needs", {}) as Dictionary).duplicate(true)
+
+
+func get_npc_personal_food(npc_id: String) -> int:
+	var npc: Dictionary = get_npcs().get(npc_id, {}) as Dictionary
+	var inventory: Dictionary = npc.get("personal_inventory", {}) as Dictionary
+	return int(inventory.get(FirstNightContent.FOOD_ID, 0))
+
+
+func get_npc_target_cell(npc_id: String) -> Vector2i:
+	var npc: Dictionary = get_npcs().get(npc_id, {}) as Dictionary
+	var cell: Array = npc.get("target_cell", [-1, -1]) as Array
+	if cell.size() < 2:
+		return Vector2i(-1, -1)
+	return Vector2i(int(cell[0]), int(cell[1]))
+
+
+func get_npc_facing(npc_id: String) -> Vector2:
+	var npc: Dictionary = get_npcs().get(npc_id, {}) as Dictionary
+	var facing: Array = npc.get("facing", [0.0, -1.0]) as Array
+	if facing.size() < 2:
+		return Vector2.UP
+	return Vector2(float(facing[0]), float(facing[1]))
+
+
+func is_npc_moving(npc_id: String) -> bool:
+	var npc: Dictionary = get_npcs().get(npc_id, {}) as Dictionary
+	return bool(npc.get("moving", false))
 
 
 func _resolve_interaction_target(target_id: String) -> Dictionary:
@@ -637,6 +688,7 @@ func _sleep_until_morning() -> Dictionary:
 	state["minute_of_day"] = 7 * 60
 	flags["first_night_complete"] = true
 	var npc_arrived: bool = npc_catalog.activate_after_first_night(_npcs_mutable())
+	npc_autonomy.start_morning(_npcs_mutable(), get_minute_of_day(), npc_arrived)
 	var result: Dictionary = _emit_result(
 		true,
 		(

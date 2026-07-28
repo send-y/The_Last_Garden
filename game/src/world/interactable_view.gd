@@ -2,6 +2,8 @@ class_name InteractableView
 extends Area2D
 
 const CharacterVisualScene := preload("res://src/characters/character_visual.gd")
+const NPC_PRESENTATION_SPEED: float = 30.0
+const NPC_SNAP_DISTANCE: float = 96.0
 
 var object_id: String
 var kind: String
@@ -11,6 +13,10 @@ var _base_color: Color = Color.WHITE
 var _draw_size: Vector2 = Vector2(24.0, 20.0)
 var _is_selected: bool = false
 var _character_visual
+var _target_position: Vector2
+var _walk_time: float = 0.0
+var _walk_frame: int = 0
+var _physical_body: AnimatableBody2D
 
 
 func configure(definition: Dictionary) -> void:
@@ -34,16 +40,65 @@ func configure(definition: Dictionary) -> void:
 	if kind == "npc":
 		_character_visual = CharacterVisualScene.new()
 		add_child(_character_visual)
-	refresh_from_state()
+		_physical_body = AnimatableBody2D.new()
+		_physical_body.collision_layer = 0
+		_physical_body.collision_mask = 0
+		var body_shape := CapsuleShape2D.new()
+		body_shape.radius = 6.0
+		body_shape.height = 20.0
+		var body_collision := CollisionShape2D.new()
+		body_collision.position = Vector2(0.0, 2.0)
+		body_collision.shape = body_shape
+		_physical_body.add_child(body_collision)
+		add_child(_physical_body)
+		_physical_body.top_level = true
+		_sync_physical_body()
+		set_physics_process(true)
+	else:
+		set_physics_process(false)
+	refresh_from_state(true)
 
 
-func refresh_from_state() -> void:
+func _physics_process(delta: float) -> void:
+	if kind != "npc" or not visible or Session.is_paused():
+		return
+	var distance: float = position.distance_to(_target_position)
+	if distance <= 0.25:
+		position = _target_position
+		_sync_physical_body()
+		_walk_time = 0.0
+		_walk_frame = 0
+		if _character_visual != null:
+			_character_visual.set_pose(Session.get_npc_facing(object_id), 0, false)
+		return
+
+	var direction: Vector2 = position.direction_to(_target_position)
+	position = position.move_toward(_target_position, NPC_PRESENTATION_SPEED * delta)
+	_sync_physical_body()
+	_walk_time += delta
+	if _walk_time >= 0.16:
+		_walk_time -= 0.16
+		_walk_frame = (_walk_frame + 1) % 4
+	if _character_visual != null:
+		_character_visual.set_pose(direction, _walk_frame, true)
+
+
+func refresh_from_state(snap: bool = false) -> void:
 	if kind == "npc":
 		visible = Session.is_npc_visible(object_id)
-		position = Session.get_npc_position(object_id, position)
+		if _physical_body != null:
+			_physical_body.collision_layer = 2 if visible else 0
+		_target_position = Session.get_npc_position(object_id, position)
+		if snap or position.distance_to(_target_position) > NPC_SNAP_DISTANCE:
+			position = _target_position
+		_sync_physical_body()
 		if _character_visual != null:
 			_character_visual.set_appearance(Session.get_npc_appearance(object_id))
-			_character_visual.set_pose(Vector2.UP, 0, false)
+			_character_visual.set_pose(
+				Session.get_npc_facing(object_id),
+				_walk_frame,
+				Session.is_npc_moving(object_id)
+			)
 		queue_redraw()
 		return
 
@@ -51,8 +106,20 @@ func refresh_from_state() -> void:
 	queue_redraw()
 
 
+func _sync_physical_body() -> void:
+	if _physical_body == null:
+		return
+	_physical_body.global_position = global_position
+
+
 func get_display_label() -> String:
 	return Session.get_object_label(kind, base_label_key, object_id)
+
+
+func get_status_text() -> String:
+	if kind != "npc":
+		return ""
+	return Session.get_npc_activity(object_id)
 
 
 func set_selected(value: bool) -> void:

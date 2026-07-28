@@ -71,11 +71,7 @@ func interact_with_selection() -> void:
 			_player.global_position.distance_to(_selected.global_position)
 			<= Catalog.INTERACTION_RANGE
 		)
-		selection_changed.emit({
-			"kind": "interactable",
-			"label": _selected.get_display_label(),
-			"in_range": in_range,
-		})
+		selection_changed.emit(_selection_payload(_selected, in_range))
 
 
 func _set_selected(value: InteractableView) -> void:
@@ -94,11 +90,7 @@ func _set_selected(value: InteractableView) -> void:
 		return
 	_selected.set_selected(true)
 	var in_range: bool = _player.global_position.distance_to(_selected.global_position) <= Catalog.INTERACTION_RANGE
-	selection_changed.emit({
-		"kind": "interactable",
-		"label": _selected.get_display_label(),
-		"in_range": in_range,
-	})
+	selection_changed.emit(_selection_payload(_selected, in_range))
 
 
 func _spawn_interactables() -> void:
@@ -109,9 +101,9 @@ func _spawn_interactables() -> void:
 		_interactables.append(interactable)
 
 
-func _refresh_interactables() -> void:
+func _refresh_interactables(snap: bool = false) -> void:
 	for interactable: InteractableView in _interactables:
-		interactable.refresh_from_state()
+		interactable.refresh_from_state(snap)
 	queue_redraw()
 
 
@@ -124,17 +116,25 @@ func _on_state_changed() -> void:
 		_set_selected(null)
 		return
 	var in_range: bool = _player.global_position.distance_to(_selected.global_position) <= Catalog.INTERACTION_RANGE
-	selection_changed.emit({
-		"kind": "interactable",
-		"label": _selected.get_display_label(),
-		"in_range": in_range,
-	})
+	selection_changed.emit(_selection_payload(_selected, in_range))
 
 
 func _on_state_reloaded() -> void:
-	_refresh_interactables()
+	_refresh_interactables(true)
 	_selected_cell = Vector2i(-1, -1)
 	_set_selected(null)
+
+
+func _selection_payload(interactable: InteractableView, in_range: bool) -> Dictionary:
+	var result: Dictionary = {
+		"kind": "interactable",
+		"label": interactable.get_display_label(),
+		"in_range": in_range,
+	}
+	var status: String = interactable.get_status_text()
+	if not status.is_empty():
+		result["status"] = status
+	return result
 
 
 func _build_static_collision() -> void:
