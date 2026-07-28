@@ -227,3 +227,7 @@ func _make_button(
 	button.add_theme_font_size_override("font_size", 10)
 	parent.add_child(button)
 	return button
+
+
+func _on_construction_cursor_cell_selected(cell: Vector2i) -> void:
+	print("BUILD CELL: ", cell)

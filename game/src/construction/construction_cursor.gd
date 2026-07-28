@@ -1,6 +1,8 @@
 class_name ConstructionCursor
 extends Node2D
 
+signal cell_selected(cell: Vector2i)
+
 const CELL_SIZE: int = 32
 
 var _cell: Vector2i = Vector2i(-1, -1)
@@ -26,6 +28,16 @@ func _process(_delta: float) -> void:
 		_cell.y * CELL_SIZE
 	)
 	queue_redraw()
+
+
+func _unhandled_input(event: InputEvent) -> void:
+	if event is InputEventMouseButton:
+		var mouse_event := event as InputEventMouseButton
+		if (
+			mouse_event.button_index == MOUSE_BUTTON_LEFT
+			and mouse_event.pressed
+		):
+			cell_selected.emit(_cell)
 
 
 func _draw() -> void:
