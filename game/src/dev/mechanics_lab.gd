@@ -230,4 +230,5 @@ func _make_button(
 
 
 func _on_construction_cursor_cell_selected(cell: Vector2i) -> void:
-	print("BUILD CELL: ", cell)
+	var command: Dictionary = ConstructionCommand.place_wall_blueprint(cell)
+	print("BUILD COMMAND: ", JSON.stringify(command))

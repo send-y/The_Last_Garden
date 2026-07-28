@@ -10,6 +10,7 @@ const Localized := preload("res://src/localization/localized_text.gd")
 const LocalGridPathfinderScript := preload("res://src/simulation/local_grid_pathfinder.gd")
 const FirstNightNavigationScript := preload("res://src/simulation/first_night_navigation.gd")
 const NpcAutonomyScript := preload("res://src/simulation/npc_autonomy.gd")
+const ConstructionCommandScript := preload("res://src/construction/construction_command.gd")
 const TEST_SAVE_PATH: String = "user://first_night_save_store_test.json"
 const TEST_LAB_SAVE_PATH: String = "user://mechanics_lab_session_test.json"
 const LOCALIZATION_PATH: String = "res://localization/core.csv"
@@ -58,6 +59,7 @@ func _run() -> void:
 	_test_grid_pathfinder_avoids_static_obstacles()
 	_test_mira_needs_schedule_and_personal_food()
 	_test_mira_autonomy_is_deterministic_and_serialized()
+	_test_construction_command_payload()
 	_test_lab_rejects_unknown_scenario()
 	_test_lab_fresh_start()
 	_test_lab_prepared_evening()
@@ -734,6 +736,26 @@ func _test_mira_autonomy_is_deterministic_and_serialized() -> void:
 	_expect(
 		JSON.stringify(restored_npcs) == JSON.stringify(expected_npcs),
 		"NPC needs, activity and position survive save round trip"
+	)
+
+
+func _test_construction_command_payload() -> void:
+	var command: Dictionary = ConstructionCommandScript.place_wall_blueprint(Vector2i(22, 29))
+	_expect(
+		String(command.get("actor_id", "")) == "core:player",
+		"construction command uses the player actor id"
+	)
+	_expect(
+		String(command.get("action_id", "")) == "core:place_blueprint",
+		"construction command uses a stable action id"
+	)
+	_expect(
+		String(command.get("building_id", "")) == "core:wood_wall",
+		"construction command uses a stable building id"
+	)
+	_expect(
+		command.get("cell", []) == [22, 29],
+		"construction command serializes the selected cell as integers"
 	)
 
 
