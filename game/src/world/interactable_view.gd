@@ -16,6 +16,7 @@ var _character_visual
 var _target_position: Vector2
 var _walk_time: float = 0.0
 var _walk_frame: int = 0
+var _physical_body: AnimatableBody2D
 
 
 func configure(definition: Dictionary) -> void:
@@ -39,17 +40,17 @@ func configure(definition: Dictionary) -> void:
 	if kind == "npc":
 		_character_visual = CharacterVisualScene.new()
 		add_child(_character_visual)
-		var physical_body := AnimatableBody2D.new()
-		physical_body.collision_layer = 2
-		physical_body.collision_mask = 0
+		_physical_body = AnimatableBody2D.new()
+		_physical_body.collision_layer = 0
+		_physical_body.collision_mask = 0
 		var body_shape := CapsuleShape2D.new()
 		body_shape.radius = 6.0
 		body_shape.height = 20.0
 		var body_collision := CollisionShape2D.new()
 		body_collision.position = Vector2(0.0, 2.0)
 		body_collision.shape = body_shape
-		physical_body.add_child(body_collision)
-		add_child(physical_body)
+		_physical_body.add_child(body_collision)
+		add_child(_physical_body)
 		set_process(true)
 	else:
 		set_process(false)
@@ -81,6 +82,8 @@ func _process(delta: float) -> void:
 func refresh_from_state(snap: bool = false) -> void:
 	if kind == "npc":
 		visible = Session.is_npc_visible(object_id)
+		if _physical_body != null:
+			_physical_body.collision_layer = 2 if visible else 0
 		_target_position = Session.get_npc_position(object_id, position)
 		if snap or position.distance_to(_target_position) > NPC_SNAP_DISTANCE:
 			position = _target_position
