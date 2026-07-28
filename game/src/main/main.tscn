@@ -1,39 +1,40 @@
-[gd_scene load_steps=7 format=3]
+[gd_scene format=3 uid="uid://dg5qnjwn20tnu"]
 
-[ext_resource type="Script" path="res://src/main/main.gd" id="1_main"]
-[ext_resource type="Script" path="res://src/world/first_night_world.gd" id="2_world"]
-[ext_resource type="Script" path="res://src/player/player_controller.gd" id="3_player"]
-[ext_resource type="Script" path="res://src/ui/first_night_hud.gd" id="4_hud"]
+[ext_resource type="Script" uid="uid://cr3uqeu1d8ieq" path="res://src/main/main.gd" id="1_main"]
+[ext_resource type="Script" uid="uid://qwvxgr7k3kat" path="res://src/world/first_night_world.gd" id="2_world"]
+[ext_resource type="Script" uid="uid://8lqvnigjjllq" path="res://src/construction/blueprint_layer.gd" id="3_jkpqq"]
+[ext_resource type="Script" uid="uid://cgesqdx755ts2" path="res://src/player/player_controller.gd" id="3_player"]
+[ext_resource type="Script" uid="uid://bx6bnkfvmv6ns" path="res://src/ui/first_night_hud.gd" id="4_hud"]
 
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_player"]
 radius = 6.0
 height = 20.0
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_default"]
-bg_color = Color(0.12, 0.13, 0.11, 1)
-
-[node name="Main" type="Node2D"]
+[node name="Main" type="Node2D" unique_id=272410680]
 script = ExtResource("1_main")
 
-[node name="World" type="Node2D" parent="."]
+[node name="World" type="Node2D" parent="." unique_id=376915388]
 script = ExtResource("2_world")
 
-[node name="Player" type="CharacterBody2D" parent="."]
+[node name="BlueprintLayer" type="Node2D" parent="World" unique_id=1940608080]
+script = ExtResource("3_jkpqq")
+
+[node name="Player" type="CharacterBody2D" parent="." unique_id=1750406136]
 position = Vector2(784, 944)
 script = ExtResource("3_player")
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="Player"]
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Player" unique_id=1405583372]
 position = Vector2(0, 2)
 shape = SubResource("CapsuleShape2D_player")
 
-[node name="Camera2D" type="Camera2D" parent="Player"]
+[node name="Camera2D" type="Camera2D" parent="Player" unique_id=1901625663]
 position_smoothing_enabled = true
 position_smoothing_speed = 8.0
 
-[node name="DuskOverlay" type="CanvasLayer" parent="."]
+[node name="DuskOverlay" type="CanvasLayer" parent="." unique_id=846270927]
 layer = 5
 
-[node name="ColorRect" type="ColorRect" parent="DuskOverlay"]
+[node name="ColorRect" type="ColorRect" parent="DuskOverlay" unique_id=422084182]
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
@@ -41,15 +42,14 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 
-[node name="Hud" type="CanvasLayer" parent="."]
+[node name="Hud" type="CanvasLayer" parent="." unique_id=42931063]
 layer = 10
 
-[node name="HudRoot" type="Control" parent="Hud"]
+[node name="HudRoot" type="Control" parent="Hud" unique_id=324730171]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_styles/panel = SubResource("StyleBoxFlat_default")
 script = ExtResource("4_hud")
