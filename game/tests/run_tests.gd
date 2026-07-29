@@ -809,6 +809,26 @@ func _test_construction_command_payload() -> void:
 		"construction command serializes the selected cell as integers"
 	)
 
+	var cancel_command: Dictionary = (
+		ConstructionCommandScript.cancel_blueprint(Vector2i(22, 29))
+	)
+	_expect(
+		String(cancel_command.get("actor_id", "")) == "core:player",
+		"blueprint cancellation uses the player actor id"
+	)
+	_expect(
+		String(cancel_command.get("action_id", "")) == "core:cancel_blueprint",
+		"blueprint cancellation uses a stable action id"
+	)
+	_expect(
+		cancel_command.get("cell", []) == [22, 29],
+		"blueprint cancellation serializes the selected cell as integers"
+	)
+	_expect(
+		not cancel_command.has("building_id"),
+		"blueprint cancellation identifies the target by cell"
+	)
+
 
 func _test_construction_command_validation() -> void:
 	var valid_command: Dictionary = ConstructionCommandScript.place_wall_blueprint(Vector2i(22, 29))

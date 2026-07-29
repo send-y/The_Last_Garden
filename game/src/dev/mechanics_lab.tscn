@@ -1,7 +1,7 @@
 [gd_scene format=3 uid="uid://cukkejn03egth"]
 
 [ext_resource type="Script" uid="uid://sgjwpwq5vbca" path="res://src/dev/mechanics_lab.gd" id="1_lab"]
-[ext_resource type="PackedScene" path="res://src/main/main.tscn" id="2_game"]
+[ext_resource type="PackedScene" uid="uid://dg5qnjwn20tnu" path="res://src/main/main.tscn" id="2_game"]
 [ext_resource type="Script" uid="uid://dv5nnmx54ujlp" path="res://src/construction/construction_cursor.gd" id="3_hcqur"]
 
 [node name="MechanicsLab" type="Node" unique_id=459650924]
