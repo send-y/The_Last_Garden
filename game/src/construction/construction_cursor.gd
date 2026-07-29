@@ -2,6 +2,7 @@ class_name ConstructionCursor
 extends Node2D
 
 signal cell_selected(cell: Vector2i)
+signal cell_cancel_requested(cell: Vector2i)
 
 const CELL_SIZE: int = 32
 
@@ -31,13 +32,18 @@ func _process(_delta: float) -> void:
 
 
 func _unhandled_input(event: InputEvent) -> void:
-	if event is InputEventMouseButton:
-		var mouse_event := event as InputEventMouseButton
-		if (
-			mouse_event.button_index == MOUSE_BUTTON_LEFT
-			and mouse_event.pressed
-		):
-			cell_selected.emit(_cell)
+	if not (event is InputEventMouseButton):
+		return
+
+	var mouse_event := event as InputEventMouseButton
+	if not mouse_event.pressed:
+		return
+
+	if mouse_event.button_index == MOUSE_BUTTON_LEFT:
+		cell_selected.emit(_cell)
+	elif mouse_event.button_index == MOUSE_BUTTON_RIGHT:
+		cell_cancel_requested.emit(_cell)
+		get_viewport().set_input_as_handled()
 
 
 func _draw() -> void:

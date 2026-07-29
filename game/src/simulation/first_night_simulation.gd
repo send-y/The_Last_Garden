@@ -220,6 +220,10 @@ func execute_command(actor_id: String, target_id: String, action_id: String) -> 
 
 
 func execute_construction_command(command: Dictionary) -> Dictionary:
+	var action_id: String = String(command.get("action_id", ""))
+	if action_id == ConstructionCommandScript.ACTION_CANCEL_BLUEPRINT:
+		return _execute_cancel_blueprint(command)
+
 	var validation: Dictionary = (
 		ConstructionValidatorScript.validate_place_blueprint(command)
 	)
@@ -256,6 +260,45 @@ func execute_construction_command(command: Dictionary) -> Dictionary:
 		"changed": true,
 		"reason_id": "core:blueprint_placed",
 		"blueprint": blueprint.duplicate(true),
+	}
+
+
+func _execute_cancel_blueprint(command: Dictionary) -> Dictionary:
+	var validation: Dictionary = (
+		ConstructionValidatorScript.validate_cancel_blueprint(command)
+	)
+
+	if not bool(validation.get("success", false)):
+		var rejected: Dictionary = validation.duplicate(true)
+		rejected["changed"] = false
+		return rejected
+
+	var cell_data: Array = validation.get("cell", []) as Array
+	var blueprints: Array = state["blueprints"] as Array
+
+	for index: int in range(blueprints.size()):
+		var blueprint_value: Variant = blueprints[index]
+		if typeof(blueprint_value) != TYPE_DICTIONARY:
+			continue
+
+		var blueprint: Dictionary = blueprint_value as Dictionary
+		if blueprint.get("cell", []) != cell_data:
+			continue
+
+		blueprints.remove_at(index)
+		event_emitted.emit({"type": "state_changed"})
+
+		return {
+			"success": true,
+			"changed": true,
+			"reason_id": "core:blueprint_cancelled",
+			"cell": cell_data.duplicate(),
+		}
+
+	return {
+		"success": false,
+		"changed": false,
+		"reason_id": "core:missing_blueprint",
 	}
 
 

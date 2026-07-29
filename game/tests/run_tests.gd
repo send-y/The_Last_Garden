@@ -861,6 +861,37 @@ func _test_construction_command_validation() -> void:
 		"forged construction actor has a stable reason id"
 	)
 
+	var cancel_command: Dictionary = ConstructionCommandScript.cancel_blueprint(Vector2i(22, 29))
+	var cancel_result: Dictionary = (
+		ConstructionValidatorScript.validate_cancel_blueprint(cancel_command)
+	)
+	_expect(bool(cancel_result.get("success", false)), "cancellation validator accepts a valid cell")
+	_expect(
+		cancel_result.get("cell", []) == [22, 29],
+		"cancellation validator preserves a valid cell"
+	)
+
+	var outside_cancel: Dictionary = (
+		ConstructionCommandScript.cancel_blueprint(Vector2i(-1, 29))
+	)
+	var outside_cancel_result: Dictionary = (
+		ConstructionValidatorScript.validate_cancel_blueprint(outside_cancel)
+	)
+	_expect(
+		String(outside_cancel_result.get("reason_id", "")) == "core:outside_map",
+		"cancellation validator rejects a cell outside the map"
+	)
+
+	var forged_cancel: Dictionary = cancel_command.duplicate(true)
+	forged_cancel["actor_id"] = "core:forged_actor"
+	var forged_cancel_result: Dictionary = (
+		ConstructionValidatorScript.validate_cancel_blueprint(forged_cancel)
+	)
+	_expect(
+		String(forged_cancel_result.get("reason_id", "")) == "core:unknown_actor",
+		"cancellation validator rejects a forged actor"
+	)
+
 
 func _test_blueprint_command_execution() -> void:
 	var simulation: FirstNightSimulation = Simulation.new()
@@ -932,6 +963,47 @@ func _test_blueprint_command_execution() -> void:
 		restored.get_blueprints() == expected_blueprints,
 		"placed blueprints survive save round trip"
 	)
+
+	var cancel_result: Dictionary = simulation.execute_construction_command(
+		ConstructionCommandScript.cancel_blueprint(Vector2i(22, 29))
+	)
+	_expect(bool(cancel_result.get("success", false)), "valid cancellation removes a blueprint")
+	_expect(bool(cancel_result.get("changed", false)), "valid cancellation reports a state change")
+	_expect(
+		String(cancel_result.get("reason_id", "")) == "core:blueprint_cancelled",
+		"valid cancellation has a stable reason id"
+	)
+	var remaining_blueprints: Array = simulation.get_blueprints()
+	_expect(remaining_blueprints.size() == 1, "cancellation removes exactly one blueprint")
+	if remaining_blueprints.size() == 1:
+		_expect(
+			(remaining_blueprints[0] as Dictionary).get("cell", []) == [23, 29],
+			"cancellation preserves blueprints in other cells"
+		)
+
+	var missing_result: Dictionary = simulation.execute_construction_command(
+		ConstructionCommandScript.cancel_blueprint(Vector2i(22, 29))
+	)
+	_expect(
+		String(missing_result.get("reason_id", "")) == "core:missing_blueprint",
+		"cancelling an empty cell has a stable reason id"
+	)
+	_expect(
+		not bool(missing_result.get("changed", true)),
+		"cancelling an empty cell does not mutate state"
+	)
+	_expect(simulation.get_blueprints().size() == 1, "empty cancellation preserves state")
+
+	var forged_cancel: Dictionary = (
+		ConstructionCommandScript.cancel_blueprint(Vector2i(23, 29))
+	)
+	forged_cancel["actor_id"] = "core:forged_actor"
+	var forged_cancel_result: Dictionary = simulation.execute_construction_command(forged_cancel)
+	_expect(
+		String(forged_cancel_result.get("reason_id", "")) == "core:unknown_actor",
+		"blueprint execution rejects forged cancellation"
+	)
+	_expect(simulation.get_blueprints().size() == 1, "forged cancellation preserves state")
 
 
 func _test_lab_rejects_unknown_scenario() -> void:
