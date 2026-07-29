@@ -243,3 +243,12 @@ func _on_construction_cursor_cell_cancel_requested(cell: Vector2i) -> void:
 
 	print("CANCEL RESULT: ", JSON.stringify(result))
 	print("BLUEPRINTS IN STATE: ", Session.get_blueprints().size())
+
+
+func _on_construction_cursor_cell_completion_requested(cell: Vector2i) -> void:
+	var command: Dictionary = ConstructionCommand.complete_blueprint(cell)
+	var result: Dictionary = Session.execute_construction_command(command)
+
+	print("COMPLETE RESULT: ", JSON.stringify(result))
+	print("BLUEPRINTS IN STATE: ", Session.get_blueprints().size())
+	print("STRUCTURES IN STATE: ", Session.get_structures().size())

@@ -3,6 +3,7 @@ extends Node2D
 
 signal cell_selected(cell: Vector2i)
 signal cell_cancel_requested(cell: Vector2i)
+signal cell_completion_requested(cell: Vector2i)
 
 const CELL_SIZE: int = 32
 
@@ -43,6 +44,9 @@ func _unhandled_input(event: InputEvent) -> void:
 		cell_selected.emit(_cell)
 	elif mouse_event.button_index == MOUSE_BUTTON_RIGHT:
 		cell_cancel_requested.emit(_cell)
+		get_viewport().set_input_as_handled()
+	elif mouse_event.button_index == MOUSE_BUTTON_MIDDLE:
+		cell_completion_requested.emit(_cell)
 		get_viewport().set_input_as_handled()
 
 

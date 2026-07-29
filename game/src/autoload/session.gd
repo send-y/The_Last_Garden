@@ -156,6 +156,10 @@ func get_blueprints() -> Array:
 	return simulation.get_blueprints()
 
 
+func get_structures() -> Array:
+	return simulation.get_structures()
+
+
 func apply_debug_state(
 	initial_state: Dictionary,
 	scenario_label: String = "",

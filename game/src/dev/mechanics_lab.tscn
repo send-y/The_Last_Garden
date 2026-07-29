@@ -16,4 +16,5 @@ layer = 50
 script = ExtResource("3_hcqur")
 
 [connection signal="cell_cancel_requested" from="ConstructionCursor" to="." method="_on_construction_cursor_cell_cancel_requested"]
+[connection signal="cell_completion_requested" from="ConstructionCursor" to="." method="_on_construction_cursor_cell_completion_requested"]
 [connection signal="cell_selected" from="ConstructionCursor" to="." method="_on_construction_cursor_cell_selected"]

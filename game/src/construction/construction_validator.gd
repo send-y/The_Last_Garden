@@ -57,10 +57,27 @@ static func validate_place_blueprint(command: Dictionary) -> Dictionary:
 
 
 static func validate_cancel_blueprint(command: Dictionary) -> Dictionary:
+	return _validate_cell_command(
+		command,
+		Command.ACTION_CANCEL_BLUEPRINT
+	)
+
+
+static func validate_complete_blueprint(command: Dictionary) -> Dictionary:
+	return _validate_cell_command(
+		command,
+		Command.ACTION_COMPLETE_BLUEPRINT
+	)
+
+
+static func _validate_cell_command(
+	command: Dictionary,
+	expected_action_id: String
+) -> Dictionary:
 	if String(command.get("actor_id", "")) != Command.PLAYER_ACTOR_ID:
 		return _failure("core:unknown_actor")
 
-	if String(command.get("action_id", "")) != Command.ACTION_CANCEL_BLUEPRINT:
+	if String(command.get("action_id", "")) != expected_action_id:
 		return _failure("core:unsupported_action")
 
 	var cell_value: Variant = command.get("cell", [])
