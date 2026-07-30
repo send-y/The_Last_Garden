@@ -10,6 +10,9 @@ const Localized := preload("res://src/localization/localized_text.gd")
 const LocalGridPathfinderScript := preload("res://src/simulation/local_grid_pathfinder.gd")
 const FirstNightNavigationScript := preload("res://src/simulation/first_night_navigation.gd")
 const NpcAutonomyScript := preload("res://src/simulation/npc_autonomy.gd")
+const ConstructionCommandScript := preload("res://src/construction/construction_command.gd")
+const ConstructionValidatorScript := preload("res://src/construction/construction_validator.gd")
+const ConstructionCursorScript := preload("res://src/construction/construction_cursor.gd")
 const TEST_SAVE_PATH: String = "user://first_night_save_store_test.json"
 const TEST_LAB_SAVE_PATH: String = "user://mechanics_lab_session_test.json"
 const LOCALIZATION_PATH: String = "res://localization/core.csv"
@@ -53,11 +56,17 @@ func _run() -> void:
 	_test_legacy_save_ids_are_migrated()
 	_test_v3_outcomes_are_migrated()
 	_test_v4_npc_state_is_migrated()
+	_test_v5_blueprints_are_migrated()
+	_test_v6_structures_are_migrated()
 	_test_character_appearance_generation()
 	_test_first_neighbor_arrives_and_talks()
 	_test_grid_pathfinder_avoids_static_obstacles()
 	_test_mira_needs_schedule_and_personal_food()
 	_test_mira_autonomy_is_deterministic_and_serialized()
+	_test_construction_command_payload()
+	_test_construction_command_validation()
+	_test_blueprint_command_execution()
+	_test_construction_cursor_requires_build_mode()
 	_test_lab_rejects_unknown_scenario()
 	_test_lab_fresh_start()
 	_test_lab_prepared_evening()
@@ -300,6 +309,8 @@ func _test_corrupt_nested_state_uses_defaults() -> void:
 	corrupt["collected"] = "bad"
 	corrupt["flags"] = "bad"
 	corrupt["npcs"] = {"core:first_neighbor": "bad"}
+	corrupt["blueprints"] = "bad"
+	corrupt["structures"] = "bad"
 	corrupt["player_position"] = {"x": 1}
 	corrupt["outcomes"] = "bad"
 
@@ -313,6 +324,8 @@ func _test_corrupt_nested_state_uses_defaults() -> void:
 		"invalid player position falls back to default"
 	)
 	_expect(not restored.is_npc_visible("core:first_neighbor"), "invalid NPC falls back to default")
+	_expect(restored.get_blueprints().is_empty(), "invalid blueprints fall back to empty")
+	_expect(restored.get_structures().is_empty(), "invalid structures fall back to empty")
 	_expect(
 		(restored.export_state().get("outcomes", []) as Array).is_empty(),
 		"invalid outcomes fall back to empty"
@@ -540,7 +553,7 @@ func _test_v3_outcomes_are_migrated() -> void:
 		"mod:custom_outcome",
 	]
 	var migrated_state: Dictionary = simulation.export_state()
-	_expect(int(migrated_state.get("version", 0)) == 5, "v3 save migrates to save version 5")
+	_expect(int(migrated_state.get("version", 0)) == 7, "v3 save migrates to save version 7")
 	_expect(migrated_state.get("outcomes", []) == expected, "v3 outcome copy migrates to stable ids")
 
 	var encoded: String = JSON.stringify(migrated_state)
@@ -573,11 +586,98 @@ func _test_v4_npc_state_is_migrated() -> void:
 	var simulation: FirstNightSimulation = Simulation.new(legacy_state)
 	var migrated: Dictionary = simulation.export_state()
 	var mira: Dictionary = (migrated["npcs"] as Dictionary)["core:first_neighbor"] as Dictionary
-	_expect(int(migrated.get("version", 0)) == 5, "v4 save migrates to save version 5")
+	_expect(int(migrated.get("version", 0)) == 7, "v4 save migrates to save version 7")
 	_expect(typeof(mira.get("needs")) == TYPE_DICTIONARY, "v4 NPC gains normalized needs")
 	_expect(String(mira.get("activity_id", "")).contains(":"), "v4 NPC gains stable activity id")
 	_expect(int((mira.get("personal_inventory", {}) as Dictionary).get("core:food", -1)) == 2, "v4 NPC gains initial personal food")
 	_expect(typeof(mira.get("target_cell")) == TYPE_ARRAY, "v4 NPC gains a target cell")
+
+
+func _test_v5_blueprints_are_migrated() -> void:
+	var legacy_state: Dictionary = Simulation.create_new_state()
+	legacy_state["version"] = 5
+	legacy_state.erase("blueprints")
+	legacy_state.erase("structures")
+	var migrated_simulation: FirstNightSimulation = Simulation.new(legacy_state)
+	_expect(
+		int(migrated_simulation.export_state().get("version", 0)) == 7,
+		"v5 save migrates to save version 7"
+	)
+	_expect(migrated_simulation.get_blueprints().is_empty(), "v5 save gains empty blueprints")
+	_expect(migrated_simulation.get_structures().is_empty(), "v5 save gains empty structures")
+
+	var state_with_blueprint: Dictionary = Simulation.create_new_state()
+	state_with_blueprint["blueprints"] = [
+		{
+			"building_id": "core:wood_wall",
+			"cell": [22, 29],
+		},
+		{
+			"building_id": "core:wood_wall",
+			"cell": [22, 29],
+			"stage_id": "corrupt:stage",
+		},
+		{
+			"building_id": "core:wood_wall",
+			"cell": [19, 22],
+		},
+		{
+			"building_id": "core:wood_wall",
+			"cell": [22.5, 30],
+		},
+	]
+	var simulation: FirstNightSimulation = Simulation.new(state_with_blueprint)
+	var snapshot: Array = simulation.get_blueprints()
+	_expect(snapshot.size() == 1, "blueprint normalization rejects duplicates and invalid cells")
+	_expect(
+		String((snapshot[0] as Dictionary).get("stage_id", "")) == "core:blueprint",
+		"blueprint normalization restores the canonical stage"
+	)
+	(snapshot[0] as Dictionary)["cell"] = [99, 99]
+	_expect(
+		(simulation.get_blueprints()[0] as Dictionary).get("cell", []) == [22, 29],
+		"blueprint query is isolated from simulation state"
+	)
+
+
+func _test_v6_structures_are_migrated() -> void:
+	var legacy_state: Dictionary = Simulation.create_new_state()
+	legacy_state["version"] = 6
+	legacy_state.erase("structures")
+	var migrated_simulation: FirstNightSimulation = Simulation.new(legacy_state)
+	_expect(
+		int(migrated_simulation.export_state().get("version", 0)) == 7,
+		"v6 save migrates to save version 7"
+	)
+	_expect(migrated_simulation.get_structures().is_empty(), "v6 save gains empty structures")
+
+	var state_with_structures: Dictionary = Simulation.create_new_state()
+	state_with_structures["blueprints"] = [
+		{"building_id": "core:wood_wall", "cell": [22, 29]},
+		{"building_id": "core:wood_wall", "cell": [23, 29]},
+	]
+	state_with_structures["structures"] = [
+		{"building_id": "core:wood_wall", "cell": [22, 29]},
+		{"building_id": "core:wood_wall", "cell": [22, 29]},
+		{"building_id": "core:wood_wall", "cell": [19, 22]},
+	]
+	var simulation: FirstNightSimulation = Simulation.new(state_with_structures)
+	var structures: Array = simulation.get_structures()
+	_expect(structures.size() == 1, "structure normalization rejects duplicates and blocked cells")
+	_expect(
+		String((structures[0] as Dictionary).get("stage_id", "")) == "core:complete",
+		"structure normalization restores the canonical stage"
+	)
+	_expect(
+		simulation.get_blueprints().size() == 1
+		and (simulation.get_blueprints()[0] as Dictionary).get("cell", []) == [23, 29],
+		"completed structure wins over a conflicting blueprint"
+	)
+	(structures[0] as Dictionary)["cell"] = [99, 99]
+	_expect(
+		(simulation.get_structures()[0] as Dictionary).get("cell", []) == [22, 29],
+		"structure query is isolated from simulation state"
+	)
 
 
 func _test_character_appearance_generation() -> void:
@@ -735,6 +835,387 @@ func _test_mira_autonomy_is_deterministic_and_serialized() -> void:
 		JSON.stringify(restored_npcs) == JSON.stringify(expected_npcs),
 		"NPC needs, activity and position survive save round trip"
 	)
+
+
+func _test_construction_command_payload() -> void:
+	var command: Dictionary = ConstructionCommandScript.place_wall_blueprint(Vector2i(22, 29))
+	_expect(
+		String(command.get("actor_id", "")) == "core:player",
+		"construction command uses the player actor id"
+	)
+	_expect(
+		String(command.get("action_id", "")) == "core:place_blueprint",
+		"construction command uses a stable action id"
+	)
+	_expect(
+		String(command.get("building_id", "")) == "core:wood_wall",
+		"construction command uses a stable building id"
+	)
+	_expect(
+		command.get("cell", []) == [22, 29],
+		"construction command serializes the selected cell as integers"
+	)
+
+	var cancel_command: Dictionary = (
+		ConstructionCommandScript.cancel_blueprint(Vector2i(22, 29))
+	)
+	_expect(
+		String(cancel_command.get("actor_id", "")) == "core:player",
+		"blueprint cancellation uses the player actor id"
+	)
+	_expect(
+		String(cancel_command.get("action_id", "")) == "core:cancel_blueprint",
+		"blueprint cancellation uses a stable action id"
+	)
+	_expect(
+		cancel_command.get("cell", []) == [22, 29],
+		"blueprint cancellation serializes the selected cell as integers"
+	)
+	_expect(
+		not cancel_command.has("building_id"),
+		"blueprint cancellation identifies the target by cell"
+	)
+
+	var complete_command: Dictionary = (
+		ConstructionCommandScript.complete_blueprint(Vector2i(22, 29))
+	)
+	_expect(
+		String(complete_command.get("actor_id", "")) == "core:player",
+		"blueprint completion uses the player actor id"
+	)
+	_expect(
+		String(complete_command.get("action_id", "")) == "core:complete_blueprint",
+		"blueprint completion uses a stable action id"
+	)
+	_expect(
+		complete_command.get("cell", []) == [22, 29],
+		"blueprint completion serializes the selected cell as integers"
+	)
+	_expect(
+		not complete_command.has("building_id"),
+		"blueprint completion resolves the building from state"
+	)
+
+
+func _test_construction_command_validation() -> void:
+	var valid_command: Dictionary = ConstructionCommandScript.place_wall_blueprint(Vector2i(22, 29))
+	var valid_result: Dictionary = ConstructionValidatorScript.validate_place_blueprint(valid_command)
+	_expect(bool(valid_result.get("success", false)), "construction validator accepts free ground")
+	_expect(valid_result.get("cell", []) == [22, 29], "construction validator preserves a valid cell")
+
+	var blocked_command: Dictionary = ConstructionCommandScript.place_wall_blueprint(Vector2i(19, 22))
+	var blocked_result: Dictionary = ConstructionValidatorScript.validate_place_blueprint(blocked_command)
+	_expect(not bool(blocked_result.get("success", true)), "construction validator rejects a wall cell")
+	_expect(
+		String(blocked_result.get("reason_id", "")) == "core:blocked_cell",
+		"blocked construction has a stable reason id"
+	)
+
+	var outside_command: Dictionary = ConstructionCommandScript.place_wall_blueprint(Vector2i(-1, 20))
+	var outside_result: Dictionary = ConstructionValidatorScript.validate_place_blueprint(outside_command)
+	_expect(not bool(outside_result.get("success", true)), "construction validator rejects outside map")
+	_expect(
+		String(outside_result.get("reason_id", "")) == "core:outside_map",
+		"outside construction has a stable reason id"
+	)
+
+	var forged_command: Dictionary = valid_command.duplicate(true)
+	forged_command["actor_id"] = "core:forged_actor"
+	var forged_result: Dictionary = ConstructionValidatorScript.validate_place_blueprint(forged_command)
+	_expect(not bool(forged_result.get("success", true)), "construction validator rejects forged actor")
+	_expect(
+		String(forged_result.get("reason_id", "")) == "core:unknown_actor",
+		"forged construction actor has a stable reason id"
+	)
+
+	var cancel_command: Dictionary = ConstructionCommandScript.cancel_blueprint(Vector2i(22, 29))
+	var cancel_result: Dictionary = (
+		ConstructionValidatorScript.validate_cancel_blueprint(cancel_command)
+	)
+	_expect(bool(cancel_result.get("success", false)), "cancellation validator accepts a valid cell")
+	_expect(
+		cancel_result.get("cell", []) == [22, 29],
+		"cancellation validator preserves a valid cell"
+	)
+
+	var outside_cancel: Dictionary = (
+		ConstructionCommandScript.cancel_blueprint(Vector2i(-1, 29))
+	)
+	var outside_cancel_result: Dictionary = (
+		ConstructionValidatorScript.validate_cancel_blueprint(outside_cancel)
+	)
+	_expect(
+		String(outside_cancel_result.get("reason_id", "")) == "core:outside_map",
+		"cancellation validator rejects a cell outside the map"
+	)
+
+	var forged_cancel: Dictionary = cancel_command.duplicate(true)
+	forged_cancel["actor_id"] = "core:forged_actor"
+	var forged_cancel_result: Dictionary = (
+		ConstructionValidatorScript.validate_cancel_blueprint(forged_cancel)
+	)
+	_expect(
+		String(forged_cancel_result.get("reason_id", "")) == "core:unknown_actor",
+		"cancellation validator rejects a forged actor"
+	)
+
+	var complete_command: Dictionary = (
+		ConstructionCommandScript.complete_blueprint(Vector2i(22, 29))
+	)
+	var complete_result: Dictionary = (
+		ConstructionValidatorScript.validate_complete_blueprint(complete_command)
+	)
+	_expect(bool(complete_result.get("success", false)), "completion validator accepts a valid cell")
+	_expect(
+		complete_result.get("cell", []) == [22, 29],
+		"completion validator preserves a valid cell"
+	)
+
+	var outside_complete: Dictionary = (
+		ConstructionCommandScript.complete_blueprint(Vector2i(48, 29))
+	)
+	var outside_complete_result: Dictionary = (
+		ConstructionValidatorScript.validate_complete_blueprint(outside_complete)
+	)
+	_expect(
+		String(outside_complete_result.get("reason_id", "")) == "core:outside_map",
+		"completion validator rejects a cell outside the map"
+	)
+
+	var forged_complete: Dictionary = complete_command.duplicate(true)
+	forged_complete["actor_id"] = "core:forged_actor"
+	var forged_complete_result: Dictionary = (
+		ConstructionValidatorScript.validate_complete_blueprint(forged_complete)
+	)
+	_expect(
+		String(forged_complete_result.get("reason_id", "")) == "core:unknown_actor",
+		"completion validator rejects a forged actor"
+	)
+
+
+func _test_blueprint_command_execution() -> void:
+	var simulation: FirstNightSimulation = Simulation.new()
+	var first_command: Dictionary = (
+		ConstructionCommandScript.place_wall_blueprint(Vector2i(22, 29))
+	)
+	var first_result: Dictionary = simulation.execute_construction_command(first_command)
+	_expect(bool(first_result.get("success", false)), "valid construction command places a blueprint")
+	_expect(bool(first_result.get("changed", false)), "blueprint placement reports a state change")
+
+	var blueprints: Array = simulation.get_blueprints()
+	_expect(blueprints.size() == 1, "blueprint placement adds one state entry")
+	if blueprints.size() == 1:
+		var first_blueprint: Dictionary = blueprints[0] as Dictionary
+		_expect(
+			String(first_blueprint.get("building_id", "")) == "core:wood_wall",
+			"placed blueprint preserves the building id"
+		)
+		_expect(first_blueprint.get("cell", []) == [22, 29], "placed blueprint preserves the cell")
+		_expect(
+			String(first_blueprint.get("stage_id", "")) == "core:blueprint",
+			"placed blueprint uses the blueprint stage"
+		)
+
+	var duplicate_result: Dictionary = simulation.execute_construction_command(first_command)
+	_expect(
+		not bool(duplicate_result.get("success", true)),
+		"duplicate blueprint placement is rejected"
+	)
+	_expect(
+		String(duplicate_result.get("reason_id", "")) == "core:occupied_cell",
+		"duplicate blueprint placement has a stable reason id"
+	)
+	_expect(simulation.get_blueprints().size() == 1, "duplicate placement does not mutate state")
+
+	var blocked_command: Dictionary = (
+		ConstructionCommandScript.place_wall_blueprint(Vector2i(19, 22))
+	)
+	var blocked_result: Dictionary = simulation.execute_construction_command(blocked_command)
+	_expect(
+		String(blocked_result.get("reason_id", "")) == "core:blocked_cell",
+		"blocked blueprint execution preserves validation failure"
+	)
+	_expect(simulation.get_blueprints().size() == 1, "blocked placement does not mutate state")
+
+	var forged_command: Dictionary = first_command.duplicate(true)
+	forged_command["actor_id"] = "core:forged_actor"
+	var forged_result: Dictionary = simulation.execute_construction_command(forged_command)
+	_expect(
+		String(forged_result.get("reason_id", "")) == "core:unknown_actor",
+		"blueprint execution rejects a forged actor"
+	)
+	_expect(simulation.get_blueprints().size() == 1, "forged placement does not mutate state")
+
+	var second_command: Dictionary = (
+		ConstructionCommandScript.place_wall_blueprint(Vector2i(23, 29))
+	)
+	var second_result: Dictionary = simulation.execute_construction_command(second_command)
+	_expect(bool(second_result.get("success", false)), "a second free cell accepts a blueprint")
+	_expect(simulation.get_blueprints().size() == 2, "two free cells store two blueprints")
+
+	var expected_blueprints: Array = simulation.get_blueprints()
+	var decoded: Variant = JSON.parse_string(JSON.stringify(simulation.export_state()))
+	_expect(typeof(decoded) == TYPE_DICTIONARY, "blueprint state survives JSON encoding")
+	if typeof(decoded) != TYPE_DICTIONARY:
+		return
+	var restored: FirstNightSimulation = Simulation.new(decoded as Dictionary)
+	_expect(
+		restored.get_blueprints() == expected_blueprints,
+		"placed blueprints survive save round trip"
+	)
+
+	var cancel_result: Dictionary = simulation.execute_construction_command(
+		ConstructionCommandScript.cancel_blueprint(Vector2i(22, 29))
+	)
+	_expect(bool(cancel_result.get("success", false)), "valid cancellation removes a blueprint")
+	_expect(bool(cancel_result.get("changed", false)), "valid cancellation reports a state change")
+	_expect(
+		String(cancel_result.get("reason_id", "")) == "core:blueprint_cancelled",
+		"valid cancellation has a stable reason id"
+	)
+	var remaining_blueprints: Array = simulation.get_blueprints()
+	_expect(remaining_blueprints.size() == 1, "cancellation removes exactly one blueprint")
+	if remaining_blueprints.size() == 1:
+		_expect(
+			(remaining_blueprints[0] as Dictionary).get("cell", []) == [23, 29],
+			"cancellation preserves blueprints in other cells"
+		)
+
+	var missing_result: Dictionary = simulation.execute_construction_command(
+		ConstructionCommandScript.cancel_blueprint(Vector2i(22, 29))
+	)
+	_expect(
+		String(missing_result.get("reason_id", "")) == "core:missing_blueprint",
+		"cancelling an empty cell has a stable reason id"
+	)
+	_expect(
+		not bool(missing_result.get("changed", true)),
+		"cancelling an empty cell does not mutate state"
+	)
+	_expect(simulation.get_blueprints().size() == 1, "empty cancellation preserves state")
+
+	var forged_cancel: Dictionary = (
+		ConstructionCommandScript.cancel_blueprint(Vector2i(23, 29))
+	)
+	forged_cancel["actor_id"] = "core:forged_actor"
+	var forged_cancel_result: Dictionary = simulation.execute_construction_command(forged_cancel)
+	_expect(
+		String(forged_cancel_result.get("reason_id", "")) == "core:unknown_actor",
+		"blueprint execution rejects forged cancellation"
+	)
+	_expect(simulation.get_blueprints().size() == 1, "forged cancellation preserves state")
+
+	_expect(
+		simulation.is_navigation_cell_walkable(Vector2i(23, 29)),
+		"a blueprint does not block NPC navigation"
+	)
+	var complete_result: Dictionary = simulation.execute_construction_command(
+		ConstructionCommandScript.complete_blueprint(Vector2i(23, 29))
+	)
+	_expect(bool(complete_result.get("success", false)), "valid completion builds a structure")
+	_expect(bool(complete_result.get("changed", false)), "valid completion reports a state change")
+	_expect(
+		String(complete_result.get("reason_id", "")) == "core:structure_completed",
+		"valid completion has a stable reason id"
+	)
+	_expect(simulation.get_blueprints().is_empty(), "completion consumes its blueprint")
+	var structures: Array = simulation.get_structures()
+	_expect(structures.size() == 1, "completion creates exactly one structure")
+	if structures.size() == 1:
+		var structure: Dictionary = structures[0] as Dictionary
+		_expect(structure.get("cell", []) == [23, 29], "completed structure preserves the cell")
+		_expect(
+			String(structure.get("building_id", "")) == "core:wood_wall",
+			"completed structure preserves the building id"
+		)
+		_expect(
+			String(structure.get("stage_id", "")) == "core:complete",
+			"completed structure uses the complete stage"
+		)
+	_expect(
+		not simulation.is_navigation_cell_walkable(Vector2i(23, 29)),
+		"a completed wall blocks NPC navigation"
+	)
+
+	var occupied_placement: Dictionary = simulation.execute_construction_command(
+		ConstructionCommandScript.place_wall_blueprint(Vector2i(23, 29))
+	)
+	_expect(
+		String(occupied_placement.get("reason_id", "")) == "core:occupied_cell",
+		"a completed wall rejects a new blueprint in its cell"
+	)
+
+	var missing_completion: Dictionary = simulation.execute_construction_command(
+		ConstructionCommandScript.complete_blueprint(Vector2i(22, 29))
+	)
+	_expect(
+		String(missing_completion.get("reason_id", "")) == "core:missing_blueprint",
+		"completing an empty cell has a stable reason id"
+	)
+
+	var player_cell_command: Dictionary = (
+		ConstructionCommandScript.place_wall_blueprint(Vector2i(24, 29))
+	)
+	_expect(
+		bool(simulation.execute_construction_command(player_cell_command).get("success", false)),
+		"a blueprint may be designated under an actor"
+	)
+	var actor_blocked_completion: Dictionary = simulation.execute_construction_command(
+		ConstructionCommandScript.complete_blueprint(Vector2i(24, 29))
+	)
+	_expect(
+		String(actor_blocked_completion.get("reason_id", "")) == "core:occupied_by_actor",
+		"a wall cannot complete inside the player"
+	)
+	_expect(
+		simulation.get_blueprints().size() == 1 and simulation.get_structures().size() == 1,
+		"actor-blocked completion preserves construction state"
+	)
+
+	var completed_decoded: Variant = JSON.parse_string(JSON.stringify(simulation.export_state()))
+	_expect(typeof(completed_decoded) == TYPE_DICTIONARY, "structure state survives JSON encoding")
+	if typeof(completed_decoded) != TYPE_DICTIONARY:
+		return
+	var completed_restored: FirstNightSimulation = Simulation.new(completed_decoded as Dictionary)
+	_expect(
+		completed_restored.get_structures() == simulation.get_structures(),
+		"completed structures survive save round trip"
+	)
+	_expect(
+		not completed_restored.is_navigation_cell_walkable(Vector2i(23, 29)),
+		"loaded structures rebuild NPC navigation blockers"
+	)
+
+
+func _test_construction_cursor_requires_build_mode() -> void:
+	var cursor: ConstructionCursor = ConstructionCursorScript.new()
+	root.add_child(cursor)
+	var selected_cells: Array[Vector2i] = []
+	cursor.cell_selected.connect(func(cell: Vector2i) -> void:
+		selected_cells.append(cell)
+	)
+
+	var left_click := InputEventMouseButton.new()
+	left_click.button_index = MOUSE_BUTTON_LEFT
+	left_click.pressed = true
+
+	_expect(not cursor.visible, "construction cursor starts hidden")
+	_expect(not cursor.is_processing(), "construction cursor starts without processing")
+	cursor._unhandled_input(left_click)
+	_expect(selected_cells.is_empty(), "disabled construction mode ignores left clicks")
+
+	cursor.set_build_mode_active(true)
+	_expect(cursor.visible, "enabled construction mode shows the cursor")
+	_expect(cursor.is_processing(), "enabled construction mode updates the cursor")
+	cursor._unhandled_input(left_click)
+	_expect(selected_cells.size() == 1, "enabled construction mode accepts one left click")
+
+	cursor.set_build_mode_active(false)
+	cursor._unhandled_input(left_click)
+	_expect(selected_cells.size() == 1, "disabled construction mode stops accepting clicks")
+
+	root.remove_child(cursor)
+	cursor.free()
 
 
 func _test_lab_rejects_unknown_scenario() -> void:

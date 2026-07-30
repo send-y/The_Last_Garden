@@ -26,6 +26,7 @@
 - [Технический план Mechanics Lab](implementation/mechanics-lab-technical-plan.md)
 - [Технический план L2: фундамент локализации](implementation/localization-foundation-technical-plan.md)
 - [Технический план 2B: потребности, движение и распорядок](implementation/npc-needs-schedule-technical-plan.md)
+- [Технический план C1: фундамент строительства](implementation/construction-foundation-technical-plan.md)
 
 ### Системы
 

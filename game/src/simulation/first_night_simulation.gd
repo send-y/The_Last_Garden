@@ -7,8 +7,14 @@ const Content := preload("res://src/content/first_night_content.gd")
 const Npcs := preload("res://src/characters/npc_catalog.gd")
 const NpcAutonomyScript := preload("res://src/simulation/npc_autonomy.gd")
 const Localized := preload("res://src/localization/localized_text.gd")
+const ConstructionCommandScript := preload(
+	"res://src/construction/construction_command.gd"
+)
+const ConstructionValidatorScript := preload(
+	"res://src/construction/construction_validator.gd"
+)
 
-const SAVE_VERSION: int = 5
+const SAVE_VERSION: int = 7
 const DEFAULT_SEED: int = 247061
 const START_MINUTE: int = 11 * 60
 const EVENING_MINUTE: int = 18 * 60
@@ -23,6 +29,8 @@ const OUTCOME_RESIDUAL_WARMTH_ID: String = "core:residual_warmth"
 const OUTCOME_SAFE_WATER_ID: String = "core:safe_water"
 const OUTCOME_LIGHT_SUPPER_ID: String = "core:light_supper"
 const OUTCOME_HUNGRY_SLEEP_ID: String = "core:hungry_sleep"
+const BLUEPRINT_STAGE_ID: String = "core:blueprint"
+const COMPLETE_STAGE_ID: String = "core:complete"
 
 const OUTCOME_LABEL_KEYS: Dictionary = {
 	OUTCOME_DRY_ROOM_ID: "first_night.outcome.dry_room",
@@ -64,6 +72,7 @@ func _init(initial_state: Dictionary = {}) -> void:
 			push_error("Save state rejected: %s." % String(header_result.get("code", "unknown")))
 			state = create_new_state()
 	_normalize_state()
+	_sync_structure_navigation()
 
 
 static func create_new_state(seed_value: int = DEFAULT_SEED) -> Dictionary:
@@ -90,6 +99,8 @@ static func create_new_state(seed_value: int = DEFAULT_SEED) -> Dictionary:
 			"first_night_complete": false,
 		},
 		"outcomes": [],
+		"blueprints": [],
+		"structures": [],
 	}
 
 
@@ -211,6 +222,224 @@ func execute_command(actor_id: String, target_id: String, action_id: String) -> 
 	return _execute_resolved_interaction(resolved_target_id, kind)
 
 
+func execute_construction_command(command: Dictionary) -> Dictionary:
+	var action_id: String = String(command.get("action_id", ""))
+	if action_id == ConstructionCommandScript.ACTION_CANCEL_BLUEPRINT:
+		return _execute_cancel_blueprint(command)
+
+	if action_id == ConstructionCommandScript.ACTION_COMPLETE_BLUEPRINT:
+		return _execute_complete_blueprint(command)
+
+	var validation: Dictionary = (
+		ConstructionValidatorScript.validate_place_blueprint(command)
+	)
+
+	if not bool(validation.get("success", false)):
+		var rejected: Dictionary = validation.duplicate(true)
+		rejected["changed"] = false
+		return rejected
+
+	var cell_data: Array = validation.get("cell", []) as Array
+	for blueprint_value: Variant in (state["blueprints"] as Array):
+		if typeof(blueprint_value) != TYPE_DICTIONARY:
+			continue
+
+		var existing: Dictionary = blueprint_value as Dictionary
+		if existing.get("cell", []) == cell_data:
+			return {
+				"success": false,
+				"changed": false,
+				"reason_id": "core:occupied_cell",
+			}
+
+	for structure_value: Variant in (state["structures"] as Array):
+		if typeof(structure_value) != TYPE_DICTIONARY:
+			continue
+
+		var existing_structure: Dictionary = structure_value as Dictionary
+		if existing_structure.get("cell", []) == cell_data:
+			return {
+				"success": false,
+				"changed": false,
+				"reason_id": "core:occupied_cell",
+			}
+
+	var blueprint: Dictionary = {
+		"building_id": String(validation.get("building_id", "")),
+		"cell": cell_data.duplicate(),
+		"stage_id": BLUEPRINT_STAGE_ID,
+	}
+
+	(state["blueprints"] as Array).append(blueprint)
+	event_emitted.emit({"type": "state_changed"})
+
+	return {
+		"success": true,
+		"changed": true,
+		"reason_id": "core:blueprint_placed",
+		"blueprint": blueprint.duplicate(true),
+	}
+
+
+func _execute_cancel_blueprint(command: Dictionary) -> Dictionary:
+	var validation: Dictionary = (
+		ConstructionValidatorScript.validate_cancel_blueprint(command)
+	)
+
+	if not bool(validation.get("success", false)):
+		var rejected: Dictionary = validation.duplicate(true)
+		rejected["changed"] = false
+		return rejected
+
+	var cell_data: Array = validation.get("cell", []) as Array
+	var blueprints: Array = state["blueprints"] as Array
+
+	for index: int in range(blueprints.size()):
+		var blueprint_value: Variant = blueprints[index]
+		if typeof(blueprint_value) != TYPE_DICTIONARY:
+			continue
+
+		var blueprint: Dictionary = blueprint_value as Dictionary
+		if blueprint.get("cell", []) != cell_data:
+			continue
+
+		blueprints.remove_at(index)
+		event_emitted.emit({"type": "state_changed"})
+
+		return {
+			"success": true,
+			"changed": true,
+			"reason_id": "core:blueprint_cancelled",
+			"cell": cell_data.duplicate(),
+		}
+
+	return {
+		"success": false,
+		"changed": false,
+		"reason_id": "core:missing_blueprint",
+	}
+
+
+func _sync_structure_navigation() -> void:
+	var structure_cells: Array[Vector2i] = []
+
+	for structure_value: Variant in (state["structures"] as Array):
+		if typeof(structure_value) != TYPE_DICTIONARY:
+			continue
+
+		var structure: Dictionary = structure_value as Dictionary
+		var cell_data: Array = structure.get("cell", []) as Array
+		if cell_data.size() != 2:
+			continue
+
+		structure_cells.append(Vector2i(
+			int(cell_data[0]),
+			int(cell_data[1])
+		))
+
+	npc_autonomy.set_structure_cells(structure_cells)
+
+
+func _is_actor_in_cell(cell_data: Array) -> bool:
+	var target_cell := Vector2i(int(cell_data[0]), int(cell_data[1]))
+	if _world_position_to_cell(get_player_position()) == target_cell:
+		return true
+
+	for npc_value: Variant in _npcs_mutable().values():
+		if typeof(npc_value) != TYPE_DICTIONARY:
+			continue
+
+		var npc: Dictionary = npc_value as Dictionary
+		if not bool(npc.get("active", false)):
+			continue
+
+		var position_data: Array = npc.get("position", []) as Array
+		if position_data.size() < 2:
+			continue
+		var npc_position := Vector2(
+			float(position_data[0]),
+			float(position_data[1])
+		)
+		if _world_position_to_cell(npc_position) == target_cell:
+			return true
+
+	return false
+
+
+static func _world_position_to_cell(world_position: Vector2) -> Vector2i:
+	return Vector2i(
+		floori(world_position.x / float(FirstNightContent.CELL_SIZE)),
+		floori(world_position.y / float(FirstNightContent.CELL_SIZE))
+	)
+
+
+func _execute_complete_blueprint(command: Dictionary) -> Dictionary:
+	var validation: Dictionary = (
+		ConstructionValidatorScript.validate_complete_blueprint(command)
+	)
+
+	if not bool(validation.get("success", false)):
+		var rejected: Dictionary = validation.duplicate(true)
+		rejected["changed"] = false
+		return rejected
+
+	var cell_data: Array = validation.get("cell", []) as Array
+	if _is_actor_in_cell(cell_data):
+		return {
+			"success": false,
+			"changed": false,
+			"reason_id": "core:occupied_by_actor",
+		}
+
+	var structures: Array = state["structures"] as Array
+
+	for structure_value: Variant in structures:
+		if typeof(structure_value) != TYPE_DICTIONARY:
+			continue
+
+		var existing_structure: Dictionary = structure_value as Dictionary
+		if existing_structure.get("cell", []) == cell_data:
+			return {
+				"success": false,
+				"changed": false,
+				"reason_id": "core:occupied_cell",
+			}
+
+	var blueprints: Array = state["blueprints"] as Array
+	for index: int in range(blueprints.size()):
+		var blueprint_value: Variant = blueprints[index]
+		if typeof(blueprint_value) != TYPE_DICTIONARY:
+			continue
+
+		var blueprint: Dictionary = blueprint_value as Dictionary
+		if blueprint.get("cell", []) != cell_data:
+			continue
+
+		var structure: Dictionary = {
+			"building_id": String(blueprint.get("building_id", "")),
+			"cell": cell_data.duplicate(),
+			"stage_id": COMPLETE_STAGE_ID,
+		}
+
+		blueprints.remove_at(index)
+		structures.append(structure)
+		_sync_structure_navigation()
+		event_emitted.emit({"type": "state_changed"})
+
+		return {
+			"success": true,
+			"changed": true,
+			"reason_id": "core:structure_completed",
+			"structure": structure.duplicate(true),
+		}
+
+	return {
+		"success": false,
+		"changed": false,
+		"reason_id": "core:missing_blueprint",
+	}
+
+
 func _execute_resolved_interaction(target_id: String, kind: String) -> Dictionary:
 	match kind:
 		"house":
@@ -244,6 +473,18 @@ func export_state() -> Dictionary:
 
 func get_inventory() -> Dictionary:
 	return _inventory_mutable().duplicate(true)
+
+
+func get_blueprints() -> Array:
+	return (state.get("blueprints", []) as Array).duplicate(true)
+
+
+func get_structures() -> Array:
+	return (state.get("structures", []) as Array).duplicate(true)
+
+
+func is_navigation_cell_walkable(cell: Vector2i) -> bool:
+	return npc_autonomy.is_cell_walkable(cell)
 
 
 func get_flags() -> Dictionary:
@@ -781,6 +1022,18 @@ func _normalize_state() -> void:
 	state["collected"] = content.normalize_collected(_as_dictionary(state.get("collected")))
 	state["npcs"] = npc_catalog.normalize_states(_as_dictionary(state.get("npcs")), seed_value)
 
+	var normalized_structures: Array[Dictionary] = (
+		_normalize_structures(state.get("structures", []))
+	)
+	var normalized_blueprints: Array[Dictionary] = (
+		_normalize_blueprints(state.get("blueprints", []))
+	)
+	state["structures"] = normalized_structures
+	state["blueprints"] = _without_structure_cells(
+		normalized_blueprints,
+		normalized_structures
+	)
+
 	var flags: Dictionary = _as_dictionary(state.get("flags"))
 	var default_flags: Dictionary = defaults["flags"] as Dictionary
 	for flag_variant: Variant in default_flags.keys():
@@ -812,6 +1065,93 @@ static func _as_dictionary(value: Variant) -> Dictionary:
 	if typeof(value) != TYPE_DICTIONARY:
 		return {}
 	return (value as Dictionary).duplicate(true)
+
+
+static func _normalize_blueprints(value: Variant) -> Array[Dictionary]:
+	var normalized: Array[Dictionary] = []
+	if typeof(value) != TYPE_ARRAY:
+		return normalized
+
+	var occupied_cells: Dictionary = {}
+	for blueprint_value: Variant in (value as Array):
+		if typeof(blueprint_value) != TYPE_DICTIONARY:
+			continue
+
+		var blueprint: Dictionary = blueprint_value as Dictionary
+		var cell_value: Variant = blueprint.get("cell", [])
+		if typeof(cell_value) != TYPE_ARRAY:
+			continue
+
+		var cell_data: Array = cell_value as Array
+		if cell_data.size() != 2:
+			continue
+		if not _is_whole_number(cell_data[0]) or not _is_whole_number(cell_data[1]):
+			continue
+
+		var normalized_command: Dictionary = {
+			"actor_id": ConstructionCommandScript.PLAYER_ACTOR_ID,
+			"action_id": ConstructionCommandScript.ACTION_PLACE_BLUEPRINT,
+			"building_id": String(blueprint.get("building_id", "")),
+			"cell": [int(cell_data[0]), int(cell_data[1])],
+		}
+		var validation: Dictionary = (
+			ConstructionValidatorScript.validate_place_blueprint(normalized_command)
+		)
+		if not bool(validation.get("success", false)):
+			continue
+
+		var normalized_cell: Array = validation.get("cell", []) as Array
+		var cell_key: String = "%d:%d" % [int(normalized_cell[0]), int(normalized_cell[1])]
+		if occupied_cells.has(cell_key):
+			continue
+		occupied_cells[cell_key] = true
+		normalized.append({
+			"building_id": String(validation.get("building_id", "")),
+			"cell": normalized_cell.duplicate(),
+			"stage_id": BLUEPRINT_STAGE_ID,
+		})
+
+	return normalized
+
+
+static func _normalize_structures(value: Variant) -> Array[Dictionary]:
+	var normalized: Array[Dictionary] = _normalize_blueprints(value)
+
+	for structure: Dictionary in normalized:
+		structure["stage_id"] = COMPLETE_STAGE_ID
+
+	return normalized
+
+
+static func _without_structure_cells(
+	blueprints: Array[Dictionary],
+	structures: Array[Dictionary]
+) -> Array[Dictionary]:
+	var structure_cells: Dictionary = {}
+	for structure: Dictionary in structures:
+		var cell_data: Array = structure.get("cell", []) as Array
+		structure_cells[_construction_cell_key(cell_data)] = true
+
+	var filtered: Array[Dictionary] = []
+	for blueprint: Dictionary in blueprints:
+		var cell_data: Array = blueprint.get("cell", []) as Array
+		if structure_cells.has(_construction_cell_key(cell_data)):
+			continue
+		filtered.append(blueprint.duplicate(true))
+	return filtered
+
+
+static func _construction_cell_key(cell_data: Array) -> String:
+	return "%d:%d" % [int(cell_data[0]), int(cell_data[1])]
+
+
+static func _is_whole_number(value: Variant) -> bool:
+	if typeof(value) == TYPE_INT:
+		return true
+	if typeof(value) != TYPE_FLOAT:
+		return false
+	var number: float = float(value)
+	return is_finite(number) and is_equal_approx(number, round(number))
 
 
 func _inventory_mutable() -> Dictionary:

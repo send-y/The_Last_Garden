@@ -36,6 +36,10 @@ func execute_command(actor_id: String, target_id: String, action_id: String) -> 
 	return simulation.execute_command(actor_id, target_id, action_id)
 
 
+func execute_construction_command(command: Dictionary) -> Dictionary:
+	return simulation.execute_construction_command(command)
+
+
 func get_state() -> Dictionary:
 	return simulation.export_state()
 
@@ -146,6 +150,14 @@ func set_mechanics_lab_active(active: bool) -> bool:
 
 func is_mechanics_lab_active() -> bool:
 	return _mechanics_lab_active
+
+
+func get_blueprints() -> Array:
+	return simulation.get_blueprints()
+
+
+func get_structures() -> Array:
+	return simulation.get_structures()
 
 
 func apply_debug_state(

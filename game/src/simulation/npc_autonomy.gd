@@ -51,6 +51,24 @@ func _init(catalog) -> void:
 	_catalog = catalog
 
 
+func set_structure_cells(structure_cells: Array[Vector2i]) -> void:
+	var blocked_cells: Array[Vector2i] = NavigationData.blocked_cells()
+
+	for cell: Vector2i in structure_cells:
+		if not blocked_cells.has(cell):
+			blocked_cells.append(cell)
+
+	_pathfinder = Pathfinder.new(
+		NavigationData.MAP_SIZE,
+		NavigationData.CELL_SIZE,
+		blocked_cells
+	)
+
+
+func is_cell_walkable(cell: Vector2i) -> bool:
+	return _pathfinder.is_walkable(cell)
+
+
 func advance_minutes(
 	npcs: Dictionary,
 	previous_minute: int,
