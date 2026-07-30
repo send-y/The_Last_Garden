@@ -27,6 +27,7 @@
 - [Технический план L2: фундамент локализации](implementation/localization-foundation-technical-plan.md)
 - [Технический план 2B: потребности, движение и распорядок](implementation/npc-needs-schedule-technical-plan.md)
 - [Технический план C1: фундамент строительства](implementation/construction-foundation-technical-plan.md)
+- [Технический план 2C: самостоятельная работа и просьба о помощи](implementation/npc-construction-assistance-technical-plan.md)
 
 ### Системы
 

@@ -40,6 +40,10 @@ func execute_construction_command(command: Dictionary) -> Dictionary:
 	return simulation.execute_construction_command(command)
 
 
+func execute_npc_work_request(command: Dictionary) -> Dictionary:
+	return simulation.execute_npc_work_request(command)
+
+
 func get_state() -> Dictionary:
 	return simulation.export_state()
 
@@ -126,6 +130,10 @@ func get_npc_needs(npc_id: String) -> Dictionary:
 
 func get_npc_personal_food(npc_id: String) -> int:
 	return simulation.get_npc_personal_food(npc_id)
+
+
+func get_npc_work_commitment(npc_id: String) -> Dictionary:
+	return simulation.get_npc_work_commitment(npc_id)
 
 
 func get_npc_target_cell(npc_id: String) -> Vector2i:

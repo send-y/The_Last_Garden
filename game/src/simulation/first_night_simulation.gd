@@ -13,8 +13,14 @@ const ConstructionCommandScript := preload(
 const ConstructionValidatorScript := preload(
 	"res://src/construction/construction_validator.gd"
 )
+const NpcWorkRequestScript := preload(
+	"res://src/simulation/npc_work_request.gd"
+)
+const NpcWorkRequestValidatorScript := preload(
+	"res://src/simulation/npc_work_request_validator.gd"
+)
 
-const SAVE_VERSION: int = 7
+const SAVE_VERSION: int = 8
 const DEFAULT_SEED: int = 247061
 const START_MINUTE: int = 11 * 60
 const EVENING_MINUTE: int = 18 * 60
@@ -175,11 +181,16 @@ func _advance_clock(amount: int) -> bool:
 	if next_minute == previous_minute:
 		return false
 	state["minute_of_day"] = next_minute
-	var npcs_changed: bool = npc_autonomy.advance_minutes(
+	var autonomy_result: Dictionary = npc_autonomy.advance_minutes(
 		_npcs_mutable(),
 		previous_minute,
 		next_minute,
-		get_player_position()
+		get_player_position(),
+		_get_blueprint_cells()
+	)
+	var npcs_changed: bool = bool(autonomy_result.get("changed", false))
+	var construction_changed: bool = _apply_autonomy_effects(
+		autonomy_result.get("effects", []) as Array
 	)
 
 	var flags: Dictionary = _flags_mutable()
@@ -190,7 +201,7 @@ func _advance_clock(amount: int) -> bool:
 		flags["late_warned"] = true
 		_emit_result(true, "first_night.message.exhausted", true)
 
-	if npcs_changed:
+	if npcs_changed or construction_changed:
 		event_emitted.emit({"type": "state_changed"})
 	event_emitted.emit({"type": "time_changed", "minute": next_minute})
 	return true
@@ -281,6 +292,127 @@ func execute_construction_command(command: Dictionary) -> Dictionary:
 	}
 
 
+func execute_npc_work_request(command: Dictionary) -> Dictionary:
+	var validation: Dictionary = (
+		NpcWorkRequestValidatorScript.validate_construction_help(command)
+	)
+	if not bool(validation.get("success", false)):
+		return _emit_work_request_result(
+			false,
+			String(validation.get("reason_id", "core:invalid_request")),
+			"npc.work_request.failure.invalid"
+		)
+
+	var npc_id: String = String(validation.get("npc_id", ""))
+	var npcs: Dictionary = _npcs_mutable()
+	if not npcs.has(npc_id):
+		return _emit_work_request_result(
+			false,
+			"core:missing_npc",
+			"npc.work_request.failure.missing_npc"
+		)
+
+	var npc: Dictionary = npcs[npc_id] as Dictionary
+	if not bool(npc.get("active", false)):
+		return _emit_work_request_result(
+			false,
+			"core:missing_npc",
+			"npc.work_request.failure.missing_npc"
+		)
+	if not bool(npc.get("known", false)):
+		return _emit_work_request_result(
+			false,
+			"core:not_acquainted",
+			"npc.work_request.failure.not_acquainted"
+		)
+	if (
+		get_player_position().distance_to(get_npc_position(npc_id, Vector2.ZERO))
+		> FirstNightContent.INTERACTION_RANGE
+	):
+		return _emit_work_request_result(
+			false,
+			"core:too_far",
+			"npc.work_request.failure.too_far"
+		)
+	if not (npc.get("work_commitment", {}) as Dictionary).is_empty():
+		return _emit_work_request_result(
+			false,
+			"core:npc_busy",
+			"npc.work_request.failure.busy"
+		)
+
+	var target_cell_data: Array = validation.get("target_cell", []) as Array
+	var blueprint: Dictionary = _find_blueprint(target_cell_data)
+	if blueprint.is_empty():
+		return _emit_work_request_result(
+			false,
+			"core:missing_blueprint",
+			"npc.work_request.failure.missing_blueprint"
+		)
+
+	var needs: Dictionary = npc.get("needs", {}) as Dictionary
+	if (
+		float(needs.get("hunger", 0.0))
+		< npc_autonomy.CONSTRUCTION_REQUEST_MIN_HUNGER
+	):
+		return _emit_work_request_result(
+			false,
+			"core:npc_hungry",
+			"npc.work_request.failure.hungry"
+		)
+	if (
+		float(needs.get("energy", 0.0))
+		< npc_autonomy.CONSTRUCTION_REQUEST_MIN_ENERGY
+	):
+		return _emit_work_request_result(
+			false,
+			"core:npc_tired",
+			"npc.work_request.failure.tired"
+		)
+
+	var target_cell := Vector2i(
+		int(target_cell_data[0]),
+		int(target_cell_data[1])
+	)
+	var npc_cell: Vector2i = _world_position_to_cell(
+		get_npc_position(npc_id, Vector2.ZERO)
+	)
+	var player_cell: Vector2i = _world_position_to_cell(get_player_position())
+	var work_cell: Vector2i = npc_autonomy.find_construction_work_cell(
+		target_cell,
+		npc_cell,
+		player_cell
+	)
+	if work_cell == npc_autonomy.INVALID_CELL:
+		return _emit_work_request_result(
+			false,
+			"core:unreachable_work",
+			"npc.work_request.failure.unreachable"
+		)
+
+	npc["work_commitment"] = {
+		"commitment_id": NpcWorkRequestScript.HELP_BUILD_COMMITMENT_ID,
+		"requester_id": NpcWorkRequestScript.PLAYER_ACTOR_ID,
+		"target_cell": target_cell_data.duplicate(),
+		"work_cell": [work_cell.x, work_cell.y],
+		"building_id": String(blueprint.get("building_id", "")),
+		"accepted_minute": get_minute_of_day(),
+		"progress_minutes": 0,
+		"required_minutes": npc_autonomy.CONSTRUCTION_WORK_MINUTES,
+		"resume_activity_id": String(
+			npc.get("activity_id", npc_autonomy.ACTIVITY_MORNING)
+		),
+	}
+	npc["target_cell"] = [work_cell.x, work_cell.y]
+
+	return _emit_work_request_result(
+		true,
+		"core:request_accepted",
+		"npc.work_request.accepted",
+		true
+	)
+
+
 func _execute_cancel_blueprint(command: Dictionary) -> Dictionary:
 	var validation: Dictionary = (
 		ConstructionValidatorScript.validate_cancel_blueprint(command)
@@ -340,6 +472,48 @@ func _sync_structure_navigation() -> void:
 	npc_autonomy.set_structure_cells(structure_cells)
 
 
+func _get_blueprint_cells() -> Array[Vector2i]:
+	var result: Array[Vector2i] = []
+	for blueprint_value: Variant in (state["blueprints"] as Array):
+		if typeof(blueprint_value) != TYPE_DICTIONARY:
+			continue
+		var cell_data: Array = (blueprint_value as Dictionary).get("cell", []) as Array
+		if cell_data.size() != 2:
+			continue
+		result.append(Vector2i(int(cell_data[0]), int(cell_data[1])))
+	return result
+
+
+func _apply_autonomy_effects(effects: Array) -> bool:
+	var changed: bool = false
+	for effect_value: Variant in effects:
+		if typeof(effect_value) != TYPE_DICTIONARY:
+			continue
+		var effect: Dictionary = effect_value as Dictionary
+		if String(effect.get("type", "")) != "complete_construction":
+			continue
+		var cell_data: Array = effect.get("target_cell", []) as Array
+		if cell_data.size() != 2 or _is_actor_in_cell(cell_data):
+			continue
+		var completion: Dictionary = _complete_blueprint_at_cell(cell_data)
+		if not bool(completion.get("success", false)):
+			continue
+
+		var npc_id: String = String(effect.get("npc_id", ""))
+		var npcs: Dictionary = _npcs_mutable()
+		if npcs.has(npc_id):
+			var npc: Dictionary = npcs[npc_id] as Dictionary
+			var commitment: Dictionary = npc.get("work_commitment", {}) as Dictionary
+			npc["work_commitment"] = {}
+			npc["activity_id"] = String(
+				commitment.get("resume_activity_id", npc_autonomy.ACTIVITY_MORNING)
+			)
+			npc["activity_started_minute"] = get_minute_of_day()
+			npc["moving"] = false
+		changed = true
+	return changed
+
+
 func _is_actor_in_cell(cell_data: Array) -> bool:
 	var target_cell := Vector2i(int(cell_data[0]), int(cell_data[1]))
 	if _world_position_to_cell(get_player_position()) == target_cell:
@@ -391,6 +565,13 @@ func _execute_complete_blueprint(command: Dictionary) -> Dictionary:
 			"reason_id": "core:occupied_by_actor",
 		}
 
+	var result: Dictionary = _complete_blueprint_at_cell(cell_data)
+	if bool(result.get("changed", false)):
+		event_emitted.emit({"type": "state_changed"})
+	return result
+
+
+func _complete_blueprint_at_cell(cell_data: Array) -> Dictionary:
 	var structures: Array = state["structures"] as Array
 
 	for structure_value: Variant in structures:
@@ -424,7 +605,6 @@ func _execute_complete_blueprint(command: Dictionary) -> Dictionary:
 		blueprints.remove_at(index)
 		structures.append(structure)
 		_sync_structure_navigation()
-		event_emitted.emit({"type": "state_changed"})
 
 		return {
 			"success": true,
@@ -438,6 +618,27 @@ func _execute_complete_blueprint(command: Dictionary) -> Dictionary:
 		"changed": false,
 		"reason_id": "core:missing_blueprint",
 	}
+
+
+func _find_blueprint(cell_data: Array) -> Dictionary:
+	for blueprint_value: Variant in (state["blueprints"] as Array):
+		if typeof(blueprint_value) != TYPE_DICTIONARY:
+			continue
+		var blueprint: Dictionary = blueprint_value as Dictionary
+		if blueprint.get("cell", []) == cell_data:
+			return blueprint
+	return {}
+
+
+func _emit_work_request_result(
+	success: bool,
+	reason_id: String,
+	message_key: String,
+	changed: bool = false
+) -> Dictionary:
+	var result: Dictionary = _emit_result(success, message_key, changed)
+	result["reason_id"] = reason_id
+	return result
 
 
 func _execute_resolved_interaction(target_id: String, kind: String) -> Dictionary:
@@ -610,6 +811,11 @@ func get_npc_personal_food(npc_id: String) -> int:
 	var npc: Dictionary = get_npcs().get(npc_id, {}) as Dictionary
 	var inventory: Dictionary = npc.get("personal_inventory", {}) as Dictionary
 	return int(inventory.get(FirstNightContent.FOOD_ID, 0))
+
+
+func get_npc_work_commitment(npc_id: String) -> Dictionary:
+	var npc: Dictionary = get_npcs().get(npc_id, {}) as Dictionary
+	return (npc.get("work_commitment", {}) as Dictionary).duplicate(true)
 
 
 func get_npc_target_cell(npc_id: String) -> Vector2i:

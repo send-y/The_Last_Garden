@@ -55,6 +55,7 @@ func create_initial_states(world_seed: int) -> Dictionary:
 			},
 			"facing": [0.0, -1.0],
 			"moving": false,
+			"work_commitment": {},
 		}
 	return npcs
 
@@ -166,6 +167,9 @@ func normalize_states(raw_npcs: Dictionary, world_seed: int) -> Dictionary:
 		npc_state["moving"] = _safe_bool(
 			npc_state.get("moving"),
 			bool(default_state["moving"])
+		)
+		npc_state["work_commitment"] = _normalize_work_commitment(
+			npc_state.get("work_commitment", {})
 		)
 
 		normalized[npc_id] = npc_state
@@ -352,6 +356,89 @@ func _normalize_facing(value: Variant, fallback: Array) -> Array[float]:
 	if absf(direction.x) > absf(direction.y):
 		return [1.0 if direction.x > 0.0 else -1.0, 0.0]
 	return [0.0, 1.0 if direction.y > 0.0 else -1.0]
+
+
+func _normalize_work_commitment(value: Variant) -> Dictionary:
+	if typeof(value) != TYPE_DICTIONARY:
+		return {}
+	var commitment: Dictionary = value as Dictionary
+	if commitment.is_empty():
+		return {}
+	if String(commitment.get("commitment_id", "")) != "core:help_build":
+		return {}
+	if String(commitment.get("requester_id", "")) != "core:player":
+		return {}
+	if String(commitment.get("building_id", "")) != "core:wood_wall":
+		return {}
+	if not _is_valid_cell(commitment.get("target_cell")):
+		return {}
+	if not _is_valid_cell(commitment.get("work_cell")):
+		return {}
+
+	var target_cell: Array = commitment.get("target_cell") as Array
+	var work_cell: Array = commitment.get("work_cell") as Array
+	var cell_distance: int = (
+		absi(int(target_cell[0]) - int(work_cell[0]))
+		+ absi(int(target_cell[1]) - int(work_cell[1]))
+	)
+	if cell_distance != 1:
+		return {}
+
+	var required_minutes: int = _safe_int(commitment.get("required_minutes"), 0)
+	if required_minutes <= 0:
+		return {}
+	var resume_activity_id: String = String(
+		commitment.get("resume_activity_id", "")
+	)
+	if not resume_activity_id.contains(":"):
+		return {}
+
+	return {
+		"commitment_id": "core:help_build",
+		"requester_id": "core:player",
+		"target_cell": [int(target_cell[0]), int(target_cell[1])],
+		"work_cell": [int(work_cell[0]), int(work_cell[1])],
+		"building_id": "core:wood_wall",
+		"accepted_minute": clampi(
+			_safe_int(commitment.get("accepted_minute"), 0),
+			0,
+			24 * 60 - 1
+		),
+		"progress_minutes": clampi(
+			_safe_int(commitment.get("progress_minutes"), 0),
+			0,
+			required_minutes
+		),
+		"required_minutes": required_minutes,
+		"resume_activity_id": resume_activity_id,
+	}
+
+
+func _is_valid_cell(value: Variant) -> bool:
+	if typeof(value) != TYPE_ARRAY:
+		return false
+	var cell: Array = value as Array
+	if cell.size() != 2:
+		return false
+	if (
+		(typeof(cell[0]) != TYPE_INT and typeof(cell[0]) != TYPE_FLOAT)
+		or (typeof(cell[1]) != TYPE_INT and typeof(cell[1]) != TYPE_FLOAT)
+	):
+		return false
+	var x_value: float = float(cell[0])
+	var y_value: float = float(cell[1])
+	if (
+		not is_finite(x_value)
+		or not is_finite(y_value)
+		or x_value != floor(x_value)
+		or y_value != floor(y_value)
+	):
+		return false
+	var cell_position := Vector2i(int(x_value), int(y_value))
+	return Rect2i(
+		Vector2i.ZERO,
+		FirstNightContentScript.MAP_SIZE
+	).has_point(cell_position)
 
 
 func _load() -> void:

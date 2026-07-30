@@ -13,6 +13,10 @@ const NpcAutonomyScript := preload("res://src/simulation/npc_autonomy.gd")
 const ConstructionCommandScript := preload("res://src/construction/construction_command.gd")
 const ConstructionValidatorScript := preload("res://src/construction/construction_validator.gd")
 const ConstructionCursorScript := preload("res://src/construction/construction_cursor.gd")
+const NpcWorkRequestScript := preload("res://src/simulation/npc_work_request.gd")
+const NpcWorkRequestValidatorScript := preload(
+	"res://src/simulation/npc_work_request_validator.gd"
+)
 const TEST_SAVE_PATH: String = "user://first_night_save_store_test.json"
 const TEST_LAB_SAVE_PATH: String = "user://mechanics_lab_session_test.json"
 const LOCALIZATION_PATH: String = "res://localization/core.csv"
@@ -58,11 +62,15 @@ func _run() -> void:
 	_test_v4_npc_state_is_migrated()
 	_test_v5_blueprints_are_migrated()
 	_test_v6_structures_are_migrated()
+	_test_v7_work_commitments_are_migrated()
 	_test_character_appearance_generation()
 	_test_first_neighbor_arrives_and_talks()
 	_test_grid_pathfinder_avoids_static_obstacles()
 	_test_mira_needs_schedule_and_personal_food()
 	_test_mira_autonomy_is_deterministic_and_serialized()
+	_test_npc_work_request_contract_and_refusals()
+	_test_mira_completes_construction_commitment()
+	_test_missing_blueprint_releases_commitment()
 	_test_construction_command_payload()
 	_test_construction_command_validation()
 	_test_blueprint_command_execution()
@@ -553,7 +561,7 @@ func _test_v3_outcomes_are_migrated() -> void:
 		"mod:custom_outcome",
 	]
 	var migrated_state: Dictionary = simulation.export_state()
-	_expect(int(migrated_state.get("version", 0)) == 7, "v3 save migrates to save version 7")
+	_expect(int(migrated_state.get("version", 0)) == 8, "v3 save migrates to save version 8")
 	_expect(migrated_state.get("outcomes", []) == expected, "v3 outcome copy migrates to stable ids")
 
 	var encoded: String = JSON.stringify(migrated_state)
@@ -586,7 +594,7 @@ func _test_v4_npc_state_is_migrated() -> void:
 	var simulation: FirstNightSimulation = Simulation.new(legacy_state)
 	var migrated: Dictionary = simulation.export_state()
 	var mira: Dictionary = (migrated["npcs"] as Dictionary)["core:first_neighbor"] as Dictionary
-	_expect(int(migrated.get("version", 0)) == 7, "v4 save migrates to save version 7")
+	_expect(int(migrated.get("version", 0)) == 8, "v4 save migrates to save version 8")
 	_expect(typeof(mira.get("needs")) == TYPE_DICTIONARY, "v4 NPC gains normalized needs")
 	_expect(String(mira.get("activity_id", "")).contains(":"), "v4 NPC gains stable activity id")
 	_expect(int((mira.get("personal_inventory", {}) as Dictionary).get("core:food", -1)) == 2, "v4 NPC gains initial personal food")
@@ -600,8 +608,8 @@ func _test_v5_blueprints_are_migrated() -> void:
 	legacy_state.erase("structures")
 	var migrated_simulation: FirstNightSimulation = Simulation.new(legacy_state)
 	_expect(
-		int(migrated_simulation.export_state().get("version", 0)) == 7,
-		"v5 save migrates to save version 7"
+		int(migrated_simulation.export_state().get("version", 0)) == 8,
+		"v5 save migrates to save version 8"
 	)
 	_expect(migrated_simulation.get_blueprints().is_empty(), "v5 save gains empty blueprints")
 	_expect(migrated_simulation.get_structures().is_empty(), "v5 save gains empty structures")
@@ -646,8 +654,8 @@ func _test_v6_structures_are_migrated() -> void:
 	legacy_state.erase("structures")
 	var migrated_simulation: FirstNightSimulation = Simulation.new(legacy_state)
 	_expect(
-		int(migrated_simulation.export_state().get("version", 0)) == 7,
-		"v6 save migrates to save version 7"
+		int(migrated_simulation.export_state().get("version", 0)) == 8,
+		"v6 save migrates to save version 8"
 	)
 	_expect(migrated_simulation.get_structures().is_empty(), "v6 save gains empty structures")
 
@@ -835,6 +843,244 @@ func _test_mira_autonomy_is_deterministic_and_serialized() -> void:
 		JSON.stringify(restored_npcs) == JSON.stringify(expected_npcs),
 		"NPC needs, activity and position survive save round trip"
 	)
+
+
+func _test_npc_work_request_contract_and_refusals() -> void:
+	var target_cell := Vector2i(22, 29)
+	var command: Dictionary = NpcWorkRequestScript.request_construction_help(
+		"core:first_neighbor",
+		target_cell
+	)
+	_expect(
+		String(command.get("actor_id", "")) == "core:player",
+		"work request uses the player actor id"
+	)
+	_expect(
+		String(command.get("action_id", "")) == "core:request_construction_help",
+		"work request uses a stable action id"
+	)
+	_expect(
+		command.get("target_cell", []) == [22, 29],
+		"work request serializes its target cell"
+	)
+	_expect(
+		bool(
+			NpcWorkRequestValidatorScript.validate_construction_help(command).get(
+				"success",
+				false
+			)
+		),
+		"work request validator accepts a canonical request"
+	)
+
+	var forged: Dictionary = command.duplicate(true)
+	forged["actor_id"] = "core:forged"
+	var forged_result: Dictionary = (
+		NpcWorkRequestValidatorScript.validate_construction_help(forged)
+	)
+	_expect(
+		String(forged_result.get("reason_id", "")) == "core:unknown_actor",
+		"work request validator rejects a forged actor"
+	)
+
+	var unacquainted: FirstNightSimulation = _build_mira_work_simulation(
+		target_cell,
+		false,
+		true
+	)
+	var unacquainted_result: Dictionary = unacquainted.execute_npc_work_request(command)
+	_expect(
+		String(unacquainted_result.get("reason_id", "")) == "core:not_acquainted",
+		"Mira refuses a request before meeting the player"
+	)
+
+	var missing_blueprint: FirstNightSimulation = _build_mira_work_simulation(
+		target_cell,
+		true,
+		false
+	)
+	var missing_result: Dictionary = missing_blueprint.execute_npc_work_request(command)
+	_expect(
+		String(missing_result.get("reason_id", "")) == "core:missing_blueprint",
+		"work request requires a real blueprint"
+	)
+
+	var hungry_state: Dictionary = _build_mira_work_simulation(
+		target_cell,
+		true,
+		true
+	).export_state()
+	var hungry_npc: Dictionary = (
+		hungry_state["npcs"] as Dictionary
+	)["core:first_neighbor"] as Dictionary
+	(hungry_npc["needs"] as Dictionary)["hunger"] = 20.0
+	var hungry := Simulation.new(hungry_state)
+	_expect(
+		String(
+			hungry.execute_npc_work_request(command).get("reason_id", "")
+		) == "core:npc_hungry",
+		"Mira refuses construction while too hungry"
+	)
+
+	var tired_state: Dictionary = _build_mira_work_simulation(
+		target_cell,
+		true,
+		true
+	).export_state()
+	var tired_npc: Dictionary = (
+		tired_state["npcs"] as Dictionary
+	)["core:first_neighbor"] as Dictionary
+	(tired_npc["needs"] as Dictionary)["energy"] = 20.0
+	var tired := Simulation.new(tired_state)
+	_expect(
+		String(
+			tired.execute_npc_work_request(command).get("reason_id", "")
+		) == "core:npc_tired",
+		"Mira refuses construction while too tired"
+	)
+
+	var blocked_target := Vector2i(10, 10)
+	var blocked_state: Dictionary = _build_mira_work_simulation(
+		blocked_target,
+		true,
+		true
+	).export_state()
+	for blocked_cell: Vector2i in [
+		blocked_target + Vector2i.DOWN,
+		blocked_target + Vector2i.RIGHT,
+		blocked_target + Vector2i.UP,
+		blocked_target + Vector2i.LEFT,
+	]:
+		(blocked_state["structures"] as Array).append({
+			"building_id": "core:wood_wall",
+			"cell": [blocked_cell.x, blocked_cell.y],
+			"stage_id": "core:complete",
+		})
+	var blocked := Simulation.new(blocked_state)
+	var blocked_command: Dictionary = NpcWorkRequestScript.request_construction_help(
+		"core:first_neighbor",
+		blocked_target
+	)
+	_expect(
+		String(
+			blocked.execute_npc_work_request(blocked_command).get("reason_id", "")
+		) == "core:unreachable_work",
+		"Mira refuses a blueprint without an adjacent work cell"
+	)
+
+
+func _test_mira_completes_construction_commitment() -> void:
+	var target_cell := Vector2i(22, 29)
+	var simulation: FirstNightSimulation = _build_mira_work_simulation(
+		target_cell,
+		true,
+		true
+	)
+	var command: Dictionary = NpcWorkRequestScript.request_construction_help(
+		"core:first_neighbor",
+		target_cell
+	)
+	var accepted: Dictionary = simulation.execute_npc_work_request(command)
+	_expect(bool(accepted.get("success", false)), "Mira accepts an available construction request")
+	_expect(
+		String(accepted.get("reason_id", "")) == "core:request_accepted",
+		"accepted construction request has a stable reason"
+	)
+	var commitment: Dictionary = simulation.get_npc_work_commitment("core:first_neighbor")
+	_expect(not commitment.is_empty(), "accepted request creates a work commitment")
+	_expect(
+		int(commitment.get("required_minutes", 0))
+		== NpcAutonomyScript.CONSTRUCTION_WORK_MINUTES,
+		"construction commitment records its required work time"
+	)
+
+	var encoded: String = JSON.stringify(simulation.export_state())
+	var decoded: Variant = JSON.parse_string(encoded)
+	var restored := Simulation.new(decoded as Dictionary)
+	_expect(
+		restored.get_npc_work_commitment("core:first_neighbor") == commitment,
+		"construction commitment survives a save round trip"
+	)
+
+	simulation.advance_minutes(14)
+	_expect(
+		simulation.get_blueprints().size() == 1
+		and simulation.get_structures().is_empty(),
+		"construction does not finish before travel and work time elapse"
+	)
+	simulation.advance_minutes(1)
+	_expect(simulation.get_blueprints().is_empty(), "Mira consumes the completed blueprint")
+	_expect(simulation.get_structures().size() == 1, "Mira creates one completed wall")
+	_expect(
+		simulation.get_npc_work_commitment("core:first_neighbor").is_empty(),
+		"completed construction closes the work commitment"
+	)
+	_expect(
+		not simulation.is_navigation_cell_walkable(target_cell),
+		"Mira's completed wall updates navigation"
+	)
+	_expect(
+		simulation.get_npc_activity_id("core:first_neighbor")
+		!= NpcAutonomyScript.ACTIVITY_BUILDING,
+		"Mira returns to her prior routine after completing the wall"
+	)
+
+	var deterministic_a := Simulation.new(decoded as Dictionary)
+	var deterministic_b := Simulation.new(decoded as Dictionary)
+	deterministic_a.advance_minutes(15)
+	deterministic_b.advance_minutes(15)
+	_expect(
+		deterministic_a.export_state() == deterministic_b.export_state(),
+		"equal commitments and elapsed time produce the same construction result"
+	)
+
+
+func _test_missing_blueprint_releases_commitment() -> void:
+	var target_cell := Vector2i(22, 29)
+	var simulation: FirstNightSimulation = _build_mira_work_simulation(
+		target_cell,
+		true,
+		true
+	)
+	var request: Dictionary = NpcWorkRequestScript.request_construction_help(
+		"core:first_neighbor",
+		target_cell
+	)
+	_expect(
+		bool(simulation.execute_npc_work_request(request).get("success", false)),
+		"commitment cancellation scenario starts with an accepted request"
+	)
+	simulation.execute_construction_command(
+		ConstructionCommandScript.cancel_blueprint(target_cell)
+	)
+	simulation.advance_minutes(1)
+	_expect(
+		simulation.get_npc_work_commitment("core:first_neighbor").is_empty(),
+		"missing blueprint releases Mira from the commitment"
+	)
+
+
+func _build_mira_work_simulation(
+	target_cell: Vector2i,
+	acquainted: bool,
+	with_blueprint: bool
+) -> FirstNightSimulation:
+	var scenario: Dictionary = LabScenarios.build(LabScenarios.MORNING_WITH_MIRA)
+	var simulation: FirstNightSimulation = scenario["simulation"] as FirstNightSimulation
+	simulation.set_player_position(
+		simulation.get_npc_position("core:first_neighbor", Vector2.ZERO)
+	)
+	if acquainted:
+		simulation.execute_command(
+			simulation.PLAYER_ACTOR_ID,
+			"core:first_neighbor",
+			simulation.ACTION_INTERACT
+		)
+	if with_blueprint:
+		simulation.execute_construction_command(
+			ConstructionCommandScript.place_wall_blueprint(target_cell)
+		)
+	return simulation
 
 
 func _test_construction_command_payload() -> void:
@@ -1184,6 +1430,43 @@ func _test_blueprint_command_execution() -> void:
 	_expect(
 		not completed_restored.is_navigation_cell_walkable(Vector2i(23, 29)),
 		"loaded structures rebuild NPC navigation blockers"
+	)
+
+
+func _test_v7_work_commitments_are_migrated() -> void:
+	var legacy_state: Dictionary = Simulation.create_new_state()
+	legacy_state["version"] = 7
+	var legacy_mira: Dictionary = (
+		legacy_state["npcs"] as Dictionary
+	)["core:first_neighbor"] as Dictionary
+	legacy_mira.erase("work_commitment")
+	var migrated := Simulation.new(legacy_state)
+	_expect(
+		int(migrated.export_state().get("version", 0)) == 8,
+		"v7 save migrates to save version 8"
+	)
+	_expect(
+		migrated.get_npc_work_commitment("core:first_neighbor").is_empty(),
+		"v7 Mira gains an empty work commitment"
+	)
+
+	var corrupt_state: Dictionary = Simulation.create_new_state()
+	var corrupt_mira: Dictionary = (
+		corrupt_state["npcs"] as Dictionary
+	)["core:first_neighbor"] as Dictionary
+	corrupt_mira["work_commitment"] = {
+		"commitment_id": "core:help_build",
+		"requester_id": "core:player",
+		"target_cell": [22, 29],
+		"work_cell": [40, 40],
+		"building_id": "core:wood_wall",
+		"required_minutes": 12,
+		"resume_activity_id": "core:morning",
+	}
+	var normalized := Simulation.new(corrupt_state)
+	_expect(
+		normalized.get_npc_work_commitment("core:first_neighbor").is_empty(),
+		"invalid non-adjacent work commitment is discarded"
 	)
 
 
