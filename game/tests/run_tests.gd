@@ -12,6 +12,7 @@ const FirstNightNavigationScript := preload("res://src/simulation/first_night_na
 const NpcAutonomyScript := preload("res://src/simulation/npc_autonomy.gd")
 const ConstructionCommandScript := preload("res://src/construction/construction_command.gd")
 const ConstructionValidatorScript := preload("res://src/construction/construction_validator.gd")
+const ConstructionCursorScript := preload("res://src/construction/construction_cursor.gd")
 const TEST_SAVE_PATH: String = "user://first_night_save_store_test.json"
 const TEST_LAB_SAVE_PATH: String = "user://mechanics_lab_session_test.json"
 const LOCALIZATION_PATH: String = "res://localization/core.csv"
@@ -65,6 +66,7 @@ func _run() -> void:
 	_test_construction_command_payload()
 	_test_construction_command_validation()
 	_test_blueprint_command_execution()
+	_test_construction_cursor_requires_build_mode()
 	_test_lab_rejects_unknown_scenario()
 	_test_lab_fresh_start()
 	_test_lab_prepared_evening()
@@ -1183,6 +1185,37 @@ func _test_blueprint_command_execution() -> void:
 		not completed_restored.is_navigation_cell_walkable(Vector2i(23, 29)),
 		"loaded structures rebuild NPC navigation blockers"
 	)
+
+
+func _test_construction_cursor_requires_build_mode() -> void:
+	var cursor: ConstructionCursor = ConstructionCursorScript.new()
+	root.add_child(cursor)
+	var selected_cells: Array[Vector2i] = []
+	cursor.cell_selected.connect(func(cell: Vector2i) -> void:
+		selected_cells.append(cell)
+	)
+
+	var left_click := InputEventMouseButton.new()
+	left_click.button_index = MOUSE_BUTTON_LEFT
+	left_click.pressed = true
+
+	_expect(not cursor.visible, "construction cursor starts hidden")
+	_expect(not cursor.is_processing(), "construction cursor starts without processing")
+	cursor._unhandled_input(left_click)
+	_expect(selected_cells.is_empty(), "disabled construction mode ignores left clicks")
+
+	cursor.set_build_mode_active(true)
+	_expect(cursor.visible, "enabled construction mode shows the cursor")
+	_expect(cursor.is_processing(), "enabled construction mode updates the cursor")
+	cursor._unhandled_input(left_click)
+	_expect(selected_cells.size() == 1, "enabled construction mode accepts one left click")
+
+	cursor.set_build_mode_active(false)
+	cursor._unhandled_input(left_click)
+	_expect(selected_cells.size() == 1, "disabled construction mode stops accepting clicks")
+
+	root.remove_child(cursor)
+	cursor.free()
 
 
 func _test_lab_rejects_unknown_scenario() -> void:

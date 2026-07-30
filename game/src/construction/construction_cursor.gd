@@ -8,10 +8,18 @@ signal cell_completion_requested(cell: Vector2i)
 const CELL_SIZE: int = 32
 
 var _cell: Vector2i = Vector2i(-1, -1)
+var _build_mode_active: bool = false
 
 
 func _ready() -> void:
 	z_index = 20
+	set_build_mode_active(false)
+
+
+func set_build_mode_active(active: bool) -> void:
+	_build_mode_active = active
+	visible = active
+	set_process(active)
 
 
 func _process(_delta: float) -> void:
@@ -33,6 +41,8 @@ func _process(_delta: float) -> void:
 
 
 func _unhandled_input(event: InputEvent) -> void:
+	if not _build_mode_active:
+		return
 	if not (event is InputEventMouseButton):
 		return
 
@@ -42,6 +52,7 @@ func _unhandled_input(event: InputEvent) -> void:
 
 	if mouse_event.button_index == MOUSE_BUTTON_LEFT:
 		cell_selected.emit(_cell)
+		get_viewport().set_input_as_handled()
 	elif mouse_event.button_index == MOUSE_BUTTON_RIGHT:
 		cell_cancel_requested.emit(_cell)
 		get_viewport().set_input_as_handled()

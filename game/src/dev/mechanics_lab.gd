@@ -5,7 +5,11 @@ const Scenarios := preload("res://src/dev/mechanics_lab_scenarios.gd")
 const FIRST_NEIGHBOR_ID: String = "core:first_neighbor"
 
 @onready var _dev_ui: CanvasLayer = $DevUi as CanvasLayer
+@onready var _construction_cursor: ConstructionCursor = (
+	$ConstructionCursor as ConstructionCursor
+)
 
+var _build_mode_button: Button
 var _scenario_select: OptionButton
 var _description_label: Label
 var _status_label: Label
@@ -44,7 +48,7 @@ func _build_ui() -> void:
 
 	var panel := ColorRect.new()
 	panel.position = Vector2(394.0, 84.0)
-	panel.size = Vector2(238.0, 208.0)
+	panel.size = Vector2(238.0, 236.0)
 	panel.color = Color(0.055, 0.065, 0.06, 0.94)
 	panel.mouse_filter = Control.MOUSE_FILTER_STOP
 	root.add_child(panel)
@@ -81,8 +85,31 @@ func _build_ui() -> void:
 	var reset := _make_button(panel, "Сбросить сценарий", Vector2(8.0, 110.0), Vector2(222.0, 24.0))
 	reset.pressed.connect(_reset_scenario)
 
-	_status_label = _make_label(panel, Vector2(8.0, 137.0), Vector2(222.0, 66.0), 9)
+	_build_mode_button = _make_button(
+		panel,
+		"Строительство: ВЫКЛ",
+		Vector2(8.0, 137.0),
+		Vector2(222.0, 24.0)
+	)
+	_build_mode_button.toggle_mode = true
+	_build_mode_button.toggled.connect(_on_build_mode_toggled)
+
+	_status_label = _make_label(
+		panel,
+		Vector2(8.0, 165.0),
+		Vector2(222.0, 66.0),
+		9
+	)
 	_status_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+
+
+func _on_build_mode_toggled(active: bool) -> void:
+	_construction_cursor.set_build_mode_active(active)
+	_build_mode_button.text = (
+		"Строительство: ВКЛ"
+		if active
+		else "Строительство: ВЫКЛ"
+	)
 
 
 func _load_scenario(scenario_id: StringName) -> void:
