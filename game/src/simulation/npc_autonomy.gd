@@ -14,6 +14,8 @@ const ACTIVITY_WAITING_FOR_FOOD: String = "core:waiting_for_food"
 const ACTIVITY_GOING_TO_REST: String = "core:going_to_rest"
 const ACTIVITY_RESTING: String = "core:resting"
 const ACTIVITY_BLOCKED: String = "core:blocked"
+const ACTIVITY_GOING_TO_BUILD: String = "core:going_to_build"
+const ACTIVITY_BUILDING: String = "core:building"
 
 const HUNGER_DECAY_PER_MINUTE: float = 0.12
 const SLEEP_HUNGER_DECAY_PER_MINUTE: float = 0.06
@@ -25,6 +27,10 @@ const RESTED_THRESHOLD: float = 72.0
 const MEAL_RESTORE: float = 58.0
 const EVENING_START: int = 17 * 60
 const REST_START: int = 21 * 60
+const CONSTRUCTION_REQUEST_MIN_HUNGER: float = 35.0
+const CONSTRUCTION_REQUEST_MIN_ENERGY: float = 30.0
+const CONSTRUCTION_WORK_MINUTES: int = 12
+const INVALID_CELL: Vector2i = Vector2i(-1, -1)
 
 const ACTIVITY_KEYS: Dictionary = {
 	ACTIVITY_ARRIVING: "npc.activity.arriving",
@@ -37,6 +43,8 @@ const ACTIVITY_KEYS: Dictionary = {
 	ACTIVITY_GOING_TO_REST: "npc.activity.going_to_rest",
 	ACTIVITY_RESTING: "npc.activity.resting",
 	ACTIVITY_BLOCKED: "npc.activity.blocked",
+	ACTIVITY_GOING_TO_BUILD: "npc.activity.going_to_build",
+	ACTIVITY_BUILDING: "npc.activity.building",
 }
 
 var _catalog
@@ -69,15 +77,51 @@ func is_cell_walkable(cell: Vector2i) -> bool:
 	return _pathfinder.is_walkable(cell)
 
 
+func find_construction_work_cell(
+	target_cell: Vector2i,
+	npc_cell: Vector2i,
+	player_cell: Vector2i
+) -> Vector2i:
+	var candidates: Array[Vector2i] = [
+		target_cell + Vector2i.DOWN,
+		target_cell + Vector2i.RIGHT,
+		target_cell + Vector2i.UP,
+		target_cell + Vector2i.LEFT,
+	]
+	var best_cell: Vector2i = INVALID_CELL
+	var best_distance: int = 1_000_000
+
+	for candidate: Vector2i in candidates:
+		if not _pathfinder.is_walkable(candidate) or candidate == player_cell:
+			continue
+		var reachable: bool = (
+			candidate == npc_cell
+			or _pathfinder.next_cell(npc_cell, candidate, player_cell) != npc_cell
+		)
+		if not reachable:
+			continue
+		var distance: int = absi(candidate.x - npc_cell.x) + absi(candidate.y - npc_cell.y)
+		if distance < best_distance:
+			best_cell = candidate
+			best_distance = distance
+
+	return best_cell
+
+
 func advance_minutes(
 	npcs: Dictionary,
 	previous_minute: int,
 	next_minute: int,
-	player_position: Vector2
-) -> bool:
+	player_position: Vector2,
+	blueprint_cells: Array[Vector2i] = []
+) -> Dictionary:
 	if next_minute <= previous_minute:
-		return false
+		return {
+			"changed": false,
+			"effects": [],
+		}
 	var changed: bool = false
+	var effects: Array[Dictionary] = []
 	for minute: int in range(previous_minute + 1, next_minute + 1):
 		for definition: Dictionary in _catalog.get_definitions():
 			var npc_id: String = String(definition.get("id", ""))
@@ -86,9 +130,19 @@ func advance_minutes(
 			var npc: Dictionary = npcs[npc_id] as Dictionary
 			if not bool(npc.get("active", false)):
 				continue
-			_advance_npc_minute(npc, definition, minute, player_position)
+			_advance_npc_minute(
+				npc,
+				definition,
+				minute,
+				player_position,
+				blueprint_cells,
+				effects
+			)
 			changed = true
-	return changed
+	return {
+		"changed": changed,
+		"effects": effects,
+	}
 
 
 func start_morning(npcs: Dictionary, minute: int, first_arrival: bool) -> bool:
@@ -125,7 +179,9 @@ func _advance_npc_minute(
 	npc: Dictionary,
 	definition: Dictionary,
 	minute: int,
-	player_position: Vector2
+	player_position: Vector2,
+	blueprint_cells: Array[Vector2i],
+	effects: Array[Dictionary]
 ) -> void:
 	var needs: Dictionary = npc.get("needs", {}) as Dictionary
 	var activity_id: String = String(npc.get("activity_id", ACTIVITY_ARRIVING))
@@ -152,6 +208,19 @@ func _advance_npc_minute(
 	var energy: float = float(needs["energy"])
 	var personal_inventory: Dictionary = npc.get("personal_inventory", {}) as Dictionary
 	var food_count: int = int(personal_inventory.get("core:food", 0))
+	var commitment: Dictionary = npc.get("work_commitment", {}) as Dictionary
+	if not commitment.is_empty():
+		var committed_target: Vector2i = _cell_from_value(
+			commitment.get("target_cell"),
+			INVALID_CELL
+		)
+		if not blueprint_cells.has(committed_target):
+			var resume_activity: String = String(
+				commitment.get("resume_activity_id", ACTIVITY_MORNING)
+			)
+			npc["work_commitment"] = {}
+			_set_activity(npc, resume_activity, minute)
+			commitment = {}
 
 	var should_keep_resting: bool = (
 		activity_id == ACTIVITY_RESTING
@@ -166,6 +235,37 @@ func _advance_npc_minute(
 		target_cell = _cell_from_value(autonomy.get("meal_cell"), Vector2i(20, 28))
 		travel_activity = ACTIVITY_GOING_TO_MEAL
 		arrival_activity = ACTIVITY_EATING if food_count > 0 else ACTIVITY_WAITING_FOR_FOOD
+	elif not commitment.is_empty():
+		var current_cell: Vector2i = _pathfinder.world_to_cell(_position_from_state(npc))
+		var committed_target: Vector2i = _cell_from_value(
+			commitment.get("target_cell"),
+			INVALID_CELL
+		)
+		var stored_work_cell: Vector2i = _cell_from_value(
+			commitment.get("work_cell"),
+			INVALID_CELL
+		)
+		if stored_work_cell == INVALID_CELL:
+			var player_cell: Vector2i = _pathfinder.world_to_cell(player_position)
+			stored_work_cell = find_construction_work_cell(
+				committed_target,
+				current_cell,
+				player_cell
+			)
+			if stored_work_cell != INVALID_CELL:
+				commitment["work_cell"] = [
+					stored_work_cell.x,
+					stored_work_cell.y,
+				]
+				npc["work_commitment"] = commitment
+		if stored_work_cell == INVALID_CELL:
+			target_cell = current_cell
+			travel_activity = ACTIVITY_BLOCKED
+			arrival_activity = ACTIVITY_BLOCKED
+		else:
+			target_cell = stored_work_cell
+			travel_activity = ACTIVITY_GOING_TO_BUILD
+			arrival_activity = ACTIVITY_BUILDING
 	elif minute < 9 * 60:
 		target_cell = _cell_from_value(autonomy.get("morning_cell"), Vector2i(24, 29))
 		travel_activity = ACTIVITY_MORNING
@@ -207,6 +307,22 @@ func _advance_npc_minute(
 		npc["personal_inventory"] = personal_inventory
 		needs["hunger"] = minf(100.0, float(needs["hunger"]) + MEAL_RESTORE)
 		npc["needs"] = needs
+	elif arrival_activity == ACTIVITY_BUILDING and not commitment.is_empty():
+		var progress: int = int(commitment.get("progress_minutes", 0)) + 1
+		var required: int = maxi(
+			1,
+			int(commitment.get("required_minutes", CONSTRUCTION_WORK_MINUTES))
+		)
+		commitment["progress_minutes"] = mini(progress, required)
+		npc["work_commitment"] = commitment
+		if progress >= required:
+			effects.append({
+				"type": "complete_construction",
+				"npc_id": String(npc.get("id", "")),
+				"target_cell": (
+					commitment.get("target_cell", []) as Array
+				).duplicate(),
+			})
 
 
 func _set_activity(npc: Dictionary, activity_id: String, minute: int) -> void:

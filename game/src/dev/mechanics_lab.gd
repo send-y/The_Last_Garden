@@ -2,19 +2,23 @@ class_name MechanicsLab
 extends Node
 
 const Scenarios := preload("res://src/dev/mechanics_lab_scenarios.gd")
+const NpcWorkRequest := preload("res://src/simulation/npc_work_request.gd")
 const FIRST_NEIGHBOR_ID: String = "core:first_neighbor"
 
 @onready var _dev_ui: CanvasLayer = $DevUi as CanvasLayer
 @onready var _construction_cursor: ConstructionCursor = (
 	$ConstructionCursor as ConstructionCursor
 )
+@onready var _world: FirstNightWorld = $Game/World as FirstNightWorld
 
 var _build_mode_button: Button
+var _request_help_button: Button
 var _scenario_select: OptionButton
 var _description_label: Label
 var _status_label: Label
 var _active_scenario_id: StringName = Scenarios.FRESH_START
 var _last_message: String = ""
+var _selected_cell: Vector2i = Vector2i(-1, -1)
 
 
 func _ready() -> void:
@@ -32,6 +36,7 @@ func _ready() -> void:
 	Session.time_changed.connect(_refresh_status)
 	Session.pause_changed.connect(_on_pause_changed)
 	Session.message_emitted.connect(_on_session_message)
+	_world.selection_changed.connect(_on_world_selection_changed)
 	_load_scenario(_scenario_from_command_line())
 
 
@@ -48,7 +53,7 @@ func _build_ui() -> void:
 
 	var panel := ColorRect.new()
 	panel.position = Vector2(394.0, 84.0)
-	panel.size = Vector2(238.0, 236.0)
+	panel.size = Vector2(238.0, 272.0)
 	panel.color = Color(0.055, 0.065, 0.06, 0.94)
 	panel.mouse_filter = Control.MOUSE_FILTER_STOP
 	root.add_child(panel)
@@ -94,10 +99,18 @@ func _build_ui() -> void:
 	_build_mode_button.toggle_mode = true
 	_build_mode_button.toggled.connect(_on_build_mode_toggled)
 
+	_request_help_button = _make_button(
+		panel,
+		"Попросить Миру строить",
+		Vector2(8.0, 165.0),
+		Vector2(222.0, 24.0)
+	)
+	_request_help_button.pressed.connect(_request_mira_construction_help)
+
 	_status_label = _make_label(
 		panel,
-		Vector2(8.0, 165.0),
-		Vector2(222.0, 66.0),
+		Vector2(8.0, 193.0),
+		Vector2(222.0, 74.0),
 		9
 	)
 	_status_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
@@ -109,6 +122,33 @@ func _on_build_mode_toggled(active: bool) -> void:
 		"Строительство: ВКЛ"
 		if active
 		else "Строительство: ВЫКЛ"
+	)
+
+
+func _on_world_selection_changed(selection: Dictionary) -> void:
+	if String(selection.get("kind", "")) == "cell":
+		_selected_cell = Vector2i(
+			int(selection.get("x", -1)),
+			int(selection.get("y", -1))
+		)
+	else:
+		_selected_cell = Vector2i(-1, -1)
+	_refresh_status()
+
+
+func _request_mira_construction_help() -> void:
+	if _selected_cell.x < 0 or _selected_cell.y < 0:
+		Session.notify_player_key("npc.work_request.prompt.select_blueprint")
+		return
+	var command: Dictionary = NpcWorkRequest.request_construction_help(
+		FIRST_NEIGHBOR_ID,
+		_selected_cell
+	)
+	var result: Dictionary = Session.execute_npc_work_request(command)
+	print("WORK REQUEST RESULT: ", JSON.stringify(result))
+	print(
+		"MIRA COMMITMENT: ",
+		JSON.stringify(Session.get_npc_work_commitment(FIRST_NEIGHBOR_ID))
 	)
 
 
@@ -198,6 +238,18 @@ func _refresh_status() -> void:
 	var mira_target: Vector2i = Session.get_npc_target_cell(FIRST_NEIGHBOR_ID)
 	var mira_needs: Dictionary = Session.get_npc_needs(FIRST_NEIGHBOR_ID)
 	var mira_activity: String = Session.get_npc_activity_id(FIRST_NEIGHBOR_ID).trim_prefix("core:")
+	var commitment: Dictionary = Session.get_npc_work_commitment(FIRST_NEIGHBOR_ID)
+	var commitment_text: String = "нет"
+	if not commitment.is_empty():
+		commitment_text = "%d/%d" % [
+			int(commitment.get("progress_minutes", 0)),
+			int(commitment.get("required_minutes", 0)),
+		]
+	var selected_text: String = (
+		"%d,%d" % [_selected_cell.x, _selected_cell.y]
+		if _selected_cell.x >= 0 and _selected_cell.y >= 0
+		else "—"
+	)
 	var event_text: String = _last_message if not _last_message.is_empty() else "Событие: —"
 	if event_text.length() > 54:
 		event_text = event_text.left(51) + "..."
@@ -205,7 +257,8 @@ func _refresh_status() -> void:
 		"День %d · %s · %s\n"
 		+ "Игрок %.0f, %.0f · Мира %s\n"
 		+ "%s · голод %.0f · силы %.0f · еда %d\n"
-		+ "Мира %.0f, %.0f → %d, %d\n%s"
+		+ "Мира %.0f, %.0f → %d, %d\n"
+		+ "Клетка %s · стройка %s\n%s"
 	) % [
 		Session.get_day(),
 		Session.get_time_text(),
@@ -221,6 +274,8 @@ func _refresh_status() -> void:
 		mira_position.y,
 		mira_target.x,
 		mira_target.y,
+		selected_text,
+		commitment_text,
 		event_text,
 	]
 
