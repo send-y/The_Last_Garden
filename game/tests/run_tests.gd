@@ -17,6 +17,7 @@ const NpcWorkRequestScript := preload("res://src/simulation/npc_work_request.gd"
 const NpcWorkRequestValidatorScript := preload(
 	"res://src/simulation/npc_work_request_validator.gd"
 )
+const NpcMemoryScript := preload("res://src/simulation/npc_memory.gd")
 const TEST_SAVE_PATH: String = "user://first_night_save_store_test.json"
 const TEST_LAB_SAVE_PATH: String = "user://mechanics_lab_session_test.json"
 const LOCALIZATION_PATH: String = "res://localization/core.csv"
@@ -63,6 +64,7 @@ func _run() -> void:
 	_test_v5_blueprints_are_migrated()
 	_test_v6_structures_are_migrated()
 	_test_v7_work_commitments_are_migrated()
+	_test_v8_memories_are_migrated()
 	_test_character_appearance_generation()
 	_test_first_neighbor_arrives_and_talks()
 	_test_grid_pathfinder_avoids_static_obstacles()
@@ -71,6 +73,8 @@ func _run() -> void:
 	_test_npc_work_request_contract_and_refusals()
 	_test_mira_completes_construction_commitment()
 	_test_missing_blueprint_releases_commitment()
+	_test_shared_wall_creates_memory_and_relationship()
+	_test_shared_wall_context_line_is_consumed_once()
 	_test_construction_command_payload()
 	_test_construction_command_validation()
 	_test_blueprint_command_execution()
@@ -80,6 +84,7 @@ func _run() -> void:
 	_test_lab_prepared_evening()
 	_test_lab_morning_with_mira()
 	_test_lab_mira_resting()
+	_test_lab_mira_after_shared_wall()
 	_test_lab_scenarios_are_deterministic()
 	_test_lab_rebuild_discards_previous_changes()
 	_test_session_installs_lab_state_without_aliasing_or_save()
@@ -561,7 +566,7 @@ func _test_v3_outcomes_are_migrated() -> void:
 		"mod:custom_outcome",
 	]
 	var migrated_state: Dictionary = simulation.export_state()
-	_expect(int(migrated_state.get("version", 0)) == 8, "v3 save migrates to save version 8")
+	_expect(int(migrated_state.get("version", 0)) == 9, "v3 save migrates to save version 9")
 	_expect(migrated_state.get("outcomes", []) == expected, "v3 outcome copy migrates to stable ids")
 
 	var encoded: String = JSON.stringify(migrated_state)
@@ -594,7 +599,7 @@ func _test_v4_npc_state_is_migrated() -> void:
 	var simulation: FirstNightSimulation = Simulation.new(legacy_state)
 	var migrated: Dictionary = simulation.export_state()
 	var mira: Dictionary = (migrated["npcs"] as Dictionary)["core:first_neighbor"] as Dictionary
-	_expect(int(migrated.get("version", 0)) == 8, "v4 save migrates to save version 8")
+	_expect(int(migrated.get("version", 0)) == 9, "v4 save migrates to save version 9")
 	_expect(typeof(mira.get("needs")) == TYPE_DICTIONARY, "v4 NPC gains normalized needs")
 	_expect(String(mira.get("activity_id", "")).contains(":"), "v4 NPC gains stable activity id")
 	_expect(int((mira.get("personal_inventory", {}) as Dictionary).get("core:food", -1)) == 2, "v4 NPC gains initial personal food")
@@ -608,8 +613,8 @@ func _test_v5_blueprints_are_migrated() -> void:
 	legacy_state.erase("structures")
 	var migrated_simulation: FirstNightSimulation = Simulation.new(legacy_state)
 	_expect(
-		int(migrated_simulation.export_state().get("version", 0)) == 8,
-		"v5 save migrates to save version 8"
+		int(migrated_simulation.export_state().get("version", 0)) == 9,
+		"v5 save migrates to save version 9"
 	)
 	_expect(migrated_simulation.get_blueprints().is_empty(), "v5 save gains empty blueprints")
 	_expect(migrated_simulation.get_structures().is_empty(), "v5 save gains empty structures")
@@ -654,8 +659,8 @@ func _test_v6_structures_are_migrated() -> void:
 	legacy_state.erase("structures")
 	var migrated_simulation: FirstNightSimulation = Simulation.new(legacy_state)
 	_expect(
-		int(migrated_simulation.export_state().get("version", 0)) == 8,
-		"v6 save migrates to save version 8"
+		int(migrated_simulation.export_state().get("version", 0)) == 9,
+		"v6 save migrates to save version 9"
 	)
 	_expect(migrated_simulation.get_structures().is_empty(), "v6 save gains empty structures")
 
@@ -1008,6 +1013,10 @@ func _test_mira_completes_construction_commitment() -> void:
 		and simulation.get_structures().is_empty(),
 		"construction does not finish before travel and work time elapse"
 	)
+	_expect(
+		simulation.get_npc_memories("core:first_neighbor").is_empty(),
+		"unfinished construction creates no memory"
+	)
 	simulation.advance_minutes(1)
 	_expect(simulation.get_blueprints().is_empty(), "Mira consumes the completed blueprint")
 	_expect(simulation.get_structures().size() == 1, "Mira creates one completed wall")
@@ -1057,6 +1066,159 @@ func _test_missing_blueprint_releases_commitment() -> void:
 	_expect(
 		simulation.get_npc_work_commitment("core:first_neighbor").is_empty(),
 		"missing blueprint releases Mira from the commitment"
+	)
+	_expect(
+		simulation.get_npc_memories("core:first_neighbor").is_empty(),
+		"cancelled construction creates no memory"
+	)
+
+
+func _test_shared_wall_creates_memory_and_relationship() -> void:
+	var target_cell := Vector2i(22, 29)
+	var simulation: FirstNightSimulation = _build_mira_work_simulation(
+		target_cell,
+		true,
+		true
+	)
+	var request: Dictionary = NpcWorkRequestScript.request_construction_help(
+		"core:first_neighbor",
+		target_cell
+	)
+	_expect(
+		bool(simulation.execute_npc_work_request(request).get("success", false)),
+		"memory scenario starts with an accepted work request"
+	)
+	simulation.advance_minutes(15)
+
+	var memories: Array = simulation.get_npc_memories("core:first_neighbor")
+	_expect(memories.size() == 1, "completed shared wall creates one memory")
+	if memories.size() == 1:
+		var memory: Dictionary = memories[0] as Dictionary
+		_expect(
+			String(memory.get("memory_id", "")) == "core:first_shared_wall",
+			"shared wall memory has a stable id"
+		)
+		_expect(
+			String(memory.get("event_id", "")) == "core:shared_wall_completed",
+			"shared wall memory records the confirmed event"
+		)
+		_expect(memory.get("target_cell", []) == [22, 29], "memory records the wall cell")
+		_expect(not bool(memory.get("acknowledged", true)), "new memory awaits a context line")
+
+	var relationship: Dictionary = simulation.get_npc_relationship_to_player(
+		"core:first_neighbor"
+	)
+	_expect(float(relationship.get("trust", 0.0)) == 1.0, "memory derives one trust point")
+	_expect(float(relationship.get("warmth", 0.0)) == 2.0, "memory derives two warmth points")
+	_expect(float(relationship.get("respect", 0.0)) == 1.0, "memory derives one respect point")
+
+	var encoded: String = JSON.stringify(simulation.export_state())
+	var decoded: Variant = JSON.parse_string(encoded)
+	var restored := Simulation.new(decoded as Dictionary)
+	_expect(
+		restored.get_npc_memories("core:first_neighbor") == memories,
+		"shared wall memory survives a save round trip"
+	)
+	_expect(
+		restored.get_npc_relationship_to_player("core:first_neighbor") == relationship,
+		"derived relationship survives through its memory source"
+	)
+
+	(memories[0] as Dictionary)["acknowledged"] = true
+	_expect(
+		not bool(
+			(simulation.get_npc_memories("core:first_neighbor")[0] as Dictionary).get(
+				"acknowledged",
+				true
+			)
+		),
+		"memory query is isolated from simulation state"
+	)
+
+	var debug_completion: FirstNightSimulation = _build_mira_work_simulation(
+		Vector2i(23, 29),
+		true,
+		true
+	)
+	debug_completion.execute_construction_command(
+		ConstructionCommandScript.complete_blueprint(Vector2i(23, 29))
+	)
+	_expect(
+		debug_completion.get_npc_memories("core:first_neighbor").is_empty(),
+		"debug blueprint completion creates no shared memory"
+	)
+
+	simulation.set_player_position(
+		simulation.get_npc_position("core:first_neighbor", Vector2.ZERO)
+	)
+	var second_cell := Vector2i(22, 30)
+	simulation.execute_construction_command(
+		ConstructionCommandScript.place_wall_blueprint(second_cell)
+	)
+	simulation.execute_npc_work_request(
+		NpcWorkRequestScript.request_construction_help(
+			"core:first_neighbor",
+			second_cell
+		)
+	)
+	simulation.advance_minutes(20)
+	_expect(
+		simulation.get_npc_memories("core:first_neighbor").size() == 1,
+		"later shared walls do not duplicate the first-wall memory"
+	)
+
+
+func _test_shared_wall_context_line_is_consumed_once() -> void:
+	var target_cell := Vector2i(22, 29)
+	var simulation: FirstNightSimulation = _build_mira_work_simulation(
+		target_cell,
+		true,
+		true
+	)
+	simulation.execute_npc_work_request(
+		NpcWorkRequestScript.request_construction_help(
+			"core:first_neighbor",
+			target_cell
+		)
+	)
+	simulation.advance_minutes(15)
+	simulation.set_player_position(
+		simulation.get_npc_position("core:first_neighbor", Vector2.ZERO)
+	)
+
+	var follow_up: Dictionary = simulation.execute_command(
+		simulation.PLAYER_ACTOR_ID,
+		"core:first_neighbor",
+		simulation.ACTION_INTERACT
+	)
+	var follow_up_args: Dictionary = follow_up.get("message_args", {}) as Dictionary
+	var follow_up_line: Dictionary = follow_up_args.get("line", {}) as Dictionary
+	_expect(
+		String(follow_up_line.get("text_key", ""))
+		== "dialogue.core.first_neighbor.shared_wall",
+		"first conversation after construction uses the shared-wall line"
+	)
+	_expect(
+		bool(
+			(simulation.get_npc_memories("core:first_neighbor")[0] as Dictionary).get(
+				"acknowledged",
+				false
+			)
+		),
+		"contextual conversation acknowledges the memory"
+	)
+
+	var repeated: Dictionary = simulation.execute_command(
+		simulation.PLAYER_ACTOR_ID,
+		"core:first_neighbor",
+		simulation.ACTION_INTERACT
+	)
+	var repeated_args: Dictionary = repeated.get("message_args", {}) as Dictionary
+	var repeated_line: Dictionary = repeated_args.get("line", {}) as Dictionary
+	_expect(
+		String(repeated_line.get("text_key", ""))
+		== "dialogue.core.first_neighbor.repeat",
+		"later conversation returns to Mira's ordinary repeat line"
 	)
 
 
@@ -1442,8 +1604,8 @@ func _test_v7_work_commitments_are_migrated() -> void:
 	legacy_mira.erase("work_commitment")
 	var migrated := Simulation.new(legacy_state)
 	_expect(
-		int(migrated.export_state().get("version", 0)) == 8,
-		"v7 save migrates to save version 8"
+		int(migrated.export_state().get("version", 0)) == 9,
+		"v7 save migrates to save version 9"
 	)
 	_expect(
 		migrated.get_npc_work_commitment("core:first_neighbor").is_empty(),
@@ -1467,6 +1629,44 @@ func _test_v7_work_commitments_are_migrated() -> void:
 	_expect(
 		normalized.get_npc_work_commitment("core:first_neighbor").is_empty(),
 		"invalid non-adjacent work commitment is discarded"
+	)
+
+
+func _test_v8_memories_are_migrated() -> void:
+	var legacy_state: Dictionary = Simulation.create_new_state()
+	legacy_state["version"] = 8
+	var legacy_mira: Dictionary = (
+		legacy_state["npcs"] as Dictionary
+	)["core:first_neighbor"] as Dictionary
+	legacy_mira.erase("memories")
+	var migrated := Simulation.new(legacy_state)
+	_expect(
+		int(migrated.export_state().get("version", 0)) == 9,
+		"v8 save migrates to save version 9"
+	)
+	_expect(
+		migrated.get_npc_memories("core:first_neighbor").is_empty(),
+		"v8 Mira gains an empty memory list"
+	)
+
+	var memory: Dictionary = NpcMemoryScript.create_first_shared_wall(
+		2,
+		7 * 60 + 15,
+		Vector2i(22, 29)
+	)
+	var corrupt_state: Dictionary = Simulation.create_new_state()
+	var corrupt_mira: Dictionary = (
+		corrupt_state["npcs"] as Dictionary
+	)["core:first_neighbor"] as Dictionary
+	var duplicate: Dictionary = memory.duplicate(true)
+	var invalid: Dictionary = memory.duplicate(true)
+	invalid["memory_id"] = "core:invalid_memory"
+	invalid["target_cell"] = [999, 999]
+	corrupt_mira["memories"] = [memory, duplicate, invalid, "broken"]
+	var normalized := Simulation.new(corrupt_state)
+	_expect(
+		normalized.get_npc_memories("core:first_neighbor").size() == 1,
+		"memory normalization rejects duplicates and corrupt entries"
 	)
 
 
@@ -1615,6 +1815,39 @@ func _test_lab_mira_resting() -> void:
 	)
 	_expect(simulation.get_npc_personal_food("core:first_neighbor") == 0, "resting Mira scenario consumed two travel portions")
 	_expect(float(needs.get("hunger", 100.0)) >= 0.0, "resting Mira scenario exposes normalized hunger")
+
+
+func _test_lab_mira_after_shared_wall() -> void:
+	var result: Dictionary = LabScenarios.build(
+		LabScenarios.MIRA_AFTER_SHARED_WALL
+	)
+	_expect(bool(result.get("success", false)), "shared-wall memory lab scenario builds")
+	if not bool(result.get("success", false)):
+		return
+	var simulation: FirstNightSimulation = result["simulation"] as FirstNightSimulation
+	_expect(simulation.get_day() == 2, "shared-wall scenario remains on day 2")
+	_expect(simulation.get_time_text() == "07:20", "shared-wall scenario starts at 07:20")
+	_expect(simulation.get_structures().size() == 1, "shared-wall scenario contains the completed wall")
+	_expect(
+		simulation.get_npc_memories("core:first_neighbor").size() == 1,
+		"shared-wall scenario contains the confirmed memory"
+	)
+	_expect(
+		not bool(
+			(simulation.get_npc_memories("core:first_neighbor")[0] as Dictionary).get(
+				"acknowledged",
+				true
+			)
+		),
+		"shared-wall scenario keeps the context line ready"
+	)
+	_expect(
+		simulation.get_player_position().distance_to(
+			simulation.get_npc_position("core:first_neighbor", Vector2.ZERO)
+		) <= FirstNightContent.INTERACTION_RANGE,
+		"shared-wall scenario places the player close enough to talk"
+	)
+	_expect(_all_lab_steps_succeeded(result), "shared-wall scenario completes every canonical step")
 
 
 func _test_lab_scenarios_are_deterministic() -> void:

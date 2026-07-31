@@ -12,6 +12,9 @@
       "facing": "up",
       "greeting_key": "dialogue.core.first_neighbor.greeting",
       "repeat_line_key": "dialogue.core.first_neighbor.repeat",
+      "context_lines": {
+        "core:shared_wall_completed": "dialogue.core.first_neighbor.shared_wall"
+      },
       "autonomy": {
         "initial_hunger": 72.0,
         "initial_energy": 82.0,

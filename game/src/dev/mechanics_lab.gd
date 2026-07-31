@@ -52,8 +52,8 @@ func _build_ui() -> void:
 	_dev_ui.add_child(root)
 
 	var panel := ColorRect.new()
-	panel.position = Vector2(394.0, 84.0)
-	panel.size = Vector2(238.0, 272.0)
+	panel.position = Vector2(394.0, 68.0)
+	panel.size = Vector2(238.0, 288.0)
 	panel.color = Color(0.055, 0.065, 0.06, 0.94)
 	panel.mouse_filter = Control.MOUSE_FILTER_STOP
 	root.add_child(panel)
@@ -110,7 +110,7 @@ func _build_ui() -> void:
 	_status_label = _make_label(
 		panel,
 		Vector2(8.0, 193.0),
-		Vector2(222.0, 74.0),
+		Vector2(222.0, 90.0),
 		9
 	)
 	_status_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
@@ -239,6 +239,10 @@ func _refresh_status() -> void:
 	var mira_needs: Dictionary = Session.get_npc_needs(FIRST_NEIGHBOR_ID)
 	var mira_activity: String = Session.get_npc_activity_id(FIRST_NEIGHBOR_ID).trim_prefix("core:")
 	var commitment: Dictionary = Session.get_npc_work_commitment(FIRST_NEIGHBOR_ID)
+	var memories: Array = Session.get_npc_memories(FIRST_NEIGHBOR_ID)
+	var relationship: Dictionary = Session.get_npc_relationship_to_player(
+		FIRST_NEIGHBOR_ID
+	)
 	var commitment_text: String = "нет"
 	if not commitment.is_empty():
 		commitment_text = "%d/%d" % [
@@ -258,7 +262,8 @@ func _refresh_status() -> void:
 		+ "Игрок %.0f, %.0f · Мира %s\n"
 		+ "%s · голод %.0f · силы %.0f · еда %d\n"
 		+ "Мира %.0f, %.0f → %d, %d\n"
-		+ "Клетка %s · стройка %s\n%s"
+		+ "Клетка %s · стройка %s\n"
+		+ "Память %d · Д %.0f · Т %.0f · У %.0f\n%s"
 	) % [
 		Session.get_day(),
 		Session.get_time_text(),
@@ -276,6 +281,10 @@ func _refresh_status() -> void:
 		mira_target.y,
 		selected_text,
 		commitment_text,
+		memories.size(),
+		float(relationship.get("trust", 0.0)),
+		float(relationship.get("warmth", 0.0)),
+		float(relationship.get("respect", 0.0)),
 		event_text,
 	]
 

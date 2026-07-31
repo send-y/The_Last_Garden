@@ -19,8 +19,9 @@ const NpcWorkRequestScript := preload(
 const NpcWorkRequestValidatorScript := preload(
 	"res://src/simulation/npc_work_request_validator.gd"
 )
+const NpcMemoryScript := preload("res://src/simulation/npc_memory.gd")
 
-const SAVE_VERSION: int = 8
+const SAVE_VERSION: int = 9
 const DEFAULT_SEED: int = 247061
 const START_MINUTE: int = 11 * 60
 const EVENING_MINUTE: int = 18 * 60
@@ -504,6 +505,11 @@ func _apply_autonomy_effects(effects: Array) -> bool:
 		if npcs.has(npc_id):
 			var npc: Dictionary = npcs[npc_id] as Dictionary
 			var commitment: Dictionary = npc.get("work_commitment", {}) as Dictionary
+			_record_first_shared_wall_memory(
+				npc,
+				cell_data,
+				int(effect.get("minute", get_minute_of_day()))
+			)
 			npc["work_commitment"] = {}
 			npc["activity_id"] = String(
 				commitment.get("resume_activity_id", npc_autonomy.ACTIVITY_MORNING)
@@ -512,6 +518,27 @@ func _apply_autonomy_effects(effects: Array) -> bool:
 			npc["moving"] = false
 		changed = true
 	return changed
+
+
+func _record_first_shared_wall_memory(
+	npc: Dictionary,
+	cell_data: Array,
+	event_minute: int
+) -> bool:
+	var memories: Array = npc.get("memories", []) as Array
+	if NpcMemoryScript.has_memory(
+		memories,
+		NpcMemoryScript.MEMORY_FIRST_SHARED_WALL_ID
+	):
+		return false
+	var target_cell := Vector2i(int(cell_data[0]), int(cell_data[1]))
+	memories.append(NpcMemoryScript.create_first_shared_wall(
+		get_day(),
+		event_minute,
+		target_cell
+	))
+	npc["memories"] = memories
+	return true
 
 
 func _is_actor_in_cell(cell_data: Array) -> bool:
@@ -816,6 +843,17 @@ func get_npc_personal_food(npc_id: String) -> int:
 func get_npc_work_commitment(npc_id: String) -> Dictionary:
 	var npc: Dictionary = get_npcs().get(npc_id, {}) as Dictionary
 	return (npc.get("work_commitment", {}) as Dictionary).duplicate(true)
+
+
+func get_npc_memories(npc_id: String) -> Array:
+	var npc: Dictionary = get_npcs().get(npc_id, {}) as Dictionary
+	return (npc.get("memories", []) as Array).duplicate(true)
+
+
+func get_npc_relationship_to_player(npc_id: String) -> Dictionary:
+	return NpcMemoryScript.relationship_from_memories(
+		get_npc_memories(npc_id)
+	)
 
 
 func get_npc_target_cell(npc_id: String) -> Vector2i:

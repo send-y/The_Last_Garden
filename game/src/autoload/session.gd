@@ -136,6 +136,14 @@ func get_npc_work_commitment(npc_id: String) -> Dictionary:
 	return simulation.get_npc_work_commitment(npc_id)
 
 
+func get_npc_memories(npc_id: String) -> Array:
+	return simulation.get_npc_memories(npc_id)
+
+
+func get_npc_relationship_to_player(npc_id: String) -> Dictionary:
+	return simulation.get_npc_relationship_to_player(npc_id)
+
+
 func get_npc_target_cell(npc_id: String) -> Vector2i:
 	return simulation.get_npc_target_cell(npc_id)
 

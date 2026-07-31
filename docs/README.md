@@ -28,6 +28,7 @@
 - [Технический план 2B: потребности, движение и распорядок](implementation/npc-needs-schedule-technical-plan.md)
 - [Технический план C1: фундамент строительства](implementation/construction-foundation-technical-plan.md)
 - [Технический план 2C: самостоятельная работа и просьба о помощи](implementation/npc-construction-assistance-technical-plan.md)
+- [Технический план 2D: память, отношения и контекстная реплика](implementation/npc-memory-relations-technical-plan.md)
 
 ### Системы
 

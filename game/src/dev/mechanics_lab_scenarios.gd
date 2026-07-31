@@ -2,11 +2,16 @@ class_name MechanicsLabScenarios
 extends RefCounted
 
 const Simulation := preload("res://src/simulation/first_night_simulation.gd")
+const ConstructionCommand := preload(
+	"res://src/construction/construction_command.gd"
+)
+const NpcWorkRequest := preload("res://src/simulation/npc_work_request.gd")
 
 const FRESH_START: StringName = &"fresh_start"
 const PREPARED_EVENING: StringName = &"prepared_evening"
 const MORNING_WITH_MIRA: StringName = &"morning_with_mira"
 const MIRA_RESTING: StringName = &"mira_resting"
+const MIRA_AFTER_SHARED_WALL: StringName = &"mira_after_shared_wall"
 const PREPARED_MINUTE: int = 17 * 60 + 50
 
 
@@ -31,6 +36,11 @@ static func definitions() -> Array[Dictionary]:
 			"id": MIRA_RESTING,
 			"label": "Поздний вечер Миры",
 			"description": "День 2, 22:00. Мира прожила день и отдыхает.",
+		},
+		{
+			"id": MIRA_AFTER_SHARED_WALL,
+			"label": "После совместной стены",
+			"description": "День 2, 07:20. Мира завершила стену и готова вспомнить об этом.",
 		},
 	]
 
@@ -58,16 +68,24 @@ static func build(scenario_id: StringName) -> Dictionary:
 		scenario_id == PREPARED_EVENING
 		or scenario_id == MORNING_WITH_MIRA
 		or scenario_id == MIRA_RESTING
+		or scenario_id == MIRA_AFTER_SHARED_WALL
 	):
 		if not _prepare_evening(simulation, steps):
 			return _failed_build(scenario_id, simulation, steps)
-	if scenario_id == MORNING_WITH_MIRA or scenario_id == MIRA_RESTING:
+	if (
+		scenario_id == MORNING_WITH_MIRA
+		or scenario_id == MIRA_RESTING
+		or scenario_id == MIRA_AFTER_SHARED_WALL
+	):
 		if not _advance_to(simulation, simulation.EVENING_MINUTE, steps):
 			return _failed_build(scenario_id, simulation, steps)
 		if not _interact(simulation, "core:bed_site", steps):
 			return _failed_build(scenario_id, simulation, steps)
 	if scenario_id == MIRA_RESTING:
 		if not _advance_to(simulation, 22 * 60, steps):
+			return _failed_build(scenario_id, simulation, steps)
+	if scenario_id == MIRA_AFTER_SHARED_WALL:
+		if not _prepare_shared_wall_memory(simulation, steps):
 			return _failed_build(scenario_id, simulation, steps)
 
 	return {
@@ -78,6 +96,48 @@ static func build(scenario_id: StringName) -> Dictionary:
 		"state": simulation.export_state(),
 		"steps": steps,
 	}
+
+
+static func _prepare_shared_wall_memory(
+	simulation: FirstNightSimulation,
+	steps: Array[Dictionary]
+) -> bool:
+	if not _interact(simulation, "core:first_neighbor", steps):
+		return false
+	var target_cell := Vector2i(22, 29)
+	var build_result: Dictionary = simulation.execute_construction_command(
+		ConstructionCommand.place_wall_blueprint(target_cell)
+	)
+	steps.append({
+		"kind": "construction_command",
+		"success": bool(build_result.get("success", false)),
+		"reason_id": String(build_result.get("reason_id", "")),
+	})
+	if not bool(build_result.get("success", false)):
+		return false
+
+	var request_result: Dictionary = simulation.execute_npc_work_request(
+		NpcWorkRequest.request_construction_help(
+			"core:first_neighbor",
+			target_cell
+		)
+	)
+	steps.append({
+		"kind": "work_request",
+		"success": bool(request_result.get("success", false)),
+		"reason_id": String(request_result.get("reason_id", "")),
+	})
+	if not bool(request_result.get("success", false)):
+		return false
+
+	if not _advance_to(simulation, 7 * 60 + 20, steps):
+		return false
+	if simulation.get_npc_memories("core:first_neighbor").size() != 1:
+		return false
+	simulation.set_player_position(
+		simulation.get_npc_position("core:first_neighbor", Vector2.ZERO)
+	)
+	return true
 
 
 static func _prepare_evening(
