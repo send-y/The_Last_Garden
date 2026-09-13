@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "buildings": [
+	{
+	  "id": "core:wood_wall",
+	  "label_key": "building.core.wood_wall.name",
+	  "material_cost": {
+		"core:wood": 1
+	  },
+	  "work_minutes": 12,
+	  "blocks_movement": true
+	}
+  ]
+}

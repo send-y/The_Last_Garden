@@ -13,6 +13,7 @@ const NpcAutonomyScript := preload("res://src/simulation/npc_autonomy.gd")
 const ConstructionCommandScript := preload("res://src/construction/construction_command.gd")
 const ConstructionValidatorScript := preload("res://src/construction/construction_validator.gd")
 const ConstructionCursorScript := preload("res://src/construction/construction_cursor.gd")
+const BuildingCatalogScript := preload("res://src/construction/building_catalog.gd")
 const NpcWorkRequestScript := preload("res://src/simulation/npc_work_request.gd")
 const NpcWorkRequestValidatorScript := preload(
 	"res://src/simulation/npc_work_request_validator.gd"
@@ -23,6 +24,7 @@ const TEST_LAB_SAVE_PATH: String = "user://mechanics_lab_session_test.json"
 const LOCALIZATION_PATH: String = "res://localization/core.csv"
 const LOCALIZATION_SOURCE_PATHS: Array[String] = [
 	"res://content/core/character_parts.json",
+	"res://content/core/buildings.json",
 	"res://content/core/first_night_objects.json",
 	"res://content/core/first_night_progression.json",
 	"res://content/core/items.json",
@@ -65,6 +67,7 @@ func _run() -> void:
 	_test_v6_structures_are_migrated()
 	_test_v7_work_commitments_are_migrated()
 	_test_v8_memories_are_migrated()
+	_test_v9_blueprint_progress_is_migrated()
 	_test_character_appearance_generation()
 	_test_first_neighbor_arrives_and_talks()
 	_test_grid_pathfinder_avoids_static_obstacles()
@@ -76,6 +79,7 @@ func _run() -> void:
 	_test_shared_wall_creates_memory_and_relationship()
 	_test_shared_wall_context_line_is_consumed_once()
 	_test_construction_command_payload()
+	_test_building_catalog()
 	_test_construction_command_validation()
 	_test_blueprint_command_execution()
 	_test_construction_cursor_requires_build_mode()
@@ -566,7 +570,7 @@ func _test_v3_outcomes_are_migrated() -> void:
 		"mod:custom_outcome",
 	]
 	var migrated_state: Dictionary = simulation.export_state()
-	_expect(int(migrated_state.get("version", 0)) == 9, "v3 save migrates to save version 9")
+	_expect(int(migrated_state.get("version", 0)) == 10, "v3 save migrates to save version 10")
 	_expect(migrated_state.get("outcomes", []) == expected, "v3 outcome copy migrates to stable ids")
 
 	var encoded: String = JSON.stringify(migrated_state)
@@ -599,7 +603,7 @@ func _test_v4_npc_state_is_migrated() -> void:
 	var simulation: FirstNightSimulation = Simulation.new(legacy_state)
 	var migrated: Dictionary = simulation.export_state()
 	var mira: Dictionary = (migrated["npcs"] as Dictionary)["core:first_neighbor"] as Dictionary
-	_expect(int(migrated.get("version", 0)) == 9, "v4 save migrates to save version 9")
+	_expect(int(migrated.get("version", 0)) == 10, "v4 save migrates to save version 10")
 	_expect(typeof(mira.get("needs")) == TYPE_DICTIONARY, "v4 NPC gains normalized needs")
 	_expect(String(mira.get("activity_id", "")).contains(":"), "v4 NPC gains stable activity id")
 	_expect(int((mira.get("personal_inventory", {}) as Dictionary).get("core:food", -1)) == 2, "v4 NPC gains initial personal food")
@@ -613,8 +617,8 @@ func _test_v5_blueprints_are_migrated() -> void:
 	legacy_state.erase("structures")
 	var migrated_simulation: FirstNightSimulation = Simulation.new(legacy_state)
 	_expect(
-		int(migrated_simulation.export_state().get("version", 0)) == 9,
-		"v5 save migrates to save version 9"
+		int(migrated_simulation.export_state().get("version", 0)) == 10,
+		"v5 save migrates to save version 10"
 	)
 	_expect(migrated_simulation.get_blueprints().is_empty(), "v5 save gains empty blueprints")
 	_expect(migrated_simulation.get_structures().is_empty(), "v5 save gains empty structures")
@@ -659,8 +663,8 @@ func _test_v6_structures_are_migrated() -> void:
 	legacy_state.erase("structures")
 	var migrated_simulation: FirstNightSimulation = Simulation.new(legacy_state)
 	_expect(
-		int(migrated_simulation.export_state().get("version", 0)) == 9,
-		"v6 save migrates to save version 9"
+		int(migrated_simulation.export_state().get("version", 0)) == 10,
+		"v6 save migrates to save version 10"
 	)
 	_expect(migrated_simulation.get_structures().is_empty(), "v6 save gains empty structures")
 
@@ -1423,6 +1427,22 @@ func _test_blueprint_command_execution() -> void:
 			String(first_blueprint.get("stage_id", "")) == "core:blueprint",
 			"placed blueprint uses the blueprint stage"
 		)
+		_expect(
+			first_blueprint.get("required_materials", {}) == {"core:wood": 1},
+			"placed wall blueprint snapshots its material requirement"
+		)
+		_expect(
+			first_blueprint.get("delivered_materials", {}) == {"core:wood": 0},
+			"placed wall blueprint starts without delivered materials"
+		)
+		_expect(
+			int(first_blueprint.get("required_work_minutes", 0)) == 12,
+			"placed wall blueprint snapshots required work"
+		)
+		_expect(
+			int(first_blueprint.get("work_progress_minutes", -1)) == 0,
+			"placed wall blueprint starts without work progress"
+		)
 
 	var duplicate_result: Dictionary = simulation.execute_construction_command(first_command)
 	_expect(
@@ -1604,8 +1624,8 @@ func _test_v7_work_commitments_are_migrated() -> void:
 	legacy_mira.erase("work_commitment")
 	var migrated := Simulation.new(legacy_state)
 	_expect(
-		int(migrated.export_state().get("version", 0)) == 9,
-		"v7 save migrates to save version 9"
+		int(migrated.export_state().get("version", 0)) == 10,
+		"v7 save migrates to save version 10"
 	)
 	_expect(
 		migrated.get_npc_work_commitment("core:first_neighbor").is_empty(),
@@ -1641,8 +1661,8 @@ func _test_v8_memories_are_migrated() -> void:
 	legacy_mira.erase("memories")
 	var migrated := Simulation.new(legacy_state)
 	_expect(
-		int(migrated.export_state().get("version", 0)) == 9,
-		"v8 save migrates to save version 9"
+		int(migrated.export_state().get("version", 0)) == 10,
+		"v8 save migrates to save version 10"
 	)
 	_expect(
 		migrated.get_npc_memories("core:first_neighbor").is_empty(),
@@ -1667,6 +1687,81 @@ func _test_v8_memories_are_migrated() -> void:
 	_expect(
 		normalized.get_npc_memories("core:first_neighbor").size() == 1,
 		"memory normalization rejects duplicates and corrupt entries"
+	)
+
+
+func _test_v9_blueprint_progress_is_migrated() -> void:
+	var legacy_state: Dictionary = Simulation.create_new_state()
+	legacy_state["version"] = 9
+	legacy_state["blueprints"] = [{
+		"building_id": "core:wood_wall",
+		"cell": [22, 29],
+		"stage_id": "core:blueprint",
+	}]
+	var migrated := Simulation.new(legacy_state)
+	_expect(
+		int(migrated.export_state().get("version", 0)) == 10,
+		"v9 save migrates to save version 10"
+	)
+	var migrated_blueprints: Array = migrated.get_blueprints()
+	_expect(migrated_blueprints.size() == 1, "v9 blueprint survives migration")
+	if migrated_blueprints.size() == 1:
+		var migrated_blueprint: Dictionary = migrated_blueprints[0] as Dictionary
+		_expect(
+			migrated_blueprint.get("required_materials", {}) == {"core:wood": 1},
+			"v9 blueprint gains its catalog material requirement"
+		)
+		_expect(
+			migrated_blueprint.get("delivered_materials", {}) == {"core:wood": 0},
+			"v9 blueprint starts with no delivered materials"
+		)
+		_expect(
+			int(migrated_blueprint.get("required_work_minutes", 0)) == 12,
+			"v9 blueprint gains its catalog work requirement"
+		)
+
+	var corrupt_state: Dictionary = Simulation.create_new_state()
+	corrupt_state["blueprints"] = [{
+		"building_id": "core:wood_wall",
+		"cell": [22, 29],
+		"stage_id": "core:blueprint",
+		"delivered_materials": {"core:wood": 99, "core:stone": 5},
+		"work_progress_minutes": 99,
+	}]
+	var normalized_progress := Simulation.new(corrupt_state)
+	var normalized_blueprint: Dictionary = (
+		normalized_progress.get_blueprints()[0] as Dictionary
+	)
+	_expect(
+		normalized_blueprint.get("delivered_materials", {}) == {"core:wood": 1},
+		"blueprint delivery is clamped to its catalog requirement"
+	)
+	_expect(
+		int(normalized_blueprint.get("work_progress_minutes", 0)) == 12,
+		"blueprint work progress is clamped to its requirement"
+	)
+
+
+func _test_building_catalog() -> void:
+	var catalog := BuildingCatalogScript.new()
+	var wall: Dictionary = catalog.get_definition("core:wood_wall")
+	_expect(not wall.is_empty(), "building catalog loads the wooden wall")
+	_expect(
+		catalog.get_material_cost("core:wood_wall") == {"core:wood": 1},
+		"wooden wall reads its material cost from content"
+	)
+	_expect(
+		catalog.get_work_minutes("core:wood_wall") == 12,
+		"wooden wall reads its work duration from content"
+	)
+	wall["work_minutes"] = 999
+	_expect(
+		catalog.get_work_minutes("core:wood_wall") == 12,
+		"building definition snapshots do not mutate the catalog"
+	)
+	_expect(
+		catalog.get_definition("core:missing").is_empty(),
+		"unknown building has no definition"
 	)
 
 

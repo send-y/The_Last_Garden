@@ -13,6 +13,9 @@ const ConstructionCommandScript := preload(
 const ConstructionValidatorScript := preload(
 	"res://src/construction/construction_validator.gd"
 )
+const BuildingCatalogScript := preload(
+	"res://src/construction/building_catalog.gd"
+)
 const NpcWorkRequestScript := preload(
 	"res://src/simulation/npc_work_request.gd"
 )
@@ -21,7 +24,7 @@ const NpcWorkRequestValidatorScript := preload(
 )
 const NpcMemoryScript := preload("res://src/simulation/npc_memory.gd")
 
-const SAVE_VERSION: int = 9
+const SAVE_VERSION: int = 10
 const DEFAULT_SEED: int = 247061
 const START_MINUTE: int = 11 * 60
 const EVENING_MINUTE: int = 18 * 60
@@ -62,10 +65,12 @@ var state: Dictionary
 var content: FirstNightContent
 var npc_catalog
 var npc_autonomy
+var building_catalog: BuildingCatalog
 var _minute_accumulator: float = 0.0
 
 
 func _init(initial_state: Dictionary = {}) -> void:
+	building_catalog = BuildingCatalogScript.new()
 	content = Content.new()
 	npc_catalog = Npcs.new()
 	npc_autonomy = NpcAutonomyScript.new(npc_catalog)
@@ -275,13 +280,30 @@ func execute_construction_command(command: Dictionary) -> Dictionary:
 				"changed": false,
 				"reason_id": "core:occupied_cell",
 			}
+	var building_id: String = String(validation.get("building_id", ""))
+	var material_cost: Dictionary = building_catalog.get_material_cost(building_id)
+	var required_work_minutes: int = building_catalog.get_work_minutes(building_id)
+
+	if material_cost.is_empty() or required_work_minutes <= 0:
+		return {
+			"success": false,
+			"changed": false,
+			"reason_id": "core:invalid_building",
+		}
+
+	var delivered_materials: Dictionary = {}
+	for item_variant: Variant in material_cost.keys():
+		delivered_materials[String(item_variant)] = 0
 
 	var blueprint: Dictionary = {
-		"building_id": String(validation.get("building_id", "")),
+		"building_id": building_id,
 		"cell": cell_data.duplicate(),
 		"stage_id": BLUEPRINT_STAGE_ID,
+		"required_materials": material_cost.duplicate(true),
+		"delivered_materials": delivered_materials,
+		"required_work_minutes": required_work_minutes,
+		"work_progress_minutes": 0,
 	}
-
 	(state["blueprints"] as Array).append(blueprint)
 	event_emitted.emit({"type": "state_changed"})
 
@@ -1311,7 +1333,7 @@ static func _as_dictionary(value: Variant) -> Dictionary:
 	return (value as Dictionary).duplicate(true)
 
 
-static func _normalize_blueprints(value: Variant) -> Array[Dictionary]:
+func _normalize_blueprints(value: Variant) -> Array[Dictionary]:
 	var normalized: Array[Dictionary] = []
 	if typeof(value) != TYPE_ARRAY:
 		return normalized
@@ -1349,20 +1371,64 @@ static func _normalize_blueprints(value: Variant) -> Array[Dictionary]:
 		if occupied_cells.has(cell_key):
 			continue
 		occupied_cells[cell_key] = true
+		var building_id: String = String(
+			validation.get("building_id", "")
+		)
+		var required_materials: Dictionary = (
+			building_catalog.get_material_cost(building_id)
+		)
+		var required_work_minutes: int = (
+			building_catalog.get_work_minutes(building_id)
+		)
+
+		if required_materials.is_empty() or required_work_minutes <= 0:
+			continue
+
+		var raw_delivered: Dictionary = {}
+		var delivered_value: Variant = blueprint.get(
+			"delivered_materials",
+			{}
+		)
+		if typeof(delivered_value) == TYPE_DICTIONARY:
+			raw_delivered = delivered_value as Dictionary
+
+		var delivered_materials: Dictionary = {}
+		for item_variant: Variant in required_materials.keys():
+			var item_id: String = String(item_variant)
+			var required_amount: int = int(required_materials[item_variant])
+			delivered_materials[item_id] = clampi(
+				_safe_int(raw_delivered.get(item_id), 0),
+				0,
+				required_amount
+			)
+
+		var work_progress_minutes: int = clampi(
+			_safe_int(blueprint.get("work_progress_minutes"), 0),
+			0,
+			required_work_minutes
+		)
 		normalized.append({
-			"building_id": String(validation.get("building_id", "")),
+			"building_id": building_id,
 			"cell": normalized_cell.duplicate(),
 			"stage_id": BLUEPRINT_STAGE_ID,
+			"required_materials": required_materials,
+			"delivered_materials": delivered_materials,
+			"required_work_minutes": required_work_minutes,
+			"work_progress_minutes": work_progress_minutes,
 		})
 
 	return normalized
 
 
-static func _normalize_structures(value: Variant) -> Array[Dictionary]:
+func _normalize_structures(value: Variant) -> Array[Dictionary]:
 	var normalized: Array[Dictionary] = _normalize_blueprints(value)
 
 	for structure: Dictionary in normalized:
 		structure["stage_id"] = COMPLETE_STAGE_ID
+		structure.erase("required_materials")
+		structure.erase("delivered_materials")
+		structure.erase("required_work_minutes")
+		structure.erase("work_progress_minutes")
 
 	return normalized
 
