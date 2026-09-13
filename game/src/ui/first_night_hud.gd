@@ -33,7 +33,7 @@ func set_selection(selection: Dictionary) -> void:
 			"y": int(selection.get("y", -1)),
 		})
 		return
-	if kind == "interactable":
+	if kind == "interactable" or kind == "blueprint":
 		var status: String = String(selection.get("status", ""))
 		var in_range: bool = bool(selection.get("in_range", false))
 		var selection_key: String

@@ -14,6 +14,9 @@ const ConstructionCommand := preload(
 
 func _ready() -> void:
 	_world.selection_changed.connect(_hud.set_selection)
+	_world.blueprint_interaction_requested.connect(
+		_on_blueprint_interaction_requested
+	)
 	_hud.build_mode_toggled.connect(
 	_construction_cursor.set_build_mode_active
 	)
@@ -51,6 +54,12 @@ func _on_construction_cell_cancel_requested(cell: Vector2i) -> void:
 	_show_construction_result(result)
 
 
+func _on_blueprint_interaction_requested(cell: Vector2i) -> void:
+	var command: Dictionary = ConstructionCommand.deliver_blueprint_materials(cell)
+	var result: Dictionary = Session.execute_construction_command(command)
+	_show_construction_result(result)
+
+
 func _show_construction_result(result: Dictionary) -> void:
 	var reason_id: String = String(result.get("reason_id", ""))
 	var message_key: String = "construction.feedback.invalid"
@@ -60,6 +69,14 @@ func _show_construction_result(result: Dictionary) -> void:
 			message_key = "construction.feedback.blueprint_placed"
 		"core:blueprint_cancelled":
 			message_key = "construction.feedback.blueprint_cancelled"
+		"core:materials_delivered":
+			message_key = "construction.feedback.materials_delivered"
+		"core:materials_already_delivered":
+			message_key = "construction.feedback.materials_already_delivered"
+		"core:required_materials_missing":
+			message_key = "construction.feedback.required_materials_missing"
+		"core:too_far":
+			message_key = "construction.feedback.too_far"
 		"core:blocked_cell":
 			message_key = "construction.feedback.blocked_cell"
 		"core:occupied_cell":
@@ -71,7 +88,9 @@ func _show_construction_result(result: Dictionary) -> void:
 
 	Session.notify_player_key(
 		message_key,
-		{},
+		{
+			"amount": int(result.get("transferred_total", 0)),
+		},
 		bool(result.get("success", false))
 	)
 

@@ -2,13 +2,21 @@ class_name FirstNightWorld
 extends Node2D
 
 signal selection_changed(selection: Dictionary)
+signal blueprint_interaction_requested(cell: Vector2i)
 
 const Catalog := preload("res://src/world/first_night_catalog.gd")
 const Interactable := preload("res://src/world/interactable_view.gd")
+const Content := preload("res://src/content/first_night_content.gd")
+const Localized := preload("res://src/localization/localized_text.gd")
+const BuildingCatalogScript := preload(
+	"res://src/construction/building_catalog.gd"
+)
 
 var _interactables: Array[InteractableView] = []
 var _selected: InteractableView
 var _selected_cell: Vector2i = Vector2i(-1, -1)
+var _content := Content.new()
+var _building_catalog := BuildingCatalogScript.new()
 
 @onready var _player: CharacterBody2D = get_node("../Player") as CharacterBody2D
 
@@ -56,6 +64,15 @@ func select_at_world_position(world_position: Vector2) -> void:
 
 
 func interact_with_selection() -> void:
+	var blueprint: Dictionary = _get_selected_blueprint()
+	if not blueprint.is_empty():
+		var target_position := Content.cell_center(_selected_cell.x, _selected_cell.y)
+		if _player.global_position.distance_to(target_position) > Catalog.INTERACTION_RANGE:
+			Session.notify_player_key("interaction.failure.too_far")
+			return
+		blueprint_interaction_requested.emit(_selected_cell)
+		return
+
 	if _selected == null or not is_instance_valid(_selected) or not _selected.visible:
 		Session.notify_player_key("interaction.prompt.select_object")
 		return
@@ -81,12 +98,14 @@ func _set_selected(value: InteractableView) -> void:
 	if _selected == null:
 		if _selected_cell.x < 0 or _selected_cell.y < 0:
 			selection_changed.emit({"kind": "none"})
-		else:
+		elif _get_selected_blueprint().is_empty():
 			selection_changed.emit({
 				"kind": "cell",
 				"x": _selected_cell.x,
 				"y": _selected_cell.y,
 			})
+		else:
+			selection_changed.emit(_blueprint_selection_payload())
 		return
 	_selected.set_selected(true)
 	var in_range: bool = _player.global_position.distance_to(_selected.global_position) <= Catalog.INTERACTION_RANGE
@@ -110,6 +129,8 @@ func _refresh_interactables(snap: bool = false) -> void:
 func _on_state_changed() -> void:
 	_refresh_interactables()
 	if _selected == null or not is_instance_valid(_selected):
+		if _selected_cell.x >= 0 and _selected_cell.y >= 0:
+			_set_selected(null)
 		return
 	if not _selected.visible:
 		_selected_cell = Vector2i(-1, -1)
@@ -135,6 +156,60 @@ func _selection_payload(interactable: InteractableView, in_range: bool) -> Dicti
 	if not status.is_empty():
 		result["status"] = status
 	return result
+
+
+func _get_selected_blueprint() -> Dictionary:
+	if _selected_cell.x < 0 or _selected_cell.y < 0:
+		return {}
+	for blueprint_value: Variant in Session.get_blueprints():
+		if typeof(blueprint_value) != TYPE_DICTIONARY:
+			continue
+		var blueprint: Dictionary = blueprint_value as Dictionary
+		if blueprint.get("cell", []) == [_selected_cell.x, _selected_cell.y]:
+			return blueprint
+	return {}
+
+
+func _blueprint_selection_payload() -> Dictionary:
+	var blueprint: Dictionary = _get_selected_blueprint()
+	if blueprint.is_empty():
+		return {
+			"kind": "cell",
+			"x": _selected_cell.x,
+			"y": _selected_cell.y,
+		}
+	var building: Dictionary = _building_catalog.get_definition(
+		String(blueprint.get("building_id", ""))
+	)
+	var label: String = Localized.resolve(
+		String(building.get("label_key", "building.core.wood_wall.name"))
+	)
+	var progress_parts: PackedStringArray = []
+	var required: Dictionary = blueprint.get("required_materials", {}) as Dictionary
+	var delivered: Dictionary = blueprint.get("delivered_materials", {}) as Dictionary
+	var item_ids: Array[String] = []
+	for item_variant: Variant in required.keys():
+		item_ids.append(String(item_variant))
+	item_ids.sort()
+	for item_id: String in item_ids:
+		progress_parts.append(Localized.resolve(
+			"construction.blueprint.material_progress",
+			{
+				"item": Localized.resolve(_content.item_label_key(item_id)),
+				"delivered": int(delivered.get(item_id, 0)),
+				"required": int(required.get(item_id, 0)),
+			}
+		))
+	var target_position := Content.cell_center(_selected_cell.x, _selected_cell.y)
+	return {
+		"kind": "blueprint",
+		"label": label,
+		"status": ", ".join(progress_parts),
+		"in_range": (
+			_player.global_position.distance_to(target_position)
+			<= Catalog.INTERACTION_RANGE
+		),
+	}
 
 
 func _build_static_collision() -> void:

@@ -914,6 +914,25 @@ func _test_npc_work_request_contract_and_refusals() -> void:
 		"work request requires a real blueprint"
 	)
 
+	var no_material_state: Dictionary = _build_mira_work_simulation(
+		target_cell,
+		true,
+		true
+	).export_state()
+	var no_material_mira: Dictionary = (
+		no_material_state["npcs"] as Dictionary
+	)["core:first_neighbor"] as Dictionary
+	(no_material_mira["personal_inventory"] as Dictionary)[
+		FirstNightContent.WOOD_ID
+	] = 0
+	var no_materials := Simulation.new(no_material_state)
+	_expect(
+		String(
+			no_materials.execute_npc_work_request(command).get("reason_id", "")
+		) == "core:required_materials_missing",
+		"Mira cannot start construction without delivered or carried materials"
+	)
+
 	var hungry_state: Dictionary = _build_mira_work_simulation(
 		target_cell,
 		true,
@@ -997,6 +1016,23 @@ func _test_mira_completes_construction_commitment() -> void:
 	)
 	var commitment: Dictionary = simulation.get_npc_work_commitment("core:first_neighbor")
 	_expect(not commitment.is_empty(), "accepted request creates a work commitment")
+	var mira_after_acceptance: Dictionary = (
+		simulation.get_npcs().get("core:first_neighbor", {}) as Dictionary
+	)
+	_expect(
+		int((mira_after_acceptance.get("personal_inventory", {}) as Dictionary).get(
+			FirstNightContent.WOOD_ID,
+			0
+		)) == 2,
+		"Mira transfers required carried wood into the blueprint"
+	)
+	_expect(
+		(simulation.get_blueprints()[0] as Dictionary).get(
+			"delivered_materials",
+			{}
+		) == {FirstNightContent.WOOD_ID: 1},
+		"Mira's delivered wood becomes part of the blueprint"
+	)
 	_expect(
 		int(commitment.get("required_minutes", 0))
 		== NpcAutonomyScript.CONSTRUCTION_WORK_MINUTES,
@@ -1233,6 +1269,14 @@ func _build_mira_work_simulation(
 ) -> FirstNightSimulation:
 	var scenario: Dictionary = LabScenarios.build(LabScenarios.MORNING_WITH_MIRA)
 	var simulation: FirstNightSimulation = scenario["simulation"] as FirstNightSimulation
+	var state_with_materials: Dictionary = simulation.export_state()
+	var mira: Dictionary = (
+		state_with_materials["npcs"] as Dictionary
+	)["core:first_neighbor"] as Dictionary
+	var mira_inventory: Dictionary = mira.get("personal_inventory", {}) as Dictionary
+	mira_inventory[FirstNightContent.WOOD_ID] = 3
+	mira["personal_inventory"] = mira_inventory
+	simulation = Simulation.new(state_with_materials)
 	simulation.set_player_position(
 		simulation.get_npc_position("core:first_neighbor", Vector2.ZERO)
 	)
@@ -1286,6 +1330,19 @@ func _test_construction_command_payload() -> void:
 	_expect(
 		not cancel_command.has("building_id"),
 		"blueprint cancellation identifies the target by cell"
+	)
+
+	var delivery_command: Dictionary = (
+		ConstructionCommandScript.deliver_blueprint_materials(Vector2i(22, 29))
+	)
+	_expect(
+		String(delivery_command.get("action_id", ""))
+		== "core:deliver_blueprint_materials",
+		"blueprint delivery uses a stable action id"
+	)
+	_expect(
+		delivery_command.get("cell", []) == [22, 29],
+		"blueprint delivery identifies the target by cell"
 	)
 
 	var complete_command: Dictionary = (
@@ -1371,6 +1428,27 @@ func _test_construction_command_validation() -> void:
 		"cancellation validator rejects a forged actor"
 	)
 
+	var delivery_command: Dictionary = (
+		ConstructionCommandScript.deliver_blueprint_materials(Vector2i(22, 29))
+	)
+	var delivery_validation: Dictionary = (
+		ConstructionValidatorScript.validate_deliver_materials(delivery_command)
+	)
+	_expect(
+		bool(delivery_validation.get("success", false)),
+		"delivery validator accepts a valid cell"
+	)
+	var forged_delivery: Dictionary = delivery_command.duplicate(true)
+	forged_delivery["actor_id"] = "core:forged_actor"
+	_expect(
+		String(
+			ConstructionValidatorScript.validate_deliver_materials(
+				forged_delivery
+			).get("reason_id", "")
+		) == "core:unknown_actor",
+		"delivery validator rejects a forged actor"
+	)
+
 	var complete_command: Dictionary = (
 		ConstructionCommandScript.complete_blueprint(Vector2i(22, 29))
 	)
@@ -1406,7 +1484,30 @@ func _test_construction_command_validation() -> void:
 
 
 func _test_blueprint_command_execution() -> void:
-	var simulation: FirstNightSimulation = Simulation.new()
+	var empty_inventory_simulation: FirstNightSimulation = Simulation.new()
+	empty_inventory_simulation.execute_construction_command(
+		ConstructionCommandScript.place_wall_blueprint(Vector2i(22, 29))
+	)
+	var empty_delivery: Dictionary = empty_inventory_simulation.execute_construction_command(
+		ConstructionCommandScript.deliver_blueprint_materials(Vector2i(22, 29))
+	)
+	_expect(
+		String(empty_delivery.get("reason_id", ""))
+		== "core:required_materials_missing",
+		"delivery reports when the player carries no required materials"
+	)
+	empty_inventory_simulation.set_player_position(Vector2.ZERO)
+	var distant_delivery: Dictionary = empty_inventory_simulation.execute_construction_command(
+		ConstructionCommandScript.deliver_blueprint_materials(Vector2i(22, 29))
+	)
+	_expect(
+		String(distant_delivery.get("reason_id", "")) == "core:too_far",
+		"delivery requires the player to stand near the blueprint"
+	)
+
+	var initial_state: Dictionary = Simulation.create_new_state()
+	(initial_state["inventory"] as Dictionary)[FirstNightContent.WOOD_ID] = 3
+	var simulation: FirstNightSimulation = Simulation.new(initial_state)
 	var first_command: Dictionary = (
 		ConstructionCommandScript.place_wall_blueprint(Vector2i(22, 29))
 	)
@@ -1443,6 +1544,30 @@ func _test_blueprint_command_execution() -> void:
 			int(first_blueprint.get("work_progress_minutes", -1)) == 0,
 			"placed wall blueprint starts without work progress"
 		)
+
+	var delivery_result: Dictionary = simulation.execute_construction_command(
+		ConstructionCommandScript.deliver_blueprint_materials(Vector2i(22, 29))
+	)
+	_expect(bool(delivery_result.get("success", false)), "player delivers carried wood")
+	_expect(
+		simulation.get_item_count(FirstNightContent.WOOD_ID) == 2,
+		"delivered wood leaves the player inventory"
+	)
+	_expect(
+		(simulation.get_blueprints()[0] as Dictionary).get(
+			"delivered_materials",
+			{}
+		) == {FirstNightContent.WOOD_ID: 1},
+		"delivered wood becomes part of the blueprint"
+	)
+	var duplicate_delivery: Dictionary = simulation.execute_construction_command(
+		ConstructionCommandScript.deliver_blueprint_materials(Vector2i(22, 29))
+	)
+	_expect(
+		String(duplicate_delivery.get("reason_id", ""))
+		== "core:materials_already_delivered",
+		"a complete material requirement rejects duplicate delivery"
+	)
 
 	var duplicate_result: Dictionary = simulation.execute_construction_command(first_command)
 	_expect(
@@ -1501,6 +1626,10 @@ func _test_blueprint_command_execution() -> void:
 		String(cancel_result.get("reason_id", "")) == "core:blueprint_cancelled",
 		"valid cancellation has a stable reason id"
 	)
+	_expect(
+		simulation.get_item_count(FirstNightContent.WOOD_ID) == 3,
+		"cancelling a blueprint returns its delivered materials"
+	)
 	var remaining_blueprints: Array = simulation.get_blueprints()
 	_expect(remaining_blueprints.size() == 1, "cancellation removes exactly one blueprint")
 	if remaining_blueprints.size() == 1:
@@ -1537,6 +1666,17 @@ func _test_blueprint_command_execution() -> void:
 		simulation.is_navigation_cell_walkable(Vector2i(23, 29)),
 		"a blueprint does not block NPC navigation"
 	)
+	var premature_completion: Dictionary = simulation.execute_construction_command(
+		ConstructionCommandScript.complete_blueprint(Vector2i(23, 29))
+	)
+	_expect(
+		String(premature_completion.get("reason_id", ""))
+		== "core:required_materials_missing",
+		"construction cannot finish before materials are delivered"
+	)
+	_expect(bool(simulation.execute_construction_command(
+		ConstructionCommandScript.deliver_blueprint_materials(Vector2i(23, 29))
+	).get("success", false)), "second blueprint accepts its material")
 	var complete_result: Dictionary = simulation.execute_construction_command(
 		ConstructionCommandScript.complete_blueprint(Vector2i(23, 29))
 	)

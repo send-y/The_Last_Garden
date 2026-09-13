@@ -6,6 +6,7 @@ const ConstructionCommand := preload(
 	"res://src/construction/construction_command.gd"
 )
 const NpcWorkRequest := preload("res://src/simulation/npc_work_request.gd")
+const FirstNightContent := preload("res://src/content/first_night_content.gd")
 
 const FRESH_START: StringName = &"fresh_start"
 const PREPARED_EVENING: StringName = &"prepared_evening"
@@ -115,6 +116,23 @@ static func _prepare_shared_wall_memory(
 	})
 	if not bool(build_result.get("success", false)):
 		return false
+	simulation.set_player_position(FirstNightContent.cell_center(
+		target_cell.x,
+		target_cell.y
+	))
+	var delivery_result: Dictionary = simulation.execute_construction_command(
+		ConstructionCommand.deliver_blueprint_materials(target_cell)
+	)
+	steps.append({
+		"kind": "construction_delivery",
+		"success": bool(delivery_result.get("success", false)),
+		"reason_id": String(delivery_result.get("reason_id", "")),
+	})
+	if not bool(delivery_result.get("success", false)):
+		return false
+	simulation.set_player_position(
+		simulation.get_npc_position("core:first_neighbor", Vector2.ZERO)
+	)
 
 	var request_result: Dictionary = simulation.execute_npc_work_request(
 		NpcWorkRequest.request_construction_help(
