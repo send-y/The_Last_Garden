@@ -4,6 +4,7 @@ extends RefCounted
 const Appearance := preload("res://src/characters/character_appearance.gd")
 const FirstNightContentScript := preload("res://src/content/first_night_content.gd")
 const Localized := preload("res://src/localization/localized_text.gd")
+const NpcMemory := preload("res://src/simulation/npc_memory.gd")
 
 const NPCS_PATH: String = "res://content/core/npcs.json"
 
@@ -56,6 +57,7 @@ func create_initial_states(world_seed: int) -> Dictionary:
 			"facing": [0.0, -1.0],
 			"moving": false,
 			"work_commitment": {},
+			"memories": [],
 		}
 	return npcs
 
@@ -171,6 +173,9 @@ func normalize_states(raw_npcs: Dictionary, world_seed: int) -> Dictionary:
 		npc_state["work_commitment"] = _normalize_work_commitment(
 			npc_state.get("work_commitment", {})
 		)
+		npc_state["memories"] = NpcMemory.normalize_memories(
+			npc_state.get("memories", [])
+		)
 
 		normalized[npc_id] = npc_state
 	return normalized
@@ -266,7 +271,9 @@ func talk(npcs: Dictionary, npc_id: String) -> Dictionary:
 	var talk_count: int = int(npc_state.get("talk_count", 0))
 	var line_key: String = String(definition.get("greeting_key", ""))
 	if talk_count > 0:
-		line_key = String(definition.get("repeat_line_key", line_key))
+		line_key = _take_context_line_key(npc_state, definition)
+		if line_key.is_empty():
+			line_key = String(definition.get("repeat_line_key", line_key))
 
 	npc_state["known"] = true
 	npc_state["talk_count"] = talk_count + 1
@@ -281,6 +288,30 @@ func talk(npcs: Dictionary, npc_id: String) -> Dictionary:
 		},
 		"changed": true,
 	}
+
+
+func _take_context_line_key(
+	npc_state: Dictionary,
+	definition: Dictionary
+) -> String:
+	var context_lines_value: Variant = definition.get("context_lines", {})
+	if typeof(context_lines_value) != TYPE_DICTIONARY:
+		return ""
+	var context_lines: Dictionary = context_lines_value as Dictionary
+	var memories: Array = npc_state.get("memories", []) as Array
+	for memory_value: Variant in memories:
+		if typeof(memory_value) != TYPE_DICTIONARY:
+			continue
+		var memory: Dictionary = memory_value as Dictionary
+		if bool(memory.get("acknowledged", false)):
+			continue
+		var event_id: String = String(memory.get("event_id", ""))
+		var line_key: String = String(context_lines.get(event_id, ""))
+		if line_key.is_empty():
+			continue
+		memory["acknowledged"] = true
+		return line_key
+	return ""
 
 
 func _cell_center_array(x: int, y: int) -> Array[float]:
@@ -467,6 +498,17 @@ func _validate_content() -> void:
 			push_error("NPC %s has no greeting_key." % npc_id)
 		if String(definition.get("repeat_line_key", "")).is_empty():
 			push_error("NPC %s has no repeat_line_key." % npc_id)
+		var context_lines_value: Variant = definition.get("context_lines", {})
+		if typeof(context_lines_value) != TYPE_DICTIONARY:
+			push_error("NPC %s has invalid context_lines." % npc_id)
+		else:
+			for event_variant: Variant in (context_lines_value as Dictionary).keys():
+				var event_id: String = String(event_variant)
+				var line_key: String = String(
+					(context_lines_value as Dictionary)[event_variant]
+				)
+				if not event_id.contains(":") or line_key.is_empty():
+					push_error("NPC %s has an invalid context line." % npc_id)
 		var cell: Array = definition.get("position_cell", []) as Array
 		if cell.size() < 2:
 			push_error("NPC %s has invalid position_cell." % npc_id)

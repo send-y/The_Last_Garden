@@ -319,6 +319,7 @@ func _advance_npc_minute(
 			effects.append({
 				"type": "complete_construction",
 				"npc_id": String(npc.get("id", "")),
+				"minute": minute,
 				"target_cell": (
 					commitment.get("target_cell", []) as Array
 				).duplicate(),

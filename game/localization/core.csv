@@ -71,6 +71,7 @@ npc.work_request.failure.unreachable,"Мира не видит доступно�
 npc.work_request.prompt.select_blueprint,"Выключите строительный режим и выберите клетку с чертежом."
 dialogue.core.first_neighbor.greeting,"Я увидела дым от костра. Не думала, что здесь ещё кто-то сможет переночевать."
 dialogue.core.first_neighbor.repeat,"Если ты правда остаёшься, утром стоит осмотреть крышу снаружи. Одному это долго."
+dialogue.core.first_neighbor.shared_wall,"Стена вышла крепкой. Теперь это место чуть больше похоже на дом."
 ui.dialogue.speaker_line,"{speaker}: {line}"
 first_night.message.house.first,"Внутри Общего дома видны старые инструменты и комната с повреждённой крышей."
 first_night.message.house.repeat,"Общий дом сильно повреждён, но одну комнату ещё можно спасти."
