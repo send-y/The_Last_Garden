@@ -12,8 +12,8 @@ const VALENCE_POSITIVE_ID: String = "core:positive"
 const AXIS_TRUST: String = "trust"
 const AXIS_WARMTH: String = "warmth"
 const AXIS_RESPECT: String = "respect"
-const RELATIONSHIP_MIN: float = -100.0
-const RELATIONSHIP_MAX: float = 100.0
+const RELATIONSHIP_MIN: float = -50.0
+const RELATIONSHIP_MAX: float = 50.0
 
 
 static func create_first_shared_wall(
