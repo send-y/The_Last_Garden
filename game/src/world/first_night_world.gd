@@ -2,7 +2,7 @@ class_name FirstNightWorld
 extends Node2D
 
 signal selection_changed(selection: Dictionary)
-signal blueprint_interaction_requested(cell: Vector2i)
+signal blueprint_interaction_requested(cell: Vector2i, continuous_work: bool)
 
 const Catalog := preload("res://src/world/first_night_catalog.gd")
 const Interactable := preload("res://src/world/interactable_view.gd")
@@ -37,10 +37,10 @@ func _unhandled_input(event: InputEvent) -> void:
 			get_viewport().set_input_as_handled()
 		elif mouse_event.button_index == MOUSE_BUTTON_RIGHT:
 			select_at_world_position(get_global_mouse_position())
-			interact_with_selection()
+			interact_with_selection(false)
 			get_viewport().set_input_as_handled()
 	elif event.is_action_pressed(&"interact"):
-		interact_with_selection()
+		interact_with_selection(true)
 		get_viewport().set_input_as_handled()
 
 
@@ -63,14 +63,14 @@ func select_at_world_position(world_position: Vector2) -> void:
 	queue_redraw()
 
 
-func interact_with_selection() -> void:
+func interact_with_selection(continuous_work: bool = false) -> void:
 	var blueprint: Dictionary = _get_selected_blueprint()
 	if not blueprint.is_empty():
 		var target_position := Content.cell_center(_selected_cell.x, _selected_cell.y)
 		if _player.global_position.distance_to(target_position) > Catalog.INTERACTION_RANGE:
 			Session.notify_player_key("interaction.failure.too_far")
 			return
-		blueprint_interaction_requested.emit(_selected_cell)
+		blueprint_interaction_requested.emit(_selected_cell, continuous_work)
 		return
 
 	if _selected == null or not is_instance_valid(_selected) or not _selected.visible:
@@ -200,9 +200,18 @@ func _blueprint_selection_payload() -> Dictionary:
 				"required": int(required.get(item_id, 0)),
 			}
 		))
+	progress_parts.append(Localized.resolve(
+		"construction.blueprint.work_progress",
+		{
+			"progress": int(blueprint.get("work_progress_minutes", 0)),
+			"required": int(blueprint.get("required_work_minutes", 0)),
+		}
+	))
 	var target_position := Content.cell_center(_selected_cell.x, _selected_cell.y)
 	return {
 		"kind": "blueprint",
+		"x": _selected_cell.x,
+		"y": _selected_cell.y,
 		"label": label,
 		"status": ", ".join(progress_parts),
 		"in_range": (

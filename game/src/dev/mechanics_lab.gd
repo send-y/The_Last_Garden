@@ -245,10 +245,19 @@ func _refresh_status() -> void:
 	)
 	var commitment_text: String = "нет"
 	if not commitment.is_empty():
-		commitment_text = "%d/%d" % [
-			int(commitment.get("progress_minutes", 0)),
-			int(commitment.get("required_minutes", 0)),
-		]
+		var target_cell: Array = commitment.get("target_cell", []) as Array
+		commitment_text = "0/%d" % int(commitment.get("required_minutes", 0))
+		for blueprint_value: Variant in Session.get_blueprints():
+			if typeof(blueprint_value) != TYPE_DICTIONARY:
+				continue
+			var blueprint: Dictionary = blueprint_value as Dictionary
+			if blueprint.get("cell", []) != target_cell:
+				continue
+			commitment_text = "%d/%d" % [
+				int(blueprint.get("work_progress_minutes", 0)),
+				int(blueprint.get("required_work_minutes", 0)),
+			]
+			break
 	var selected_text: String = (
 		"%d,%d" % [_selected_cell.x, _selected_cell.y]
 		if _selected_cell.x >= 0 and _selected_cell.y >= 0

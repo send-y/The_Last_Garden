@@ -247,6 +247,9 @@ func execute_construction_command(command: Dictionary) -> Dictionary:
 	if action_id == ConstructionCommandScript.ACTION_DELIVER_MATERIALS:
 		return _execute_deliver_blueprint_materials(command)
 
+	if action_id == ConstructionCommandScript.ACTION_WORK_BLUEPRINT:
+		return _execute_work_blueprint(command)
+
 	if action_id == ConstructionCommandScript.ACTION_COMPLETE_BLUEPRINT:
 		return _execute_complete_blueprint(command)
 
@@ -555,8 +558,36 @@ func _execute_deliver_blueprint_materials(command: Dictionary) -> Dictionary:
 		"cell": cell_data.duplicate(),
 		"transferred_materials": transfer.duplicate(true),
 		"transferred_total": transferred_total,
+		"materials_ready": _blueprint_has_all_materials(blueprint),
 		"blueprint": blueprint.duplicate(true),
 	}
+
+
+func _execute_work_blueprint(command: Dictionary) -> Dictionary:
+	var validation: Dictionary = (
+		ConstructionValidatorScript.validate_work_blueprint(command)
+	)
+	if not bool(validation.get("success", false)):
+		var rejected: Dictionary = validation.duplicate(true)
+		rejected["changed"] = false
+		return rejected
+
+	var cell_data: Array = validation.get("cell", []) as Array
+	var target_position := FirstNightContent.cell_center(
+		int(cell_data[0]),
+		int(cell_data[1])
+	)
+	if get_player_position().distance_to(target_position) > FirstNightContent.INTERACTION_RANGE:
+		return {
+			"success": false,
+			"changed": false,
+			"reason_id": "core:too_far",
+		}
+
+	var result: Dictionary = _advance_blueprint_work(cell_data)
+	if bool(result.get("changed", false)):
+		event_emitted.emit({"type": "state_changed"})
+	return result
 
 
 func _sync_structure_navigation() -> void:
@@ -597,13 +628,15 @@ func _apply_autonomy_effects(effects: Array) -> bool:
 		if typeof(effect_value) != TYPE_DICTIONARY:
 			continue
 		var effect: Dictionary = effect_value as Dictionary
-		if String(effect.get("type", "")) != "complete_construction":
+		if String(effect.get("type", "")) != "advance_construction_work":
 			continue
 		var cell_data: Array = effect.get("target_cell", []) as Array
-		if cell_data.size() != 2 or _is_actor_in_cell(cell_data):
+		if cell_data.size() != 2:
 			continue
-		var completion: Dictionary = _complete_blueprint_at_cell(cell_data)
-		if not bool(completion.get("success", false)):
+		var work_result: Dictionary = _advance_blueprint_work(cell_data)
+		if bool(work_result.get("changed", false)):
+			changed = true
+		if String(work_result.get("reason_id", "")) != "core:structure_completed":
 			continue
 
 		var npc_id: String = String(effect.get("npc_id", ""))
@@ -622,7 +655,6 @@ func _apply_autonomy_effects(effects: Array) -> bool:
 			)
 			npc["activity_started_minute"] = get_minute_of_day()
 			npc["moving"] = false
-		changed = true
 	return changed
 
 
@@ -743,6 +775,55 @@ func _add_items_to_inventory(items: Dictionary, target_inventory: Dictionary) ->
 		var item_id: String = String(item_variant)
 		var amount: int = maxi(0, int(items[item_variant]))
 		target_inventory[item_id] = int(target_inventory.get(item_id, 0)) + amount
+
+
+func _advance_blueprint_work(cell_data: Array) -> Dictionary:
+	var blueprint: Dictionary = _find_blueprint(cell_data)
+	if blueprint.is_empty():
+		return {
+			"success": false,
+			"changed": false,
+			"reason_id": "core:missing_blueprint",
+		}
+	if not _blueprint_has_all_materials(blueprint):
+		return {
+			"success": false,
+			"changed": false,
+			"reason_id": "core:required_materials_missing",
+		}
+	if _is_actor_in_cell(cell_data):
+		return {
+			"success": false,
+			"changed": false,
+			"reason_id": "core:occupied_by_actor",
+		}
+
+	var required_work: int = maxi(
+		1,
+		int(blueprint.get("required_work_minutes", 1))
+	)
+	var current_work: int = clampi(
+		int(blueprint.get("work_progress_minutes", 0)),
+		0,
+		required_work
+	)
+	var next_work: int = mini(current_work + 1, required_work)
+	blueprint["work_progress_minutes"] = next_work
+	if next_work < required_work:
+		return {
+			"success": true,
+			"changed": true,
+			"reason_id": "core:construction_work_progressed",
+			"cell": cell_data.duplicate(),
+			"work_progress_minutes": next_work,
+			"required_work_minutes": required_work,
+			"blueprint": blueprint.duplicate(true),
+		}
+
+	var completion: Dictionary = _complete_blueprint_at_cell(cell_data)
+	completion["work_progress_minutes"] = required_work
+	completion["required_work_minutes"] = required_work
+	return completion
 
 
 static func _world_position_to_cell(world_position: Vector2) -> Vector2i:

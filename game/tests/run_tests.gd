@@ -1054,6 +1054,13 @@ func _test_mira_completes_construction_commitment() -> void:
 		"construction does not finish before travel and work time elapse"
 	)
 	_expect(
+		int((simulation.get_blueprints()[0] as Dictionary).get(
+			"work_progress_minutes",
+			0
+		)) == 11,
+		"Mira advances the same work progress stored on the blueprint"
+	)
+	_expect(
 		simulation.get_npc_memories("core:first_neighbor").is_empty(),
 		"unfinished construction creates no memory"
 	)
@@ -1344,6 +1351,17 @@ func _test_construction_command_payload() -> void:
 		delivery_command.get("cell", []) == [22, 29],
 		"blueprint delivery identifies the target by cell"
 	)
+	var work_command: Dictionary = (
+		ConstructionCommandScript.work_blueprint(Vector2i(22, 29))
+	)
+	_expect(
+		String(work_command.get("action_id", "")) == "core:work_blueprint",
+		"blueprint work uses a stable action id"
+	)
+	_expect(
+		work_command.get("cell", []) == [22, 29],
+		"blueprint work identifies the target by cell"
+	)
 
 	var complete_command: Dictionary = (
 		ConstructionCommandScript.complete_blueprint(Vector2i(22, 29))
@@ -1447,6 +1465,17 @@ func _test_construction_command_validation() -> void:
 			).get("reason_id", "")
 		) == "core:unknown_actor",
 		"delivery validator rejects a forged actor"
+	)
+	var work_command: Dictionary = ConstructionCommandScript.work_blueprint(
+		Vector2i(22, 29)
+	)
+	_expect(
+		bool(
+			ConstructionValidatorScript.validate_work_blueprint(
+				work_command
+			).get("success", false)
+		),
+		"work validator accepts a canonical command"
 	)
 
 	var complete_command: Dictionary = (
@@ -1677,8 +1706,24 @@ func _test_blueprint_command_execution() -> void:
 	_expect(bool(simulation.execute_construction_command(
 		ConstructionCommandScript.deliver_blueprint_materials(Vector2i(23, 29))
 	).get("success", false)), "second blueprint accepts its material")
+	for work_step: int in range(11):
+		var progress_result: Dictionary = simulation.execute_construction_command(
+			ConstructionCommandScript.work_blueprint(Vector2i(23, 29))
+		)
+		_expect(
+			String(progress_result.get("reason_id", ""))
+			== "core:construction_work_progressed",
+			"player work step %d advances the shared blueprint" % (work_step + 1)
+		)
+	_expect(
+		int((simulation.get_blueprints()[0] as Dictionary).get(
+			"work_progress_minutes",
+			0
+		)) == 11,
+		"player work progress is stored on the blueprint"
+	)
 	var complete_result: Dictionary = simulation.execute_construction_command(
-		ConstructionCommandScript.complete_blueprint(Vector2i(23, 29))
+		ConstructionCommandScript.work_blueprint(Vector2i(23, 29))
 	)
 	_expect(bool(complete_result.get("success", false)), "valid completion builds a structure")
 	_expect(bool(complete_result.get("changed", false)), "valid completion reports a state change")
@@ -1728,8 +1773,11 @@ func _test_blueprint_command_execution() -> void:
 		bool(simulation.execute_construction_command(player_cell_command).get("success", false)),
 		"a blueprint may be designated under an actor"
 	)
+	_expect(bool(simulation.execute_construction_command(
+		ConstructionCommandScript.deliver_blueprint_materials(Vector2i(24, 29))
+	).get("success", false)), "an actor-cell blueprint accepts its material")
 	var actor_blocked_completion: Dictionary = simulation.execute_construction_command(
-		ConstructionCommandScript.complete_blueprint(Vector2i(24, 29))
+		ConstructionCommandScript.work_blueprint(Vector2i(24, 29))
 	)
 	_expect(
 		String(actor_blocked_completion.get("reason_id", "")) == "core:occupied_by_actor",
