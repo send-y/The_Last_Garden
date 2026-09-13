@@ -6,6 +6,7 @@
 [ext_resource type="Script" uid="uid://cgesqdx755ts2" path="res://src/player/player_controller.gd" id="3_player"]
 [ext_resource type="Script" uid="uid://bx6bnkfvmv6ns" path="res://src/ui/first_night_hud.gd" id="4_hud"]
 [ext_resource type="Script" uid="uid://dp126q6yi24gd" path="res://src/construction/structure_layer.gd" id="4_jqarl"]
+[ext_resource type="Script" uid="uid://dv5nnmx54ujlp" path="res://src/construction/construction_cursor.gd" id="7_30cu5"]
 
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_player"]
 radius = 6.0
@@ -57,3 +58,7 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("4_hud")
+
+[node name="ConstructionCursor" type="Node2D" parent="." unique_id=1089441217]
+script = ExtResource("7_30cu5")
+metadata/_custom_type_script = "uid://dv5nnmx54ujlp"
