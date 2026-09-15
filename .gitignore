@@ -1,0 +1,10 @@
+# Godot editor and imported-resource cache
+.godot/
+
+# Project-local copies of Codex/agent skills
+.agents/
+
+# Operating-system metadata
+.DS_Store
+Thumbs.db
+Desktop.ini
