@@ -63,6 +63,20 @@ static func validate_cancel_blueprint(command: Dictionary) -> Dictionary:
 	)
 
 
+static func validate_deliver_materials(command: Dictionary) -> Dictionary:
+	return _validate_cell_command(
+		command,
+		Command.ACTION_DELIVER_MATERIALS
+	)
+
+
+static func validate_work_blueprint(command: Dictionary) -> Dictionary:
+	return _validate_cell_command(
+		command,
+		Command.ACTION_WORK_BLUEPRINT
+	)
+
+
 static func validate_complete_blueprint(command: Dictionary) -> Dictionary:
 	return _validate_cell_command(
 		command,

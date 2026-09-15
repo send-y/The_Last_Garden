@@ -13,6 +13,9 @@ const ConstructionCommandScript := preload(
 const ConstructionValidatorScript := preload(
 	"res://src/construction/construction_validator.gd"
 )
+const BuildingCatalogScript := preload(
+	"res://src/construction/building_catalog.gd"
+)
 const NpcWorkRequestScript := preload(
 	"res://src/simulation/npc_work_request.gd"
 )
@@ -21,7 +24,7 @@ const NpcWorkRequestValidatorScript := preload(
 )
 const NpcMemoryScript := preload("res://src/simulation/npc_memory.gd")
 
-const SAVE_VERSION: int = 9
+const SAVE_VERSION: int = 10
 const DEFAULT_SEED: int = 247061
 const START_MINUTE: int = 11 * 60
 const EVENING_MINUTE: int = 18 * 60
@@ -62,10 +65,12 @@ var state: Dictionary
 var content: FirstNightContent
 var npc_catalog
 var npc_autonomy
+var building_catalog: BuildingCatalog
 var _minute_accumulator: float = 0.0
 
 
 func _init(initial_state: Dictionary = {}) -> void:
+	building_catalog = BuildingCatalogScript.new()
 	content = Content.new()
 	npc_catalog = Npcs.new()
 	npc_autonomy = NpcAutonomyScript.new(npc_catalog)
@@ -239,6 +244,12 @@ func execute_construction_command(command: Dictionary) -> Dictionary:
 	if action_id == ConstructionCommandScript.ACTION_CANCEL_BLUEPRINT:
 		return _execute_cancel_blueprint(command)
 
+	if action_id == ConstructionCommandScript.ACTION_DELIVER_MATERIALS:
+		return _execute_deliver_blueprint_materials(command)
+
+	if action_id == ConstructionCommandScript.ACTION_WORK_BLUEPRINT:
+		return _execute_work_blueprint(command)
+
 	if action_id == ConstructionCommandScript.ACTION_COMPLETE_BLUEPRINT:
 		return _execute_complete_blueprint(command)
 
@@ -275,13 +286,30 @@ func execute_construction_command(command: Dictionary) -> Dictionary:
 				"changed": false,
 				"reason_id": "core:occupied_cell",
 			}
+	var building_id: String = String(validation.get("building_id", ""))
+	var material_cost: Dictionary = building_catalog.get_material_cost(building_id)
+	var required_work_minutes: int = building_catalog.get_work_minutes(building_id)
+
+	if material_cost.is_empty() or required_work_minutes <= 0:
+		return {
+			"success": false,
+			"changed": false,
+			"reason_id": "core:invalid_building",
+		}
+
+	var delivered_materials: Dictionary = {}
+	for item_variant: Variant in material_cost.keys():
+		delivered_materials[String(item_variant)] = 0
 
 	var blueprint: Dictionary = {
-		"building_id": String(validation.get("building_id", "")),
+		"building_id": building_id,
 		"cell": cell_data.duplicate(),
 		"stage_id": BLUEPRINT_STAGE_ID,
+		"required_materials": material_cost.duplicate(true),
+		"delivered_materials": delivered_materials,
+		"required_work_minutes": required_work_minutes,
+		"work_progress_minutes": 0,
 	}
-
 	(state["blueprints"] as Array).append(blueprint)
 	event_emitted.emit({"type": "state_changed"})
 
@@ -391,6 +419,21 @@ func execute_npc_work_request(command: Dictionary) -> Dictionary:
 			"npc.work_request.failure.unreachable"
 		)
 
+	if not _blueprint_has_all_materials(blueprint):
+		var npc_inventory: Dictionary = npc.get("personal_inventory", {}) as Dictionary
+		var transfer: Dictionary = _calculate_material_transfer(
+			blueprint,
+			npc_inventory
+		)
+		if not _transfer_completes_blueprint(blueprint, transfer):
+			return _emit_work_request_result(
+				false,
+				"core:required_materials_missing",
+				"npc.work_request.failure.materials_missing"
+			)
+		_apply_material_transfer(blueprint, npc_inventory, transfer)
+		npc["personal_inventory"] = npc_inventory
+
 	npc["work_commitment"] = {
 		"commitment_id": NpcWorkRequestScript.HELP_BUILD_COMMITMENT_ID,
 		"requester_id": NpcWorkRequestScript.PLAYER_ACTOR_ID,
@@ -436,6 +479,10 @@ func _execute_cancel_blueprint(command: Dictionary) -> Dictionary:
 		if blueprint.get("cell", []) != cell_data:
 			continue
 
+		var returned_materials: Dictionary = (
+			blueprint.get("delivered_materials", {}) as Dictionary
+		).duplicate(true)
+		_add_items_to_inventory(returned_materials, _inventory_mutable())
 		blueprints.remove_at(index)
 		event_emitted.emit({"type": "state_changed"})
 
@@ -444,6 +491,7 @@ func _execute_cancel_blueprint(command: Dictionary) -> Dictionary:
 			"changed": true,
 			"reason_id": "core:blueprint_cancelled",
 			"cell": cell_data.duplicate(),
+			"returned_materials": returned_materials,
 		}
 
 	return {
@@ -451,6 +499,95 @@ func _execute_cancel_blueprint(command: Dictionary) -> Dictionary:
 		"changed": false,
 		"reason_id": "core:missing_blueprint",
 	}
+
+
+func _execute_deliver_blueprint_materials(command: Dictionary) -> Dictionary:
+	var validation: Dictionary = (
+		ConstructionValidatorScript.validate_deliver_materials(command)
+	)
+	if not bool(validation.get("success", false)):
+		var rejected: Dictionary = validation.duplicate(true)
+		rejected["changed"] = false
+		return rejected
+
+	var cell_data: Array = validation.get("cell", []) as Array
+	var blueprint: Dictionary = _find_blueprint(cell_data)
+	if blueprint.is_empty():
+		return {
+			"success": false,
+			"changed": false,
+			"reason_id": "core:missing_blueprint",
+		}
+
+	var target_position := FirstNightContent.cell_center(
+		int(cell_data[0]),
+		int(cell_data[1])
+	)
+	if get_player_position().distance_to(target_position) > FirstNightContent.INTERACTION_RANGE:
+		return {
+			"success": false,
+			"changed": false,
+			"reason_id": "core:too_far",
+		}
+
+	if _blueprint_has_all_materials(blueprint):
+		return {
+			"success": false,
+			"changed": false,
+			"reason_id": "core:materials_already_delivered",
+		}
+
+	var inventory: Dictionary = _inventory_mutable()
+	var transfer: Dictionary = _calculate_material_transfer(blueprint, inventory)
+	if transfer.is_empty():
+		return {
+			"success": false,
+			"changed": false,
+			"reason_id": "core:required_materials_missing",
+		}
+
+	_apply_material_transfer(blueprint, inventory, transfer)
+	var transferred_total: int = 0
+	for amount_value: Variant in transfer.values():
+		transferred_total += int(amount_value)
+	event_emitted.emit({"type": "state_changed"})
+	return {
+		"success": true,
+		"changed": true,
+		"reason_id": "core:materials_delivered",
+		"cell": cell_data.duplicate(),
+		"transferred_materials": transfer.duplicate(true),
+		"transferred_total": transferred_total,
+		"materials_ready": _blueprint_has_all_materials(blueprint),
+		"blueprint": blueprint.duplicate(true),
+	}
+
+
+func _execute_work_blueprint(command: Dictionary) -> Dictionary:
+	var validation: Dictionary = (
+		ConstructionValidatorScript.validate_work_blueprint(command)
+	)
+	if not bool(validation.get("success", false)):
+		var rejected: Dictionary = validation.duplicate(true)
+		rejected["changed"] = false
+		return rejected
+
+	var cell_data: Array = validation.get("cell", []) as Array
+	var target_position := FirstNightContent.cell_center(
+		int(cell_data[0]),
+		int(cell_data[1])
+	)
+	if get_player_position().distance_to(target_position) > FirstNightContent.INTERACTION_RANGE:
+		return {
+			"success": false,
+			"changed": false,
+			"reason_id": "core:too_far",
+		}
+
+	var result: Dictionary = _advance_blueprint_work(cell_data)
+	if bool(result.get("changed", false)):
+		event_emitted.emit({"type": "state_changed"})
+	return result
 
 
 func _sync_structure_navigation() -> void:
@@ -491,13 +628,15 @@ func _apply_autonomy_effects(effects: Array) -> bool:
 		if typeof(effect_value) != TYPE_DICTIONARY:
 			continue
 		var effect: Dictionary = effect_value as Dictionary
-		if String(effect.get("type", "")) != "complete_construction":
+		if String(effect.get("type", "")) != "advance_construction_work":
 			continue
 		var cell_data: Array = effect.get("target_cell", []) as Array
-		if cell_data.size() != 2 or _is_actor_in_cell(cell_data):
+		if cell_data.size() != 2:
 			continue
-		var completion: Dictionary = _complete_blueprint_at_cell(cell_data)
-		if not bool(completion.get("success", false)):
+		var work_result: Dictionary = _advance_blueprint_work(cell_data)
+		if bool(work_result.get("changed", false)):
+			changed = true
+		if String(work_result.get("reason_id", "")) != "core:structure_completed":
 			continue
 
 		var npc_id: String = String(effect.get("npc_id", ""))
@@ -516,7 +655,6 @@ func _apply_autonomy_effects(effects: Array) -> bool:
 			)
 			npc["activity_started_minute"] = get_minute_of_day()
 			npc["moving"] = false
-		changed = true
 	return changed
 
 
@@ -565,6 +703,127 @@ func _is_actor_in_cell(cell_data: Array) -> bool:
 			return true
 
 	return false
+
+
+func _blueprint_has_all_materials(blueprint: Dictionary) -> bool:
+	var required: Dictionary = blueprint.get("required_materials", {}) as Dictionary
+	var delivered: Dictionary = blueprint.get("delivered_materials", {}) as Dictionary
+	for item_variant: Variant in required.keys():
+		var item_id: String = String(item_variant)
+		if int(delivered.get(item_id, 0)) < int(required[item_variant]):
+			return false
+	return not required.is_empty()
+
+
+func _calculate_material_transfer(
+	blueprint: Dictionary,
+	source_inventory: Dictionary
+) -> Dictionary:
+	var required: Dictionary = blueprint.get("required_materials", {}) as Dictionary
+	var delivered: Dictionary = blueprint.get("delivered_materials", {}) as Dictionary
+	var transfer: Dictionary = {}
+	var item_ids: Array[String] = []
+	for item_variant: Variant in required.keys():
+		item_ids.append(String(item_variant))
+	item_ids.sort()
+	for item_id: String in item_ids:
+		var missing: int = maxi(
+			0,
+			int(required.get(item_id, 0)) - int(delivered.get(item_id, 0))
+		)
+		var amount: int = mini(missing, maxi(0, int(source_inventory.get(item_id, 0))))
+		if amount > 0:
+			transfer[item_id] = amount
+	return transfer
+
+
+func _transfer_completes_blueprint(
+	blueprint: Dictionary,
+	transfer: Dictionary
+) -> bool:
+	var required: Dictionary = blueprint.get("required_materials", {}) as Dictionary
+	var delivered: Dictionary = blueprint.get("delivered_materials", {}) as Dictionary
+	for item_variant: Variant in required.keys():
+		var item_id: String = String(item_variant)
+		if (
+			int(delivered.get(item_id, 0)) + int(transfer.get(item_id, 0))
+			< int(required[item_variant])
+		):
+			return false
+	return not required.is_empty()
+
+
+func _apply_material_transfer(
+	blueprint: Dictionary,
+	source_inventory: Dictionary,
+	transfer: Dictionary
+) -> void:
+	var delivered: Dictionary = blueprint.get("delivered_materials", {}) as Dictionary
+	for item_variant: Variant in transfer.keys():
+		var item_id: String = String(item_variant)
+		var amount: int = int(transfer[item_variant])
+		source_inventory[item_id] = maxi(
+			0,
+			int(source_inventory.get(item_id, 0)) - amount
+		)
+		delivered[item_id] = int(delivered.get(item_id, 0)) + amount
+	blueprint["delivered_materials"] = delivered
+
+
+func _add_items_to_inventory(items: Dictionary, target_inventory: Dictionary) -> void:
+	for item_variant: Variant in items.keys():
+		var item_id: String = String(item_variant)
+		var amount: int = maxi(0, int(items[item_variant]))
+		target_inventory[item_id] = int(target_inventory.get(item_id, 0)) + amount
+
+
+func _advance_blueprint_work(cell_data: Array) -> Dictionary:
+	var blueprint: Dictionary = _find_blueprint(cell_data)
+	if blueprint.is_empty():
+		return {
+			"success": false,
+			"changed": false,
+			"reason_id": "core:missing_blueprint",
+		}
+	if not _blueprint_has_all_materials(blueprint):
+		return {
+			"success": false,
+			"changed": false,
+			"reason_id": "core:required_materials_missing",
+		}
+	if _is_actor_in_cell(cell_data):
+		return {
+			"success": false,
+			"changed": false,
+			"reason_id": "core:occupied_by_actor",
+		}
+
+	var required_work: int = maxi(
+		1,
+		int(blueprint.get("required_work_minutes", 1))
+	)
+	var current_work: int = clampi(
+		int(blueprint.get("work_progress_minutes", 0)),
+		0,
+		required_work
+	)
+	var next_work: int = mini(current_work + 1, required_work)
+	blueprint["work_progress_minutes"] = next_work
+	if next_work < required_work:
+		return {
+			"success": true,
+			"changed": true,
+			"reason_id": "core:construction_work_progressed",
+			"cell": cell_data.duplicate(),
+			"work_progress_minutes": next_work,
+			"required_work_minutes": required_work,
+			"blueprint": blueprint.duplicate(true),
+		}
+
+	var completion: Dictionary = _complete_blueprint_at_cell(cell_data)
+	completion["work_progress_minutes"] = required_work
+	completion["required_work_minutes"] = required_work
+	return completion
 
 
 static func _world_position_to_cell(world_position: Vector2) -> Vector2i:
@@ -622,6 +881,12 @@ func _complete_blueprint_at_cell(cell_data: Array) -> Dictionary:
 		var blueprint: Dictionary = blueprint_value as Dictionary
 		if blueprint.get("cell", []) != cell_data:
 			continue
+		if not _blueprint_has_all_materials(blueprint):
+			return {
+				"success": false,
+				"changed": false,
+				"reason_id": "core:required_materials_missing",
+			}
 
 		var structure: Dictionary = {
 			"building_id": String(blueprint.get("building_id", "")),
@@ -1311,7 +1576,7 @@ static func _as_dictionary(value: Variant) -> Dictionary:
 	return (value as Dictionary).duplicate(true)
 
 
-static func _normalize_blueprints(value: Variant) -> Array[Dictionary]:
+func _normalize_blueprints(value: Variant) -> Array[Dictionary]:
 	var normalized: Array[Dictionary] = []
 	if typeof(value) != TYPE_ARRAY:
 		return normalized
@@ -1349,20 +1614,64 @@ static func _normalize_blueprints(value: Variant) -> Array[Dictionary]:
 		if occupied_cells.has(cell_key):
 			continue
 		occupied_cells[cell_key] = true
+		var building_id: String = String(
+			validation.get("building_id", "")
+		)
+		var required_materials: Dictionary = (
+			building_catalog.get_material_cost(building_id)
+		)
+		var required_work_minutes: int = (
+			building_catalog.get_work_minutes(building_id)
+		)
+
+		if required_materials.is_empty() or required_work_minutes <= 0:
+			continue
+
+		var raw_delivered: Dictionary = {}
+		var delivered_value: Variant = blueprint.get(
+			"delivered_materials",
+			{}
+		)
+		if typeof(delivered_value) == TYPE_DICTIONARY:
+			raw_delivered = delivered_value as Dictionary
+
+		var delivered_materials: Dictionary = {}
+		for item_variant: Variant in required_materials.keys():
+			var item_id: String = String(item_variant)
+			var required_amount: int = int(required_materials[item_variant])
+			delivered_materials[item_id] = clampi(
+				_safe_int(raw_delivered.get(item_id), 0),
+				0,
+				required_amount
+			)
+
+		var work_progress_minutes: int = clampi(
+			_safe_int(blueprint.get("work_progress_minutes"), 0),
+			0,
+			required_work_minutes
+		)
 		normalized.append({
-			"building_id": String(validation.get("building_id", "")),
+			"building_id": building_id,
 			"cell": normalized_cell.duplicate(),
 			"stage_id": BLUEPRINT_STAGE_ID,
+			"required_materials": required_materials,
+			"delivered_materials": delivered_materials,
+			"required_work_minutes": required_work_minutes,
+			"work_progress_minutes": work_progress_minutes,
 		})
 
 	return normalized
 
 
-static func _normalize_structures(value: Variant) -> Array[Dictionary]:
+func _normalize_structures(value: Variant) -> Array[Dictionary]:
 	var normalized: Array[Dictionary] = _normalize_blueprints(value)
 
 	for structure: Dictionary in normalized:
 		structure["stage_id"] = COMPLETE_STAGE_ID
+		structure.erase("required_materials")
+		structure.erase("delivered_materials")
+		structure.erase("required_work_minutes")
+		structure.erase("work_progress_minutes")
 
 	return normalized
 

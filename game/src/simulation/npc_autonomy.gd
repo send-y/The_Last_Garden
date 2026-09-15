@@ -308,22 +308,14 @@ func _advance_npc_minute(
 		needs["hunger"] = minf(100.0, float(needs["hunger"]) + MEAL_RESTORE)
 		npc["needs"] = needs
 	elif arrival_activity == ACTIVITY_BUILDING and not commitment.is_empty():
-		var progress: int = int(commitment.get("progress_minutes", 0)) + 1
-		var required: int = maxi(
-			1,
-			int(commitment.get("required_minutes", CONSTRUCTION_WORK_MINUTES))
-		)
-		commitment["progress_minutes"] = mini(progress, required)
-		npc["work_commitment"] = commitment
-		if progress >= required:
-			effects.append({
-				"type": "complete_construction",
-				"npc_id": String(npc.get("id", "")),
-				"minute": minute,
-				"target_cell": (
-					commitment.get("target_cell", []) as Array
-				).duplicate(),
-			})
+		effects.append({
+			"type": "advance_construction_work",
+			"npc_id": String(npc.get("id", "")),
+			"minute": minute,
+			"target_cell": (
+				commitment.get("target_cell", []) as Array
+			).duplicate(),
+		})
 
 
 func _set_activity(npc: Dictionary, activity_id: String, minute: int) -> void:

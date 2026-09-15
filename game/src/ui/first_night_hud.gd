@@ -1,5 +1,6 @@
 class_name FirstNightHud
 extends Control
+signal build_mode_toggled(active: bool)
 
 const Content := preload("res://src/content/first_night_content.gd")
 const Localized := preload("res://src/localization/localized_text.gd")
@@ -10,6 +11,7 @@ var _objective_label: Label
 var _selection_label: Label
 var _message_label: Label
 var _controls_label: Label
+var _build_mode_button: Button
 
 
 func _ready() -> void:
@@ -31,7 +33,7 @@ func set_selection(selection: Dictionary) -> void:
 			"y": int(selection.get("y", -1)),
 		})
 		return
-	if kind == "interactable":
+	if kind == "interactable" or kind == "blueprint":
 		var status: String = String(selection.get("status", ""))
 		var in_range: bool = bool(selection.get("in_range", false))
 		var selection_key: String
@@ -88,6 +90,14 @@ func _build_ui() -> void:
 	_objective_label = _make_label(objective_panel, Vector2(8.0, 6.0), Vector2(346.0, 42.0), 12)
 	_objective_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 
+	_build_mode_button = Button.new()
+	_build_mode_button.position = Vector2(8.0, 266.0)
+	_build_mode_button.size = Vector2(160.0, 28.0)
+	_build_mode_button.toggle_mode = true
+	_build_mode_button.text = Localized.resolve("ui.construction.mode.off")
+	_build_mode_button.toggled.connect(_on_build_mode_toggled)
+	add_child(_build_mode_button)
+
 	var bottom_panel := ColorRect.new()
 	bottom_panel.position = Vector2(8.0, 300.0)
 	bottom_panel.size = Vector2(624.0, 52.0)
@@ -142,3 +152,13 @@ func _on_message(message: String, success: bool) -> void:
 	_message_label.text = message
 	_message_label.add_theme_color_override("font_color", Color("d7e8bd") if success else Color("f0c2a7"))
 	refresh()
+
+
+func _on_build_mode_toggled(active: bool) -> void:
+	var text_key: String = (
+		"ui.construction.mode.on"
+		if active
+		else "ui.construction.mode.off"
+	)
+	_build_mode_button.text = Localized.resolve(text_key)
+	build_mode_toggled.emit(active)
