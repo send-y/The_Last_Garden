@@ -17,6 +17,7 @@ const DroppedItemScene: PackedScene = preload(
 )
 
 var _interactables: Array[InteractableView] = []
+var _drop_views: Dictionary = {}
 var _selected: InteractableView
 var _selected_cell: Vector2i = Vector2i(-1, -1)
 var _content := Content.new()
@@ -31,66 +32,77 @@ var _building_catalog := BuildingCatalogScript.new()
 func _ready() -> void:
 	_build_static_collision()
 	_spawn_interactables()
-	_prepare_dropped_items()
+	_sync_dropped_items()
 	Session.state_changed.connect(_on_state_changed)
 	Session.state_reloaded.connect(_on_state_reloaded)
 	queue_redraw()
 
 
-func spawn_dropped_item(
-	item_id: String,
-	amount: int,
-	world_position: Vector2
+func _sync_dropped_items() -> void:
+	var active_ids: Dictionary = {}
+	for drop_value: Variant in Session.get_world_drops():
+		if typeof(drop_value) != TYPE_DICTIONARY:
+			continue
+		var definition: Dictionary = drop_value as Dictionary
+		var drop_id: String = String(definition.get("drop_id", ""))
+		if drop_id.is_empty():
+			continue
+		active_ids[drop_id] = true
+		var drop: DroppedItem = _drop_views.get(drop_id) as DroppedItem
+		if drop == null or not is_instance_valid(drop):
+			drop = _create_dropped_item_view(definition)
+			if drop == null:
+				continue
+			_drop_views[drop_id] = drop
+		_update_dropped_item_view(drop, definition)
+
+	for drop_id_variant: Variant in _drop_views.keys():
+		var drop_id: String = String(drop_id_variant)
+		if active_ids.has(drop_id):
+			continue
+		var stale_drop: DroppedItem = (
+			_drop_views.get(drop_id) as DroppedItem
+		)
+		if stale_drop != null and is_instance_valid(stale_drop):
+			stale_drop.queue_free()
+		_drop_views.erase(drop_id)
+
+
+func _create_dropped_item_view(
+	definition: Dictionary
 ) -> DroppedItem:
-	var drop := (
-		DroppedItemScene.instantiate() as DroppedItem
-	)
-
+	var drop := DroppedItemScene.instantiate() as DroppedItem
 	if drop == null:
-		push_error("Failed to create dropped item.")
+		push_error("Failed to create dropped item view.")
 		return null
+	_dropped_items.add_child(drop)
+	drop.pickup_requested.connect(
+		_on_dropped_item_pickup_requested
+	)
+	return drop
 
+
+func _update_dropped_item_view(
+	drop: DroppedItem,
+	definition: Dictionary
+) -> void:
+	var item_id: String = String(definition.get("item_id", ""))
 	var icon_path: String = _content.item_icon_path(item_id)
 	var icon_texture: Texture2D
-
 	if not icon_path.is_empty():
 		icon_texture = load(icon_path) as Texture2D
 
 	drop.configure(
+		String(definition.get("drop_id", "")),
 		item_id,
-		amount,
+		int(definition.get("amount", 1)),
 		icon_texture
 	)
-	_dropped_items.add_child(drop)
-	drop.global_position = world_position
-	drop.pickup_requested.connect(
-		_on_dropped_item_pickup_requested
-	)
-
-	return drop
-
-
-func _prepare_dropped_items() -> void:
-	for child: Node in _dropped_items.get_children():
-		if not child is DroppedItem:
-			continue
-
-		var drop := child as DroppedItem
-		var icon_path: String = _content.item_icon_path(
-			drop.item_id
-		)
-		var icon_texture: Texture2D
-
-		if not icon_path.is_empty():
-			icon_texture = load(icon_path) as Texture2D
-
-		drop.configure(
-			drop.item_id,
-			drop.amount,
-			icon_texture
-		)
-		drop.pickup_requested.connect(
-			_on_dropped_item_pickup_requested
+	var position_data: Array = definition.get("position", []) as Array
+	if position_data.size() == 2:
+		drop.global_position = Vector2(
+			float(position_data[0]),
+			float(position_data[1])
 		)
 
 
@@ -100,13 +112,7 @@ func _on_dropped_item_pickup_requested(
 	if not is_instance_valid(drop):
 		return
 
-	var result: Dictionary = Session.try_pickup_item(
-		drop.item_id,
-		drop.amount
-	)
-
-	if bool(result.get("success", false)):
-		drop.queue_free()
+	Session.try_pickup_world_drop(drop.drop_id)
 
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -232,6 +238,7 @@ func _refresh_interactables(snap: bool = false) -> void:
 
 func _on_state_changed() -> void:
 	_refresh_interactables()
+	_sync_dropped_items()
 	if _selected == null or not is_instance_valid(_selected):
 		if _selected_cell.x >= 0 and _selected_cell.y >= 0:
 			_set_selected(null)
@@ -246,6 +253,7 @@ func _on_state_changed() -> void:
 
 func _on_state_reloaded() -> void:
 	_refresh_interactables(true)
+	_sync_dropped_items()
 	_selected_cell = Vector2i(-1, -1)
 	_set_selected(null)
 

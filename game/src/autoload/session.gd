@@ -66,6 +66,14 @@ func try_pickup_item(item_id: String, amount: int) -> Dictionary:
 	return simulation.try_pickup_item(item_id, amount)
 
 
+func get_world_drops() -> Array:
+	return simulation.get_world_drops()
+
+
+func try_pickup_world_drop(drop_id: String) -> Dictionary:
+	return simulation.try_pickup_world_drop(drop_id)
+
+
 func get_inventory_weight() -> float:
 	return simulation.get_inventory_weight()
 

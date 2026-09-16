@@ -219,10 +219,15 @@ static func _interact(
 			if not bool(result.get("success", false)):
 				break
 		if bool(result.get("success", false)):
-			result = simulation.try_pickup_item(
-				String(result.get("drop_item_id", "")),
-				int(result.get("drop_amount", 0))
+			var created_drop_ids: Array = (
+				result.get("created_drop_ids", []) as Array
 			)
+			for drop_id_variant: Variant in created_drop_ids:
+				result = simulation.try_pickup_world_drop(
+					String(drop_id_variant)
+				)
+				if not bool(result.get("success", false)):
+					break
 	else:
 		result = simulation.execute_command(
 			simulation.PLAYER_ACTOR_ID,

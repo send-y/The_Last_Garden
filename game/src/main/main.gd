@@ -10,13 +10,6 @@ const PLAYER_WORK_MINUTES_PER_SECOND: float = (
 const INVALID_CELL: Vector2i = Vector2i(-1, -1)
 const PLAYER_ACTOR_ID: String = "core:player"
 
-const DROP_OFFSETS: Array[Vector2] = [
-	Vector2(-11.0, -5.0),
-	Vector2(9.0, -8.0),
-	Vector2(4.0, 11.0),
-	Vector2(-9.0, 10.0),
-]
-
 var _active_resource_id: String = ""
 var _active_build_cell: Vector2i = INVALID_CELL
 var _work_minute_accumulator: float = 0.0
@@ -261,41 +254,12 @@ func _process_player_resource_work(delta: float) -> void:
 		)
 
 		if completed:
-			_spawn_resource_drops(result)
 			_clear_player_resource_work()
 			return
 
 		if not bool(result.get("success", false)):
 			_clear_player_resource_work()
 			return
-
-
-func _spawn_resource_drops(result: Dictionary) -> void:
-	var item_id: String = String(
-		result.get("drop_item_id", "")
-	)
-	var amount: int = maxi(
-		0,
-		int(result.get("drop_amount", 0))
-	)
-	var origin := (
-		result.get("drop_origin", Vector2.ZERO) as Vector2
-	)
-
-	if item_id.is_empty() or amount <= 0:
-		return
-
-	for index: int in range(amount):
-		var offset: Vector2 = DROP_OFFSETS[
-			index % DROP_OFFSETS.size()
-		]
-
-		_world.spawn_dropped_item(
-			item_id,
-			1,
-			origin + offset
-		)
-
 
 func _stop_player_resource_work(
 	show_message: bool

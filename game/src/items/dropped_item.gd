@@ -3,6 +3,7 @@ extends Area2D
 
 signal pickup_requested(drop: DroppedItem)
 
+var drop_id: String = ""
 @export var item_id: String = "core:wood"
 @export_range(1, 999, 1) var amount: int = 1
 @export var icon: Texture2D
@@ -23,10 +24,12 @@ func _ready() -> void:
 
 
 func configure(
+	new_drop_id: String,
 	new_item_id: String,
 	new_amount: int,
 	new_icon: Texture2D
 ) -> void:
+	drop_id = new_drop_id
 	item_id = new_item_id
 	amount = maxi(1, new_amount)
 	icon = new_icon

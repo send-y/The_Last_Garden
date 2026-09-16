@@ -56,6 +56,7 @@ func _run() -> void:
 	_test_command_boundary_enforces_range_and_resolves_kind()
 	_test_resource_work_progress_completion_and_serialization()
 	_test_pickup_respects_inventory_limits()
+	_test_world_drops_persist_and_pickup_by_id()
 	_test_query_snapshots_are_isolated()
 	_test_corrupt_nested_state_uses_defaults()
 	_test_save_header_validation()
@@ -363,6 +364,10 @@ func _test_resource_work_progress_completion_and_serialization() -> void:
 		completed.get("drop_origin", null) is Vector2,
 		"completed resource returns an exact world drop origin"
 	)
+	_expect(
+		restored.get_world_drops().size() == 3,
+		"completed resource creates one persistent record per drop"
+	)
 
 
 func _test_pickup_respects_inventory_limits() -> void:
@@ -393,6 +398,42 @@ func _test_pickup_respects_inventory_limits() -> void:
 	)
 	var invalid: Dictionary = simulation.try_pickup_item("core:not_an_item", 1)
 	_expect(not bool(invalid.get("success", false)), "pickup rejects unknown item ids")
+
+
+func _test_world_drops_persist_and_pickup_by_id() -> void:
+	var simulation: FirstNightSimulation = Simulation.new()
+	var completed: Dictionary = _work_resource_to_completion(
+		simulation,
+		"wood_north"
+	)
+	var created_ids: Array = completed.get("created_drop_ids", []) as Array
+	_expect(created_ids.size() == 3, "wood work creates three stable drop ids")
+	var before_save: Array = simulation.get_world_drops()
+	var restored := FirstNightSimulation.new(simulation.export_state())
+	_expect(
+		restored.get_world_drops() == before_save,
+		"world drops survive a save-state round trip"
+	)
+	if created_ids.is_empty():
+		return
+
+	var drop_id: String = String(created_ids[0])
+	var picked: Dictionary = restored.try_pickup_world_drop(drop_id)
+	_expect(bool(picked.get("success", false)), "pickup by persistent drop id succeeds")
+	_expect(
+		restored.get_item_count(FirstNightContent.WOOD_ID) == 1,
+		"persistent drop pickup adds exactly its stored amount"
+	)
+	_expect(
+		restored.get_world_drops().size() == 2,
+		"successful pickup removes only the selected world drop"
+	)
+	var duplicate: Dictionary = restored.try_pickup_world_drop(drop_id)
+	_expect(not bool(duplicate.get("success", false)), "removed drop id cannot be picked twice")
+	_expect(
+		restored.get_item_count(FirstNightContent.WOOD_ID) == 1,
+		"duplicate drop pickup cannot duplicate inventory items"
+	)
 
 
 func _test_query_snapshots_are_isolated() -> void:
@@ -2387,12 +2428,16 @@ func _interact_near(simulation: FirstNightSimulation, target_id: String) -> Dict
 		)
 		if not bool(work_result.get("success", false)):
 			return work_result
-		var pickup_result: Dictionary = simulation.try_pickup_item(
-			String(work_result.get("drop_item_id", "")),
-			int(work_result.get("drop_amount", 0))
-		)
-		if not bool(pickup_result.get("success", false)):
-			return pickup_result
+		for drop_id_variant: Variant in (
+			work_result.get("created_drop_ids", []) as Array
+		):
+			var pickup_result: Dictionary = (
+				simulation.try_pickup_world_drop(
+					String(drop_id_variant)
+				)
+			)
+			if not bool(pickup_result.get("success", false)):
+				return pickup_result
 		return work_result
 	return simulation.execute_interaction(target_id)
 
