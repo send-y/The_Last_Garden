@@ -23,6 +23,10 @@ const LEGACY_ITEM_IDS: Dictionary = {
 	"food": FOOD_ID,
 }
 
+const InventoryShapeRules := preload(
+	"res://src/inventory/inventory_shape.gd"
+)
+
 const LEGACY_OBJECT_IDS: Dictionary = {
 	"common_house": "core:common_house",
 	"old_tools": "core:old_tools",
@@ -71,6 +75,10 @@ func normalize_object_id(object_id: String) -> String:
 func has_item(item_id: String) -> bool:
 	return _item_defs.has(normalize_item_id(item_id))
 
+func item_ids() -> Array[String]:
+	var result: Array[String] = []
+	result.append_array(_item_order)
+	return result
 
 func item_weight(item_id: String) -> float:
 	var normalized_id: String = normalize_item_id(item_id)
@@ -83,6 +91,45 @@ func item_label_key(item_id: String) -> String:
 	var definition: Dictionary = _item_defs.get(normalized_id, {}) as Dictionary
 	return String(definition.get("label_key", normalized_id))
 
+
+func item_icon_path(item_id: String) -> String:
+	var normalized_id: String = normalize_item_id(item_id)
+	var definition: Dictionary = (
+		_item_defs.get(normalized_id, {}) as Dictionary
+	)
+	return String(definition.get("icon_path", ""))
+
+
+func item_max_stack(item_id: String) -> int:
+	var normalized_id: String = normalize_item_id(item_id)
+	var definition: Dictionary = (
+		_item_defs.get(normalized_id, {}) as Dictionary
+	)
+	return maxi(1, int(definition.get("max_stack", 1)))
+
+
+func item_footprint(
+	item_id: String,
+	quarter_turns: int = 0
+) -> Array[Vector2i]:
+	var normalized_id: String = normalize_item_id(item_id)
+	var definition: Dictionary = (
+		_item_defs.get(normalized_id, {}) as Dictionary
+	)
+	var raw_footprint := (
+		definition.get("footprint", []) as Array
+	)
+	var footprint: Array[Vector2i] = (
+		InventoryShapeRules.from_raw(raw_footprint)
+	)
+
+	if footprint.is_empty():
+		footprint.append(Vector2i.ZERO)
+
+	return InventoryShapeRules.rotated(
+		footprint,
+		quarter_turns
+	)
 
 func create_empty_inventory() -> Dictionary:
 	var inventory: Dictionary = {}
@@ -253,7 +300,28 @@ func _validate() -> void:
 		var item_definition: Dictionary = _item_defs[item_id] as Dictionary
 		if String(item_definition.get("label_key", "")).is_empty():
 			push_error("Item %s has no label_key." % item_id)
+		var icon_path := String(
+			item_definition.get("icon_path", ""))
+		if (
+			not icon_path.is_empty()
+			and not ResourceLoader.exists(icon_path)
+		):
+			push_error(
+				"Item %s references missing icon %s."
+				% [item_id, icon_path]
+			)
+		if int(item_definition.get("max_stack", 0)) <= 0:
+			push_error(
+				"Item %s has invalid max_stack." % item_id
+			)
 
+		var raw_footprint := (
+			item_definition.get("footprint", []) as Array
+		)
+		if InventoryShapeRules.from_raw(raw_footprint).is_empty():
+			push_error(
+				"Item %s has no valid footprint." % item_id
+			)
 	for object_id: String in _object_order:
 		if not object_id.contains(":"):
 			push_error("Object id should be namespaced: %s." % object_id)

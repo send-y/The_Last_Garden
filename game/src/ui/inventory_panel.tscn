@@ -1,0 +1,48 @@
+[gd_scene format=3 uid="uid://6w0uf3u8ggep"]
+
+[ext_resource type="Script" uid="uid://dvgyfuyceckqm" path="res://src/ui/inventory_panel.gd" id="1_1loxd"]
+[ext_resource type="Script" uid="uid://64niakb1ugtx" path="res://src/ui/inventory_grid.gd" id="2_5h7b8"]
+
+[node name="InventoryPanel" type="PanelContainer" unique_id=690515400]
+custom_minimum_size = Vector2(420, 280)
+offset_right = 40.0
+offset_bottom = 40.0
+script = ExtResource("1_1loxd")
+
+[node name="ContentMargin" type="MarginContainer" parent="." unique_id=887105410]
+layout_mode = 2
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_top = 12
+theme_override_constants/margin_right = 16
+theme_override_constants/margin_bottom = 12
+
+[node name="ContentColumn" type="VBoxContainer" parent="ContentMargin" unique_id=794421566]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="HeaderRow" type="HBoxContainer" parent="ContentMargin/ContentColumn" unique_id=1325962495]
+layout_mode = 2
+
+[node name="TitleLabel" type="Label" parent="ContentMargin/ContentColumn/HeaderRow" unique_id=1680757117]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 20
+
+[node name="CloseButton" type="Button" parent="ContentMargin/ContentColumn/HeaderRow" unique_id=629868418]
+custom_minimum_size = Vector2(32, 32)
+layout_mode = 2
+text = "X"
+
+[node name="WeightLabel" type="Label" parent="ContentMargin/ContentColumn" unique_id=43410928]
+layout_mode = 2
+
+[node name="HSeparator" type="HSeparator" parent="ContentMargin/ContentColumn" unique_id=462376559]
+layout_mode = 2
+
+[node name="GridCenter" type="CenterContainer" parent="ContentMargin/ContentColumn" unique_id=95995594]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="InventoryGrid" type="Control" parent="ContentMargin/ContentColumn/GridCenter" unique_id=737837864]
+layout_mode = 2
+script = ExtResource("2_5h7b8")

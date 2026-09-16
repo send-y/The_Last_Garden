@@ -206,11 +206,29 @@ static func _interact(
 		return false
 
 	simulation.set_player_position(target_position)
-	var result: Dictionary = simulation.execute_command(
-		simulation.PLAYER_ACTOR_ID,
-		target_id,
-		simulation.ACTION_INTERACT
+	var result: Dictionary
+	var required_work: int = simulation.get_resource_work_required(
+		target_id
 	)
+	if required_work > 0:
+		for _minute: int in range(required_work):
+			result = simulation.execute_resource_work(
+				simulation.PLAYER_ACTOR_ID,
+				target_id
+			)
+			if not bool(result.get("success", false)):
+				break
+		if bool(result.get("success", false)):
+			result = simulation.try_pickup_item(
+				String(result.get("drop_item_id", "")),
+				int(result.get("drop_amount", 0))
+			)
+	else:
+		result = simulation.execute_command(
+			simulation.PLAYER_ACTOR_ID,
+			target_id,
+			simulation.ACTION_INTERACT
+		)
 	steps.append({
 		"kind": "interaction",
 		"target_id": target_id,

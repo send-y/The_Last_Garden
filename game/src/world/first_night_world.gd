@@ -3,6 +3,7 @@ extends Node2D
 
 signal selection_changed(selection: Dictionary)
 signal blueprint_interaction_requested(cell: Vector2i, continuous_work: bool)
+signal resource_interaction_requested(target_id: String, continuous_work: bool)
 
 const Catalog := preload("res://src/world/first_night_catalog.gd")
 const Interactable := preload("res://src/world/interactable_view.gd")
@@ -10,6 +11,9 @@ const Content := preload("res://src/content/first_night_content.gd")
 const Localized := preload("res://src/localization/localized_text.gd")
 const BuildingCatalogScript := preload(
 	"res://src/construction/building_catalog.gd"
+)
+const DroppedItemScene: PackedScene = preload(
+	"res://src/items/dropped_item.tscn"
 )
 
 var _interactables: Array[InteractableView] = []
@@ -20,13 +24,89 @@ var _building_catalog := BuildingCatalogScript.new()
 
 @onready var _player: CharacterBody2D = get_node("../Player") as CharacterBody2D
 
+@onready var _dropped_items: Node2D = (
+	$DroppedItems as Node2D
+)
 
 func _ready() -> void:
 	_build_static_collision()
 	_spawn_interactables()
+	_prepare_dropped_items()
 	Session.state_changed.connect(_on_state_changed)
 	Session.state_reloaded.connect(_on_state_reloaded)
 	queue_redraw()
+
+
+func spawn_dropped_item(
+	item_id: String,
+	amount: int,
+	world_position: Vector2
+) -> DroppedItem:
+	var drop := (
+		DroppedItemScene.instantiate() as DroppedItem
+	)
+
+	if drop == null:
+		push_error("Failed to create dropped item.")
+		return null
+
+	var icon_path: String = _content.item_icon_path(item_id)
+	var icon_texture: Texture2D
+
+	if not icon_path.is_empty():
+		icon_texture = load(icon_path) as Texture2D
+
+	drop.configure(
+		item_id,
+		amount,
+		icon_texture
+	)
+	_dropped_items.add_child(drop)
+	drop.global_position = world_position
+	drop.pickup_requested.connect(
+		_on_dropped_item_pickup_requested
+	)
+
+	return drop
+
+
+func _prepare_dropped_items() -> void:
+	for child: Node in _dropped_items.get_children():
+		if not child is DroppedItem:
+			continue
+
+		var drop := child as DroppedItem
+		var icon_path: String = _content.item_icon_path(
+			drop.item_id
+		)
+		var icon_texture: Texture2D
+
+		if not icon_path.is_empty():
+			icon_texture = load(icon_path) as Texture2D
+
+		drop.configure(
+			drop.item_id,
+			drop.amount,
+			icon_texture
+		)
+		drop.pickup_requested.connect(
+			_on_dropped_item_pickup_requested
+		)
+
+
+func _on_dropped_item_pickup_requested(
+	drop: DroppedItem
+) -> void:
+	if not is_instance_valid(drop):
+		return
+
+	var result: Dictionary = Session.try_pickup_item(
+		drop.item_id,
+		drop.amount
+	)
+
+	if bool(result.get("success", false)):
+		drop.queue_free()
 
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -75,6 +155,30 @@ func interact_with_selection(continuous_work: bool = false) -> void:
 
 	if _selected == null or not is_instance_valid(_selected) or not _selected.visible:
 		Session.notify_player_key("interaction.prompt.select_object")
+		return
+	var required_work: int = (
+		Session.get_resource_work_required(
+			_selected.object_id
+		)
+	)
+
+	if required_work > 0:
+		var distance: float = (
+			_player.global_position.distance_to(
+				_selected.global_position
+			)
+		)
+
+		if distance > Catalog.INTERACTION_RANGE:
+			Session.notify_player_key(
+				"interaction.failure.too_far"
+			)
+			return
+
+		resource_interaction_requested.emit(
+			_selected.object_id,
+			continuous_work
+		)
 		return
 
 	Session.execute_interaction(_selected.object_id)
@@ -151,6 +255,7 @@ func _selection_payload(interactable: InteractableView, in_range: bool) -> Dicti
 		"kind": "interactable",
 		"label": interactable.get_display_label(),
 		"in_range": in_range,
+		"object_id": interactable.object_id,
 	}
 	var status: String = interactable.get_status_text()
 	if not status.is_empty():

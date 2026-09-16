@@ -54,6 +54,8 @@ func _run() -> void:
 	_test_duplicate_collection_is_rejected()
 	_test_command_boundary_rejects_forged_commands()
 	_test_command_boundary_enforces_range_and_resolves_kind()
+	_test_resource_work_progress_completion_and_serialization()
+	_test_pickup_respects_inventory_limits()
 	_test_query_snapshots_are_isolated()
 	_test_corrupt_nested_state_uses_defaults()
 	_test_save_header_validation()
@@ -224,7 +226,7 @@ func _test_complete_first_night() -> void:
 func _test_serialization_round_trip() -> void:
 	var original: FirstNightSimulation = Simulation.new()
 	_interact_near(original, "old_tools")
-	_interact_near(original, "wood_north")
+	original.try_pickup_item(FirstNightContent.WOOD_ID, 3)
 	original.set_player_position(Vector2(321.5, 654.25))
 	original.advance_minutes(37)
 
@@ -242,11 +244,20 @@ func _test_serialization_round_trip() -> void:
 
 func _test_duplicate_collection_is_rejected() -> void:
 	var simulation: FirstNightSimulation = Simulation.new()
-	var first: Dictionary = _interact_near(simulation, "wood_north")
-	var second: Dictionary = _interact_near(simulation, "wood_north")
-	_expect(bool(first["success"]), "first resource collection succeeds")
-	_expect(not bool(second["success"]), "duplicate resource collection is rejected")
-	_expect(simulation.get_item_count(FirstNightContent.WOOD_ID) == 3, "duplicate collection does not create resources")
+	var first: Dictionary = _work_resource_to_completion(
+		simulation,
+		"wood_north"
+	)
+	var second: Dictionary = simulation.execute_resource_work(
+		simulation.PLAYER_ACTOR_ID,
+		"wood_north"
+	)
+	_expect(bool(first["success"]), "first resource work completes")
+	_expect(not bool(second["success"]), "depleted resource rejects duplicate work")
+	_expect(
+		simulation.get_item_count(FirstNightContent.WOOD_ID) == 0,
+		"resource work creates drops instead of inventory items"
+	)
 
 
 func _test_command_boundary_rejects_forged_commands() -> void:
@@ -280,19 +291,108 @@ func _test_command_boundary_rejects_forged_commands() -> void:
 
 func _test_command_boundary_enforces_range_and_resolves_kind() -> void:
 	var simulation: FirstNightSimulation = Simulation.new()
-	var distant_result: Dictionary = simulation.execute_interaction("wood_north")
+	var distant_result: Dictionary = simulation.execute_resource_work(
+		simulation.PLAYER_ACTOR_ID,
+		"wood_north"
+	)
 	_expect(not bool(distant_result["success"]), "simulation rejects an out-of-range target")
 	_expect(simulation.get_item_count(FirstNightContent.WOOD_ID) == 0, "out-of-range command changes no inventory")
 
 	simulation.set_player_position(simulation.get_interaction_target_position("stone_south"))
-	var stone_result: Dictionary = simulation.execute_command(
+	var direct_result: Dictionary = simulation.execute_command(
 		simulation.PLAYER_ACTOR_ID,
 		"stone_south",
 		simulation.ACTION_INTERACT
 	)
-	_expect(bool(stone_result["success"]), "universal interaction succeeds near a real target")
-	_expect(simulation.get_item_count(FirstNightContent.STONE_ID) == 3, "target catalog resolves resource kind")
+	_expect(
+		not bool(direct_result["success"]),
+		"direct interaction cannot bypass resource work"
+	)
+	var stone_result: Dictionary = _work_resource_to_completion(
+		simulation,
+		"stone_south"
+	)
+	_expect(bool(stone_result["success"]), "resource work succeeds near a real target")
+	_expect(
+		String(stone_result.get("drop_item_id", "")) == FirstNightContent.STONE_ID,
+		"target catalog resolves the dropped resource kind"
+	)
+	_expect(int(stone_result.get("drop_amount", 0)) == 3, "resource work returns the configured yield")
+	_expect(simulation.get_item_count(FirstNightContent.STONE_ID) == 0, "completed work does not bypass ground pickup")
 	_expect(simulation.get_item_count(FirstNightContent.WOOD_ID) == 0, "caller cannot spoof resource kind")
+
+
+func _test_resource_work_progress_completion_and_serialization() -> void:
+	var simulation: FirstNightSimulation = Simulation.new()
+	var target_id := "wood_north"
+	simulation.set_player_position(
+		simulation.get_interaction_target_position(target_id)
+	)
+
+	var first: Dictionary = simulation.execute_resource_work(
+		simulation.PLAYER_ACTOR_ID,
+		target_id
+	)
+	_expect(bool(first.get("success", false)), "resource work minute succeeds")
+	_expect(
+		simulation.get_resource_work_progress(target_id) == 1,
+		"resource work progress increments by one minute"
+	)
+
+	var restored := FirstNightSimulation.new(simulation.export_state())
+	_expect(
+		restored.get_resource_work_progress(target_id) == 1,
+		"resource work progress survives serialization"
+	)
+
+	var completed: Dictionary = _work_resource_to_completion(
+		restored,
+		target_id
+	)
+	_expect(bool(completed.get("success", false)), "restored resource work completes")
+	_expect(
+		String(completed.get("reason_id", "")) == "core:resource_depleted",
+		"completed work reports resource depletion"
+	)
+	_expect(restored.is_collected(target_id), "completed resource becomes unavailable")
+	_expect(
+		restored.get_resource_work_progress(target_id) == 0,
+		"completed resource clears saved work progress"
+	)
+	_expect(
+		completed.get("drop_origin", null) is Vector2,
+		"completed resource returns an exact world drop origin"
+	)
+
+
+func _test_pickup_respects_inventory_limits() -> void:
+	var simulation: FirstNightSimulation = Simulation.new()
+	var valid: Dictionary = simulation.try_pickup_item(
+		FirstNightContent.WOOD_ID,
+		1
+	)
+	_expect(bool(valid.get("success", false)), "valid ground item pickup succeeds")
+	_expect(
+		simulation.get_item_count(FirstNightContent.WOOD_ID) == 1,
+		"successful pickup adds the item to inventory"
+	)
+
+	var fill: Dictionary = simulation.try_pickup_item(
+		FirstNightContent.WOOD_ID,
+		23
+	)
+	_expect(bool(fill.get("success", false)), "pickup can fill remaining carry weight")
+	var overflow: Dictionary = simulation.try_pickup_item(
+		FirstNightContent.WOOD_ID,
+		1
+	)
+	_expect(not bool(overflow.get("success", false)), "pickup rejects carry-weight overflow")
+	_expect(
+		simulation.get_item_count(FirstNightContent.WOOD_ID) == 24,
+		"rejected pickup leaves inventory unchanged"
+	)
+	var invalid: Dictionary = simulation.try_pickup_item("core:not_an_item", 1)
+	_expect(not bool(invalid.get("success", false)), "pickup rejects unknown item ids")
 
 
 func _test_query_snapshots_are_isolated() -> void:
@@ -570,7 +670,10 @@ func _test_v3_outcomes_are_migrated() -> void:
 		"mod:custom_outcome",
 	]
 	var migrated_state: Dictionary = simulation.export_state()
-	_expect(int(migrated_state.get("version", 0)) == 10, "v3 save migrates to save version 10")
+	_expect(
+		int(migrated_state.get("version", 0)) == Simulation.SAVE_VERSION,
+		"v3 save migrates to current save version"
+	)
 	_expect(migrated_state.get("outcomes", []) == expected, "v3 outcome copy migrates to stable ids")
 
 	var encoded: String = JSON.stringify(migrated_state)
@@ -603,7 +706,10 @@ func _test_v4_npc_state_is_migrated() -> void:
 	var simulation: FirstNightSimulation = Simulation.new(legacy_state)
 	var migrated: Dictionary = simulation.export_state()
 	var mira: Dictionary = (migrated["npcs"] as Dictionary)["core:first_neighbor"] as Dictionary
-	_expect(int(migrated.get("version", 0)) == 10, "v4 save migrates to save version 10")
+	_expect(
+		int(migrated.get("version", 0)) == Simulation.SAVE_VERSION,
+		"v4 save migrates to current save version"
+	)
 	_expect(typeof(mira.get("needs")) == TYPE_DICTIONARY, "v4 NPC gains normalized needs")
 	_expect(String(mira.get("activity_id", "")).contains(":"), "v4 NPC gains stable activity id")
 	_expect(int((mira.get("personal_inventory", {}) as Dictionary).get("core:food", -1)) == 2, "v4 NPC gains initial personal food")
@@ -617,8 +723,8 @@ func _test_v5_blueprints_are_migrated() -> void:
 	legacy_state.erase("structures")
 	var migrated_simulation: FirstNightSimulation = Simulation.new(legacy_state)
 	_expect(
-		int(migrated_simulation.export_state().get("version", 0)) == 10,
-		"v5 save migrates to save version 10"
+		int(migrated_simulation.export_state().get("version", 0)) == Simulation.SAVE_VERSION,
+		"v5 save migrates to current save version"
 	)
 	_expect(migrated_simulation.get_blueprints().is_empty(), "v5 save gains empty blueprints")
 	_expect(migrated_simulation.get_structures().is_empty(), "v5 save gains empty structures")
@@ -663,8 +769,8 @@ func _test_v6_structures_are_migrated() -> void:
 	legacy_state.erase("structures")
 	var migrated_simulation: FirstNightSimulation = Simulation.new(legacy_state)
 	_expect(
-		int(migrated_simulation.export_state().get("version", 0)) == 10,
-		"v6 save migrates to save version 10"
+		int(migrated_simulation.export_state().get("version", 0)) == Simulation.SAVE_VERSION,
+		"v6 save migrates to current save version"
 	)
 	_expect(migrated_simulation.get_structures().is_empty(), "v6 save gains empty structures")
 
@@ -1812,8 +1918,8 @@ func _test_v7_work_commitments_are_migrated() -> void:
 	legacy_mira.erase("work_commitment")
 	var migrated := Simulation.new(legacy_state)
 	_expect(
-		int(migrated.export_state().get("version", 0)) == 10,
-		"v7 save migrates to save version 10"
+		int(migrated.export_state().get("version", 0)) == Simulation.SAVE_VERSION,
+		"v7 save migrates to current save version"
 	)
 	_expect(
 		migrated.get_npc_work_commitment("core:first_neighbor").is_empty(),
@@ -1849,8 +1955,8 @@ func _test_v8_memories_are_migrated() -> void:
 	legacy_mira.erase("memories")
 	var migrated := Simulation.new(legacy_state)
 	_expect(
-		int(migrated.export_state().get("version", 0)) == 10,
-		"v8 save migrates to save version 10"
+		int(migrated.export_state().get("version", 0)) == Simulation.SAVE_VERSION,
+		"v8 save migrates to current save version"
 	)
 	_expect(
 		migrated.get_npc_memories("core:first_neighbor").is_empty(),
@@ -1888,8 +1994,8 @@ func _test_v9_blueprint_progress_is_migrated() -> void:
 	}]
 	var migrated := Simulation.new(legacy_state)
 	_expect(
-		int(migrated.export_state().get("version", 0)) == 10,
-		"v9 save migrates to save version 10"
+		int(migrated.export_state().get("version", 0)) == Simulation.SAVE_VERSION,
+		"v9 save migrates to current save version"
 	)
 	var migrated_blueprints: Array = migrated.get_blueprints()
 	_expect(migrated_blueprints.size() == 1, "v9 blueprint survives migration")
@@ -2274,7 +2380,42 @@ func _interact_near(simulation: FirstNightSimulation, target_id: String) -> Dict
 		"test target exists: %s" % target_id
 	)
 	simulation.set_player_position(target_position)
+	if simulation.get_resource_work_required(target_id) > 0:
+		var work_result: Dictionary = _work_resource_to_completion(
+			simulation,
+			target_id
+		)
+		if not bool(work_result.get("success", false)):
+			return work_result
+		var pickup_result: Dictionary = simulation.try_pickup_item(
+			String(work_result.get("drop_item_id", "")),
+			int(work_result.get("drop_amount", 0))
+		)
+		if not bool(pickup_result.get("success", false)):
+			return pickup_result
+		return work_result
 	return simulation.execute_interaction(target_id)
+
+
+func _work_resource_to_completion(
+	simulation: FirstNightSimulation,
+	target_id: String
+) -> Dictionary:
+	var target_position: Vector2 = (
+		simulation.get_interaction_target_position(target_id)
+	)
+	simulation.set_player_position(target_position)
+	var required: int = simulation.get_resource_work_required(target_id)
+	var progress: int = simulation.get_resource_work_progress(target_id)
+	var result: Dictionary = {}
+
+	for _minute: int in range(maxi(0, required - progress)):
+		result = simulation.execute_resource_work(
+			simulation.PLAYER_ACTOR_ID,
+			target_id
+		)
+
+	return result
 
 
 func _cleanup_test_save_files() -> void:

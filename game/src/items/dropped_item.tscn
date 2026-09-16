@@ -1,0 +1,14 @@
+[gd_scene format=3 uid="uid://w2ojpyaqavc3"]
+
+[ext_resource type="Script" uid="uid://clmuicxsxnxtm" path="res://src/items/dropped_item.gd" id="1_yk23q"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_hm8jm"]
+radius = 14.0
+
+[node name="DroppedItem" type="Area2D" unique_id=1162388698]
+script = ExtResource("1_yk23q")
+
+[node name="Icon" type="Sprite2D" parent="." unique_id=783526083]
+
+[node name="PickupShape" type="CollisionShape2D" parent="." unique_id=219707531]
+shape = SubResource("CircleShape2D_hm8jm")

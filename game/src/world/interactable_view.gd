@@ -4,6 +4,9 @@ extends Area2D
 const CharacterVisualScene := preload("res://src/characters/character_visual.gd")
 const NPC_PRESENTATION_SPEED: float = 30.0
 const NPC_SNAP_DISTANCE: float = 96.0
+const Localized := preload(
+	"res://src/localization/localized_text.gd"
+)
 
 var object_id: String
 var kind: String
@@ -117,9 +120,25 @@ func get_display_label() -> String:
 
 
 func get_status_text() -> String:
-	if kind != "npc":
+	if kind == "npc":
+		return Session.get_npc_activity(object_id)
+
+	var required: int = (
+		Session.get_resource_work_required(object_id)
+	)
+
+	if required <= 0:
 		return ""
-	return Session.get_npc_activity(object_id)
+
+	return Localized.resolve(
+		"resource.selection.work_progress",
+		{
+			"progress": Session.get_resource_work_progress(
+				object_id
+			),
+			"required": required,
+		}
+	)
 
 
 func set_selected(value: bool) -> void:
