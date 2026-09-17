@@ -109,6 +109,13 @@ func _refresh_inventory_panel() -> void:
 		placement["icon_path"] = (
 			_content_data.item_icon_path(item_id)
 		)
+		placement["label"] = Localized.resolve(
+			_content_data.item_label_key(item_id)
+		)
+		placement["total_weight"] = (
+			_content_data.item_weight(item_id)
+			* int(placement.get("amount", 1))
+		)
 		placements.append(placement)
 
 	_inventory_panel.present(

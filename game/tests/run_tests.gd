@@ -36,6 +36,7 @@ const LOCALIZATION_SOURCE_PATHS: Array[String] = [
 	"res://src/simulation/first_night_simulation.gd",
 	"res://src/simulation/npc_autonomy.gd",
 	"res://src/ui/first_night_hud.gd",
+	"res://src/ui/inventory_panel.gd",
 	"res://src/world/first_night_world.gd",
 ]
 
