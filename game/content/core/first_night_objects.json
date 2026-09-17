@@ -1,140 +1,142 @@
 {
   "schema_version": 2,
   "map": {
-    "cell_size": 32,
-    "map_size": [48, 48],
-    "interaction_range": 68.0
+	"cell_size": 32,
+	"map_size": [48, 48],
+	"interaction_range": 68.0
   },
   "objects": [
-    {
-      "id": "core:common_house",
-      "kind": "house",
-      "label_key": "object.core.common_house.name",
-      "cell": [24, 27],
-      "color": "8f7357",
-      "size": [44.0, 24.0]
-    },
-    {
-      "id": "core:old_tools",
-      "kind": "tools",
-      "label_key": "object.core.old_tools.name",
-      "cell": [22, 22],
-      "color": "b68b4c",
-      "size": [24.0, 18.0]
-    },
-    {
-      "id": "core:repair_room",
-      "kind": "repair",
-      "label_key": "object.core.repair_room.name",
-      "cell": [25, 20],
-      "color": "9a6a58",
-      "size": [30.0, 24.0]
-    },
-    {
-      "id": "core:campfire_site",
-      "kind": "campfire",
-      "label_key": "object.core.campfire_site.name",
-      "cell": [19, 28],
-      "color": "cf7041",
-      "size": [24.0, 20.0]
-    },
-    {
-      "id": "core:bed_site",
-      "kind": "bed",
-      "label_key": "object.core.bed_site.name",
-      "cell": [26, 23],
-      "color": "8b789e",
-      "size": [30.0, 18.0]
-    },
-    {
-      "id": "core:wood_north",
-      "kind": "wood",
-      "label_key": "object.core.wood_north.name",
-      "cell": [15, 17],
-      "color": "8a5a3b",
-      "size": [26.0, 18.0]
-    },
-    {
-      "id": "core:wood_west",
-      "kind": "wood",
-      "label_key": "object.core.wood_west.name",
-      "cell": [13, 24],
-      "color": "8a5a3b",
-      "size": [26.0, 18.0]
-    },
-    {
-      "id": "core:wood_east",
-      "kind": "wood",
-      "label_key": "object.core.wood_east.name",
-      "cell": [33, 24],
-      "color": "8a5a3b",
-      "size": [26.0, 18.0]
-    },
-    {
-      "id": "core:stone_south",
-      "kind": "stone",
-      "label_key": "object.core.stone_south.name",
-      "cell": [17, 33],
-      "color": "777c82",
-      "size": [24.0, 18.0]
-    },
-    {
-      "id": "core:stone_east",
-      "kind": "stone",
-      "label_key": "object.core.stone_east.name",
-      "cell": [34, 18],
-      "color": "777c82",
-      "size": [24.0, 18.0]
-    },
-    {
-      "id": "core:shore_water",
-      "kind": "water",
-      "label_key": "object.core.shore_water.name",
-      "cell": [7, 27],
-      "color": "4f8e9e",
-      "size": [28.0, 22.0]
-    },
-    {
-      "id": "core:berry_bush",
-      "kind": "food",
-      "label_key": "object.core.berry_bush.name",
-      "cell": [12, 31],
-      "color": "5d7d45",
-      "size": [24.0, 22.0]
-    }
+	{
+	  "id": "core:common_house",
+	  "kind": "house",
+	  "label_key": "object.core.common_house.name",
+	  "cell": [24, 27],
+	  "color": "8f7357",
+	  "size": [44.0, 24.0]
+	},
+	{
+	  "id": "core:old_tools",
+	  "kind": "tools",
+	  "label_key": "object.core.old_tools.name",
+	  "cell": [22, 22],
+	  "color": "b68b4c",
+	  "size": [24.0, 18.0]
+	},
+	{
+	  "id": "core:repair_room",
+	  "kind": "repair",
+	  "label_key": "object.core.repair_room.name",
+	  "cell": [25, 20],
+	  "color": "9a6a58",
+	  "size": [30.0, 24.0]
+	},
+	{
+	  "id": "core:campfire_site",
+	  "kind": "campfire",
+	  "label_key": "object.core.campfire_site.name",
+	  "cell": [19, 28],
+	  "color": "cf7041",
+	  "size": [24.0, 20.0]
+	},
+	{
+	  "id": "core:bed_site",
+	  "kind": "bed",
+	  "label_key": "object.core.bed_site.name",
+	  "cell": [26, 23],
+	  "color": "8b789e",
+	  "size": [30.0, 18.0]
+	},
+	{
+	  "id": "core:wood_north",
+	  "kind": "wood",
+	  "label_key": "object.core.wood_north.name",
+	  "cell": [15, 17],
+	  "color": "8a5a3b",
+	  "size": [26.0, 18.0]
+	},
+	{
+	  "id": "core:wood_west",
+	  "kind": "wood",
+	  "label_key": "object.core.wood_west.name",
+	  "cell": [13, 24],
+	  "color": "8a5a3b",
+	  "size": [26.0, 18.0]
+	},
+	{
+	  "id": "core:wood_east",
+	  "kind": "wood",
+	  "label_key": "object.core.wood_east.name",
+	  "cell": [33, 24],
+	  "color": "8a5a3b",
+	  "size": [26.0, 18.0]
+	},
+	{
+	  "id": "core:stone_south",
+	  "kind": "stone",
+	  "label_key": "object.core.stone_south.name",
+	  "cell": [17, 33],
+	  "color": "777c82",
+	  "size": [24.0, 18.0]
+	},
+	{
+	  "id": "core:stone_east",
+	  "kind": "stone",
+	  "label_key": "object.core.stone_east.name",
+	  "cell": [34, 18],
+	  "color": "777c82",
+	  "size": [24.0, 18.0]
+	},
+	{
+	  "id": "core:shore_water",
+	  "kind": "water",
+	  "label_key": "object.core.shore_water.name",
+	  "cell": [7, 27],
+	  "color": "4f8e9e",
+	  "size": [28.0, 22.0]
+	},
+	{
+	  "id": "core:berry_bush",
+	  "kind": "food",
+	  "label_key": "object.core.berry_bush.name",
+	  "cell": [12, 31],
+	  "color": "5d7d45",
+	  "size": [24.0, 22.0]
+	}
   ],
   "collect_rules": {
-    "wood": {
-      "item_id": "core:wood",
-      "amount": 3,
-      "repeatable": false,
-      "message_key": "first_night.collect.wood.success",
-      "full_message_key": "first_night.inventory.too_heavy",
-      "empty_message_key": "first_night.collect.empty"
-    },
-    "stone": {
-      "item_id": "core:stone",
-      "amount": 3,
-      "repeatable": false,
-      "message_key": "first_night.collect.stone.success",
-      "full_message_key": "first_night.inventory.too_heavy",
-      "empty_message_key": "first_night.collect.empty"
-    },
-    "food": {
-      "item_id": "core:food",
-      "amount": 2,
-      "repeatable": false,
-      "message_key": "first_night.collect.food.success",
-      "full_message_key": "first_night.inventory.too_heavy",
-      "empty_message_key": "first_night.collect.empty"
-    },
-    "water": {
-      "item_id": "core:raw_water",
-      "amount": 1,
-      "repeatable": true,
-      "message_key": "first_night.collect.water.success",
-      "full_message_key": "first_night.water.container_full",
-      "empty_message_key": ""
-    }
+	"wood": {
+	  "item_id": "core:wood",
+	  "amount": 3,
+	  "work_minutes": 8,
+	  "repeatable": false,
+	  "message_key": "first_night.collect.wood.success",
+	  "full_message_key": "first_night.inventory.too_heavy",
+	  "empty_message_key": "first_night.collect.empty"
+	},
+	"stone": {
+	  "item_id": "core:stone",
+	  "amount": 3,
+	  "work_minutes": 8,
+	  "repeatable": false,
+	  "message_key": "first_night.collect.stone.success",
+	  "full_message_key": "first_night.inventory.too_heavy",
+	  "empty_message_key": "first_night.collect.empty"
+	},
+	"food": {
+	  "item_id": "core:food",
+	  "amount": 2,
+	  "repeatable": false,
+	  "message_key": "first_night.collect.food.success",
+	  "full_message_key": "first_night.inventory.too_heavy",
+	  "empty_message_key": "first_night.collect.empty"
+	},
+	"water": {
+	  "item_id": "core:raw_water",
+	  "amount": 1,
+	  "repeatable": true,
+	  "message_key": "first_night.collect.water.success",
+	  "full_message_key": "first_night.water.container_full",
+	  "empty_message_key": ""
+	}
   }
 }

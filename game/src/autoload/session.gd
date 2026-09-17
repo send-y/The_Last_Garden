@@ -36,6 +36,16 @@ func execute_command(actor_id: String, target_id: String, action_id: String) -> 
 	return simulation.execute_command(actor_id, target_id, action_id)
 
 
+func execute_resource_work(
+	actor_id: String,
+	target_id: String
+) -> Dictionary:
+	return simulation.execute_resource_work(
+		actor_id,
+		target_id
+	)
+
+
 func execute_construction_command(command: Dictionary) -> Dictionary:
 	return simulation.execute_construction_command(command)
 
@@ -50,6 +60,18 @@ func get_state() -> Dictionary:
 
 func get_inventory() -> Dictionary:
 	return simulation.get_inventory().duplicate(true)
+
+
+func try_pickup_item(item_id: String, amount: int) -> Dictionary:
+	return simulation.try_pickup_item(item_id, amount)
+
+
+func get_world_drops() -> Array:
+	return simulation.get_world_drops()
+
+
+func try_pickup_world_drop(drop_id: String) -> Dictionary:
+	return simulation.try_pickup_world_drop(drop_id)
 
 
 func get_inventory_weight() -> float:
@@ -90,6 +112,14 @@ func set_player_position(value: Vector2) -> void:
 
 func is_collected(object_id: String) -> bool:
 	return simulation.is_collected(object_id)
+
+
+func get_resource_work_progress(object_id: String) -> int:
+	return simulation.get_resource_work_progress(object_id)
+
+
+func get_resource_work_required(object_id: String) -> int:
+	return simulation.get_resource_work_required(object_id)
 
 
 func get_object_stage(kind: String) -> int:
@@ -214,13 +244,22 @@ func is_paused() -> bool:
 
 
 func toggle_pause() -> void:
-	_is_paused = not _is_paused
+	set_paused(not _is_paused)
+
+
+func set_paused(value: bool, show_message: bool = true) -> void:
+	if _is_paused == value:
+		return
+
+	_is_paused = value
 	pause_changed.emit(_is_paused)
-	_emit_player_message_key(
-		"system.pause.enabled" if _is_paused else "system.pause.disabled",
-		{},
-		true
-	)
+
+	if show_message:
+		_emit_player_message_key(
+			"system.pause.enabled" if _is_paused else "system.pause.disabled",
+			{},
+			true
+		)
 
 
 func notify_player(message: String, success: bool = false) -> void:
@@ -351,6 +390,7 @@ func _register_input_actions() -> void:
 	_bind_keys(&"move_up", [KEY_W, KEY_UP])
 	_bind_keys(&"move_down", [KEY_S, KEY_DOWN])
 	_bind_keys(&"interact", [KEY_E])
+	_bind_keys(&"toggle_inventory", [KEY_I])
 	_bind_keys(&"pause_time", [KEY_SPACE])
 	_bind_keys(&"quick_save", [KEY_F5])
 	_bind_keys(&"quick_load", [KEY_F9])

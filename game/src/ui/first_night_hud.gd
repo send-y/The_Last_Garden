@@ -4,7 +4,11 @@ signal build_mode_toggled(active: bool)
 
 const Content := preload("res://src/content/first_night_content.gd")
 const Localized := preload("res://src/localization/localized_text.gd")
+const InventoryPacker := preload(
+	"res://src/inventory/inventory_auto_packer.gd"
+)
 
+var _content_data: FirstNightContent = Content.new()
 var _time_label: Label
 var _inventory_label: Label
 var _objective_label: Label
@@ -12,11 +16,23 @@ var _selection_label: Label
 var _message_label: Label
 var _controls_label: Label
 var _build_mode_button: Button
+var _inventory_was_paused: bool = false
 
+@onready var _inventory_panel: InventoryPanel = (
+	$InventoryPanel as InventoryPanel
+)
+@onready var _inventory_backdrop: ColorRect = (
+	$InventoryBackdrop as ColorRect
+)
 
 func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_build_ui()
+	_inventory_panel.close_requested.connect(
+		_on_inventory_close_requested
+	)
+	_inventory_panel.hide()
+	_inventory_backdrop.hide()
 	Session.state_changed.connect(refresh)
 	Session.state_reloaded.connect(refresh)
 	Session.time_changed.connect(refresh)
@@ -67,6 +83,51 @@ func refresh() -> void:
 	_objective_label.text = Localized.resolve("ui.hud.objective", {
 		"objective": Session.get_current_objective(),
 	})
+	_refresh_inventory_panel()
+
+func _refresh_inventory_panel() -> void:
+	var packed: Dictionary = InventoryPacker.pack(
+		Session.get_inventory(),
+		_content_data
+	)
+	var packed_placements := (
+		packed.get("placements", []) as Array
+	)
+	var placements: Array[Dictionary] = []
+
+	for placement_variant: Variant in packed_placements:
+		if typeof(placement_variant) != TYPE_DICTIONARY:
+			continue
+
+		var placement := (
+			placement_variant as Dictionary
+		).duplicate(true)
+		var item_id := String(
+			placement.get("item_id", "")
+		)
+
+		placement["icon_path"] = (
+			_content_data.item_icon_path(item_id)
+		)
+		placements.append(placement)
+
+	_inventory_panel.present(
+		Localized.resolve("ui.inventory.title"),
+		Localized.resolve(
+			"ui.inventory.weight",
+			{
+				"weight": String.num(
+					Session.get_inventory_weight(),
+					1
+				),
+				"max_weight": String.num(
+					Session.get_max_carry_weight(),
+					0
+				),
+			}
+		),
+		placements
+	)
 
 
 func _build_ui() -> void:
@@ -162,3 +223,33 @@ func _on_build_mode_toggled(active: bool) -> void:
 	)
 	_build_mode_button.text = Localized.resolve(text_key)
 	build_mode_toggled.emit(active)
+
+func toggle_inventory() -> void:
+	_set_inventory_open(not _inventory_panel.visible)
+
+
+func is_inventory_open() -> bool:
+	return _inventory_panel.visible
+
+
+func _set_inventory_open(should_open: bool) -> void:
+	if _inventory_panel.visible == should_open:
+		return
+
+	if should_open:
+		_inventory_was_paused = Session.is_paused()
+		Session.set_paused(true, false)
+		_inventory_backdrop.show()
+		_inventory_panel.show()
+		_refresh_inventory_panel()
+		return
+
+	_inventory_panel.hide()
+	_inventory_backdrop.hide()
+
+	if not _inventory_was_paused:
+		Session.set_paused(false, false)
+
+
+func _on_inventory_close_requested() -> void:
+	_set_inventory_open(false)

@@ -8,7 +8,9 @@ const PLAYER_WORK_MINUTES_PER_SECOND: float = (
 	SimulationRules.GAME_MINUTES_PER_SECOND
 )
 const INVALID_CELL: Vector2i = Vector2i(-1, -1)
+const PLAYER_ACTOR_ID: String = "core:player"
 
+var _active_resource_id: String = ""
 var _active_build_cell: Vector2i = INVALID_CELL
 var _work_minute_accumulator: float = 0.0
 var _work_command_in_flight: bool = false
@@ -24,9 +26,8 @@ var _work_command_in_flight: bool = false
 
 func _ready() -> void:
 	_world.selection_changed.connect(_on_world_selection_changed)
-	_world.blueprint_interaction_requested.connect(
-		_on_blueprint_interaction_requested
-	)
+	_world.blueprint_interaction_requested.connect(_on_blueprint_interaction_requested)
+	_world.resource_interaction_requested.connect(_on_resource_interaction_requested)
 	_hud.build_mode_toggled.connect(_on_build_mode_toggled)
 	_construction_cursor.cell_selected.connect(
 		_on_construction_cell_selected
@@ -41,6 +42,9 @@ func _ready() -> void:
 
 
 func _process(delta: float) -> void:
+	if not _active_resource_id.is_empty():
+		_process_player_resource_work(delta)
+		return
 	if _active_build_cell == INVALID_CELL:
 		return
 	if not Input.is_action_pressed(&"interact"):
@@ -84,14 +88,23 @@ func _process(delta: float) -> void:
 
 
 func _unhandled_input(event: InputEvent) -> void:
+	if event.is_action_pressed(&"toggle_inventory"):
+		_hud.toggle_inventory()
+		get_viewport().set_input_as_handled()
+		return
+
+	if _hud.is_inventory_open():
+		get_viewport().set_input_as_handled()
+		return
+
 	if event.is_action_pressed(&"pause_time"):
 		Session.toggle_pause()
 		get_viewport().set_input_as_handled()
 	elif event.is_action_pressed(&"quick_save"):
-		Session.save_game()
+		Session.quick_save()
 		get_viewport().set_input_as_handled()
 	elif event.is_action_pressed(&"quick_load"):
-		Session.load_game()
+		Session.quick_load()
 		get_viewport().set_input_as_handled()
 
 
@@ -122,6 +135,7 @@ func _on_blueprint_interaction_requested(
 
 
 func _start_player_construction(cell: Vector2i) -> void:
+	_clear_player_resource_work()
 	if _active_build_cell == cell:
 		return
 	_active_build_cell = cell
@@ -144,6 +158,13 @@ func _clear_player_construction() -> void:
 
 func _on_world_selection_changed(selection: Dictionary) -> void:
 	_hud.set_selection(selection)
+	if (
+		not _active_resource_id.is_empty()
+		and not _work_command_in_flight
+		and String(selection.get("object_id", ""))
+		!= _active_resource_id
+	):
+		_stop_player_resource_work(true)
 	if _active_build_cell == INVALID_CELL or _work_command_in_flight:
 		return
 	var selected_cell := Vector2i(
@@ -157,11 +178,142 @@ func _on_world_selection_changed(selection: Dictionary) -> void:
 func _on_build_mode_toggled(active: bool) -> void:
 	_construction_cursor.set_build_mode_active(active)
 	if active:
+		_stop_player_resource_work(true)
 		_stop_player_construction(true)
 
 
 func _on_session_state_reloaded() -> void:
+	_clear_player_resource_work()
 	_clear_player_construction()
+
+func _on_resource_interaction_requested(
+	target_id: String,
+	continuous_work: bool
+) -> void:
+	if not continuous_work:
+		Session.notify_player_key(
+			"resource.feedback.hold_to_work"
+		)
+		return
+
+	_start_player_resource_work(target_id)
+
+
+func _start_player_resource_work(
+	target_id: String
+) -> void:
+	if _active_resource_id == target_id:
+		return
+
+	_clear_player_construction()
+	_active_resource_id = target_id
+	_work_minute_accumulator = 0.0
+
+
+func _process_player_resource_work(delta: float) -> void:
+	if not Input.is_action_pressed(&"interact"):
+		_stop_player_resource_work(true)
+		return
+
+	if Session.is_paused():
+		return
+
+	var movement: Vector2 = Input.get_vector(
+		&"move_left",
+		&"move_right",
+		&"move_up",
+		&"move_down"
+	)
+
+	if movement != Vector2.ZERO:
+		_stop_player_resource_work(true)
+		return
+
+	_work_minute_accumulator += (
+		delta * PLAYER_WORK_MINUTES_PER_SECOND
+	)
+
+	while _work_minute_accumulator >= 1.0:
+		_work_minute_accumulator -= 1.0
+		_work_command_in_flight = true
+
+		var result: Dictionary = (
+			Session.execute_resource_work(
+				PLAYER_ACTOR_ID,
+				_active_resource_id
+			)
+		)
+
+		_work_command_in_flight = false
+		_show_resource_work_result(result)
+
+		var completed: bool = (
+			bool(result.get("success", false))
+			and String(result.get("reason_id", ""))
+			== "core:resource_depleted"
+		)
+
+		if completed:
+			_clear_player_resource_work()
+			return
+
+		if not bool(result.get("success", false)):
+			_clear_player_resource_work()
+			return
+
+func _stop_player_resource_work(
+	show_message: bool
+) -> void:
+	if _active_resource_id.is_empty():
+		return
+
+	_clear_player_resource_work()
+
+	if show_message:
+		Session.notify_player_key(
+			"resource.feedback.interrupted"
+		)
+
+
+func _clear_player_resource_work() -> void:
+	_active_resource_id = ""
+	_work_minute_accumulator = 0.0
+
+
+func _show_resource_work_result(
+	result: Dictionary
+) -> void:
+	var reason_id: String = String(
+		result.get("reason_id", "")
+	)
+	var message_key: String = "resource.feedback.invalid"
+
+	match reason_id:
+		"core:resource_work_progressed":
+			message_key = (
+				"resource.feedback.work_progressed"
+			)
+		"core:resource_depleted":
+			message_key = (
+				"resource.feedback.completed"
+				if bool(result.get("success", false))
+				else "first_night.collect.empty"
+			)
+		"core:too_far":
+			message_key = "interaction.failure.too_far"
+
+	Session.notify_player_key(
+		message_key,
+		{
+			"progress": int(
+				result.get("work_progress_minutes", 0)
+			),
+			"required": int(
+				result.get("required_work_minutes", 0)
+			),
+		},
+		bool(result.get("success", false))
+	)
 
 
 func _show_construction_result(result: Dictionary) -> void:

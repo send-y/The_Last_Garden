@@ -6,7 +6,9 @@
 [ext_resource type="Script" uid="uid://cgesqdx755ts2" path="res://src/player/player_controller.gd" id="3_player"]
 [ext_resource type="Script" uid="uid://bx6bnkfvmv6ns" path="res://src/ui/first_night_hud.gd" id="4_hud"]
 [ext_resource type="Script" uid="uid://dp126q6yi24gd" path="res://src/construction/structure_layer.gd" id="4_jqarl"]
+[ext_resource type="PackedScene" uid="uid://w2ojpyaqavc3" path="res://src/items/dropped_item.tscn" id="5_2nke2"]
 [ext_resource type="Script" uid="uid://dv5nnmx54ujlp" path="res://src/construction/construction_cursor.gd" id="7_30cu5"]
+[ext_resource type="PackedScene" uid="uid://6w0uf3u8ggep" path="res://src/ui/inventory_panel.tscn" id="7_frqgp"]
 
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_player"]
 radius = 6.0
@@ -23,6 +25,11 @@ script = ExtResource("3_jkpqq")
 
 [node name="StructureLayer" type="Node2D" parent="World" unique_id=1752994528]
 script = ExtResource("4_jqarl")
+
+[node name="DroppedItems" type="Node2D" parent="World" unique_id=2138606736]
+
+[node name="DroppedItem" parent="World/DroppedItems" unique_id=1162388698 instance=ExtResource("5_2nke2")]
+position = Vector2(814, 924)
 
 [node name="Player" type="CharacterBody2D" parent="." unique_id=1750406136]
 position = Vector2(784, 944)
@@ -58,6 +65,33 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("4_hud")
+
+[node name="InventoryPanel" parent="Hud/HudRoot" unique_id=690515400 instance=ExtResource("7_frqgp")]
+z_index = 21
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -210.0
+offset_top = -140.0
+offset_right = 210.0
+offset_bottom = 140.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="InventoryBackdrop" type="ColorRect" parent="Hud/HudRoot" unique_id=1369094570]
+visible = false
+z_index = 20
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.09019608, 0.101960786, 0.09411765, 0.72156864)
+metadata/_edit_use_anchors_ = true
 
 [node name="ConstructionCursor" type="Node2D" parent="." unique_id=1089441217]
 script = ExtResource("7_30cu5")

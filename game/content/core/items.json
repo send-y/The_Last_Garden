@@ -1,30 +1,42 @@
 {
-  "schema_version": 2,
+  "schema_version": 3,
   "items": [
-    {
-      "id": "core:wood",
-      "label_key": "item.core.wood.name",
-      "weight": 1.0
-    },
-    {
-      "id": "core:stone",
-      "label_key": "item.core.stone.name",
-      "weight": 1.5
-    },
-    {
-      "id": "core:raw_water",
-      "label_key": "item.core.raw_water.name",
-      "weight": 1.0
-    },
-    {
-      "id": "core:boiled_water",
-      "label_key": "item.core.boiled_water.name",
-      "weight": 1.0
-    },
-    {
-      "id": "core:food",
-      "label_key": "item.core.food.name",
-      "weight": 0.5
-    }
+	{
+	  "id": "core:wood",
+	  "label_key": "item.core.wood.name",
+	  "icon_path": "res://assets/sprites/items/log_sprite.png",
+	  "weight": 1.0,
+	  "max_stack": 5,
+	  "footprint": [[0, 0]]
+	},
+	{
+	  "id": "core:stone",
+	  "label_key": "item.core.stone.name",
+	  "icon_path": "res://assets/sprites/items/rock_small.png",
+	  "weight": 1.5,
+	  "max_stack": 3,
+	  "footprint": [[0, 0]]
+	},
+	{
+	  "id": "core:raw_water",
+	  "label_key": "item.core.raw_water.name",
+	  "weight": 1.0,
+	  "max_stack": 2,
+	  "footprint": [[0, 0], [0, 1]]
+	},
+	{
+	  "id": "core:boiled_water",
+	  "label_key": "item.core.boiled_water.name",
+	  "weight": 1.0,
+	  "max_stack": 2,
+	  "footprint": [[0, 0], [0, 1]]
+	},
+	{
+	  "id": "core:food",
+	  "label_key": "item.core.food.name",
+	  "weight": 0.5,
+	  "max_stack": 5,
+	  "footprint": [[0, 0]]
+	}
   ]
 }

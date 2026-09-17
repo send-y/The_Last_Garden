@@ -23,8 +23,11 @@ const NpcWorkRequestValidatorScript := preload(
 	"res://src/simulation/npc_work_request_validator.gd"
 )
 const NpcMemoryScript := preload("res://src/simulation/npc_memory.gd")
+const InventoryPackerScript := preload(
+	"res://src/inventory/inventory_auto_packer.gd"
+)
 
-const SAVE_VERSION: int = 10
+const SAVE_VERSION: int = 12
 const DEFAULT_SEED: int = 247061
 const START_MINUTE: int = 11 * 60
 const EVENING_MINUTE: int = 18 * 60
@@ -41,6 +44,12 @@ const OUTCOME_LIGHT_SUPPER_ID: String = "core:light_supper"
 const OUTCOME_HUNGRY_SLEEP_ID: String = "core:hungry_sleep"
 const BLUEPRINT_STAGE_ID: String = "core:blueprint"
 const COMPLETE_STAGE_ID: String = "core:complete"
+const DROP_OFFSETS: Array[Vector2] = [
+	Vector2(-11.0, -5.0),
+	Vector2(9.0, -8.0),
+	Vector2(4.0, 11.0),
+	Vector2(-9.0, 10.0),
+]
 
 const OUTCOME_LABEL_KEYS: Dictionary = {
 	OUTCOME_DRY_ROOM_ID: "first_night.outcome.dry_room",
@@ -98,6 +107,9 @@ static func create_new_state(seed_value: int = DEFAULT_SEED) -> Dictionary:
 		"player_position": [784.0, 944.0],
 		"inventory": content_data.create_empty_inventory(),
 		"collected": {},
+		"resource_work": {},
+		"world_drops": [],
+		"next_drop_serial": 1,
 		"npcs": npc_data.create_initial_states(seed_value),
 		"flags": {
 			"house_inspected": false,
@@ -237,6 +249,188 @@ func execute_command(actor_id: String, target_id: String, action_id: String) -> 
 		return _emit_result(false, "interaction.failure.too_far")
 
 	return _execute_resolved_interaction(resolved_target_id, kind)
+
+
+func execute_resource_work(
+	actor_id: String,
+	target_id: String
+) -> Dictionary:
+	var actor_result: Dictionary = _get_resource_actor_position(
+		actor_id
+	)
+
+	if not bool(actor_result.get("found", false)):
+		return {
+			"success": false,
+			"changed": false,
+			"reason_id": "core:unknown_actor",
+		}
+
+	var normalized_id: String = content.normalize_object_id(
+		target_id
+	)
+	var target: Dictionary = _resolve_interaction_target(
+		normalized_id
+	)
+
+	if target.is_empty():
+		return {
+			"success": false,
+			"changed": false,
+			"reason_id": "core:missing_resource",
+		}
+
+	var kind: String = String(target.get("kind", ""))
+	var rule: Dictionary = content.get_collect_rule(kind)
+	var required_work: int = maxi(
+		0,
+		int(rule.get("work_minutes", 0))
+	)
+
+	if required_work <= 0:
+		return {
+			"success": false,
+			"changed": false,
+			"reason_id": "core:not_workable_resource",
+		}
+
+	if is_collected(normalized_id):
+		return {
+			"success": false,
+			"changed": false,
+			"reason_id": "core:resource_depleted",
+		}
+
+	var target_position := (
+		target.get("position", Vector2.ZERO) as Vector2
+	)
+	var actor_position := (
+		actor_result.get("position", Vector2.ZERO) as Vector2
+	)
+
+	if (
+		actor_position.distance_to(target_position)
+		> FirstNightContent.INTERACTION_RANGE
+	):
+		return {
+			"success": false,
+			"changed": false,
+			"reason_id": "core:too_far",
+		}
+
+	var resource_work := (
+		state["resource_work"] as Dictionary
+	)
+	var current_work: int = clampi(
+		int(resource_work.get(normalized_id, 0)),
+		0,
+		required_work
+	)
+	var next_work: int = mini(
+		current_work + 1,
+		required_work
+	)
+
+	if next_work < required_work:
+		resource_work[normalized_id] = next_work
+		event_emitted.emit({"type": "state_changed"})
+
+		return {
+			"success": true,
+			"changed": true,
+			"reason_id": "core:resource_work_progressed",
+			"target_id": normalized_id,
+			"work_progress_minutes": next_work,
+			"required_work_minutes": required_work,
+		}
+
+	resource_work.erase(normalized_id)
+
+	var collected: Dictionary = state["collected"] as Dictionary
+	collected[normalized_id] = true
+	var drop_item_id: String = String(rule.get("item_id", ""))
+	var drop_amount: int = maxi(0, int(rule.get("amount", 0)))
+	var created_drop_ids: Array[String] = _create_resource_drops(
+		normalized_id,
+		drop_item_id,
+		drop_amount,
+		target_position
+	)
+
+	event_emitted.emit({"type": "state_changed"})
+
+	return {
+		"success": true,
+		"changed": true,
+		"reason_id": "core:resource_depleted",
+		"target_id": normalized_id,
+		"work_progress_minutes": required_work,
+		"required_work_minutes": required_work,
+		"drop_item_id": drop_item_id,
+		"drop_amount": drop_amount,
+		"drop_origin": target_position,
+		"created_drop_ids": created_drop_ids,
+	}
+
+
+func _create_resource_drops(
+	source_id: String,
+	item_id: String,
+	amount: int,
+	origin: Vector2
+) -> Array[String]:
+	var created_ids: Array[String] = []
+	var normalized_item_id: String = content.normalize_item_id(item_id)
+	if amount <= 0 or not content.has_item(normalized_item_id):
+		return created_ids
+
+	var drops: Array = state["world_drops"] as Array
+	for index: int in range(amount):
+		var serial: int = maxi(
+			1,
+			int(state.get("next_drop_serial", 1))
+		)
+		state["next_drop_serial"] = serial + 1
+		var drop_id := "core:drop_%06d" % serial
+		var offset: Vector2 = DROP_OFFSETS[
+			index % DROP_OFFSETS.size()
+		]
+		drops.append({
+			"drop_id": drop_id,
+			"item_id": normalized_item_id,
+			"amount": 1,
+			"position": [
+				origin.x + offset.x,
+				origin.y + offset.y,
+			],
+			"source_id": source_id,
+		})
+		created_ids.append(drop_id)
+
+	return created_ids
+
+
+func _get_resource_actor_position(
+	actor_id: String
+) -> Dictionary:
+	if actor_id == PLAYER_ACTOR_ID:
+		return {
+			"found": true,
+			"position": get_player_position(),
+		}
+
+	var npcs: Dictionary = get_npcs()
+
+	if npcs.has(actor_id):
+		return {
+			"found": true,
+			"position": get_npc_position(
+				actor_id,
+				Vector2.ZERO
+			),
+		}
+
+	return {"found": false}
 
 
 func execute_construction_command(command: Dictionary) -> Dictionary:
@@ -949,6 +1143,12 @@ func _execute_resolved_interaction(target_id: String, kind: String) -> Dictionar
 			return _talk_to_npc(target_id)
 
 	if content.has_collect_rule(kind):
+		var rule: Dictionary = content.get_collect_rule(kind)
+		if int(rule.get("work_minutes", 0)) > 0:
+			return _emit_result(
+				false,
+				"resource.feedback.hold_to_work"
+			)
 		return _collect_resource(target_id, kind)
 	return _emit_result(false, "interaction.failure.unsupported_target")
 
@@ -962,6 +1162,122 @@ func get_interaction_target_position(target_id: String, fallback: Vector2 = Vect
 
 func export_state() -> Dictionary:
 	return state.duplicate(true)
+
+
+func try_pickup_item(item_id: String, amount: int) -> Dictionary:
+	var normalized_id: String = content.normalize_item_id(item_id)
+
+	if amount <= 0 or not content.has_item(normalized_id):
+		return _emit_result(
+			false,
+			"world.pickup.failure.invalid_item"
+		)
+
+	if not _can_add_item(normalized_id, amount):
+		return _emit_result(
+			false,
+			"world.pickup.failure.inventory_full"
+		)
+
+	_add_item(normalized_id, amount)
+
+	return _emit_result(
+		true,
+		"world.pickup.success",
+		true,
+		false,
+		{
+			"item": Localized.resolve(
+				content.item_label_key(normalized_id)
+			),
+			"amount": amount,
+		}
+	)
+
+
+func get_world_drops() -> Array:
+	return (state.get("world_drops", []) as Array).duplicate(true)
+
+
+func try_pickup_world_drop(drop_id: String) -> Dictionary:
+	var drops: Array = state["world_drops"] as Array
+	var drop_index: int = -1
+	var drop: Dictionary = {}
+
+	for index: int in range(drops.size()):
+		var candidate_value: Variant = drops[index]
+		if typeof(candidate_value) != TYPE_DICTIONARY:
+			continue
+		var candidate: Dictionary = candidate_value as Dictionary
+		if String(candidate.get("drop_id", "")) != drop_id:
+			continue
+		drop_index = index
+		drop = candidate
+		break
+
+	if drop_index < 0:
+		return _emit_result(
+			false,
+			"world.pickup.failure.missing_drop"
+		)
+
+	var item_id: String = content.normalize_item_id(
+		String(drop.get("item_id", ""))
+	)
+	var amount: int = maxi(0, int(drop.get("amount", 0)))
+	if amount <= 0 or not content.has_item(item_id):
+		return _emit_result(
+			false,
+			"world.pickup.failure.invalid_item"
+		)
+
+	if not _can_add_item(item_id, amount):
+		return _emit_result(
+			false,
+			"world.pickup.failure.inventory_full"
+		)
+
+	_add_item(item_id, amount)
+	drops.remove_at(drop_index)
+	var result: Dictionary = _emit_result(
+		true,
+		"world.pickup.success",
+		true,
+		false,
+		{
+			"item": Localized.resolve(
+				content.item_label_key(item_id)
+			),
+			"amount": amount,
+		}
+	)
+	result["drop_id"] = drop_id
+	result["item_id"] = item_id
+	result["amount"] = amount
+	return result
+
+
+func get_resource_work_progress(object_id: String) -> int:
+	var progress: Dictionary = (
+		state.get("resource_work", {}) as Dictionary
+	)
+	var normalized_id: String = content.normalize_object_id(
+		object_id
+	)
+	return int(progress.get(normalized_id, 0))
+
+
+func get_resource_work_required(object_id: String) -> int:
+	var target: Dictionary = _resolve_interaction_target(
+		object_id
+	)
+
+	if target.is_empty():
+		return 0
+
+	var kind: String = String(target.get("kind", ""))
+	var rule: Dictionary = content.get_collect_rule(kind)
+	return maxi(0, int(rule.get("work_minutes", 0)))
 
 
 func get_inventory() -> Dictionary:
@@ -1455,10 +1771,32 @@ func _sleep_until_morning() -> Dictionary:
 	event_emitted.emit({"type": "time_changed", "minute": get_minute_of_day()})
 	return result
 
-
 func _can_add_item(item_id: String, amount: int) -> bool:
-	var added_weight: float = content.item_weight(item_id) * float(amount)
-	return get_inventory_weight() + added_weight <= MAX_CARRY_WEIGHT + 0.001
+	var normalized_id: String = content.normalize_item_id(item_id)
+	var added_weight: float = (
+		content.item_weight(normalized_id) * float(amount)
+	)
+
+	if (
+		get_inventory_weight() + added_weight
+		> MAX_CARRY_WEIGHT + 0.001
+	):
+		return false
+
+	var candidate_inventory: Dictionary = get_inventory()
+	candidate_inventory[normalized_id] = (
+		int(candidate_inventory.get(normalized_id, 0)) + amount
+	)
+
+	var packed: Dictionary = InventoryPackerScript.pack(
+		candidate_inventory,
+		content
+	)
+	var overflow: Dictionary = (
+		packed.get("overflow", {}) as Dictionary
+	)
+
+	return overflow.is_empty()
 
 
 func _add_item(item_id: String, amount: int) -> void:
@@ -1529,6 +1867,14 @@ func _normalize_state() -> void:
 
 	state["inventory"] = content.normalize_inventory(_as_dictionary(state.get("inventory")))
 	state["collected"] = content.normalize_collected(_as_dictionary(state.get("collected")))
+	state["resource_work"] = _normalize_resource_work(state.get("resource_work", {}))
+	state["world_drops"] = _normalize_world_drops(
+		state.get("world_drops", [])
+	)
+	state["next_drop_serial"] = _normalize_next_drop_serial(
+		state.get("next_drop_serial", 1),
+		state["world_drops"] as Array
+	)
 	state["npcs"] = npc_catalog.normalize_states(_as_dictionary(state.get("npcs")), seed_value)
 
 	var normalized_structures: Array[Dictionary] = (
@@ -1574,6 +1920,115 @@ static func _as_dictionary(value: Variant) -> Dictionary:
 	if typeof(value) != TYPE_DICTIONARY:
 		return {}
 	return (value as Dictionary).duplicate(true)
+
+
+func _normalize_resource_work(
+	value: Variant
+) -> Dictionary:
+	var normalized: Dictionary = {}
+
+	if typeof(value) != TYPE_DICTIONARY:
+		return normalized
+
+	var raw_progress := value as Dictionary
+
+	for object_variant: Variant in raw_progress.keys():
+		var object_id: String = content.normalize_object_id(
+			String(object_variant)
+		)
+		var target: Dictionary = content.get_interactable(
+			object_id
+		)
+
+		if target.is_empty() or is_collected(object_id):
+			continue
+
+		var kind: String = String(target.get("kind", ""))
+		var rule: Dictionary = content.get_collect_rule(kind)
+		var required: int = maxi(
+			0,
+			int(rule.get("work_minutes", 0))
+		)
+
+		if required <= 0:
+			continue
+
+		var progress: int = clampi(
+			_safe_int(raw_progress.get(object_variant), 0),
+			0,
+			required
+		)
+
+		if progress > 0:
+			normalized[object_id] = progress
+
+	return normalized
+
+
+func _normalize_world_drops(value: Variant) -> Array[Dictionary]:
+	var normalized: Array[Dictionary] = []
+	if typeof(value) != TYPE_ARRAY:
+		return normalized
+
+	var known_ids: Dictionary = {}
+	for drop_value: Variant in (value as Array):
+		if typeof(drop_value) != TYPE_DICTIONARY:
+			continue
+		var drop: Dictionary = drop_value as Dictionary
+		var drop_id: String = String(
+			drop.get("drop_id", "")
+		).strip_edges()
+		var item_id: String = content.normalize_item_id(
+			String(drop.get("item_id", ""))
+		)
+		var raw_amount: int = _safe_int(drop.get("amount"), 0)
+		var amount: int = mini(raw_amount, 999)
+		var position_value: Variant = drop.get("position", [])
+		if (
+			drop_id.is_empty()
+			or known_ids.has(drop_id)
+			or not content.has_item(item_id)
+			or raw_amount <= 0
+			or not _is_valid_position(position_value)
+		):
+			continue
+
+		var position_data: Array = position_value as Array
+		known_ids[drop_id] = true
+		normalized.append({
+			"drop_id": drop_id,
+			"item_id": item_id,
+			"amount": amount,
+			"position": [
+				float(position_data[0]),
+				float(position_data[1]),
+			],
+			"source_id": content.normalize_object_id(
+				String(drop.get("source_id", ""))
+			),
+		})
+
+	return normalized
+
+
+static func _normalize_next_drop_serial(
+	value: Variant,
+	drops: Array
+) -> int:
+	var next_serial: int = maxi(1, _safe_int(value, 1))
+	for drop_value: Variant in drops:
+		if typeof(drop_value) != TYPE_DICTIONARY:
+			continue
+		var drop_id: String = String(
+			(drop_value as Dictionary).get("drop_id", "")
+		)
+		if not drop_id.begins_with("core:drop_"):
+			continue
+		var serial_text: String = drop_id.trim_prefix("core:drop_")
+		if not serial_text.is_valid_int():
+			continue
+		next_serial = maxi(next_serial, int(serial_text) + 1)
+	return next_serial
 
 
 func _normalize_blueprints(value: Variant) -> Array[Dictionary]:

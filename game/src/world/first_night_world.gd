@@ -3,6 +3,7 @@ extends Node2D
 
 signal selection_changed(selection: Dictionary)
 signal blueprint_interaction_requested(cell: Vector2i, continuous_work: bool)
+signal resource_interaction_requested(target_id: String, continuous_work: bool)
 
 const Catalog := preload("res://src/world/first_night_catalog.gd")
 const Interactable := preload("res://src/world/interactable_view.gd")
@@ -11,8 +12,12 @@ const Localized := preload("res://src/localization/localized_text.gd")
 const BuildingCatalogScript := preload(
 	"res://src/construction/building_catalog.gd"
 )
+const DroppedItemScene: PackedScene = preload(
+	"res://src/items/dropped_item.tscn"
+)
 
 var _interactables: Array[InteractableView] = []
+var _drop_views: Dictionary = {}
 var _selected: InteractableView
 var _selected_cell: Vector2i = Vector2i(-1, -1)
 var _content := Content.new()
@@ -20,13 +25,94 @@ var _building_catalog := BuildingCatalogScript.new()
 
 @onready var _player: CharacterBody2D = get_node("../Player") as CharacterBody2D
 
+@onready var _dropped_items: Node2D = (
+	$DroppedItems as Node2D
+)
 
 func _ready() -> void:
 	_build_static_collision()
 	_spawn_interactables()
+	_sync_dropped_items()
 	Session.state_changed.connect(_on_state_changed)
 	Session.state_reloaded.connect(_on_state_reloaded)
 	queue_redraw()
+
+
+func _sync_dropped_items() -> void:
+	var active_ids: Dictionary = {}
+	for drop_value: Variant in Session.get_world_drops():
+		if typeof(drop_value) != TYPE_DICTIONARY:
+			continue
+		var definition: Dictionary = drop_value as Dictionary
+		var drop_id: String = String(definition.get("drop_id", ""))
+		if drop_id.is_empty():
+			continue
+		active_ids[drop_id] = true
+		var drop: DroppedItem = _drop_views.get(drop_id) as DroppedItem
+		if drop == null or not is_instance_valid(drop):
+			drop = _create_dropped_item_view(definition)
+			if drop == null:
+				continue
+			_drop_views[drop_id] = drop
+		_update_dropped_item_view(drop, definition)
+
+	for drop_id_variant: Variant in _drop_views.keys():
+		var drop_id: String = String(drop_id_variant)
+		if active_ids.has(drop_id):
+			continue
+		var stale_drop: DroppedItem = (
+			_drop_views.get(drop_id) as DroppedItem
+		)
+		if stale_drop != null and is_instance_valid(stale_drop):
+			stale_drop.queue_free()
+		_drop_views.erase(drop_id)
+
+
+func _create_dropped_item_view(
+	definition: Dictionary
+) -> DroppedItem:
+	var drop := DroppedItemScene.instantiate() as DroppedItem
+	if drop == null:
+		push_error("Failed to create dropped item view.")
+		return null
+	_dropped_items.add_child(drop)
+	drop.pickup_requested.connect(
+		_on_dropped_item_pickup_requested
+	)
+	return drop
+
+
+func _update_dropped_item_view(
+	drop: DroppedItem,
+	definition: Dictionary
+) -> void:
+	var item_id: String = String(definition.get("item_id", ""))
+	var icon_path: String = _content.item_icon_path(item_id)
+	var icon_texture: Texture2D
+	if not icon_path.is_empty():
+		icon_texture = load(icon_path) as Texture2D
+
+	drop.configure(
+		String(definition.get("drop_id", "")),
+		item_id,
+		int(definition.get("amount", 1)),
+		icon_texture
+	)
+	var position_data: Array = definition.get("position", []) as Array
+	if position_data.size() == 2:
+		drop.global_position = Vector2(
+			float(position_data[0]),
+			float(position_data[1])
+		)
+
+
+func _on_dropped_item_pickup_requested(
+	drop: DroppedItem
+) -> void:
+	if not is_instance_valid(drop):
+		return
+
+	Session.try_pickup_world_drop(drop.drop_id)
 
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -75,6 +161,30 @@ func interact_with_selection(continuous_work: bool = false) -> void:
 
 	if _selected == null or not is_instance_valid(_selected) or not _selected.visible:
 		Session.notify_player_key("interaction.prompt.select_object")
+		return
+	var required_work: int = (
+		Session.get_resource_work_required(
+			_selected.object_id
+		)
+	)
+
+	if required_work > 0:
+		var distance: float = (
+			_player.global_position.distance_to(
+				_selected.global_position
+			)
+		)
+
+		if distance > Catalog.INTERACTION_RANGE:
+			Session.notify_player_key(
+				"interaction.failure.too_far"
+			)
+			return
+
+		resource_interaction_requested.emit(
+			_selected.object_id,
+			continuous_work
+		)
 		return
 
 	Session.execute_interaction(_selected.object_id)
@@ -128,6 +238,7 @@ func _refresh_interactables(snap: bool = false) -> void:
 
 func _on_state_changed() -> void:
 	_refresh_interactables()
+	_sync_dropped_items()
 	if _selected == null or not is_instance_valid(_selected):
 		if _selected_cell.x >= 0 and _selected_cell.y >= 0:
 			_set_selected(null)
@@ -142,6 +253,7 @@ func _on_state_changed() -> void:
 
 func _on_state_reloaded() -> void:
 	_refresh_interactables(true)
+	_sync_dropped_items()
 	_selected_cell = Vector2i(-1, -1)
 	_set_selected(null)
 
@@ -151,6 +263,7 @@ func _selection_payload(interactable: InteractableView, in_range: bool) -> Dicti
 		"kind": "interactable",
 		"label": interactable.get_display_label(),
 		"in_range": in_range,
+		"object_id": interactable.object_id,
 	}
 	var status: String = interactable.get_status_text()
 	if not status.is_empty():
