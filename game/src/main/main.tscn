@@ -66,6 +66,18 @@ grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("4_hud")
 
+[node name="InventoryBackdrop" type="ColorRect" parent="Hud/HudRoot" unique_id=1369094570]
+visible = false
+z_index = 20
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.09019608, 0.101960786, 0.09411765, 0.72156864)
+metadata/_edit_use_anchors_ = true
+
 [node name="InventoryPanel" parent="Hud/HudRoot" unique_id=690515400 instance=ExtResource("7_frqgp")]
 z_index = 21
 layout_mode = 1
@@ -80,18 +92,6 @@ offset_right = 210.0
 offset_bottom = 140.0
 grow_horizontal = 2
 grow_vertical = 2
-
-[node name="InventoryBackdrop" type="ColorRect" parent="Hud/HudRoot" unique_id=1369094570]
-visible = false
-z_index = 20
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-color = Color(0.09019608, 0.101960786, 0.09411765, 0.72156864)
-metadata/_edit_use_anchors_ = true
 
 [node name="ConstructionCursor" type="Node2D" parent="." unique_id=1089441217]
 script = ExtResource("7_30cu5")
