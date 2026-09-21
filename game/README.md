@@ -44,6 +44,7 @@ godot --headless --editor --path game --quit
 godot --headless --path game --script res://tests/run_tests.gd
 godot --headless --path game res://tests/npc_collision_integration_test.tscn
 godot --headless --path game res://tests/inventory_close_integration_test.tscn
+godot --headless --path game res://tests/crafting_integration_test.tscn
 godot --headless --path game --quit-after 3
 godot --headless --path game res://src/dev/mechanics_lab.tscn --quit-after 3 -- --lab-scenario=fresh_start
 ```

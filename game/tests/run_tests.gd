@@ -14,6 +14,8 @@ const ConstructionCommandScript := preload("res://src/construction/construction_
 const ConstructionValidatorScript := preload("res://src/construction/construction_validator.gd")
 const ConstructionCursorScript := preload("res://src/construction/construction_cursor.gd")
 const BuildingCatalogScript := preload("res://src/construction/building_catalog.gd")
+const CraftingCatalogScript := preload("res://src/crafting/crafting_catalog.gd")
+const CraftingCommandScript := preload("res://src/crafting/crafting_command.gd")
 const NpcWorkRequestScript := preload("res://src/simulation/npc_work_request.gd")
 const NpcWorkRequestValidatorScript := preload(
 	"res://src/simulation/npc_work_request_validator.gd"
@@ -29,6 +31,7 @@ const LOCALIZATION_SOURCE_PATHS: Array[String] = [
 	"res://content/core/first_night_progression.json",
 	"res://content/core/items.json",
 	"res://content/core/npcs.json",
+	"res://content/core/recipes.json",
 	"res://src/autoload/session.gd",
 	"res://src/characters/npc_catalog.gd",
 	"res://src/content/first_night_content.gd",
@@ -84,6 +87,7 @@ func _run() -> void:
 	_test_shared_wall_context_line_is_consumed_once()
 	_test_construction_command_payload()
 	_test_building_catalog()
+	_test_crafting_catalog_and_project_lifecycle()
 	_test_construction_command_validation()
 	_test_blueprint_command_execution()
 	_test_construction_cursor_requires_build_mode()
@@ -93,6 +97,7 @@ func _run() -> void:
 	_test_lab_morning_with_mira()
 	_test_lab_mira_resting()
 	_test_lab_mira_after_shared_wall()
+	_test_lab_workbench_crafting()
 	_test_lab_scenarios_are_deterministic()
 	_test_lab_rebuild_discards_previous_changes()
 	_test_session_installs_lab_state_without_aliasing_or_save()
@@ -2101,6 +2106,65 @@ func _test_building_catalog() -> void:
 	)
 
 
+func _test_crafting_catalog_and_project_lifecycle() -> void:
+	var catalog := CraftingCatalogScript.new()
+	var recipes: Array[Dictionary] = catalog.recipes_for_station("core:workbench")
+	_expect(recipes.size() == 2, "workbench catalog exposes two starter recipes")
+	_expect(
+		catalog.get_inputs("core:saw_planks") == {"core:wood": 1},
+		"plank recipe reads its input from content"
+	)
+	_expect(
+		catalog.get_outputs("core:saw_planks") == {"core:plank": 2},
+		"plank recipe reads its output from content"
+	)
+
+	var initial_state: Dictionary = Simulation.create_new_state()
+	(initial_state["inventory"] as Dictionary)["core:wood"] = 3
+	(initial_state["structures"] as Array).append({
+		"building_id": "core:workbench",
+		"cell": [22, 29],
+		"stage_id": "core:complete",
+	})
+	var simulation := FirstNightSimulation.new(initial_state)
+	var start_result: Dictionary = simulation.execute_crafting_command(
+		CraftingCommandScript.start_project(Vector2i(22, 29), "core:saw_planks")
+	)
+	_expect(bool(start_result.get("success", false)), "player starts a workbench project")
+	_expect(
+		int(simulation.get_inventory().get("core:wood", 0)) == 2,
+		"starting a project reserves its log"
+	)
+	for _minute: int in range(3):
+		simulation.execute_crafting_command(
+			CraftingCommandScript.work_project(Vector2i(22, 29))
+		)
+	var restored := FirstNightSimulation.new(simulation.export_state())
+	var restored_projects: Array = restored.get_crafting_projects()
+	_expect(restored_projects.size() == 1, "unfinished crafting survives save round trip")
+	if restored_projects.size() == 1:
+		_expect(
+			int((restored_projects[0] as Dictionary).get("work_progress_minutes", 0)) == 3,
+			"crafting progress survives save round trip"
+		)
+	var completion: Dictionary = {}
+	for _minute: int in range(5):
+		completion = restored.execute_crafting_command(
+			CraftingCommandScript.work_project(Vector2i(22, 29))
+		)
+	_expect(
+		String(completion.get("reason_id", "")) == "core:crafting_completed",
+		"final work minute completes the project"
+	)
+	_expect(restored.get_crafting_projects().is_empty(), "completion clears the station project")
+	var plank_amount: int = 0
+	for drop_value: Variant in restored.get_world_drops():
+		var drop := drop_value as Dictionary
+		if String(drop.get("item_id", "")) == "core:plank":
+			plank_amount += int(drop.get("amount", 0))
+	_expect(plank_amount == 2, "completed recipe drops two planks beside the workbench")
+
+
 func _test_construction_cursor_requires_build_mode() -> void:
 	var cursor: ConstructionCursor = ConstructionCursorScript.new()
 	root.add_child(cursor)
@@ -2151,6 +2215,24 @@ func _test_lab_fresh_start() -> void:
 	_expect(simulation.get_object_stage("repair") == 0, "fresh lab scenario has no repair progress")
 	_expect(simulation.get_object_stage("campfire") == 0, "fresh lab scenario has no campfire progress")
 	_expect(not simulation.is_npc_visible("core:first_neighbor"), "fresh lab scenario keeps Mira hidden")
+
+
+func _test_lab_workbench_crafting() -> void:
+	var result: Dictionary = LabScenarios.build(LabScenarios.WORKBENCH_CRAFTING)
+	_expect(bool(result.get("success", false)), "workbench lab scenario builds")
+	if not bool(result.get("success", false)):
+		return
+	var simulation: FirstNightSimulation = result["simulation"] as FirstNightSimulation
+	_expect(
+		int(simulation.get_inventory().get("core:wood", 0)) == 2,
+		"workbench lab scenario supplies two logs"
+	)
+	var structures: Array = simulation.get_structures()
+	_expect(
+		structures.size() == 1
+		and String((structures[0] as Dictionary).get("building_id", "")) == "core:workbench",
+		"workbench lab scenario contains one completed workbench"
+	)
 
 
 func _test_lab_prepared_evening() -> void:

@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "recipes": [
+    {
+      "id": "core:saw_planks",
+      "label_key": "recipe.core.saw_planks.name",
+      "station_type": "core:workbench",
+      "inputs": {"core:wood": 1},
+      "outputs": {"core:plank": 2},
+      "work_minutes": 8
+    },
+    {
+      "id": "core:split_firewood",
+      "label_key": "recipe.core.split_firewood.name",
+      "station_type": "core:workbench",
+      "inputs": {"core:wood": 1},
+      "outputs": {"core:firewood": 2},
+      "work_minutes": 6
+    }
+  ]
+}

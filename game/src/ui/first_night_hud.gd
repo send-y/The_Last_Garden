@@ -1,6 +1,8 @@
 class_name FirstNightHud
 extends Control
 signal build_mode_toggled(active: bool)
+signal building_selected(building_id: String)
+signal crafting_recipe_requested(cell: Vector2i, recipe_id: String)
 
 const Content := preload("res://src/content/first_night_content.gd")
 const Localized := preload("res://src/localization/localized_text.gd")
@@ -16,6 +18,11 @@ var _selection_label: Label
 var _message_label: Label
 var _controls_label: Label
 var _build_mode_button: Button
+var _building_picker: OptionButton
+var _crafting_panel: PanelContainer
+var _crafting_recipes_box: VBoxContainer
+var _crafting_cell: Vector2i = Vector2i(-1, -1)
+var _selected_building_id: String = "core:wood_wall"
 var _inventory_was_paused: bool = false
 
 @onready var _inventory_panel: InventoryPanel = (
@@ -28,6 +35,7 @@ var _inventory_was_paused: bool = false
 func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_build_ui()
+	_build_crafting_panel()
 	_inventory_panel.close_requested.connect(
 		_on_inventory_close_requested
 	)
@@ -49,7 +57,7 @@ func set_selection(selection: Dictionary) -> void:
 			"y": int(selection.get("y", -1)),
 		})
 		return
-	if kind == "interactable" or kind == "blueprint":
+	if kind == "interactable" or kind == "blueprint" or kind == "structure":
 		var status: String = String(selection.get("status", ""))
 		var in_range: bool = bool(selection.get("in_range", false))
 		var selection_key: String
@@ -166,6 +174,16 @@ func _build_ui() -> void:
 	_build_mode_button.toggled.connect(_on_build_mode_toggled)
 	add_child(_build_mode_button)
 
+	_building_picker = OptionButton.new()
+	_building_picker.position = Vector2(174.0, 266.0)
+	_building_picker.size = Vector2(150.0, 28.0)
+	_building_picker.add_item(Localized.resolve("building.core.wood_wall.name"))
+	_building_picker.set_item_metadata(0, "core:wood_wall")
+	_building_picker.add_item(Localized.resolve("building.core.workbench.name"))
+	_building_picker.set_item_metadata(1, "core:workbench")
+	_building_picker.item_selected.connect(_on_building_selected)
+	add_child(_building_picker)
+
 	var bottom_panel := ColorRect.new()
 	bottom_panel.position = Vector2(8.0, 300.0)
 	bottom_panel.size = Vector2(624.0, 52.0)
@@ -231,12 +249,62 @@ func _on_build_mode_toggled(active: bool) -> void:
 	_build_mode_button.text = Localized.resolve(text_key)
 	build_mode_toggled.emit(active)
 
+
+func _on_building_selected(index: int) -> void:
+	_selected_building_id = String(_building_picker.get_item_metadata(index))
+	building_selected.emit(_selected_building_id)
+
 func toggle_inventory() -> void:
+	if _crafting_panel.visible:
+		_set_crafting_open(false)
 	_set_inventory_open(not _inventory_panel.visible)
 
 
 func is_inventory_open() -> bool:
 	return _inventory_panel.visible
+
+
+func is_modal_open() -> bool:
+	return _inventory_panel.visible or _crafting_panel.visible
+
+
+func open_crafting(cell: Vector2i, recipes: Array[Dictionary]) -> void:
+	_set_inventory_open(false)
+	_crafting_cell = cell
+	for child: Node in _crafting_recipes_box.get_children():
+		child.queue_free()
+	for recipe: Dictionary in recipes:
+		var recipe_id := String(recipe.get("id", ""))
+		var button := Button.new()
+		button.text = _format_recipe_button(recipe)
+		button.custom_minimum_size = Vector2(300.0, 34.0)
+		button.pressed.connect(_on_recipe_pressed.bind(recipe_id))
+		_crafting_recipes_box.add_child(button)
+	_set_crafting_open(true)
+
+
+func _format_recipe_button(recipe: Dictionary) -> String:
+	var input_parts: PackedStringArray = []
+	var output_parts: PackedStringArray = []
+	var inputs: Dictionary = recipe.get("inputs", {}) as Dictionary
+	var outputs: Dictionary = recipe.get("outputs", {}) as Dictionary
+	for item_variant: Variant in inputs.keys():
+		var item_id := String(item_variant)
+		input_parts.append("%d %s" % [
+			int(inputs[item_variant]),
+			Localized.resolve(_content_data.item_label_key(item_id)),
+		])
+	for item_variant: Variant in outputs.keys():
+		var item_id := String(item_variant)
+		output_parts.append("%d %s" % [
+			int(outputs[item_variant]),
+			Localized.resolve(_content_data.item_label_key(item_id)),
+		])
+	return "%s  ·  %s → %s" % [
+		Localized.resolve(String(recipe.get("label_key", recipe.get("id", "")))),
+		", ".join(input_parts),
+		", ".join(output_parts),
+	]
 
 
 func _set_inventory_open(should_open: bool) -> void:
@@ -260,3 +328,61 @@ func _set_inventory_open(should_open: bool) -> void:
 
 func _on_inventory_close_requested() -> void:
 	_set_inventory_open(false)
+
+
+func _build_crafting_panel() -> void:
+	_crafting_panel = PanelContainer.new()
+	_crafting_panel.z_index = 22
+	_crafting_panel.custom_minimum_size = Vector2(380.0, 260.0)
+	_crafting_panel.set_anchors_preset(Control.PRESET_CENTER)
+	_crafting_panel.position = Vector2(-190.0, -130.0)
+	add_child(_crafting_panel)
+	var margin := MarginContainer.new()
+	margin.add_theme_constant_override("margin_left", 20)
+	margin.add_theme_constant_override("margin_top", 16)
+	margin.add_theme_constant_override("margin_right", 20)
+	margin.add_theme_constant_override("margin_bottom", 16)
+	_crafting_panel.add_child(margin)
+	var root := VBoxContainer.new()
+	root.add_theme_constant_override("separation", 10)
+	margin.add_child(root)
+	var title := Label.new()
+	title.text = Localized.resolve("ui.crafting.title")
+	title.add_theme_font_size_override("font_size", 22)
+	root.add_child(title)
+	var hint := Label.new()
+	hint.text = Localized.resolve("ui.crafting.hint")
+	hint.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	root.add_child(hint)
+	_crafting_recipes_box = VBoxContainer.new()
+	root.add_child(_crafting_recipes_box)
+	var close_button := Button.new()
+	close_button.text = Localized.resolve("ui.crafting.close")
+	close_button.pressed.connect(_on_crafting_close_requested)
+	root.add_child(close_button)
+	_crafting_panel.hide()
+
+
+func _set_crafting_open(should_open: bool) -> void:
+	if _crafting_panel.visible == should_open:
+		return
+	if should_open:
+		_inventory_was_paused = Session.is_paused()
+		Session.set_paused(true, false)
+		_inventory_backdrop.show()
+		_crafting_panel.show()
+		return
+	_crafting_panel.hide()
+	_inventory_backdrop.hide()
+	if not _inventory_was_paused:
+		Session.set_paused(false, false)
+
+
+func _on_recipe_pressed(recipe_id: String) -> void:
+	var cell := _crafting_cell
+	_set_crafting_open(false)
+	crafting_recipe_requested.emit(cell, recipe_id)
+
+
+func _on_crafting_close_requested() -> void:
+	_set_crafting_open(false)

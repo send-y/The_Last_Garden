@@ -50,6 +50,10 @@ func execute_construction_command(command: Dictionary) -> Dictionary:
 	return simulation.execute_construction_command(command)
 
 
+func execute_crafting_command(command: Dictionary) -> Dictionary:
+	return simulation.execute_crafting_command(command)
+
+
 func execute_npc_work_request(command: Dictionary) -> Dictionary:
 	return simulation.execute_npc_work_request(command)
 
@@ -204,6 +208,14 @@ func get_blueprints() -> Array:
 
 func get_structures() -> Array:
 	return simulation.get_structures()
+
+
+func get_crafting_projects() -> Array:
+	return simulation.get_crafting_projects()
+
+
+func get_crafting_recipes(station_type: String) -> Array[Dictionary]:
+	return simulation.get_crafting_recipes(station_type)
 
 
 func apply_debug_state(
