@@ -9,6 +9,13 @@ const Localized := preload("res://src/localization/localized_text.gd")
 const InventoryPacker := preload(
 	"res://src/inventory/inventory_auto_packer.gd"
 )
+const UiSkin := preload("res://src/ui/pixel_ui_skin.gd")
+const CraftingPanelScene: PackedScene = preload(
+	"res://src/ui/crafting_panel.tscn"
+)
+const ConstructionPaletteScene: PackedScene = preload(
+	"res://src/ui/construction_palette.tscn"
+)
 
 var _content_data: FirstNightContent = Content.new()
 var _time_label: Label
@@ -16,13 +23,9 @@ var _inventory_label: Label
 var _objective_label: Label
 var _selection_label: Label
 var _message_label: Label
-var _controls_label: Label
-var _build_mode_button: Button
-var _building_picker: OptionButton
-var _crafting_panel: PanelContainer
-var _crafting_recipes_box: VBoxContainer
+var _crafting_panel: CraftingPanel
+var _construction_palette: ConstructionPalette
 var _crafting_cell: Vector2i = Vector2i(-1, -1)
-var _selected_building_id: String = "core:wood_wall"
 var _inventory_was_paused: bool = false
 
 @onready var _inventory_panel: InventoryPanel = (
@@ -35,7 +38,6 @@ var _inventory_was_paused: bool = false
 func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_build_ui()
-	_build_crafting_panel()
 	_inventory_panel.close_requested.connect(
 		_on_inventory_close_requested
 	)
@@ -146,59 +148,75 @@ func _refresh_inventory_panel() -> void:
 
 
 func _build_ui() -> void:
-	var top_panel := ColorRect.new()
-	top_panel.position = Vector2(8.0, 8.0)
-	top_panel.size = Vector2(252.0, 86.0)
-	top_panel.color = Color(0.07, 0.08, 0.07, 0.82)
-	top_panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	add_child(top_panel)
-
-	_time_label = _make_label(top_panel, Vector2(8.0, 6.0), Vector2(236.0, 20.0), 14)
-	_inventory_label = _make_label(top_panel, Vector2(8.0, 26.0), Vector2(236.0, 50.0), 11)
+	var status_panel := _make_pixel_panel(
+		Vector2(8.0, 8.0), Vector2(214.0, 92.0)
+	)
+	_time_label = _make_label(
+		status_panel, Vector2(6.0, 3.0), Vector2(190.0, 20.0), 14
+	)
+	_time_label.add_theme_color_override("font_color", UiSkin.TEXT_ACCENT)
+	_inventory_label = _make_label(
+		status_panel, Vector2(6.0, 24.0), Vector2(190.0, 48.0), 10
+	)
 	_inventory_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 
-	var objective_panel := ColorRect.new()
-	objective_panel.position = Vector2(270.0, 8.0)
-	objective_panel.size = Vector2(362.0, 54.0)
-	objective_panel.color = Color(0.07, 0.08, 0.07, 0.82)
-	objective_panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	add_child(objective_panel)
-	_objective_label = _make_label(objective_panel, Vector2(8.0, 6.0), Vector2(346.0, 42.0), 12)
+	var objective_panel := _make_pixel_panel(
+		Vector2(230.0, 8.0), Vector2(402.0, 54.0)
+	)
+	_objective_label = _make_label(
+		objective_panel, Vector2(12.0, 8.0), Vector2(378.0, 38.0), 11
+	)
 	_objective_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 
-	_build_mode_button = Button.new()
-	_build_mode_button.position = Vector2(8.0, 266.0)
-	_build_mode_button.size = Vector2(160.0, 28.0)
-	_build_mode_button.toggle_mode = true
-	_build_mode_button.text = Localized.resolve("ui.construction.mode.off")
-	_build_mode_button.toggled.connect(_on_build_mode_toggled)
-	add_child(_build_mode_button)
-
-	_building_picker = OptionButton.new()
-	_building_picker.position = Vector2(174.0, 266.0)
-	_building_picker.size = Vector2(150.0, 28.0)
-	_building_picker.add_item(Localized.resolve("building.core.wood_wall.name"))
-	_building_picker.set_item_metadata(0, "core:wood_wall")
-	_building_picker.add_item(Localized.resolve("building.core.workbench.name"))
-	_building_picker.set_item_metadata(1, "core:workbench")
-	_building_picker.item_selected.connect(_on_building_selected)
-	add_child(_building_picker)
-
-	var bottom_panel := ColorRect.new()
-	bottom_panel.position = Vector2(8.0, 300.0)
-	bottom_panel.size = Vector2(624.0, 52.0)
-	bottom_panel.color = Color(0.07, 0.08, 0.07, 0.86)
-	bottom_panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	add_child(bottom_panel)
-	_selection_label = _make_label(bottom_panel, Vector2(8.0, 3.0), Vector2(608.0, 17.0), 11)
+	var feedback_panel := _make_pixel_panel(
+		Vector2(228.0, 282.0), Vector2(404.0, 70.0)
+	)
+	_selection_label = _make_label(
+		feedback_panel, Vector2(6.0, 2.0), Vector2(380.0, 17.0), 10
+	)
+	_selection_label.add_theme_color_override("font_color", UiSkin.TEXT_ACCENT)
 	_selection_label.text = Localized.resolve("ui.hud.selection.none")
-	_message_label = _make_label(bottom_panel, Vector2(8.0, 20.0), Vector2(608.0, 26.0), 11)
+	_message_label = _make_label(
+		feedback_panel, Vector2(6.0, 19.0), Vector2(380.0, 30.0), 10
+	)
 	_message_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	_message_label.text = Localized.resolve("ui.hud.intro")
 
-	_controls_label = _make_label(self, Vector2(376.0, 68.0), Vector2(256.0, 42.0), 10)
-	_controls_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
-	_controls_label.text = Localized.resolve("ui.hud.controls")
+	_construction_palette = (
+		ConstructionPaletteScene.instantiate() as ConstructionPalette
+	)
+	_construction_palette.position = Vector2(8.0, 230.0)
+	_construction_palette.build_mode_toggled.connect(
+		_on_build_mode_toggled
+	)
+	_construction_palette.building_selected.connect(
+		_on_building_selected
+	)
+	add_child(_construction_palette)
+
+	_crafting_panel = CraftingPanelScene.instantiate() as CraftingPanel
+	_crafting_panel.z_index = 22
+	_crafting_panel.set_anchors_preset(Control.PRESET_CENTER)
+	_crafting_panel.position = Vector2(-190.0, -135.0)
+	_crafting_panel.close_requested.connect(
+		_on_crafting_close_requested
+	)
+	_crafting_panel.recipe_requested.connect(_on_recipe_pressed)
+	add_child(_crafting_panel)
+	_crafting_panel.hide()
+
+
+func _make_pixel_panel(at: Vector2, panel_size: Vector2) -> Control:
+	var panel := PanelContainer.new()
+	panel.position = at
+	panel.size = panel_size
+	panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	panel.add_theme_stylebox_override("panel", UiSkin.panel_style())
+	add_child(panel)
+	var content := Control.new()
+	content.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	panel.add_child(content)
+	return content
 
 
 func _make_label(parent: Node, at: Vector2, label_size: Vector2, font_size: int) -> Label:
@@ -207,7 +225,7 @@ func _make_label(parent: Node, at: Vector2, label_size: Vector2, font_size: int)
 	label.size = label_size
 	label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	label.add_theme_font_size_override("font_size", font_size)
-	label.add_theme_color_override("font_color", Color("eee7d5"))
+	label.add_theme_color_override("font_color", UiSkin.TEXT_PRIMARY)
 	parent.add_child(label)
 	return label
 
@@ -241,18 +259,11 @@ func _on_message(message: String, success: bool) -> void:
 
 
 func _on_build_mode_toggled(active: bool) -> void:
-	var text_key: String = (
-		"ui.construction.mode.on"
-		if active
-		else "ui.construction.mode.off"
-	)
-	_build_mode_button.text = Localized.resolve(text_key)
 	build_mode_toggled.emit(active)
 
 
-func _on_building_selected(index: int) -> void:
-	_selected_building_id = String(_building_picker.get_item_metadata(index))
-	building_selected.emit(_selected_building_id)
+func _on_building_selected(building_id: String) -> void:
+	building_selected.emit(building_id)
 
 func toggle_inventory() -> void:
 	if _crafting_panel.visible:
@@ -271,40 +282,8 @@ func is_modal_open() -> bool:
 func open_crafting(cell: Vector2i, recipes: Array[Dictionary]) -> void:
 	_set_inventory_open(false)
 	_crafting_cell = cell
-	for child: Node in _crafting_recipes_box.get_children():
-		child.queue_free()
-	for recipe: Dictionary in recipes:
-		var recipe_id := String(recipe.get("id", ""))
-		var button := Button.new()
-		button.text = _format_recipe_button(recipe)
-		button.custom_minimum_size = Vector2(300.0, 34.0)
-		button.pressed.connect(_on_recipe_pressed.bind(recipe_id))
-		_crafting_recipes_box.add_child(button)
+	_crafting_panel.present(recipes, _content_data)
 	_set_crafting_open(true)
-
-
-func _format_recipe_button(recipe: Dictionary) -> String:
-	var input_parts: PackedStringArray = []
-	var output_parts: PackedStringArray = []
-	var inputs: Dictionary = recipe.get("inputs", {}) as Dictionary
-	var outputs: Dictionary = recipe.get("outputs", {}) as Dictionary
-	for item_variant: Variant in inputs.keys():
-		var item_id := String(item_variant)
-		input_parts.append("%d %s" % [
-			int(inputs[item_variant]),
-			Localized.resolve(_content_data.item_label_key(item_id)),
-		])
-	for item_variant: Variant in outputs.keys():
-		var item_id := String(item_variant)
-		output_parts.append("%d %s" % [
-			int(outputs[item_variant]),
-			Localized.resolve(_content_data.item_label_key(item_id)),
-		])
-	return "%s  ·  %s → %s" % [
-		Localized.resolve(String(recipe.get("label_key", recipe.get("id", "")))),
-		", ".join(input_parts),
-		", ".join(output_parts),
-	]
 
 
 func _set_inventory_open(should_open: bool) -> void:
@@ -314,6 +293,7 @@ func _set_inventory_open(should_open: bool) -> void:
 	if should_open:
 		_inventory_was_paused = Session.is_paused()
 		Session.set_paused(true, false)
+		_construction_palette.hide()
 		_inventory_backdrop.show()
 		_inventory_panel.show()
 		_refresh_inventory_panel()
@@ -321,6 +301,7 @@ func _set_inventory_open(should_open: bool) -> void:
 
 	_inventory_panel.hide()
 	_inventory_backdrop.hide()
+	_construction_palette.show()
 
 	if not _inventory_was_paused:
 		Session.set_paused(false, false)
@@ -330,50 +311,19 @@ func _on_inventory_close_requested() -> void:
 	_set_inventory_open(false)
 
 
-func _build_crafting_panel() -> void:
-	_crafting_panel = PanelContainer.new()
-	_crafting_panel.z_index = 22
-	_crafting_panel.custom_minimum_size = Vector2(380.0, 260.0)
-	_crafting_panel.set_anchors_preset(Control.PRESET_CENTER)
-	_crafting_panel.position = Vector2(-190.0, -130.0)
-	add_child(_crafting_panel)
-	var margin := MarginContainer.new()
-	margin.add_theme_constant_override("margin_left", 20)
-	margin.add_theme_constant_override("margin_top", 16)
-	margin.add_theme_constant_override("margin_right", 20)
-	margin.add_theme_constant_override("margin_bottom", 16)
-	_crafting_panel.add_child(margin)
-	var root := VBoxContainer.new()
-	root.add_theme_constant_override("separation", 10)
-	margin.add_child(root)
-	var title := Label.new()
-	title.text = Localized.resolve("ui.crafting.title")
-	title.add_theme_font_size_override("font_size", 22)
-	root.add_child(title)
-	var hint := Label.new()
-	hint.text = Localized.resolve("ui.crafting.hint")
-	hint.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	root.add_child(hint)
-	_crafting_recipes_box = VBoxContainer.new()
-	root.add_child(_crafting_recipes_box)
-	var close_button := Button.new()
-	close_button.text = Localized.resolve("ui.crafting.close")
-	close_button.pressed.connect(_on_crafting_close_requested)
-	root.add_child(close_button)
-	_crafting_panel.hide()
-
-
 func _set_crafting_open(should_open: bool) -> void:
 	if _crafting_panel.visible == should_open:
 		return
 	if should_open:
 		_inventory_was_paused = Session.is_paused()
 		Session.set_paused(true, false)
+		_construction_palette.hide()
 		_inventory_backdrop.show()
 		_crafting_panel.show()
 		return
 	_crafting_panel.hide()
 	_inventory_backdrop.hide()
+	_construction_palette.show()
 	if not _inventory_was_paused:
 		Session.set_paused(false, false)
 

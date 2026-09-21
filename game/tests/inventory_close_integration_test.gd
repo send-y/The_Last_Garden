@@ -58,7 +58,13 @@ func _ready() -> void:
 	await get_tree().process_frame
 	if not panel.get_details_text().contains("Древесина"):
 		push_error(
-			"Inventory item selection did not update details."
+			"Inventory item selection did not update details. "
+			+ "grid_rect=%s item_position=%s hovered=%s details=%s" % [
+				inventory_grid.get_global_rect(),
+				item_position,
+				get_viewport().gui_get_hovered_control(),
+				panel.get_details_text(),
+			]
 		)
 		get_tree().quit(1)
 		return
