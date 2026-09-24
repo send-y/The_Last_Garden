@@ -1,0 +1,87 @@
+GIMP Palette
+Name: The Last Garden 72
+Columns: 6
+# Neutral and interface
+ 23  26  24	Ink
+ 37  41  37	Charcoal
+ 58  64  58	Slate
+ 89  96  89	Dust Grey
+138 140 126	Warm Mist
+216 210 184	Bone
+# Soil and dry landscape
+ 53  38  31	Deep Soil
+ 82  55  42	Dark Earth
+116  80  58	Soil
+154 104  71	Clay
+194 145  98	Dry Soil
+216 189 121	Straw
+# Wood - preserves the first log sprite
+ 88  53  37	Wood Outline
+101  53  32	Deep Bark
+143  86  59	Wood Base
+189 112  76	Warm Wood
+176 137  97	Muted Grain
+217 160 102	Fresh Cut
+# Living greens
+ 31  53  40	Deep Pine
+ 45  74  50	Forest
+ 69  97  58	Moss
+ 96 122  69	Leaf
+131 148  90	Sage
+169 184 106	New Leaf
+# Crops and autumn
+ 74  71  40	Deep Olive
+108 102  53	Olive
+146 128  70	Mustard
+182 155  84	Harvest
+209 184 109	Wheat
+227 212 151	Pale Hay
+# Water, rain and cold light
+ 32  56  66	Deep Water
+ 45  81  89	River Shadow
+ 62 109 112	River
+ 86 138 135	Blue Green
+123 166 160	Mist Blue
+171 194 183	Cold Sky
+# Stone and metal
+ 44  48  51	Deep Stone
+ 65  73  74	Dark Stone
+ 91  98  96	Stone
+115 123 112	Lichen Grey
+150 153 138	Light Stone
+185 183 163	Chalk
+# Skin and leather
+ 74  46  42	Deep Skin
+112  66  56	Brown Skin
+154  96  75	Tan Skin
+190 128  96	Warm Skin
+216 160 122	Peach Skin
+231 195 157	Light Skin
+# Cloth, berries, fire and attention
+ 56  39  57	Deep Plum
+ 99  51  66	Wine
+147  72  61	Rust
+198 101  69	Ember
+217 154  78	Gold
+232 214 168	Cream
+# Health and heart
+ 73  23  32	Deep Wound
+104  25  38	Wound Shadow
+171   5  15	Blood
+207  51  60	Heart Red
+236  89  98	Warm Pulse
+247 160 145	Vitality Light
+# Energy and warm light
+ 93  66  24	Deep Amber
+125  87  25	Burnt Gold
+163 115  28	Warm Charge
+208 151  37	Bright Amber
+255 213  65	Energy Yellow
+255 240 138	Energy Glow
+# Information, focus, and gentle highlights
+ 31  47  53	Deep Teal
+ 48  75  79	Muted Teal
+ 67 105 100	Focus Green
+ 97 137 122	Soft Focus
+146 172 151	Signal Sage
+204 217 192	Focus Light
