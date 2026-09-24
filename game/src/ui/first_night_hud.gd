@@ -23,6 +23,9 @@ var _inventory_label: Label
 var _objective_label: Label
 var _selection_label: Label
 var _message_label: Label
+var _tasks_background: TextureRect
+var _tasks_toggle: Button
+var _tasks_expanded: bool = true
 var _crafting_panel: CraftingPanel
 var _construction_palette: ConstructionPalette
 var _crafting_cell: Vector2i = Vector2i(-1, -1)
@@ -148,44 +151,70 @@ func _refresh_inventory_panel() -> void:
 
 
 func _build_ui() -> void:
-	var status_panel := _make_pixel_panel(
-		Vector2(8.0, 8.0), Vector2(214.0, 92.0)
-	)
-	_time_label = _make_label(
-		status_panel, Vector2(6.0, 3.0), Vector2(190.0, 20.0), 14
-	)
+	_add_ui_texture("date_weather.png", Vector2(10, 10), Vector2(188, 48))
+	_add_ui_texture("time.png", Vector2(69, 58), Vector2(70, 20))
+	_time_label = _make_label(self, Vector2(20, 20), Vector2(168, 24), 12)
 	_time_label.add_theme_color_override("font_color", UiSkin.TEXT_ACCENT)
-	_inventory_label = _make_label(
-		status_panel, Vector2(6.0, 24.0), Vector2(190.0, 48.0), 10
-	)
-	_inventory_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_inventory_label = _make_label(self, Vector2(20, 40), Vector2(165, 15), 8)
+	_inventory_label.add_theme_color_override("font_color", UiSkin.TEXT_PRIMARY)
 
-	var objective_panel := _make_pixel_panel(
-		Vector2(230.0, 8.0), Vector2(402.0, 54.0)
+	_tasks_background = _add_ui_texture(
+		"tasks_panel_full.png", Vector2(420, 10), Vector2(210, 88)
 	)
-	_objective_label = _make_label(
-		objective_panel, Vector2(12.0, 8.0), Vector2(378.0, 38.0), 11
-	)
+	_tasks_toggle = Button.new()
+	_tasks_toggle.position = Vector2(597, 13)
+	_tasks_toggle.size = Vector2(24, 20)
+	_tasks_toggle.flat = true
+	_tasks_toggle.focus_mode = Control.FOCUS_NONE
+	_tasks_toggle.mouse_filter = Control.MOUSE_FILTER_STOP
+	_tasks_toggle.add_theme_color_override("font_color", UiSkin.TEXT_ACCENT)
+	_tasks_toggle.add_theme_font_size_override("font_size", 12)
+	_tasks_toggle.text = Localized.resolve("ui.hud.tasks.collapse")
+	_tasks_toggle.pressed.connect(_toggle_tasks_panel)
+	add_child(_tasks_toggle)
+	_objective_label = _make_label(self, Vector2(434, 38), Vector2(158, 48), 9)
 	_objective_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 
 	var feedback_panel := _make_pixel_panel(
-		Vector2(228.0, 282.0), Vector2(404.0, 70.0)
+		Vector2(210.0, 258.0), Vector2(220.0, 28.0)
 	)
 	_selection_label = _make_label(
-		feedback_panel, Vector2(6.0, 2.0), Vector2(380.0, 17.0), 10
+		feedback_panel, Vector2(5.0, 2.0), Vector2(210.0, 15.0), 8
 	)
 	_selection_label.add_theme_color_override("font_color", UiSkin.TEXT_ACCENT)
 	_selection_label.text = Localized.resolve("ui.hud.selection.none")
 	_message_label = _make_label(
-		feedback_panel, Vector2(6.0, 19.0), Vector2(380.0, 30.0), 10
+		feedback_panel, Vector2(5.0, 15.0), Vector2(210.0, 12.0), 8
 	)
 	_message_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	_message_label.text = Localized.resolve("ui.hud.intro")
 
+	_add_ui_texture("status_heart.png", Vector2(10, 299), Vector2(18, 18))
+	_add_ui_texture("status_energy.png", Vector2(10, 324), Vector2(18, 18))
+	# Player health and stamina are not yet part of the simulation. Keep the
+	# authored frames visible, but do not imply invented values with fake fills.
+	_add_ui_texture("status_bar_frame.png", Vector2(32, 301), Vector2(138, 14))
+	_add_ui_texture("status_bar_frame.png", Vector2(32, 326), Vector2(138, 14))
+	var health_unknown := _make_label(self, Vector2(32, 301), Vector2(138, 14), 9)
+	health_unknown.text = "—"
+	health_unknown.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	health_unknown.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	var stamina_unknown := _make_label(self, Vector2(32, 326), Vector2(138, 14), 9)
+	stamina_unknown.text = "—"
+	stamina_unknown.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	stamina_unknown.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	_add_ui_texture("hotbar.png", Vector2(201, 294), Vector2(238, 56))
+	for slot_index in range(5):
+		_add_ui_texture(
+			"hotbar_slot_normal.png",
+			Vector2(208 + slot_index * 44, 301),
+			Vector2(42, 42)
+		)
+
 	_construction_palette = (
 		ConstructionPaletteScene.instantiate() as ConstructionPalette
 	)
-	_construction_palette.position = Vector2(8.0, 230.0)
+	_construction_palette.position = Vector2.ZERO
 	_construction_palette.build_mode_toggled.connect(
 		_on_build_mode_toggled
 	)
@@ -204,6 +233,32 @@ func _build_ui() -> void:
 	_crafting_panel.recipe_requested.connect(_on_recipe_pressed)
 	add_child(_crafting_panel)
 	_crafting_panel.hide()
+
+
+func _add_ui_texture(file_name: String, at: Vector2, texture_size: Vector2) -> TextureRect:
+	var texture_rect := TextureRect.new()
+	texture_rect.texture = load("res://assets/sprites/ui/%s" % file_name) as Texture2D
+	texture_rect.position = at
+	texture_rect.size = texture_size
+	texture_rect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	texture_rect.stretch_mode = TextureRect.STRETCH_SCALE
+	texture_rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(texture_rect)
+	return texture_rect
+
+
+func _toggle_tasks_panel() -> void:
+	_tasks_expanded = not _tasks_expanded
+	_tasks_background.texture = load(
+		"res://assets/sprites/ui/tasks_panel_full.png"
+		if _tasks_expanded
+		else "res://assets/sprites/ui/tasks_panel_small.png"
+	) as Texture2D
+	_tasks_background.size = Vector2(210, 88 if _tasks_expanded else 26)
+	_objective_label.visible = _tasks_expanded
+	_tasks_toggle.text = Localized.resolve(
+		"ui.hud.tasks.collapse" if _tasks_expanded else "ui.hud.tasks.expand"
+	)
 
 
 func _make_pixel_panel(at: Vector2, panel_size: Vector2) -> Control:
@@ -232,19 +287,11 @@ func _make_label(parent: Node, at: Vector2, label_size: Vector2, font_size: int)
 
 func _format_inventory() -> String:
 	var inventory: Dictionary = Session.get_inventory()
-	var inventory_key: String = (
-		"ui.hud.inventory_with_tools"
-		if bool(Session.get_flags().get("tools_found", false))
-		else "ui.hud.inventory"
-	)
-	return Localized.resolve(inventory_key, {
+	return Localized.resolve("ui.hud.inventory_brief", {
 		"weight": String.num(Session.get_inventory_weight(), 1),
 		"max_weight": String.num(Session.get_max_carry_weight(), 0),
 		"wood": int(inventory.get(FirstNightContent.WOOD_ID, 0)),
 		"stone": int(inventory.get(FirstNightContent.STONE_ID, 0)),
-		"raw_water": int(inventory.get(FirstNightContent.RAW_WATER_ID, 0)),
-		"boiled_water": int(inventory.get(FirstNightContent.BOILED_WATER_ID, 0)),
-		"food": int(inventory.get(FirstNightContent.FOOD_ID, 0)),
 	})
 
 
