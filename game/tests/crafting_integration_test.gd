@@ -20,7 +20,9 @@ func _run() -> void:
 	await get_tree().process_frame
 	var hud := main.get_node("Hud/HudRoot") as FirstNightHud
 	var palette := hud.get_node("ConstructionPalette") as ConstructionPalette
-	var mode_button := palette.get_node("Margin/Column/ModeButton") as Button
+	var mode_button := palette.get_node(
+		"BuildMenu/Margin/Column/ModeButton"
+	) as Button
 	mode_button.button_pressed = true
 	await get_tree().process_frame
 	_save_screenshot_argument("--hud-screenshot-path=")
