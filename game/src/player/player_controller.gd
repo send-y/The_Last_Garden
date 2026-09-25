@@ -5,6 +5,7 @@ const CharacterVisualScene := preload("res://src/characters/character_visual.gd"
 
 const MOVE_SPEED: float = 118.0
 const MAP_LIMIT: Vector2 = Vector2(1536.0, 1536.0)
+const DEPTH_SORT_FOOT_OFFSET: float = 12.0
 
 var _facing: Vector2 = Vector2.DOWN
 var _walk_time: float = 0.0
@@ -49,6 +50,10 @@ func _physics_process(delta: float) -> void:
 func apply_loaded_position() -> void:
 	position = Session.get_player_position()
 	velocity = Vector2.ZERO
+
+
+func get_depth_sort_y() -> float:
+	return global_position.y + DEPTH_SORT_FOOT_OFFSET
 
 
 func _update_facing(direction: Vector2) -> void:

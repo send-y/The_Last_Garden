@@ -43,6 +43,17 @@ func _ready() -> void:
 	queue_redraw()
 
 
+func _process(_delta: float) -> void:
+	if _player == null:
+		return
+	var player_controller := _player as PlayerController
+	if player_controller == null:
+		return
+	var player_foot_y: float = player_controller.get_depth_sort_y()
+	for interactable: InteractableView in _interactables:
+		interactable.update_boulder_depth_order(player_foot_y)
+
+
 func _sync_dropped_items() -> void:
 	var active_ids: Dictionary = {}
 	for drop_value: Variant in Session.get_world_drops():

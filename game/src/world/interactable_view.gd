@@ -13,6 +13,9 @@ const BOULDER_STAGE_TEXTURES := [
 	preload("res://assets/sprites/resources/rock_3.png"),
 	preload("res://assets/sprites/resources/rock_4.png"),
 ]
+const BOULDER_COLLISION_SIZE: Vector2 = Vector2(64.0, 18.0)
+const BOULDER_COLLISION_OFFSET: Vector2 = Vector2(0.0, 22.0)
+const BOULDER_SORT_LINE_OFFSET: float = BOULDER_COLLISION_OFFSET.y
 
 var object_id: String
 var kind: String
@@ -27,6 +30,8 @@ var _target_position: Vector2
 var _walk_time: float = 0.0
 var _walk_frame: int = 0
 var _physical_body: AnimatableBody2D
+var _selection_collision: CollisionShape2D
+var _blocking_body: StaticBody2D
 
 
 func configure(definition: Dictionary) -> void:
@@ -44,31 +49,48 @@ func configure(definition: Dictionary) -> void:
 	monitoring = false
 	monitorable = true
 
-	var shape := CircleShape2D.new()
-	shape.radius = selection_radius
-	var collision := CollisionShape2D.new()
-	collision.shape = shape
-	add_child(collision)
+	if _selection_collision == null:
+		_selection_collision = CollisionShape2D.new()
+		add_child(_selection_collision)
+	var selection_shape := CircleShape2D.new()
+	selection_shape.radius = selection_radius
+	_selection_collision.shape = selection_shape
 	if kind == "npc":
-		_character_visual = CharacterVisualScene.new()
-		add_child(_character_visual)
-		_physical_body = AnimatableBody2D.new()
-		_physical_body.collision_layer = 0
-		_physical_body.collision_mask = 0
-		var body_shape := CapsuleShape2D.new()
-		body_shape.radius = 6.0
-		body_shape.height = 20.0
-		var body_collision := CollisionShape2D.new()
-		body_collision.position = Vector2(0.0, 2.0)
-		body_collision.shape = body_shape
-		_physical_body.add_child(body_collision)
-		add_child(_physical_body)
-		_physical_body.top_level = true
+		if _character_visual == null:
+			_character_visual = CharacterVisualScene.new()
+			add_child(_character_visual)
+		if _physical_body == null:
+			_physical_body = AnimatableBody2D.new()
+			_physical_body.collision_layer = 0
+			_physical_body.collision_mask = 0
+			var body_shape := CapsuleShape2D.new()
+			body_shape.radius = 6.0
+			body_shape.height = 20.0
+			var body_collision := CollisionShape2D.new()
+			body_collision.position = Vector2(0.0, 2.0)
+			body_collision.shape = body_shape
+			_physical_body.add_child(body_collision)
+			add_child(_physical_body)
+			_physical_body.top_level = true
 		_sync_physical_body()
 		set_physics_process(true)
+	elif presentation_id == "surface_boulder":
+		if _blocking_body == null:
+			_blocking_body = StaticBody2D.new()
+			_blocking_body.collision_layer = 2
+			_blocking_body.collision_mask = 0
+			var obstacle_shape := RectangleShape2D.new()
+			obstacle_shape.size = BOULDER_COLLISION_SIZE
+			var obstacle_collision := CollisionShape2D.new()
+			obstacle_collision.position = BOULDER_COLLISION_OFFSET
+			obstacle_collision.shape = obstacle_shape
+			_blocking_body.add_child(obstacle_collision)
+			add_child(_blocking_body)
+		set_physics_process(false)
 	else:
 		set_physics_process(false)
 	refresh_from_state(true)
+	queue_redraw()
 
 
 func _physics_process(delta: float) -> void:
@@ -115,6 +137,8 @@ func refresh_from_state(snap: bool = false) -> void:
 		return
 
 	visible = not Session.should_hide_interactable(object_id, kind)
+	if _blocking_body != null:
+		_blocking_body.collision_layer = 2 if visible else 0
 	queue_redraw()
 
 
@@ -159,6 +183,13 @@ func set_selected(value: bool) -> void:
 
 func contains_world_point(world_point: Vector2) -> bool:
 	return visible and global_position.distance_to(world_point) <= selection_radius
+
+
+func update_boulder_depth_order(player_foot_y: float) -> void:
+	if presentation_id != "surface_boulder":
+		return
+	var boulder_sort_y: float = global_position.y + BOULDER_SORT_LINE_OFFSET
+	z_index = -1 if player_foot_y > boulder_sort_y else 1
 
 
 func _draw() -> void:
