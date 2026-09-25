@@ -64,7 +64,7 @@ func _run() -> void:
 	if (
 		shape == null
 		or shape.size != Vector2(64.0, 18.0)
-		or collision.position != Vector2(0.0, 22.0)
+		or collision.position != InteractableView.BOULDER_COLLISION_OFFSET
 	):
 		_fail("boulder blocker must use the shallow lower hitbox")
 		return
@@ -73,7 +73,9 @@ func _run() -> void:
 	point_parameters.collision_mask = 2
 	point_parameters.collide_with_areas = false
 	point_parameters.collide_with_bodies = true
-	point_parameters.position = boulder.global_position + Vector2(0.0, 22.0)
+	point_parameters.position = (
+		boulder.global_position + InteractableView.BOULDER_COLLISION_OFFSET
+	)
 	var blocker_hits: Array[Dictionary] = (
 		main.get_world_2d().direct_space_state.intersect_point(point_parameters)
 	)
@@ -91,7 +93,11 @@ func _run() -> void:
 		_fail("world refresh duplicated the boulder view")
 		return
 
-	boulder.update_boulder_depth_order(boulder.global_position.y + 21.0)
+	boulder.update_boulder_depth_order(
+		boulder.global_position.y
+			+ InteractableView.BOULDER_SORT_LINE_OFFSET
+			- 1.0
+	)
 	if (
 		boulder.z_as_relative
 		or boulder.z_index != PlayerController.DEPTH_SORT_Z_INDEX + 1
@@ -99,7 +105,11 @@ func _run() -> void:
 	):
 		_fail("boulder should draw in front when player passes above")
 		return
-	boulder.update_boulder_depth_order(boulder.global_position.y + 23.0)
+	boulder.update_boulder_depth_order(
+		boulder.global_position.y
+			+ InteractableView.BOULDER_SORT_LINE_OFFSET
+			+ 1.0
+	)
 	if boulder.z_index != PlayerController.DEPTH_SORT_Z_INDEX - 1:
 		_fail("player should draw in front when passing below")
 		return

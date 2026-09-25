@@ -14,7 +14,7 @@ const BOULDER_STAGE_TEXTURES := [
 	preload("res://assets/sprites/resources/rock_4.png"),
 ]
 const BOULDER_COLLISION_SIZE: Vector2 = Vector2(64.0, 18.0)
-const BOULDER_COLLISION_OFFSET: Vector2 = Vector2(0.0, 22.0)
+const BOULDER_COLLISION_OFFSET: Vector2 = Vector2(0.0, 12.0)
 const BOULDER_SORT_LINE_OFFSET: float = BOULDER_COLLISION_OFFSET.y
 
 var object_id: String
