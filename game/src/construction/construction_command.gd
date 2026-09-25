@@ -8,15 +8,20 @@ const ACTION_DELIVER_MATERIALS: String = "core:deliver_blueprint_materials"
 const ACTION_WORK_BLUEPRINT: String = "core:work_blueprint"
 const ACTION_COMPLETE_BLUEPRINT: String = "core:complete_blueprint"
 const WOOD_WALL_ID: String = "core:wood_wall"
+const WORKBENCH_ID: String = "core:workbench"
 
 
-static func place_wall_blueprint(cell: Vector2i) -> Dictionary:
+static func place_blueprint(cell: Vector2i, building_id: String) -> Dictionary:
 	return {
 		"actor_id": PLAYER_ACTOR_ID,
 		"action_id": ACTION_PLACE_BLUEPRINT,
-		"building_id": WOOD_WALL_ID,
+		"building_id": building_id,
 		"cell": [cell.x, cell.y],
 	}
+
+
+static func place_wall_blueprint(cell: Vector2i) -> Dictionary:
+	return place_blueprint(cell, WOOD_WALL_ID)
 
 
 static func cancel_blueprint(cell: Vector2i) -> Dictionary:

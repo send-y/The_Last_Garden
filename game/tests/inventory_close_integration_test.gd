@@ -24,8 +24,50 @@ func _ready() -> void:
 	var close_button := panel.get_node(
 		"ContentMargin/ContentColumn/HeaderRow/CloseButton"
 	) as Button
+	var inventory_grid := panel.get_node(
+		"ContentMargin/ContentColumn/GridCenter/InventoryGrid"
+	) as InventoryGrid
 	hud.toggle_inventory()
 	await get_tree().process_frame
+	panel.present(
+		"Рюкзак",
+		"Вес 2.0/24 кг",
+		[
+			{
+				"item_id": "test:wood",
+				"label": "Древесина",
+				"amount": 2,
+				"total_weight": 2.0,
+				"origin": Vector2i.ZERO,
+				"footprint": [Vector2i.ZERO],
+				"icon_path": "",
+			},
+		]
+	)
+	await get_tree().process_frame
+
+	var item_position := (
+		inventory_grid.get_global_rect().position
+		+ Vector2(10.0, 10.0)
+	)
+	_send_mouse_motion(item_position)
+	await get_tree().process_frame
+	_send_mouse_button(item_position, true)
+	await get_tree().process_frame
+	_send_mouse_button(item_position, false)
+	await get_tree().process_frame
+	if not panel.get_details_text().contains("Древесина"):
+		push_error(
+			"Inventory item selection did not update details. "
+			+ "grid_rect=%s item_position=%s hovered=%s details=%s" % [
+				inventory_grid.get_global_rect(),
+				item_position,
+				get_viewport().gui_get_hovered_control(),
+				panel.get_details_text(),
+			]
+		)
+		get_tree().quit(1)
+		return
 
 	var click_position: Vector2 = (
 		close_button.get_global_rect().get_center()
@@ -68,8 +110,8 @@ func _ready() -> void:
 		return
 
 	print(
-		"PASS: inventory close button closes the modal "
-		+ "and preserves an existing pause"
+		"PASS: inventory selection and close button work, "
+		+ "including pause-state preservation"
 	)
 	get_tree().quit(0)
 

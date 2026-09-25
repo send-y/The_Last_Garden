@@ -9,6 +9,16 @@
 	  },
 	  "work_minutes": 12,
 	  "blocks_movement": true
+	},
+	{
+	  "id": "core:workbench",
+	  "label_key": "building.core.workbench.name",
+	  "material_cost": {
+		"core:wood": 2
+	  },
+	  "work_minutes": 18,
+	  "blocks_movement": true,
+	  "station_type": "core:workbench"
 	}
   ]
 }

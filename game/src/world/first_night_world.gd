@@ -4,6 +4,7 @@ extends Node2D
 signal selection_changed(selection: Dictionary)
 signal blueprint_interaction_requested(cell: Vector2i, continuous_work: bool)
 signal resource_interaction_requested(target_id: String, continuous_work: bool)
+signal structure_interaction_requested(cell: Vector2i, continuous_work: bool)
 
 const Catalog := preload("res://src/world/first_night_catalog.gd")
 const Interactable := preload("res://src/world/interactable_view.gd")
@@ -11,6 +12,9 @@ const Content := preload("res://src/content/first_night_content.gd")
 const Localized := preload("res://src/localization/localized_text.gd")
 const BuildingCatalogScript := preload(
 	"res://src/construction/building_catalog.gd"
+)
+const CraftingCatalogScript := preload(
+	"res://src/crafting/crafting_catalog.gd"
 )
 const DroppedItemScene: PackedScene = preload(
 	"res://src/items/dropped_item.tscn"
@@ -22,6 +26,7 @@ var _selected: InteractableView
 var _selected_cell: Vector2i = Vector2i(-1, -1)
 var _content := Content.new()
 var _building_catalog := BuildingCatalogScript.new()
+var _crafting_catalog := CraftingCatalogScript.new()
 
 @onready var _player: CharacterBody2D = get_node("../Player") as CharacterBody2D
 
@@ -158,6 +163,20 @@ func interact_with_selection(continuous_work: bool = false) -> void:
 			return
 		blueprint_interaction_requested.emit(_selected_cell, continuous_work)
 		return
+	var structure: Dictionary = _get_selected_structure()
+	if not structure.is_empty():
+		var building: Dictionary = _building_catalog.get_definition(
+			String(structure.get("building_id", ""))
+		)
+		if String(building.get("station_type", "")).is_empty():
+			Session.notify_player_key("interaction.failure.unsupported_target")
+			return
+		var target_position := Content.cell_center(_selected_cell.x, _selected_cell.y)
+		if _player.global_position.distance_to(target_position) > Catalog.INTERACTION_RANGE:
+			Session.notify_player_key("interaction.failure.too_far")
+			return
+		structure_interaction_requested.emit(_selected_cell, continuous_work)
+		return
 
 	if _selected == null or not is_instance_valid(_selected) or not _selected.visible:
 		Session.notify_player_key("interaction.prompt.select_object")
@@ -208,14 +227,16 @@ func _set_selected(value: InteractableView) -> void:
 	if _selected == null:
 		if _selected_cell.x < 0 or _selected_cell.y < 0:
 			selection_changed.emit({"kind": "none"})
-		elif _get_selected_blueprint().is_empty():
+		elif not _get_selected_blueprint().is_empty():
+			selection_changed.emit(_blueprint_selection_payload())
+		elif not _get_selected_structure().is_empty():
+			selection_changed.emit(_structure_selection_payload())
+		else:
 			selection_changed.emit({
 				"kind": "cell",
 				"x": _selected_cell.x,
 				"y": _selected_cell.y,
 			})
-		else:
-			selection_changed.emit(_blueprint_selection_payload())
 		return
 	_selected.set_selected(true)
 	var in_range: bool = _player.global_position.distance_to(_selected.global_position) <= Catalog.INTERACTION_RANGE
@@ -281,6 +302,49 @@ func _get_selected_blueprint() -> Dictionary:
 		if blueprint.get("cell", []) == [_selected_cell.x, _selected_cell.y]:
 			return blueprint
 	return {}
+
+
+func _get_selected_structure() -> Dictionary:
+	if _selected_cell.x < 0 or _selected_cell.y < 0:
+		return {}
+	for structure_value: Variant in Session.get_structures():
+		if typeof(structure_value) != TYPE_DICTIONARY:
+			continue
+		var structure := structure_value as Dictionary
+		if structure.get("cell", []) == [_selected_cell.x, _selected_cell.y]:
+			return structure
+	return {}
+
+
+func _structure_selection_payload() -> Dictionary:
+	var structure: Dictionary = _get_selected_structure()
+	var building: Dictionary = _building_catalog.get_definition(
+		String(structure.get("building_id", ""))
+	)
+	var status := ""
+	for project_value: Variant in Session.get_crafting_projects():
+		if typeof(project_value) != TYPE_DICTIONARY:
+			continue
+		var project := project_value as Dictionary
+		if project.get("cell", []) != [_selected_cell.x, _selected_cell.y]:
+			continue
+		var recipe := _crafting_catalog.get_definition(String(project.get("recipe_id", "")))
+		status = Localized.resolve("crafting.project.status", {
+			"recipe": Localized.resolve(String(recipe.get("label_key", ""))),
+			"progress": int(project.get("work_progress_minutes", 0)),
+			"required": int(project.get("required_work_minutes", 0)),
+		})
+		break
+	var target_position := Content.cell_center(_selected_cell.x, _selected_cell.y)
+	return {
+		"kind": "structure",
+		"x": _selected_cell.x,
+		"y": _selected_cell.y,
+		"building_id": String(structure.get("building_id", "")),
+		"label": Localized.resolve(String(building.get("label_key", ""))),
+		"status": status,
+		"in_range": _player.global_position.distance_to(target_position) <= Catalog.INTERACTION_RANGE,
+	}
 
 
 func _blueprint_selection_payload() -> Dictionary:

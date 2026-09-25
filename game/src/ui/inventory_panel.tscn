@@ -1,43 +1,86 @@
-[gd_scene format=3 uid="uid://6w0uf3u8ggep"]
+[gd_scene load_steps=4 format=3 uid="uid://6w0uf3u8ggep"]
 
 [ext_resource type="Script" uid="uid://dvgyfuyceckqm" path="res://src/ui/inventory_panel.gd" id="1_1loxd"]
 [ext_resource type="Script" uid="uid://64niakb1ugtx" path="res://src/ui/inventory_grid.gd" id="2_5h7b8"]
 
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_details"]
+bg_color = Color(0.180392, 0.137255, 0.156863, 0.72)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.286275, 0.215686, 0.270588, 1)
+corner_radius_top_left = 2
+corner_radius_top_right = 2
+corner_radius_bottom_right = 2
+corner_radius_bottom_left = 2
+
 [node name="InventoryPanel" type="PanelContainer" unique_id=690515400]
-custom_minimum_size = Vector2(420, 280)
-offset_right = 40.0
-offset_bottom = 40.0
+custom_minimum_size = Vector2(420, 344)
+offset_right = 420.0
+offset_bottom = 344.0
 script = ExtResource("1_1loxd")
 
 [node name="ContentMargin" type="MarginContainer" parent="." unique_id=887105410]
 layout_mode = 2
-theme_override_constants/margin_left = 16
+theme_override_constants/margin_left = 18
 theme_override_constants/margin_top = 12
-theme_override_constants/margin_right = 16
+theme_override_constants/margin_right = 18
 theme_override_constants/margin_bottom = 12
 
 [node name="ContentColumn" type="VBoxContainer" parent="ContentMargin" unique_id=794421566]
 layout_mode = 2
-theme_override_constants/separation = 10
+theme_override_constants/separation = 4
 
 [node name="HeaderRow" type="HBoxContainer" parent="ContentMargin/ContentColumn" unique_id=1325962495]
+custom_minimum_size = Vector2(0, 28)
 layout_mode = 2
 
 [node name="TitleLabel" type="Label" parent="ContentMargin/ContentColumn/HeaderRow" unique_id=1680757117]
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_font_sizes/font_size = 20
+theme_override_colors/font_color = Color(0.937255, 0.886275, 0.811765, 1)
+theme_override_font_sizes/font_size = 18
+vertical_alignment = 1
 
 [node name="CloseButton" type="Button" parent="ContentMargin/ContentColumn/HeaderRow" unique_id=629868418]
-custom_minimum_size = Vector2(32, 32)
+custom_minimum_size = Vector2(28, 28)
 layout_mode = 2
-text = "X"
+
+[node name="TabCenter" type="CenterContainer" parent="ContentMargin/ContentColumn"]
+layout_mode = 2
+
+[node name="TabRow" type="HBoxContainer" parent="ContentMargin/ContentColumn/TabCenter"]
+layout_mode = 2
+theme_override_constants/separation = 2
+
+[node name="Tab1" type="Button" parent="ContentMargin/ContentColumn/TabCenter/TabRow"]
+custom_minimum_size = Vector2(64, 28)
+layout_mode = 2
+toggle_mode = true
+
+[node name="Tab2" type="Button" parent="ContentMargin/ContentColumn/TabCenter/TabRow"]
+custom_minimum_size = Vector2(64, 28)
+layout_mode = 2
+toggle_mode = true
+
+[node name="Tab3" type="Button" parent="ContentMargin/ContentColumn/TabCenter/TabRow"]
+custom_minimum_size = Vector2(64, 28)
+layout_mode = 2
+toggle_mode = true
+
+[node name="Tab4" type="Button" parent="ContentMargin/ContentColumn/TabCenter/TabRow"]
+custom_minimum_size = Vector2(64, 28)
+layout_mode = 2
+toggle_mode = true
 
 [node name="WeightLabel" type="Label" parent="ContentMargin/ContentColumn" unique_id=43410928]
+custom_minimum_size = Vector2(0, 18)
 layout_mode = 2
-
-[node name="HSeparator" type="HSeparator" parent="ContentMargin/ContentColumn" unique_id=462376559]
-layout_mode = 2
+theme_override_colors/font_color = Color(0.937255, 0.886275, 0.811765, 1)
+theme_override_font_sizes/font_size = 11
+horizontal_alignment = 1
+vertical_alignment = 1
 
 [node name="GridCenter" type="CenterContainer" parent="ContentMargin/ContentColumn" unique_id=95995594]
 layout_mode = 2
@@ -46,3 +89,23 @@ size_flags_vertical = 3
 [node name="InventoryGrid" type="Control" parent="ContentMargin/ContentColumn/GridCenter" unique_id=737837864]
 layout_mode = 2
 script = ExtResource("2_5h7b8")
+
+[node name="DetailsPanel" type="PanelContainer" parent="ContentMargin/ContentColumn"]
+custom_minimum_size = Vector2(0, 40)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_details")
+
+[node name="DetailsMargin" type="MarginContainer" parent="ContentMargin/ContentColumn/DetailsPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 8
+theme_override_constants/margin_top = 4
+theme_override_constants/margin_right = 8
+theme_override_constants/margin_bottom = 4
+
+[node name="DetailsLabel" type="Label" parent="ContentMargin/ContentColumn/DetailsPanel/DetailsMargin"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.937255, 0.886275, 0.811765, 1)
+theme_override_font_sizes/font_size = 11
+text = "—"
+vertical_alignment = 1
+autowrap_mode = 2

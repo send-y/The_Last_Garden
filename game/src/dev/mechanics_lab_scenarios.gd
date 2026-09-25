@@ -13,6 +13,7 @@ const PREPARED_EVENING: StringName = &"prepared_evening"
 const MORNING_WITH_MIRA: StringName = &"morning_with_mira"
 const MIRA_RESTING: StringName = &"mira_resting"
 const MIRA_AFTER_SHARED_WALL: StringName = &"mira_after_shared_wall"
+const WORKBENCH_CRAFTING: StringName = &"workbench_crafting"
 const PREPARED_MINUTE: int = 17 * 60 + 50
 
 
@@ -43,6 +44,11 @@ static func definitions() -> Array[Dictionary]:
 			"label": "После совместной стены",
 			"description": "День 2, 07:20. Мира завершила стену и готова вспомнить об этом.",
 		},
+		{
+			"id": WORKBENCH_CRAFTING,
+			"label": "Верстак и первые рецепты",
+			"description": "Готовый верстак рядом с игроком и два бревна в рюкзаке.",
+		},
 	]
 
 
@@ -65,6 +71,15 @@ static func build(scenario_id: StringName) -> Dictionary:
 
 	var simulation: FirstNightSimulation = Simulation.new()
 	var steps: Array[Dictionary] = []
+	if scenario_id == WORKBENCH_CRAFTING:
+		var crafting_state: Dictionary = Simulation.create_new_state()
+		(crafting_state["inventory"] as Dictionary)["core:wood"] = 2
+		(crafting_state["structures"] as Array).append({
+			"building_id": "core:workbench",
+			"cell": [22, 29],
+			"stage_id": "core:complete",
+		})
+		simulation = Simulation.new(crafting_state)
 	if (
 		scenario_id == PREPARED_EVENING
 		or scenario_id == MORNING_WITH_MIRA

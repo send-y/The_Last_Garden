@@ -7,6 +7,9 @@ const Command := preload(
 const Navigation := preload(
 	"res://src/simulation/first_night_navigation.gd"
 )
+const BuildingCatalogScript := preload(
+	"res://src/construction/building_catalog.gd"
+)
 
 
 static func validate_place_blueprint(command: Dictionary) -> Dictionary:
@@ -16,7 +19,9 @@ static func validate_place_blueprint(command: Dictionary) -> Dictionary:
 	if String(command.get("action_id", "")) != Command.ACTION_PLACE_BLUEPRINT:
 		return _failure("core:unsupported_action")
 
-	if String(command.get("building_id", "")) != Command.WOOD_WALL_ID:
+	var building_id: String = String(command.get("building_id", ""))
+	var building_catalog := BuildingCatalogScript.new()
+	if building_catalog.get_definition(building_id).is_empty():
 		return _failure("core:unsupported_building")
 
 	var cell_value: Variant = command.get("cell", [])
@@ -51,7 +56,7 @@ static func validate_place_blueprint(command: Dictionary) -> Dictionary:
 	return {
 		"success": true,
 		"reason_id": "core:ok",
-		"building_id": Command.WOOD_WALL_ID,
+		"building_id": building_id,
 		"cell": [cell.x, cell.y],
 	}
 

@@ -1,0 +1,25 @@
+{
+  "name": "the-last-garden-palette",
+  "displayName": "The Last Garden Palette",
+  "description": "The 54-color core palette and 72-color extended palette for The Last Garden.",
+  "version": "1.1.0",
+  "author": {
+    "name": "The Last Garden Project"
+  },
+  "publisher": "send-y",
+  "categories": [
+    "Palettes"
+  ],
+  "contributes": {
+    "palettes": [
+      {
+        "id": "The Last Garden 54",
+        "path": "./the-last-garden-54.gpl"
+      },
+      {
+        "id": "The Last Garden 72",
+        "path": "./the-last-garden-72.gpl"
+      }
+    ]
+  }
+}

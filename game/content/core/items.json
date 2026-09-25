@@ -18,6 +18,20 @@
 	  "footprint": [[0, 0]]
 	},
 	{
+	  "id": "core:plank",
+	  "label_key": "item.core.plank.name",
+	  "weight": 0.5,
+	  "max_stack": 5,
+	  "footprint": [[0, 0]]
+	},
+	{
+	  "id": "core:firewood",
+	  "label_key": "item.core.firewood.name",
+	  "weight": 0.5,
+	  "max_stack": 5,
+	  "footprint": [[0, 0]]
+	},
+	{
 	  "id": "core:raw_water",
 	  "label_key": "item.core.raw_water.name",
 	  "weight": 1.0,
