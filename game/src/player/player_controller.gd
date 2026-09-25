@@ -2,9 +2,14 @@ class_name PlayerController
 extends CharacterBody2D
 
 const CharacterVisualScene := preload("res://src/characters/character_visual.gd")
+const FirstNightContentScript := preload(
+	"res://src/content/first_night_content.gd"
+)
 
 const MOVE_SPEED: float = 118.0
-const MAP_LIMIT: Vector2 = Vector2(1536.0, 1536.0)
+const MAP_LIMIT: Vector2 = Vector2(
+	FirstNightContentScript.MAP_SIZE * FirstNightContentScript.CELL_SIZE
+)
 const DEPTH_SORT_FOOT_OFFSET: float = 12.0
 const DEPTH_SORT_Z_INDEX: int = 10
 

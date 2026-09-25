@@ -125,27 +125,10 @@ func _refresh_inventory_panel() -> void:
 		placement["label"] = Localized.resolve(
 			_content_data.item_label_key(item_id)
 		)
-		placement["total_weight"] = (
-			_content_data.item_weight(item_id)
-			* int(placement.get("amount", 1))
-		)
 		placements.append(placement)
 
 	_inventory_panel.present(
 		Localized.resolve("ui.inventory.title"),
-		Localized.resolve(
-			"ui.inventory.weight",
-			{
-				"weight": String.num(
-					Session.get_inventory_weight(),
-					1
-				),
-				"max_weight": String.num(
-					Session.get_max_carry_weight(),
-					0
-				),
-			}
-		),
 		placements
 	)
 
@@ -288,8 +271,6 @@ func _make_label(parent: Node, at: Vector2, label_size: Vector2, font_size: int)
 func _format_inventory() -> String:
 	var inventory: Dictionary = Session.get_inventory()
 	return Localized.resolve("ui.hud.inventory_brief", {
-		"weight": String.num(Session.get_inventory_weight(), 1),
-		"max_weight": String.num(Session.get_max_carry_weight(), 0),
 		"wood": int(inventory.get(FirstNightContent.WOOD_ID, 0)),
 		"stone": int(inventory.get(FirstNightContent.STONE_ID, 0)),
 	})

@@ -5,59 +5,160 @@ const FirstNightContent := preload(
 	"res://src/content/first_night_content.gd"
 )
 
-const BOULDER_COUNT_MIN: int = 13
-const BOULDER_COUNT_MAX: int = 15
+const BOULDER_COUNT_MIN: int = 30
+const BOULDER_COUNT_MAX: int = 35
+const TREE_COUNT_MIN: int = 40
+const TREE_COUNT_MAX: int = 45
+const BOULDER_GROUP_MIN: int = 1
+const BOULDER_GROUP_MAX: int = 3
+const TREE_GROUP_MIN: int = 3
+const TREE_GROUP_MAX: int = 6
 const FIRST_CELL: int = 2
-const LAST_CELL: int = 45
-const BOULDER_SPACING: float = 96.0
-const STATIC_OBJECT_CLEARANCE: float = 78.0
-const MAX_PLACEMENT_ATTEMPTS: int = 4096
+const STATIC_OBJECT_CLEARANCE: float = 96.0
+const MAX_PLACEMENT_ATTEMPTS: int = 8192
+const CLUSTER_SPREAD_CELLS: int = 3
+const CLUSTER_SEPARATION_CELLS: int = 7
 
 
 static func generate_surface_boulders(world_seed: int) -> Array[Dictionary]:
 	var rng := RandomNumberGenerator.new()
 	rng.seed = world_seed ^ 0x5EEDB0
-	var target_count: int = rng.randi_range(
+	var target_count := rng.randi_range(
 		BOULDER_COUNT_MIN,
 		BOULDER_COUNT_MAX
 	)
-	var content := FirstNightContent.new()
-	var static_objects: Array[Dictionary] = content.interactables()
-	var result: Array[Dictionary] = []
-	var positions: Array[Vector2] = []
-	var attempts: int = 0
+	return _generate_clustered_nodes(
+		rng,
+		target_count,
+		BOULDER_GROUP_MIN,
+		BOULDER_GROUP_MAX,
+		"boulder",
+		FirstNightContent.new().interactables(),
+		[]
+	)
 
+
+static func generate_surface_trees(
+	world_seed: int,
+	boulders: Array[Dictionary]
+) -> Array[Dictionary]:
+	var rng := RandomNumberGenerator.new()
+	rng.seed = world_seed ^ 0x7EE5
+	var target_count := rng.randi_range(TREE_COUNT_MIN, TREE_COUNT_MAX)
+	var occupied: Array[Vector2] = []
+	for boulder: Dictionary in boulders:
+		occupied.append(_position_from_node(boulder))
+	return _generate_clustered_nodes(
+		rng,
+		target_count,
+		TREE_GROUP_MIN,
+		TREE_GROUP_MAX,
+		"tree",
+		FirstNightContent.new().interactables(),
+		occupied
+	)
+
+
+static func _generate_clustered_nodes(
+	rng: RandomNumberGenerator,
+	target_count: int,
+	group_min: int,
+	group_max: int,
+	kind: String,
+	static_objects: Array[Dictionary],
+	initial_occupied_positions: Array[Vector2]
+) -> Array[Dictionary]:
+	var result: Array[Dictionary] = []
+	var occupied_positions := initial_occupied_positions.duplicate()
+	var occupied_cells: Dictionary = {}
+	var cluster_centers: Array[Vector2i] = []
+	var target_cell_max: int = mini(
+		FirstNightContent.MAP_SIZE.x,
+		FirstNightContent.MAP_SIZE.y
+	) - FIRST_CELL - 1
+	var attempts: int = 0
 	while result.size() < target_count and attempts < MAX_PLACEMENT_ATTEMPTS:
 		attempts += 1
-		var cell := Vector2i(
-			rng.randi_range(FIRST_CELL, LAST_CELL),
-			rng.randi_range(FIRST_CELL, LAST_CELL)
+		var center := Vector2i(
+			rng.randi_range(FIRST_CELL, target_cell_max),
+			rng.randi_range(FIRST_CELL, target_cell_max)
 		)
-		if is_reserved_cell(cell):
+		if is_reserved_cell(center):
 			continue
-
-		var position: Vector2 = FirstNightContent.cell_center(
-			cell.x,
-			cell.y
-		)
-		if _is_near_static_object(position, static_objects):
+		if _is_near_cluster(center, cluster_centers):
 			continue
-		if _is_near_boulder(position, positions):
+		var center_position := FirstNightContent.cell_center(center.x, center.y)
+		if _is_near_static_object(center_position, static_objects):
 			continue
-
-		var index: int = result.size() + 1
-		result.append(make_surface_boulder(index, cell))
-		positions.append(position)
-
+		if _is_near_position(center_position, occupied_positions, 64.0):
+			continue
+		cluster_centers.append(center)
+		var remaining := target_count - result.size()
+		var group_size := mini(remaining, rng.randi_range(group_min, group_max))
+		var placed_in_cluster := 0
+		var cluster_attempts := 0
+		while placed_in_cluster < group_size and cluster_attempts < 80:
+			cluster_attempts += 1
+			var cell := center + Vector2i(
+				rng.randi_range(-CLUSTER_SPREAD_CELLS, CLUSTER_SPREAD_CELLS),
+				rng.randi_range(-CLUSTER_SPREAD_CELLS, CLUSTER_SPREAD_CELLS)
+			)
+			if (
+				cell.x < FIRST_CELL
+				or cell.y < FIRST_CELL
+				or cell.x > target_cell_max
+				or cell.y > target_cell_max
+				or is_reserved_cell(cell)
+			):
+				continue
+			var cell_key := "%d,%d" % [cell.x, cell.y]
+			if occupied_cells.has(cell_key):
+				continue
+			var position := FirstNightContent.cell_center(cell.x, cell.y)
+			if _is_near_static_object(position, static_objects):
+				continue
+			if _is_near_position(position, initial_occupied_positions, 64.0):
+				continue
+			if _is_near_position(position, occupied_positions, 34.0):
+				continue
+			occupied_cells[cell_key] = true
+			occupied_positions.append(position)
+			var index := result.size() + 1
+			if kind == "boulder":
+				result.append(make_surface_boulder(index, cell, rng.randi_range(9, 12)))
+			else:
+				result.append(make_surface_tree(index, cell, rng.randi_range(12, 13)))
+			placed_in_cluster += 1
 	return result
 
 
-static func make_surface_boulder(index: int, cell: Vector2i) -> Dictionary:
+static func make_surface_boulder(
+	index: int,
+	cell: Vector2i,
+	yield_amount: int = 9
+) -> Dictionary:
 	return {
 		"id": "core:surface_boulder_%02d" % index,
 		"kind": "stone",
 		"label_key": "object.core.surface_boulder.name",
 		"cell": [cell.x, cell.y],
+		"yield_amount": yield_amount,
+	}
+
+
+static func make_surface_tree(
+	index: int,
+	cell: Vector2i,
+	yield_amount: int = 12,
+	stage_id: String = "tree"
+) -> Dictionary:
+	return {
+		"id": "core:surface_tree_%02d" % index,
+		"kind": "wood",
+		"label_key": "object.core.surface_tree.name",
+		"cell": [cell.x, cell.y],
+		"yield_amount": yield_amount,
+		"stage_id": stage_id,
 	}
 
 
@@ -68,18 +169,35 @@ static func to_interactable(definition: Dictionary) -> Dictionary:
 	var cell := cell_value as Array
 	if typeof(cell[0]) != TYPE_INT or typeof(cell[1]) != TYPE_INT:
 		return {}
+	var is_tree := String(definition.get("kind", "stone")) == "wood"
+	var stage_id := String(definition.get("stage_id", "tree"))
 	return {
 		"id": String(definition.get("id", "")),
-		"kind": "stone",
-		"label_key": "object.core.surface_boulder.name",
-		"position": FirstNightContent.cell_center(
-			int(cell[0]),
-			int(cell[1])
+		"kind": "wood" if is_tree else "stone",
+		"label_key": String(definition.get(
+			"label_key",
+			"object.core.surface_tree.name" if is_tree else "object.core.surface_boulder.name"
+		)),
+		"position": FirstNightContent.cell_center(int(cell[0]), int(cell[1])),
+		"color": Color("626a6b" if not is_tree else "456342"),
+		"size": Vector2(64.0, 64.0) if not is_tree else Vector2(72.0, 88.0),
+		"yield_amount": int(definition.get("yield_amount", 9 if not is_tree else 12)),
+		"stage_id": stage_id,
+		"presentation_id": (
+			"surface_stump" if is_tree and stage_id == "stump"
+			else "surface_tree" if is_tree
+			else "surface_boulder"
 		),
-		"color": Color("626a6b"),
-		"size": Vector2(64.0, 64.0),
-		"presentation_id": "surface_boulder",
 	}
+
+
+static func position_in_bounds(cell: Vector2i) -> bool:
+	return (
+		cell.x >= FIRST_CELL
+		and cell.y >= FIRST_CELL
+		and cell.x < FirstNightContent.MAP_SIZE.x - FIRST_CELL
+		and cell.y < FirstNightContent.MAP_SIZE.y - FIRST_CELL
+	)
 
 
 static func is_reserved_cell(cell: Vector2i) -> bool:
@@ -95,25 +213,41 @@ static func is_reserved_cell(cell: Vector2i) -> bool:
 	return false
 
 
+static func _position_from_node(node: Dictionary) -> Vector2:
+	var cell_value: Variant = node.get("cell", [])
+	if typeof(cell_value) != TYPE_ARRAY or (cell_value as Array).size() < 2:
+		return Vector2.ZERO
+	var cell := cell_value as Array
+	return FirstNightContent.cell_center(int(cell[0]), int(cell[1]))
+
+
+static func _is_near_cluster(
+	cell: Vector2i,
+	centers: Array[Vector2i]
+) -> bool:
+	for center: Vector2i in centers:
+		if Vector2(cell).distance_to(Vector2(center)) < CLUSTER_SEPARATION_CELLS:
+			return true
+	return false
+
+
 static func _is_near_static_object(
 	position: Vector2,
 	static_objects: Array[Dictionary]
 ) -> bool:
 	for object: Dictionary in static_objects:
-		var object_position: Vector2 = object.get(
-			"position",
-			Vector2.ZERO
-		) as Vector2
+		var object_position: Vector2 = object.get("position", Vector2.ZERO) as Vector2
 		if position.distance_to(object_position) < STATIC_OBJECT_CLEARANCE:
 			return true
 	return false
 
 
-static func _is_near_boulder(
+static func _is_near_position(
 	position: Vector2,
-	other_positions: Array[Vector2]
+	other_positions: Array[Vector2],
+	clearance: float
 ) -> bool:
 	for other_position: Vector2 in other_positions:
-		if position.distance_to(other_position) < BOULDER_SPACING:
+		if position.distance_to(other_position) < clearance:
 			return true
 	return false

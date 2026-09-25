@@ -36,13 +36,12 @@ const ResourceNodeCatalogScript := preload(
 	"res://src/content/resource_node_catalog.gd"
 )
 
-const SAVE_VERSION: int = 14
+const SAVE_VERSION: int = 15
 const DEFAULT_SEED: int = 247061
 const START_MINUTE: int = 11 * 60
 const EVENING_MINUTE: int = 18 * 60
 const LATEST_MINUTE: int = 23 * 60 + 50
 const GAME_MINUTES_PER_SECOND: float = 0.75
-const MAX_CARRY_WEIGHT: float = 24.0
 const PLAYER_ACTOR_ID: String = "core:player"
 const ACTION_INTERACT: String = "core:interact"
 const OUTCOME_DRY_ROOM_ID: String = "core:dry_room"
@@ -110,6 +109,9 @@ func _init(initial_state: Dictionary = {}) -> void:
 static func create_new_state(seed_value: int = DEFAULT_SEED) -> Dictionary:
 	var content_data: FirstNightContent = Content.new()
 	var npc_data := Npcs.new()
+	var boulders: Array[Dictionary] = (
+		ResourceNodeCatalogScript.generate_surface_boulders(seed_value)
+	)
 	return {
 		"version": SAVE_VERSION,
 		"seed": seed_value,
@@ -117,8 +119,10 @@ static func create_new_state(seed_value: int = DEFAULT_SEED) -> Dictionary:
 		"minute_of_day": START_MINUTE,
 		"player_position": [784.0, 944.0],
 		"inventory": content_data.create_empty_inventory(),
-		"resource_nodes": ResourceNodeCatalogScript.generate_surface_boulders(
-			seed_value
+		"resource_nodes": boulders,
+		"tree_nodes": ResourceNodeCatalogScript.generate_surface_trees(
+			seed_value,
+			boulders
 		),
 		"collected": {},
 		"resource_work": {},
@@ -297,10 +301,15 @@ func execute_resource_work(
 
 	var kind: String = String(target.get("kind", ""))
 	var rule: Dictionary = content.get_collect_rule(kind)
+	var presentation_id := String(target.get("presentation_id", ""))
 	var required_work: int = maxi(
 		0,
 		int(rule.get("work_minutes", 0))
 	)
+	if presentation_id == "surface_tree":
+		required_work = 8
+	elif presentation_id == "surface_stump":
+		required_work = 4
 
 	if required_work <= 0:
 		return {
@@ -348,6 +357,13 @@ func execute_resource_work(
 
 	if next_work < required_work:
 		resource_work[normalized_id] = next_work
+		var pinecone_drop_ids: Array[String] = []
+		if presentation_id == "surface_tree":
+			pinecone_drop_ids = _maybe_drop_pinecone(
+				normalized_id,
+				next_work,
+				target_position
+			)
 		event_emitted.emit({"type": "state_changed"})
 
 		return {
@@ -357,14 +373,27 @@ func execute_resource_work(
 			"target_id": normalized_id,
 			"work_progress_minutes": next_work,
 			"required_work_minutes": required_work,
+			"created_drop_ids": pinecone_drop_ids,
 		}
 
 	resource_work.erase(normalized_id)
 
 	var collected: Dictionary = state["collected"] as Dictionary
-	collected[normalized_id] = true
+	var tree_node: Dictionary = _get_tree_node(normalized_id)
+	if presentation_id == "surface_tree":
+		_update_tree_stage(normalized_id, "stump")
+	elif not tree_node.is_empty():
+		collected[normalized_id] = true
+	else:
+		collected[normalized_id] = true
 	var drop_item_id: String = String(rule.get("item_id", ""))
 	var drop_amount: int = maxi(0, int(rule.get("amount", 0)))
+	if not tree_node.is_empty():
+		drop_amount = int(tree_node.get("yield_amount", drop_amount))
+	if presentation_id == "surface_stump":
+		drop_amount = 0
+	if presentation_id == "surface_boulder":
+		drop_amount = int(target.get("yield_amount", drop_amount))
 	var drop_origin: Vector2 = target_position
 	if String(target.get("presentation_id", "")) == "surface_boulder":
 		drop_origin += Vector2(0.0, 40.0)
@@ -374,6 +403,12 @@ func execute_resource_work(
 		drop_amount,
 		drop_origin
 	)
+	if presentation_id == "surface_tree":
+		created_drop_ids.append_array(_maybe_drop_pinecone(
+			normalized_id,
+			next_work,
+			drop_origin
+		))
 
 	event_emitted.emit({"type": "state_changed"})
 
@@ -389,6 +424,27 @@ func execute_resource_work(
 		"drop_origin": drop_origin,
 		"created_drop_ids": created_drop_ids,
 	}
+
+
+func _maybe_drop_pinecone(
+	tree_id: String,
+	work_step: int,
+	origin: Vector2
+) -> Array[String]:
+	var rng := RandomNumberGenerator.new()
+	rng.seed = (
+		int(state.get("seed", DEFAULT_SEED))
+		^ int(tree_id.hash())
+		^ (work_step * 0x45D9F3B)
+	)
+	if rng.randf() >= 0.15:
+		return []
+	return _create_resource_drops(
+		tree_id,
+		"core:pinecone",
+		1,
+		origin
+	)
 
 
 func _create_resource_drops(
@@ -1356,6 +1412,19 @@ func get_surface_boulders() -> Array[Dictionary]:
 	return result
 
 
+func get_surface_trees() -> Array[Dictionary]:
+	var result: Array[Dictionary] = []
+	for node_value: Variant in state.get("tree_nodes", []) as Array:
+		if typeof(node_value) != TYPE_DICTIONARY:
+			continue
+		var interactable := ResourceNodeCatalogScript.to_interactable(
+			node_value as Dictionary
+		)
+		if not interactable.is_empty():
+			result.append(interactable)
+	return result
+
+
 func try_pickup_world_drop(drop_id: String) -> Dictionary:
 	var drops: Array = state["world_drops"] as Array
 	var drop_index: int = -1
@@ -1433,6 +1502,11 @@ func get_resource_work_required(object_id: String) -> int:
 		return 0
 
 	var kind: String = String(target.get("kind", ""))
+	var presentation_id := String(target.get("presentation_id", ""))
+	if presentation_id == "surface_tree":
+		return 8
+	if presentation_id == "surface_stump":
+		return 4
 	var rule: Dictionary = content.get_collect_rule(kind)
 	return maxi(0, int(rule.get("work_minutes", 0)))
 
@@ -1471,15 +1545,6 @@ func get_npcs() -> Dictionary:
 
 func get_item_count(item_id: String) -> int:
 	return int(get_inventory().get(content.normalize_item_id(item_id), 0))
-
-
-func get_inventory_weight() -> float:
-	var total: float = 0.0
-	var inventory: Dictionary = get_inventory()
-	for item_variant: Variant in inventory.keys():
-		var item_id: String = String(item_variant)
-		total += float(inventory[item_id]) * content.item_weight(item_id)
-	return total
 
 
 func get_day() -> int:
@@ -1633,6 +1698,12 @@ func _resolve_interaction_target(target_id: String) -> Dictionary:
 		var node := node_value as Dictionary
 		if String(node.get("id", "")) == target_id:
 			return ResourceNodeCatalogScript.to_interactable(node)
+	for node_value: Variant in state.get("tree_nodes", []) as Array:
+		if typeof(node_value) != TYPE_DICTIONARY:
+			continue
+		var node := node_value as Dictionary
+		if String(node.get("id", "")) == target_id:
+			return ResourceNodeCatalogScript.to_interactable(node)
 
 	if npc_catalog.get_definition(target_id).is_empty() or not get_npcs().has(target_id):
 		return {}
@@ -1709,7 +1780,7 @@ func _collect_resource(object_id: String, kind: String) -> Dictionary:
 	if not _can_add_item(item_id, amount):
 		return _emit_result(
 			false,
-			String(rule.get("full_message_key", "first_night.inventory.too_heavy"))
+			String(rule.get("full_message_key", "first_night.inventory.no_space"))
 		)
 
 	if not repeatable:
@@ -1944,16 +2015,6 @@ func _sleep_until_morning() -> Dictionary:
 
 func _can_add_item(item_id: String, amount: int) -> bool:
 	var normalized_id: String = content.normalize_item_id(item_id)
-	var added_weight: float = (
-		content.item_weight(normalized_id) * float(amount)
-	)
-
-	if (
-		get_inventory_weight() + added_weight
-		> MAX_CARRY_WEIGHT + 0.001
-	):
-		return false
-
 	var candidate_inventory: Dictionary = get_inventory()
 	candidate_inventory[normalized_id] = (
 		int(candidate_inventory.get(normalized_id, 0)) + amount
@@ -2041,6 +2102,11 @@ func _normalize_state() -> void:
 		state.get("resource_nodes", defaults["resource_nodes"]),
 		seed_value
 	)
+	state["tree_nodes"] = _normalize_tree_nodes(
+		state.get("tree_nodes", defaults["tree_nodes"]),
+		seed_value,
+		state["resource_nodes"] as Array
+	)
 	state["collected"] = content.normalize_collected(_as_dictionary(state.get("collected")))
 	state["resource_work"] = _normalize_resource_work(state.get("resource_work", {}))
 	state["world_drops"] = _normalize_world_drops(
@@ -2122,10 +2188,15 @@ func _normalize_resource_work(
 
 		var kind: String = String(target.get("kind", ""))
 		var rule: Dictionary = content.get_collect_rule(kind)
+		var presentation_id := String(target.get("presentation_id", ""))
 		var required: int = maxi(
 			0,
 			int(rule.get("work_minutes", 0))
 		)
+		if presentation_id == "surface_tree":
+			required = 8
+		elif presentation_id == "surface_stump":
+			required = 4
 
 		if required <= 0:
 			continue
@@ -2177,10 +2248,7 @@ func _normalize_resource_nodes(
 			return generated
 		var cell_position := Vector2i(int(cell[0]), int(cell[1]))
 		if (
-			cell_position.x < ResourceNodeCatalogScript.FIRST_CELL
-			or cell_position.x > ResourceNodeCatalogScript.LAST_CELL
-			or cell_position.y < ResourceNodeCatalogScript.FIRST_CELL
-			or cell_position.y > ResourceNodeCatalogScript.LAST_CELL
+		not ResourceNodeCatalogScript.position_in_bounds(cell_position)
 			or ResourceNodeCatalogScript.is_reserved_cell(cell_position)
 		):
 			return generated
@@ -2191,10 +2259,90 @@ func _normalize_resource_nodes(
 		normalized.append(
 			ResourceNodeCatalogScript.make_surface_boulder(
 				index + 1,
-				cell_position
+				cell_position,
+				clampi(_safe_int(node.get("yield_amount"), 9), 9, 12)
 			)
 		)
 	return normalized
+
+
+func _normalize_tree_nodes(
+	value: Variant,
+	world_seed: int,
+	boulders: Array
+) -> Array[Dictionary]:
+	var generated := ResourceNodeCatalogScript.generate_surface_trees(
+		world_seed,
+		boulders
+	)
+	if typeof(value) != TYPE_ARRAY:
+		return generated
+	var raw_nodes := value as Array
+	if (
+		raw_nodes.size() < ResourceNodeCatalogScript.TREE_COUNT_MIN
+		or raw_nodes.size() > ResourceNodeCatalogScript.TREE_COUNT_MAX
+	):
+		return generated
+	var normalized: Array[Dictionary] = []
+	var seen_cells: Dictionary = {}
+	for index: int in range(raw_nodes.size()):
+		if typeof(raw_nodes[index]) != TYPE_DICTIONARY:
+			return generated
+		var node := raw_nodes[index] as Dictionary
+		var expected_id := "core:surface_tree_%02d" % (index + 1)
+		var cell_value: Variant = node.get("cell", [])
+		if (
+			String(node.get("id", "")) != expected_id
+			or typeof(cell_value) != TYPE_ARRAY
+			or (cell_value as Array).size() != 2
+		):
+			return generated
+		var cell := cell_value as Array
+		if typeof(cell[0]) != TYPE_INT or typeof(cell[1]) != TYPE_INT:
+			return generated
+		var cell_position := Vector2i(int(cell[0]), int(cell[1]))
+		if (
+			not ResourceNodeCatalogScript.position_in_bounds(cell_position)
+			or ResourceNodeCatalogScript.is_reserved_cell(cell_position)
+		):
+			return generated
+		var cell_key := "%d,%d" % [cell_position.x, cell_position.y]
+		if seen_cells.has(cell_key):
+			return generated
+		seen_cells[cell_key] = true
+		var stage_id := String(node.get("stage_id", "tree"))
+		if stage_id != "tree" and stage_id != "stump":
+			return generated
+		normalized.append(ResourceNodeCatalogScript.make_surface_tree(
+			index + 1,
+			cell_position,
+			clampi(_safe_int(node.get("yield_amount"), 12), 12, 13),
+			stage_id
+		))
+	return normalized
+
+
+func _get_tree_node(node_id: String) -> Dictionary:
+	for node_value: Variant in state.get("tree_nodes", []) as Array:
+		if typeof(node_value) != TYPE_DICTIONARY:
+			continue
+		var node := node_value as Dictionary
+		if String(node.get("id", "")) == node_id:
+			return node
+	return {}
+
+
+func _update_tree_stage(node_id: String, stage_id: String) -> void:
+	var nodes: Array = state.get("tree_nodes", []) as Array
+	for index: int in range(nodes.size()):
+		if typeof(nodes[index]) != TYPE_DICTIONARY:
+			continue
+		var node := (nodes[index] as Dictionary).duplicate(true)
+		if String(node.get("id", "")) != node_id:
+			continue
+		node["stage_id"] = stage_id
+		nodes[index] = node
+		return
 
 
 func _normalize_world_drops(value: Variant) -> Array[Dictionary]:

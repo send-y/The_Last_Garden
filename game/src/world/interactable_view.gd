@@ -13,6 +13,7 @@ const BOULDER_STAGE_TEXTURES := [
 	preload("res://assets/sprites/resources/rock_3.png"),
 	preload("res://assets/sprites/resources/rock_4.png"),
 ]
+const TREE_TEXTURE := preload("res://assets/sprites/world/tree_1.png")
 const BOULDER_COLLISION_SIZE: Vector2 = Vector2(64.0, 18.0)
 const BOULDER_COLLISION_OFFSET: Vector2 = Vector2(0.0, 12.0)
 const BOULDER_SORT_LINE_OFFSET: float = BOULDER_COLLISION_OFFSET.y
@@ -48,6 +49,8 @@ func configure(definition: Dictionary) -> void:
 	collision_mask = 0
 	monitoring = false
 	monitorable = true
+	if presentation_id == "surface_stump" and _blocking_body != null:
+		_blocking_body.collision_layer = 0
 
 	if _selection_collision == null:
 		_selection_collision = CollisionShape2D.new()
@@ -84,6 +87,20 @@ func configure(definition: Dictionary) -> void:
 			obstacle_shape.size = BOULDER_COLLISION_SIZE
 			var obstacle_collision := CollisionShape2D.new()
 			obstacle_collision.position = BOULDER_COLLISION_OFFSET
+			obstacle_collision.shape = obstacle_shape
+			_blocking_body.add_child(obstacle_collision)
+			add_child(_blocking_body)
+		set_physics_process(false)
+	elif presentation_id == "surface_tree":
+		z_as_relative = false
+		if _blocking_body == null:
+			_blocking_body = StaticBody2D.new()
+			_blocking_body.collision_layer = 2
+			_blocking_body.collision_mask = 0
+			var obstacle_shape := RectangleShape2D.new()
+			obstacle_shape.size = Vector2(16.0, 18.0)
+			var obstacle_collision := CollisionShape2D.new()
+			obstacle_collision.position = Vector2(0.0, 20.0)
 			obstacle_collision.shape = obstacle_shape
 			_blocking_body.add_child(obstacle_collision)
 			add_child(_blocking_body)
@@ -139,7 +156,11 @@ func refresh_from_state(snap: bool = false) -> void:
 
 	visible = not Session.should_hide_interactable(object_id, kind)
 	if _blocking_body != null:
-		_blocking_body.collision_layer = 2 if visible else 0
+		_blocking_body.collision_layer = (
+			2
+			if visible and presentation_id != "surface_stump"
+			else 0
+		)
 	queue_redraw()
 
 
@@ -187,9 +208,15 @@ func contains_world_point(world_point: Vector2) -> bool:
 
 
 func update_boulder_depth_order(player_foot_y: float) -> void:
-	if presentation_id != "surface_boulder":
+	if (
+		presentation_id != "surface_boulder"
+		and presentation_id != "surface_tree"
+	):
 		return
-	var boulder_sort_y: float = global_position.y + BOULDER_SORT_LINE_OFFSET
+	var sort_offset := BOULDER_SORT_LINE_OFFSET
+	if presentation_id == "surface_tree":
+		sort_offset = 20.0
+	var boulder_sort_y: float = global_position.y + sort_offset
 	z_index = (
 		PlayerController.DEPTH_SORT_Z_INDEX - 1
 		if player_foot_y > boulder_sort_y
@@ -208,6 +235,22 @@ func _draw() -> void:
 		return
 	if presentation_id == "surface_boulder":
 		_draw_surface_boulder()
+		if _is_selected:
+			draw_rect(rect.grow(4.0), Color("f1d66b"), false, 2.0)
+		return
+	if presentation_id == "surface_tree":
+		draw_texture_rect(
+			TREE_TEXTURE,
+			Rect2(Vector2(-36.0, -60.0), Vector2(72.0, 80.0)),
+			false
+		)
+		if _is_selected:
+			draw_rect(rect.grow(4.0), Color("f1d66b"), false, 2.0)
+		return
+	if presentation_id == "surface_stump":
+		draw_ellipse_shadow()
+		draw_rect(Rect2(-12.0, 5.0, 24.0, 13.0), Color("68432f"))
+		draw_rect(Rect2(-8.0, 3.0, 16.0, 5.0), Color("b9814e"))
 		if _is_selected:
 			draw_rect(rect.grow(4.0), Color("f1d66b"), false, 2.0)
 		return

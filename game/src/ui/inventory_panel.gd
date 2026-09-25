@@ -31,9 +31,6 @@ const CLOSE_HOVER_TEXTURE := preload(
 @onready var _close_button: Button = (
 	$ContentMargin/ContentColumn/HeaderRow/CloseButton as Button
 )
-@onready var _weight_label: Label = (
-	$ContentMargin/ContentColumn/WeightLabel as Label
-)
 @onready var _inventory_grid: InventoryGrid = (
 	$ContentMargin/ContentColumn/GridCenter/InventoryGrid
 	as InventoryGrid
@@ -65,11 +62,9 @@ func _ready() -> void:
 
 func present(
 	title_text: String,
-	weight_text: String,
 	placements: Array[Dictionary]
 ) -> void:
 	_title_label.text = title_text
-	_weight_label.text = weight_text
 	_inventory_grid.present(placements)
 
 
@@ -139,10 +134,6 @@ func _on_inventory_selection_changed(
 		{
 			"item": String(placement.get("label", "")),
 			"amount": int(placement.get("amount", 1)),
-			"weight": String.num(
-				float(placement.get("total_weight", 0.0)),
-				1
-			),
 		}
 	)
 

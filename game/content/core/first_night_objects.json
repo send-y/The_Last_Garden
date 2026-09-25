@@ -2,7 +2,7 @@
   "schema_version": 2,
   "map": {
 	"cell_size": 32,
-	"map_size": [48, 48],
+	"map_size": [128, 128],
 	"interaction_range": 68.0
   },
   "objects": [
@@ -110,7 +110,7 @@
 	  "work_minutes": 8,
 	  "repeatable": false,
 	  "message_key": "first_night.collect.wood.success",
-	  "full_message_key": "first_night.inventory.too_heavy",
+	  "full_message_key": "first_night.inventory.no_space",
 	  "empty_message_key": "first_night.collect.empty"
 	},
 	"stone": {
@@ -119,7 +119,7 @@
 	  "work_minutes": 8,
 	  "repeatable": false,
 	  "message_key": "first_night.collect.stone.success",
-	  "full_message_key": "first_night.inventory.too_heavy",
+	  "full_message_key": "first_night.inventory.no_space",
 	  "empty_message_key": "first_night.collect.empty"
 	},
 	"food": {
@@ -127,7 +127,7 @@
 	  "amount": 2,
 	  "repeatable": false,
 	  "message_key": "first_night.collect.food.success",
-	  "full_message_key": "first_night.inventory.too_heavy",
+	  "full_message_key": "first_night.inventory.no_space",
 	  "empty_message_key": "first_night.collect.empty"
 	},
 	"water": {

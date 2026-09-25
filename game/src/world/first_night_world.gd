@@ -257,6 +257,7 @@ func _set_selected(value: InteractableView) -> void:
 func _spawn_interactables() -> void:
 	var definitions: Array[Dictionary] = Catalog.interactables()
 	definitions.append_array(Session.get_surface_boulders())
+	definitions.append_array(Session.get_surface_trees())
 	var existing_by_id: Dictionary = {}
 	for interactable: InteractableView in _interactables:
 		if is_instance_valid(interactable):
@@ -284,8 +285,14 @@ func _spawn_interactables() -> void:
 
 
 func _refresh_interactables(snap: bool = false) -> void:
+	var tree_definitions: Dictionary = {}
+	for definition: Dictionary in Session.get_surface_trees():
+		tree_definitions[String(definition.get("id", ""))] = definition
 	for interactable: InteractableView in _interactables:
-		interactable.refresh_from_state(snap)
+		if tree_definitions.has(interactable.object_id):
+			interactable.configure(tree_definitions[interactable.object_id])
+		else:
+			interactable.refresh_from_state(snap)
 	queue_redraw()
 
 

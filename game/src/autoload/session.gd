@@ -78,16 +78,12 @@ func get_surface_boulders() -> Array[Dictionary]:
 	return simulation.get_surface_boulders()
 
 
+func get_surface_trees() -> Array[Dictionary]:
+	return simulation.get_surface_trees()
+
+
 func try_pickup_world_drop(drop_id: String) -> Dictionary:
 	return simulation.try_pickup_world_drop(drop_id)
-
-
-func get_inventory_weight() -> float:
-	return simulation.get_inventory_weight()
-
-
-func get_max_carry_weight() -> float:
-	return simulation.MAX_CARRY_WEIGHT
 
 
 func get_flags() -> Dictionary:

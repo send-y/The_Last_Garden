@@ -31,13 +31,11 @@ func _ready() -> void:
 	await get_tree().process_frame
 	panel.present(
 		"Рюкзак",
-		"Вес 2.0/24 кг",
 		[
 			{
 				"item_id": "test:wood",
 				"label": "Древесина",
 				"amount": 2,
-				"total_weight": 2.0,
 				"origin": Vector2i.ZERO,
 				"footprint": [Vector2i.ZERO],
 				"icon_path": "",

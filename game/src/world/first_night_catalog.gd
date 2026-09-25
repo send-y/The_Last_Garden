@@ -5,7 +5,7 @@ const Content := preload("res://src/content/first_night_content.gd")
 const Npcs := preload("res://src/characters/npc_catalog.gd")
 
 const CELL_SIZE: int = 32
-const MAP_SIZE: Vector2i = Vector2i(48, 48)
+const MAP_SIZE: Vector2i = Vector2i(128, 128)
 const INTERACTION_RANGE: float = 68.0
 
 
