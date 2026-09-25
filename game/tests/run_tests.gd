@@ -35,6 +35,7 @@ const LOCALIZATION_SOURCE_PATHS: Array[String] = [
 	"res://src/autoload/session.gd",
 	"res://src/characters/npc_catalog.gd",
 	"res://src/content/first_night_content.gd",
+	"res://src/content/resource_node_catalog.gd",
 	"res://src/save/first_night_save_store.gd",
 	"res://src/simulation/first_night_simulation.gd",
 	"res://src/simulation/npc_autonomy.gd",
@@ -61,6 +62,7 @@ func _run() -> void:
 	_test_command_boundary_rejects_forged_commands()
 	_test_command_boundary_enforces_range_and_resolves_kind()
 	_test_resource_work_progress_completion_and_serialization()
+	_test_surface_boulders_are_seeded_and_workable()
 	_test_pickup_respects_inventory_limits()
 	_test_world_drops_persist_and_pickup_by_id()
 	_test_query_snapshots_are_isolated()
@@ -100,6 +102,7 @@ func _run() -> void:
 	_test_lab_mira_resting()
 	_test_lab_mira_after_shared_wall()
 	_test_lab_workbench_crafting()
+	_test_lab_surface_boulders()
 	_test_lab_scenarios_are_deterministic()
 	_test_lab_rebuild_discards_previous_changes()
 	_test_session_installs_lab_state_without_aliasing_or_save()
@@ -377,6 +380,79 @@ func _test_resource_work_progress_completion_and_serialization() -> void:
 		"completed resource creates one persistent record per drop"
 	)
 
+
+func _test_surface_boulders_are_seeded_and_workable() -> void:
+	var state_a: Dictionary = Simulation.create_new_state(4127)
+	var simulation := FirstNightSimulation.new(state_a)
+	var same_seed := FirstNightSimulation.new(
+		Simulation.create_new_state(4127)
+	)
+	var other_seed := FirstNightSimulation.new(
+		Simulation.create_new_state(4128)
+	)
+	var boulders: Array[Dictionary] = simulation.get_surface_boulders()
+	_expect(
+		boulders.size() >= 13 and boulders.size() <= 15,
+		"world generation creates thirteen to fifteen surface boulders"
+	)
+	_expect(
+		boulders == same_seed.get_surface_boulders(),
+		"same world seed generates the same boulder locations"
+	)
+	_expect(
+		boulders != other_seed.get_surface_boulders(),
+		"different world seed varies generated boulder locations"
+	)
+	for index: int in range(boulders.size()):
+		var boulder: Dictionary = boulders[index]
+		_expect(
+			String(boulder.get("id", ""))
+				== "core:surface_boulder_%02d" % (index + 1),
+			"generated boulder IDs are stable and unique"
+		)
+	var legacy_state: Dictionary = Simulation.create_new_state(4129)
+	legacy_state["version"] = 13
+	legacy_state.erase("resource_nodes")
+	var migrated := FirstNightSimulation.new(legacy_state)
+	_expect(
+		migrated.get_surface_boulders().size() >= 13
+			and migrated.get_surface_boulders().size() <= 15,
+		"version 13 saves receive deterministic surface boulders"
+	)
+	if boulders.is_empty():
+		return
+
+	var first_boulder: Dictionary = boulders[0]
+	var target_id: String = String(first_boulder.get("id", ""))
+	var target_position: Vector2 = first_boulder.get(
+		"position",
+		Vector2.ZERO
+	) as Vector2
+	simulation.set_player_position(target_position)
+	_expect(
+		simulation.get_resource_work_required(target_id) == 8,
+		"surface boulder uses the configured stone work duration"
+	)
+	var completed := _work_resource_to_completion(simulation, target_id)
+	_expect(bool(completed.get("success", false)), "surface boulder can be mined")
+	_expect(
+		int(completed.get("drop_amount", 0)) == 3,
+		"surface boulder uses the current prototype stone yield"
+	)
+	_expect(
+		simulation.is_collected(target_id),
+		"mined surface boulder remains depleted"
+	)
+	var restored := FirstNightSimulation.new(simulation.export_state())
+	_expect(
+		restored.get_surface_boulders() == boulders,
+		"generated boulder layout survives a save-state round trip"
+	)
+	_expect(
+		restored.is_collected(target_id)
+			and restored.get_world_drops().size() == 3,
+		"depletion and physical stone drops survive a save-state round trip"
+	)
 
 func _test_pickup_respects_inventory_limits() -> void:
 	var simulation: FirstNightSimulation = Simulation.new()
@@ -2234,6 +2310,33 @@ func _test_lab_workbench_crafting() -> void:
 		structures.size() == 1
 		and String((structures[0] as Dictionary).get("building_id", "")) == "core:workbench",
 		"workbench lab scenario contains one completed workbench"
+	)
+
+
+func _test_lab_surface_boulders() -> void:
+	var result: Dictionary = LabScenarios.build(
+		LabScenarios.SURFACE_BOULDERS
+	)
+	_expect(bool(result.get("success", false)), "boulder lab scenario builds")
+	if not bool(result.get("success", false)):
+		return
+	var simulation: FirstNightSimulation = result[
+		"simulation"
+	] as FirstNightSimulation
+	var boulders: Array[Dictionary] = simulation.get_surface_boulders()
+	_expect(
+		boulders.size() >= 13 and boulders.size() <= 15,
+		"boulder lab scenario retains generated world resources"
+	)
+	if boulders.is_empty():
+		return
+	var target: Vector2 = boulders[0].get(
+		"position",
+		Vector2.ZERO
+	) as Vector2
+	_expect(
+		simulation.get_player_position().distance_to(target) <= 68.0,
+		"boulder lab scenario places the player within work range"
 	)
 
 

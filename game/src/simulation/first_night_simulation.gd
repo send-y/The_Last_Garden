@@ -32,8 +32,11 @@ const NpcMemoryScript := preload("res://src/simulation/npc_memory.gd")
 const InventoryPackerScript := preload(
 	"res://src/inventory/inventory_auto_packer.gd"
 )
+const ResourceNodeCatalogScript := preload(
+	"res://src/content/resource_node_catalog.gd"
+)
 
-const SAVE_VERSION: int = 13
+const SAVE_VERSION: int = 14
 const DEFAULT_SEED: int = 247061
 const START_MINUTE: int = 11 * 60
 const EVENING_MINUTE: int = 18 * 60
@@ -114,6 +117,9 @@ static func create_new_state(seed_value: int = DEFAULT_SEED) -> Dictionary:
 		"minute_of_day": START_MINUTE,
 		"player_position": [784.0, 944.0],
 		"inventory": content_data.create_empty_inventory(),
+		"resource_nodes": ResourceNodeCatalogScript.generate_surface_boulders(
+			seed_value
+		),
 		"collected": {},
 		"resource_work": {},
 		"world_drops": [],
@@ -359,11 +365,14 @@ func execute_resource_work(
 	collected[normalized_id] = true
 	var drop_item_id: String = String(rule.get("item_id", ""))
 	var drop_amount: int = maxi(0, int(rule.get("amount", 0)))
+	var drop_origin: Vector2 = target_position
+	if String(target.get("presentation_id", "")) == "surface_boulder":
+		drop_origin += Vector2(0.0, 40.0)
 	var created_drop_ids: Array[String] = _create_resource_drops(
 		normalized_id,
 		drop_item_id,
 		drop_amount,
-		target_position
+		drop_origin
 	)
 
 	event_emitted.emit({"type": "state_changed"})
@@ -377,7 +386,7 @@ func execute_resource_work(
 		"required_work_minutes": required_work,
 		"drop_item_id": drop_item_id,
 		"drop_amount": drop_amount,
-		"drop_origin": target_position,
+		"drop_origin": drop_origin,
 		"created_drop_ids": created_drop_ids,
 	}
 
@@ -1334,6 +1343,19 @@ func get_world_drops() -> Array:
 	return (state.get("world_drops", []) as Array).duplicate(true)
 
 
+func get_surface_boulders() -> Array[Dictionary]:
+	var result: Array[Dictionary] = []
+	for node_value: Variant in state.get("resource_nodes", []) as Array:
+		if typeof(node_value) != TYPE_DICTIONARY:
+			continue
+		var interactable: Dictionary = ResourceNodeCatalogScript.to_interactable(
+			node_value as Dictionary
+		)
+		if not interactable.is_empty():
+			result.append(interactable)
+	return result
+
+
 func try_pickup_world_drop(drop_id: String) -> Dictionary:
 	var drops: Array = state["world_drops"] as Array
 	var drop_index: int = -1
@@ -1605,6 +1627,12 @@ func _resolve_interaction_target(target_id: String) -> Dictionary:
 	var object_target: Dictionary = content.get_interactable(target_id)
 	if not object_target.is_empty():
 		return object_target
+	for node_value: Variant in state.get("resource_nodes", []) as Array:
+		if typeof(node_value) != TYPE_DICTIONARY:
+			continue
+		var node := node_value as Dictionary
+		if String(node.get("id", "")) == target_id:
+			return ResourceNodeCatalogScript.to_interactable(node)
 
 	if npc_catalog.get_definition(target_id).is_empty() or not get_npcs().has(target_id):
 		return {}
@@ -2009,6 +2037,10 @@ func _normalize_state() -> void:
 	)
 
 	state["inventory"] = content.normalize_inventory(_as_dictionary(state.get("inventory")))
+	state["resource_nodes"] = _normalize_resource_nodes(
+		state.get("resource_nodes", defaults["resource_nodes"]),
+		seed_value
+	)
 	state["collected"] = content.normalize_collected(_as_dictionary(state.get("collected")))
 	state["resource_work"] = _normalize_resource_work(state.get("resource_work", {}))
 	state["world_drops"] = _normalize_world_drops(
@@ -2083,9 +2115,7 @@ func _normalize_resource_work(
 		var object_id: String = content.normalize_object_id(
 			String(object_variant)
 		)
-		var target: Dictionary = content.get_interactable(
-			object_id
-		)
+		var target: Dictionary = _resolve_interaction_target(object_id)
 
 		if target.is_empty() or is_collected(object_id):
 			continue
@@ -2109,6 +2139,61 @@ func _normalize_resource_work(
 		if progress > 0:
 			normalized[object_id] = progress
 
+	return normalized
+
+
+func _normalize_resource_nodes(
+	value: Variant,
+	world_seed: int
+) -> Array[Dictionary]:
+	var generated: Array[Dictionary] = (
+		ResourceNodeCatalogScript.generate_surface_boulders(world_seed)
+	)
+	if typeof(value) != TYPE_ARRAY:
+		return generated
+	var raw_nodes := value as Array
+	if (
+		raw_nodes.size() < ResourceNodeCatalogScript.BOULDER_COUNT_MIN
+		or raw_nodes.size() > ResourceNodeCatalogScript.BOULDER_COUNT_MAX
+	):
+		return generated
+
+	var normalized: Array[Dictionary] = []
+	var seen_cells: Dictionary = {}
+	for index: int in range(raw_nodes.size()):
+		if typeof(raw_nodes[index]) != TYPE_DICTIONARY:
+			return generated
+		var node := raw_nodes[index] as Dictionary
+		var expected_id := "core:surface_boulder_%02d" % (index + 1)
+		var cell_value: Variant = node.get("cell", [])
+		if (
+			String(node.get("id", "")) != expected_id
+			or typeof(cell_value) != TYPE_ARRAY
+			or (cell_value as Array).size() != 2
+		):
+			return generated
+		var cell := cell_value as Array
+		if typeof(cell[0]) != TYPE_INT or typeof(cell[1]) != TYPE_INT:
+			return generated
+		var cell_position := Vector2i(int(cell[0]), int(cell[1]))
+		if (
+			cell_position.x < ResourceNodeCatalogScript.FIRST_CELL
+			or cell_position.x > ResourceNodeCatalogScript.LAST_CELL
+			or cell_position.y < ResourceNodeCatalogScript.FIRST_CELL
+			or cell_position.y > ResourceNodeCatalogScript.LAST_CELL
+			or ResourceNodeCatalogScript.is_reserved_cell(cell_position)
+		):
+			return generated
+		var cell_key := "%d,%d" % [cell_position.x, cell_position.y]
+		if seen_cells.has(cell_key):
+			return generated
+		seen_cells[cell_key] = true
+		normalized.append(
+			ResourceNodeCatalogScript.make_surface_boulder(
+				index + 1,
+				cell_position
+			)
+		)
 	return normalized
 
 

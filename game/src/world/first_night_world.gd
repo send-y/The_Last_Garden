@@ -244,11 +244,32 @@ func _set_selected(value: InteractableView) -> void:
 
 
 func _spawn_interactables() -> void:
-	for definition: Dictionary in Catalog.interactables():
-		var interactable: InteractableView = Interactable.new()
-		add_child(interactable)
+	var definitions: Array[Dictionary] = Catalog.interactables()
+	definitions.append_array(Session.get_surface_boulders())
+	var existing_by_id: Dictionary = {}
+	for interactable: InteractableView in _interactables:
+		if is_instance_valid(interactable):
+			existing_by_id[interactable.object_id] = interactable
+	var next_interactables: Array[InteractableView] = []
+	var retained_ids: Dictionary = {}
+	for definition: Dictionary in definitions:
+		var object_id := String(definition.get("id", ""))
+		var interactable: InteractableView
+		if existing_by_id.has(object_id):
+			interactable = existing_by_id[object_id] as InteractableView
+		else:
+			interactable = Interactable.new()
+			add_child(interactable)
 		interactable.configure(definition)
-		_interactables.append(interactable)
+		next_interactables.append(interactable)
+		retained_ids[object_id] = true
+	for old_interactable: InteractableView in _interactables:
+		if (
+			is_instance_valid(old_interactable)
+			and not retained_ids.has(old_interactable.object_id)
+		):
+			old_interactable.queue_free()
+	_interactables = next_interactables
 
 
 func _refresh_interactables(snap: bool = false) -> void:
@@ -273,10 +294,11 @@ func _on_state_changed() -> void:
 
 
 func _on_state_reloaded() -> void:
-	_refresh_interactables(true)
-	_sync_dropped_items()
 	_selected_cell = Vector2i(-1, -1)
 	_set_selected(null)
+	_spawn_interactables()
+	_refresh_interactables(true)
+	_sync_dropped_items()
 
 
 func _selection_payload(interactable: InteractableView, in_range: bool) -> Dictionary:

@@ -74,6 +74,10 @@ func get_world_drops() -> Array:
 	return simulation.get_world_drops()
 
 
+func get_surface_boulders() -> Array[Dictionary]:
+	return simulation.get_surface_boulders()
+
+
 func try_pickup_world_drop(drop_id: String) -> Dictionary:
 	return simulation.try_pickup_world_drop(drop_id)
 

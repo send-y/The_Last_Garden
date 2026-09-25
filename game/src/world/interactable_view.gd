@@ -7,10 +7,17 @@ const NPC_SNAP_DISTANCE: float = 96.0
 const Localized := preload(
 	"res://src/localization/localized_text.gd"
 )
+const BOULDER_STAGE_TEXTURES := [
+	preload("res://assets/sprites/resources/rock_1.png"),
+	preload("res://assets/sprites/resources/rock_2.png"),
+	preload("res://assets/sprites/resources/rock_3.png"),
+	preload("res://assets/sprites/resources/rock_4.png"),
+]
 
 var object_id: String
 var kind: String
 var base_label_key: String
+var presentation_id: String = ""
 var selection_radius: float = 22.0
 var _base_color: Color = Color.WHITE
 var _draw_size: Vector2 = Vector2(24.0, 20.0)
@@ -26,10 +33,12 @@ func configure(definition: Dictionary) -> void:
 	object_id = String(definition["id"])
 	kind = String(definition["kind"])
 	base_label_key = String(definition["label_key"])
+	presentation_id = String(definition.get("presentation_id", ""))
 	position = definition["position"] as Vector2
 	_base_color = definition["color"] as Color
 	_draw_size = definition.get("size", Vector2(24.0, 20.0)) as Vector2
 	selection_radius = maxf(_draw_size.x, _draw_size.y) * 0.7 + 8.0
+	texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 	collision_layer = 4
 	collision_mask = 0
 	monitoring = false
@@ -161,6 +170,11 @@ func _draw() -> void:
 		if _is_selected:
 			draw_rect(rect.grow(4.0), Color("f1d66b"), false, 2.0)
 		return
+	if presentation_id == "surface_boulder":
+		_draw_surface_boulder()
+		if _is_selected:
+			draw_rect(rect.grow(4.0), Color("f1d66b"), false, 2.0)
+		return
 
 	draw_ellipse_shadow()
 	draw_rect(rect, _base_color)
@@ -179,6 +193,24 @@ func _draw() -> void:
 
 	if _is_selected:
 		draw_rect(rect.grow(4.0), Color("f1d66b"), false, 2.0)
+
+
+func _draw_surface_boulder() -> void:
+	var required_work: int = Session.get_resource_work_required(object_id)
+	var progress: int = Session.get_resource_work_progress(object_id)
+	var stage_index: int = 0
+	if required_work > 0:
+		stage_index = clampi(
+			progress * BOULDER_STAGE_TEXTURES.size() / required_work,
+			0,
+			BOULDER_STAGE_TEXTURES.size() - 1
+		)
+	var texture: Texture2D = BOULDER_STAGE_TEXTURES[stage_index] as Texture2D
+	draw_texture_rect(
+		texture,
+		Rect2(Vector2(-32.0, -32.0), Vector2(64.0, 64.0)),
+		false
+	)
 
 
 func draw_ellipse_shadow() -> void:
