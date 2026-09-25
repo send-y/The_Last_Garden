@@ -75,6 +75,7 @@ func configure(definition: Dictionary) -> void:
 		_sync_physical_body()
 		set_physics_process(true)
 	elif presentation_id == "surface_boulder":
+		z_as_relative = false
 		if _blocking_body == null:
 			_blocking_body = StaticBody2D.new()
 			_blocking_body.collision_layer = 2
@@ -189,7 +190,11 @@ func update_boulder_depth_order(player_foot_y: float) -> void:
 	if presentation_id != "surface_boulder":
 		return
 	var boulder_sort_y: float = global_position.y + BOULDER_SORT_LINE_OFFSET
-	z_index = -1 if player_foot_y > boulder_sort_y else 1
+	z_index = (
+		PlayerController.DEPTH_SORT_Z_INDEX - 1
+		if player_foot_y > boulder_sort_y
+		else PlayerController.DEPTH_SORT_Z_INDEX + 1
+	)
 
 
 func _draw() -> void:

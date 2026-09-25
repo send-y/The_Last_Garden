@@ -6,6 +6,7 @@ const CharacterVisualScene := preload("res://src/characters/character_visual.gd"
 const MOVE_SPEED: float = 118.0
 const MAP_LIMIT: Vector2 = Vector2(1536.0, 1536.0)
 const DEPTH_SORT_FOOT_OFFSET: float = 12.0
+const DEPTH_SORT_Z_INDEX: int = 10
 
 var _facing: Vector2 = Vector2.DOWN
 var _walk_time: float = 0.0
@@ -16,6 +17,7 @@ var _visual
 func _ready() -> void:
 	collision_layer = 1
 	collision_mask = 2
+	z_index = DEPTH_SORT_Z_INDEX
 	position = Session.get_player_position()
 	_visual = CharacterVisualScene.new()
 	add_child(_visual)

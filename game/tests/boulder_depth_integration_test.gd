@@ -92,11 +92,15 @@ func _run() -> void:
 		return
 
 	boulder.update_boulder_depth_order(boulder.global_position.y + 21.0)
-	if boulder.z_index != 1:
+	if (
+		boulder.z_as_relative
+		or boulder.z_index != PlayerController.DEPTH_SORT_Z_INDEX + 1
+		or (_get_player(main).z_index != PlayerController.DEPTH_SORT_Z_INDEX)
+	):
 		_fail("boulder should draw in front when player passes above")
 		return
 	boulder.update_boulder_depth_order(boulder.global_position.y + 23.0)
-	if boulder.z_index != -1:
+	if boulder.z_index != PlayerController.DEPTH_SORT_Z_INDEX - 1:
 		_fail("player should draw in front when passing below")
 		return
 
@@ -114,3 +118,7 @@ func _run() -> void:
 func _fail(message: String) -> void:
 	push_error("FAIL: %s" % message)
 	get_tree().quit(1)
+
+
+func _get_player(main: Node) -> PlayerController:
+	return main.get_node("Player") as PlayerController
