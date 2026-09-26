@@ -141,6 +141,14 @@ func _on_dropped_item_pickup_requested(
 
 
 func _unhandled_input(event: InputEvent) -> void:
+	var hud := get_node_or_null("../Hud/HudRoot")
+	if hud != null and bool(hud.call("is_modal_open")):
+		if (
+			event is InputEventMouseButton
+			or event.is_action_pressed(&"interact")
+		):
+			get_viewport().set_input_as_handled()
+			return
 	if event is InputEventMouseButton and event.pressed:
 		var mouse_event := event as InputEventMouseButton
 		if mouse_event.button_index == MOUSE_BUTTON_LEFT:

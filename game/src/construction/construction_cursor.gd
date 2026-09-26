@@ -43,6 +43,11 @@ func _process(_delta: float) -> void:
 func _unhandled_input(event: InputEvent) -> void:
 	if not _build_mode_active:
 		return
+	var hud := get_node_or_null("../Hud/HudRoot")
+	if hud != null and bool(hud.call("is_modal_open")):
+		if event is InputEventMouseButton:
+			get_viewport().set_input_as_handled()
+			return
 	if not (event is InputEventMouseButton):
 		return
 

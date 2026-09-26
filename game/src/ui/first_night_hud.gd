@@ -16,6 +16,8 @@ const CraftingPanelScene: PackedScene = preload(
 const ConstructionPaletteScene: PackedScene = preload(
 	"res://src/ui/construction_palette.tscn"
 )
+const MarkerPanelScene: PackedScene = preload("res://src/ui/marker_panel.tscn")
+const MarkerOverlayScript := preload("res://src/ui/marker_overlay.gd")
 
 var _content_data: FirstNightContent = Content.new()
 var _time_label: Label
@@ -30,6 +32,9 @@ var _crafting_panel: CraftingPanel
 var _construction_palette: ConstructionPalette
 var _crafting_cell: Vector2i = Vector2i(-1, -1)
 var _inventory_was_paused: bool = false
+var _marker_panel: PanelContainer
+var _marker_overlay: Control
+var _marker_was_paused: bool = false
 
 @onready var _inventory_panel: InventoryPanel = (
 	$InventoryPanel as InventoryPanel
@@ -40,9 +45,16 @@ var _inventory_was_paused: bool = false
 
 func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
+	# This fullscreen dimmer is visual only. Let modal panels receive GUI input.
+	_inventory_backdrop.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_build_ui()
+	_build_marker_ui()
 	_inventory_panel.close_requested.connect(
 		_on_inventory_close_requested
+	)
+	_inventory_panel.eat_food_requested.connect(_on_eat_food_requested)
+	_inventory_panel.inventory_layout_changed.connect(
+		_on_inventory_layout_changed
 	)
 	_inventory_panel.hide()
 	_inventory_backdrop.hide()
@@ -86,6 +98,73 @@ func set_selection(selection: Dictionary) -> void:
 	_selection_label.text = Localized.resolve("ui.hud.selection.none")
 
 
+func request_marker_creation() -> void:
+	_show_marker_panel()
+	_marker_panel.call("show_creation")
+
+
+func toggle_marker_list() -> void:
+	if _marker_panel.visible:
+		_close_marker_panel()
+		return
+	_show_marker_panel()
+	_marker_panel.call("show_list", Session.get_markers())
+
+
+func is_marker_list_open() -> bool:
+	return bool(_marker_panel.call("is_list_open"))
+
+
+func _build_marker_ui() -> void:
+	_marker_overlay = MarkerOverlayScript.new() as Control
+	add_child(_marker_overlay)
+	move_child(_marker_overlay, 0)
+	_marker_panel = MarkerPanelScene.instantiate() as PanelContainer
+	_marker_panel.connect("close_requested", _close_marker_panel)
+	_marker_panel.connect("create_requested", _on_marker_create_requested)
+	_marker_panel.connect("rename_requested", _on_marker_rename_requested)
+	_marker_panel.connect("delete_requested", _on_marker_delete_requested)
+	add_child(_marker_panel)
+
+
+func _show_marker_panel() -> void:
+	if _marker_panel.visible:
+		return
+	_marker_was_paused = Session.is_paused()
+	Session.set_paused(true, false)
+	_inventory_backdrop.show()
+
+
+func _close_marker_panel() -> void:
+	if not _marker_panel.visible:
+		return
+	_marker_panel.hide()
+	_inventory_backdrop.hide()
+	if not _marker_was_paused:
+		Session.set_paused(false, false)
+
+
+func _on_marker_create_requested(marker_name: String, color: Color) -> void:
+	var result := Session.create_marker(marker_name, color)
+	if bool(result.get("success", false)):
+		_close_marker_panel()
+		return
+	_marker_panel.call("set_feedback", Localized.resolve(String(result.get("message_key", ""))))
+
+
+func _on_marker_rename_requested(marker_id: String, marker_name: String) -> void:
+	var result := Session.rename_marker(marker_id, marker_name)
+	if bool(result.get("success", false)):
+		_close_marker_panel()
+		return
+	_marker_panel.call("set_feedback", Localized.resolve(String(result.get("message_key", ""))))
+
+
+func _on_marker_delete_requested(marker_id: String) -> void:
+	Session.remove_marker(marker_id)
+	_marker_panel.call("show_list", Session.get_markers())
+
+
 func refresh() -> void:
 	var time_key: String = "ui.hud.day_time_paused" if Session.is_paused() else "ui.hud.day_time"
 	_time_label.text = Localized.resolve(time_key, {
@@ -99,9 +178,10 @@ func refresh() -> void:
 	_refresh_inventory_panel()
 
 func _refresh_inventory_panel() -> void:
-	var packed: Dictionary = InventoryPacker.pack(
+	var packed: Dictionary = InventoryPacker.pack_with_layout(
 		Session.get_inventory(),
-		_content_data
+		_content_data,
+		Session.get_inventory_layout()
 	)
 	var packed_placements := (
 		packed.get("placements", []) as Array
@@ -321,6 +401,9 @@ func _on_building_selected(building_id: String) -> void:
 	building_selected.emit(building_id)
 
 func toggle_inventory() -> void:
+	if _marker_panel.visible:
+		_close_marker_panel()
+		return
 	if _crafting_panel.visible:
 		_set_crafting_open(false)
 	_set_inventory_open(not _inventory_panel.visible)
@@ -331,7 +414,7 @@ func is_inventory_open() -> bool:
 
 
 func is_modal_open() -> bool:
-	return _inventory_panel.visible or _crafting_panel.visible
+	return _inventory_panel.visible or _crafting_panel.visible or _marker_panel.visible
 
 
 func open_crafting(cell: Vector2i, recipes: Array[Dictionary]) -> void:
@@ -364,6 +447,18 @@ func _set_inventory_open(should_open: bool) -> void:
 
 func _on_inventory_close_requested() -> void:
 	_set_inventory_open(false)
+
+
+func _on_eat_food_requested() -> void:
+	Session.eat_food()
+	_refresh_inventory_panel()
+
+
+func _on_inventory_layout_changed(layout: Array[Dictionary]) -> void:
+	var result: Dictionary = Session.set_inventory_layout(layout)
+	if not bool(result.get("success", false)):
+		return
+	_refresh_inventory_panel()
 
 
 func _set_crafting_open(should_open: bool) -> void:

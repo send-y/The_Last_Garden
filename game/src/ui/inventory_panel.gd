@@ -2,6 +2,8 @@ class_name InventoryPanel
 extends PanelContainer
 
 signal close_requested
+signal eat_food_requested
+signal inventory_layout_changed(layout: Array[Dictionary])
 
 const Localized := preload(
 	"res://src/localization/localized_text.gd"
@@ -36,8 +38,12 @@ const CLOSE_HOVER_TEXTURE := preload(
 	as InventoryGrid
 )
 @onready var _details_label: Label = (
-	$ContentMargin/ContentColumn/DetailsPanel/DetailsMargin/DetailsLabel
+	$ContentMargin/ContentColumn/DetailsPanel/DetailsMargin/DetailsRow/DetailsLabel
 	as Label
+)
+@onready var _eat_button: Button = (
+	$ContentMargin/ContentColumn/DetailsPanel/DetailsMargin/DetailsRow/EatButton
+	as Button
 )
 @onready var _tab_buttons: Array[Button] = [
 	$ContentMargin/ContentColumn/TabCenter/TabRow/Tab1 as Button,
@@ -55,9 +61,13 @@ func _ready() -> void:
 	_inventory_grid.selection_changed.connect(
 		_on_inventory_selection_changed
 	)
+	_inventory_grid.layout_changed.connect(_on_inventory_layout_changed)
 	_details_label.text = Localized.resolve(
 		"ui.inventory.details.empty"
 	)
+	_eat_button.text = Localized.resolve("ui.inventory.eat")
+	_eat_button.pressed.connect(func() -> void: eat_food_requested.emit())
+	_eat_button.hide()
 
 
 func present(
@@ -66,6 +76,10 @@ func present(
 ) -> void:
 	_title_label.text = title_text
 	_inventory_grid.present(placements)
+
+
+func _on_inventory_layout_changed(layout: Array[Dictionary]) -> void:
+	inventory_layout_changed.emit(layout)
 
 
 func get_details_text() -> String:
@@ -127,6 +141,7 @@ func _on_inventory_selection_changed(
 		_details_label.text = Localized.resolve(
 			"ui.inventory.details.empty"
 		)
+		_eat_button.hide()
 		return
 
 	_details_label.text = Localized.resolve(
@@ -136,6 +151,7 @@ func _on_inventory_selection_changed(
 			"amount": int(placement.get("amount", 1)),
 		}
 	)
+	_eat_button.visible = String(placement.get("item_id", "")) == "core:food"
 
 
 func _on_close_button_pressed() -> void:

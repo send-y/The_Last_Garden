@@ -36,7 +36,7 @@ const ResourceNodeCatalogScript := preload(
 	"res://src/content/resource_node_catalog.gd"
 )
 
-const SAVE_VERSION: int = 15
+const SAVE_VERSION: int = 16
 const DEFAULT_SEED: int = 247061
 const START_MINUTE: int = 11 * 60
 const EVENING_MINUTE: int = 18 * 60
@@ -120,6 +120,9 @@ static func create_new_state(seed_value: int = DEFAULT_SEED) -> Dictionary:
 		"minute_of_day": START_MINUTE,
 		"player_position": [784.0, 944.0],
 		"inventory": content_data.create_empty_inventory(),
+		"inventory_layout": [],
+		"markers": [],
+		"next_marker_serial": 1,
 		"resource_nodes": boulders,
 		"tree_nodes": ResourceNodeCatalogScript.generate_surface_trees(
 			seed_value,
@@ -1575,6 +1578,104 @@ func get_player_position() -> Vector2:
 	return Vector2(float(stored[0]), float(stored[1]))
 
 
+func get_markers() -> Array[Dictionary]:
+	var result: Array[Dictionary] = []
+	for marker_variant: Variant in state.get("markers", []):
+		if typeof(marker_variant) == TYPE_DICTIONARY:
+			result.append((marker_variant as Dictionary).duplicate(true))
+	return result
+
+
+func create_marker(marker_name: String, color: Color) -> Dictionary:
+	var safe_name := marker_name.strip_edges().substr(0, 32)
+	if safe_name.is_empty():
+		return _emit_result(false, "ui.marker.failure.empty_name")
+	var markers := get_markers()
+	if markers.size() >= 64:
+		return _emit_result(false, "ui.marker.failure.limit")
+	var serial := maxi(1, int(state.get("next_marker_serial", 1)))
+	var marker := {
+		"id": "core:marker_%04d" % serial,
+		"name": safe_name,
+		"color": color.to_html(false),
+		"position": [get_player_position().x, get_player_position().y],
+	}
+	markers.append(marker)
+	state["markers"] = markers
+	state["next_marker_serial"] = serial + 1
+	return _emit_result(true, "ui.marker.created", true, false, {"name": safe_name})
+
+
+func rename_marker(marker_id: String, marker_name: String) -> Dictionary:
+	var safe_name := marker_name.strip_edges().substr(0, 32)
+	if safe_name.is_empty():
+		return _emit_result(false, "ui.marker.failure.empty_name")
+	for marker: Dictionary in state.get("markers", []):
+		if String(marker.get("id", "")) != marker_id:
+			continue
+		marker["name"] = safe_name
+		return _emit_result(true, "ui.marker.renamed", true, false, {"name": safe_name})
+	return _emit_result(false, "ui.marker.failure.missing")
+
+
+func remove_marker(marker_id: String) -> Dictionary:
+	var markers: Array = state.get("markers", []) as Array
+	for index: int in range(markers.size()):
+		if String((markers[index] as Dictionary).get("id", "")) != marker_id:
+			continue
+		markers.remove_at(index)
+		state["markers"] = markers
+		return _emit_result(true, "ui.marker.removed", true)
+	return _emit_result(false, "ui.marker.failure.missing")
+
+
+func eat_food() -> Dictionary:
+	if get_item_count(FirstNightContent.FOOD_ID) <= 0:
+		return _emit_result(false, "ui.inventory.food.none")
+	_consume_items({FirstNightContent.FOOD_ID: 1})
+	return _emit_result(true, "ui.inventory.food.eaten", true)
+
+
+func set_inventory_layout(layout: Array[Dictionary]) -> Dictionary:
+	var current: Dictionary = InventoryPackerScript.pack(
+		get_inventory(), content, 4, 4
+	)
+	var expected_placements: Array = current.get("placements", []) as Array
+	if layout.size() != expected_placements.size():
+		return _emit_result(false, "ui.inventory.move.invalid")
+	var expected_ids: Dictionary = {}
+	for placement_variant: Variant in expected_placements:
+		var placement: Dictionary = placement_variant as Dictionary
+		expected_ids["%s:%d" % [
+			String(placement.get("item_id", "")),
+			int(placement.get("stack_index", 0)),
+		]] = true
+	var supplied_ids: Dictionary = {}
+	for entry: Dictionary in layout:
+		var key := "%s:%d" % [
+			String(entry.get("item_id", "")),
+			_safe_int(entry.get("stack_index"), -1),
+		]
+		var origin: Variant = entry.get("origin", [])
+		var rotation: int = _safe_int(entry.get("rotation"), -1)
+		if (
+			not expected_ids.has(key)
+			or supplied_ids.has(key)
+			or typeof(origin) != TYPE_ARRAY
+			or (origin as Array).size() != 2
+			or rotation < 0 or rotation > 3
+		):
+			return _emit_result(false, "ui.inventory.move.invalid")
+		supplied_ids[key] = true
+	var result: Dictionary = InventoryPackerScript.pack_with_layout(
+		get_inventory(), content, layout, 4, 4
+	)
+	if not bool(result.get("requested_layout_valid", false)):
+		return _emit_result(false, "ui.inventory.move.invalid")
+	state["inventory_layout"] = result.get("layout", [])
+	return _emit_result(true, "ui.inventory.move.success", true)
+
+
 func set_player_position(value: Vector2) -> void:
 	state["player_position"] = [value.x, value.y]
 
@@ -2111,6 +2212,22 @@ func _normalize_state() -> void:
 	)
 
 	state["inventory"] = content.normalize_inventory(_as_dictionary(state.get("inventory")))
+	var layout_value: Variant = state.get("inventory_layout", [])
+	var raw_layout: Array = []
+	if typeof(layout_value) == TYPE_ARRAY:
+		raw_layout = layout_value as Array
+	var normalized_layout: Array[Dictionary] = []
+	for entry_variant: Variant in raw_layout:
+		if typeof(entry_variant) == TYPE_DICTIONARY:
+			normalized_layout.append((entry_variant as Dictionary).duplicate(true))
+	var inventory_layout_result: Dictionary = InventoryPackerScript.pack_with_layout(
+		state["inventory"] as Dictionary, content, normalized_layout, 4, 4
+	)
+	state["inventory_layout"] = inventory_layout_result.get("layout", [])
+	state["markers"] = _normalize_markers(state.get("markers", []))
+	state["next_marker_serial"] = _normalize_next_marker_serial(
+		state.get("next_marker_serial", 1), state["markers"] as Array
+	)
 	state["resource_nodes"] = _normalize_resource_nodes(
 		state.get("resource_nodes", defaults["resource_nodes"]),
 		seed_value
@@ -2183,6 +2300,70 @@ static func _as_dictionary(value: Variant) -> Dictionary:
 	if typeof(value) != TYPE_DICTIONARY:
 		return {}
 	return (value as Dictionary).duplicate(true)
+
+
+func _normalize_markers(value: Variant) -> Array[Dictionary]:
+	var markers: Array[Dictionary] = []
+	if typeof(value) != TYPE_ARRAY:
+		return markers
+	var seen_ids: Dictionary = {}
+	for marker_variant: Variant in value as Array:
+		if typeof(marker_variant) != TYPE_DICTIONARY or markers.size() >= 64:
+			continue
+		var marker: Dictionary = marker_variant as Dictionary
+		var marker_id := String(marker.get("id", ""))
+		var marker_name := String(marker.get("name", "")).strip_edges().substr(0, 32)
+		var color_text := String(marker.get("color", ""))
+		var position: Variant = marker.get("position", [])
+		if (
+			not marker_id.begins_with("core:marker_")
+			or seen_ids.has(marker_id)
+			or marker_name.is_empty()
+			or not _is_valid_hex_color(color_text)
+			or not _is_valid_position(position)
+		):
+			continue
+		var coordinates := position as Array
+		var x := float(coordinates[0])
+		var y := float(coordinates[1])
+		if (
+			x < 0.0 or y < 0.0
+			or x >= float(FirstNightContent.MAP_SIZE.x * FirstNightContent.CELL_SIZE)
+			or y >= float(FirstNightContent.MAP_SIZE.y * FirstNightContent.CELL_SIZE)
+		):
+			continue
+		seen_ids[marker_id] = true
+		markers.append({
+			"id": marker_id,
+			"name": marker_name,
+			"color": color_text.to_lower(),
+			"position": [x, y],
+		})
+	return markers
+
+
+func _normalize_next_marker_serial(value: Variant, markers: Array) -> int:
+	var serial := maxi(1, _safe_int(value, 1))
+	while serial < 1000000:
+		var candidate := "core:marker_%04d" % serial
+		var exists := false
+		for marker_variant: Variant in markers:
+			if typeof(marker_variant) == TYPE_DICTIONARY and String((marker_variant as Dictionary).get("id", "")) == candidate:
+				exists = true
+				break
+		if not exists:
+			return serial
+		serial += 1
+	return serial
+
+
+static func _is_valid_hex_color(value: String) -> bool:
+	if value.length() != 6 and value.length() != 8:
+		return false
+	for character: int in value.to_lower().to_ascii_buffer():
+		if not (character >= 48 and character <= 57) and not (character >= 97 and character <= 102):
+			return false
+	return true
 
 
 func _normalize_resource_work(

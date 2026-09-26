@@ -2,6 +2,7 @@ extends SceneTree
 
 const Simulation := preload("res://src/simulation/first_night_simulation.gd")
 const Content := preload("res://src/content/first_night_content.gd")
+const InventoryPacker := preload("res://src/inventory/inventory_auto_packer.gd")
 const ResourceNodeCatalogScript := preload(
 	"res://src/content/resource_node_catalog.gd"
 )
@@ -69,6 +70,9 @@ func _run() -> void:
 	_test_surface_trees_are_seeded_and_workable()
 	_test_surface_berry_bushes_are_seeded_and_collectible()
 	_test_pickup_respects_inventory_limits()
+	_test_manual_inventory_layout_and_rotation()
+	_test_player_food_consumption()
+	_test_named_markers_and_save_round_trip()
 	_test_world_drops_persist_and_pickup_by_id()
 	_test_query_snapshots_are_isolated()
 	_test_corrupt_nested_state_uses_defaults()
@@ -654,6 +658,79 @@ func _test_pickup_respects_inventory_limits() -> void:
 	)
 	var invalid: Dictionary = simulation.try_pickup_item("core:not_an_item", 1)
 	_expect(not bool(invalid.get("success", false)), "pickup rejects unknown item ids")
+
+
+func _test_manual_inventory_layout_and_rotation() -> void:
+	var inventory := Content.new().create_empty_inventory()
+	inventory[FirstNightContent.WOOD_ID] = 1
+	inventory[FirstNightContent.RAW_WATER_ID] = 1
+	var layout: Array[Dictionary] = [
+		{"item_id": FirstNightContent.WOOD_ID, "stack_index": 0, "origin": [3, 3], "rotation": 0},
+		{"item_id": FirstNightContent.RAW_WATER_ID, "stack_index": 0, "origin": [1, 1], "rotation": 1},
+	]
+	var packed: Dictionary = InventoryPacker.pack_with_layout(
+		inventory, Content.new(), layout
+	)
+	var placements: Array = packed.get("placements", []) as Array
+	var rotated_water: Dictionary = {}
+	for placement_variant: Variant in placements:
+		var placement: Dictionary = placement_variant as Dictionary
+		if String(placement.get("item_id", "")) == FirstNightContent.RAW_WATER_ID:
+			rotated_water = placement
+	_expect(bool(packed.get("requested_layout_valid", false)), "manual inventory positions are accepted")
+	_expect(
+		int(rotated_water.get("rotation", 0)) == 1
+			and (rotated_water.get("footprint", []) as Array).size() == 2,
+		"two-cell item remembers its quarter-turn rotation"
+	)
+	var collision_layout := layout.duplicate(true)
+	(collision_layout[0] as Dictionary)["origin"] = [1, 1]
+	var collision := InventoryPacker.pack_with_layout(
+		inventory, Content.new(), collision_layout
+	)
+	_expect(not bool(collision.get("requested_layout_valid", false)), "inventory rejects overlapping manual placements")
+	var state := Simulation.create_new_state()
+	(state["inventory"] as Dictionary)[FirstNightContent.WOOD_ID] = 1
+	(state["inventory"] as Dictionary)[FirstNightContent.RAW_WATER_ID] = 1
+	var simulation: FirstNightSimulation = Simulation.new(state)
+	var moved: Dictionary = simulation.set_inventory_layout(layout)
+	var restored := FirstNightSimulation.new(simulation.export_state())
+	_expect(bool(moved.get("success", false)), "manual inventory placement applies")
+	_expect(restored.export_state().get("inventory_layout", []) == simulation.export_state().get("inventory_layout", []), "manual inventory layout survives save/load")
+
+
+func _test_player_food_consumption() -> void:
+	var state := Simulation.create_new_state()
+	(state["inventory"] as Dictionary)[FirstNightContent.FOOD_ID] = 2
+	var simulation: FirstNightSimulation = Simulation.new(state)
+	var eaten: Dictionary = simulation.eat_food()
+	_expect(bool(eaten.get("success", false)), "player can eat carried berries")
+	_expect(simulation.get_item_count(FirstNightContent.FOOD_ID) == 1, "eating consumes exactly one berry portion")
+	simulation.eat_food()
+	var empty_result: Dictionary = simulation.eat_food()
+	_expect(not bool(empty_result.get("success", false)), "player cannot eat food that is not in inventory")
+
+
+func _test_named_markers_and_save_round_trip() -> void:
+	var simulation: FirstNightSimulation = Simulation.new()
+	simulation.set_player_position(Vector2(224.0, 416.0))
+	var empty_name := simulation.create_marker("  ", Color("e5b94f"))
+	_expect(not bool(empty_name.get("success", false)), "marker requires a non-empty name")
+	var created := simulation.create_marker("Old well", Color("e5b94f"))
+	var markers := simulation.get_markers()
+	_expect(bool(created.get("success", false)) and markers.size() == 1, "named marker can be created")
+	if markers.is_empty():
+		return
+	var marker := markers[0]
+	var position := marker.get("position", []) as Array
+	_expect(position == [224.0, 416.0], "marker records the player's current position")
+	_expect(String(marker.get("color", "")) == "e5b94f", "marker keeps its chosen random color")
+	var marker_id := String(marker.get("id", ""))
+	var renamed := simulation.rename_marker(marker_id, "North spring")
+	var restored := FirstNightSimulation.new(simulation.export_state())
+	_expect(bool(renamed.get("success", false)) and String(restored.get_markers()[0].get("name", "")) == "North spring", "marker name and location survive save/load")
+	var removed := restored.remove_marker(marker_id)
+	_expect(bool(removed.get("success", false)) and restored.get_markers().is_empty(), "marker can be deleted from the list")
 
 
 func _test_world_drops_persist_and_pickup_by_id() -> void:
