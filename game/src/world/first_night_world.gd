@@ -19,6 +19,15 @@ const CraftingCatalogScript := preload(
 const DroppedItemScene: PackedScene = preload(
 	"res://src/items/dropped_item.tscn"
 )
+const GRASS_TILE: Texture2D = preload(
+	"res://assets/sprites/tiles/ai_grass.png"
+)
+const DIRT_TILE: Texture2D = preload(
+	"res://assets/sprites/tiles/ai_dirt.png"
+)
+const ROAD_TILE: Texture2D = preload(
+	"res://assets/sprites/tiles/ai_road.png"
+)
 
 var _interactables: Array[InteractableView] = []
 var _drop_views: Dictionary = {}
@@ -474,12 +483,11 @@ func _add_static_rect(rect: Rect2) -> void:
 func _draw() -> void:
 	var tile: float = float(Catalog.CELL_SIZE)
 	var map_pixels := Vector2(Catalog.MAP_SIZE * Catalog.CELL_SIZE)
-	draw_rect(Rect2(Vector2.ZERO, map_pixels), Color("566f46"))
-
-	for y: int in range(Catalog.MAP_SIZE.y):
-		for x: int in range(Catalog.MAP_SIZE.x):
-			if (x * 7 + y * 11) % 9 == 0:
-				draw_rect(Rect2(x * tile + 4.0, y * tile + 5.0, 4.0, 3.0), Color(0.30, 0.42, 0.25, 0.55))
+	draw_texture_rect(
+		GRASS_TILE,
+		Rect2(Vector2.ZERO, map_pixels),
+		true
+	)
 
 	var water_rect := Rect2(0.0, 20.0 * tile, 7.5 * tile, 15.0 * tile)
 	draw_rect(water_rect, Color("356c79"))
@@ -493,7 +501,11 @@ func _draw() -> void:
 		Vector2(7.0 * tile, 35.0 * tile),
 	]), Color("b39a69"))
 
-	draw_rect(Rect2(19.0 * tile, 17.0 * tile, 10.0 * tile, 9.0 * tile), Color("746b58"))
+	draw_texture_rect(
+		DIRT_TILE,
+		Rect2(19.0 * tile, 17.0 * tile, 10.0 * tile, 9.0 * tile),
+		true
+	)
 	draw_rect(Rect2(19.0 * tile, 17.0 * tile, 10.0 * tile, 16.0), Color("3d3933"))
 	draw_rect(Rect2(19.0 * tile, 17.0 * tile, 16.0, 9.0 * tile), Color("3d3933"))
 	draw_rect(Rect2(29.0 * tile - 16.0, 17.0 * tile, 16.0, 9.0 * tile), Color("3d3933"))
@@ -501,9 +513,16 @@ func _draw() -> void:
 	draw_rect(Rect2(25.0 * tile, 26.0 * tile - 16.0, 4.0 * tile, 16.0), Color("3d3933"))
 	draw_rect(Rect2(24.0 * tile, 26.0 * tile - 8.0, tile, 8.0), Color("b99b68"))
 
-	var road_color := Color(0.55, 0.46, 0.33, 0.55)
-	draw_rect(Rect2(23.2 * tile, 26.0 * tile, 2.6 * tile, 12.0 * tile), road_color)
-	draw_rect(Rect2(8.0 * tile, 30.0 * tile, 16.0 * tile, 2.0 * tile), road_color)
+	draw_texture_rect(
+		ROAD_TILE,
+		Rect2(23.2 * tile, 26.0 * tile, 2.6 * tile, 12.0 * tile),
+		true
+	)
+	draw_texture_rect(
+		ROAD_TILE,
+		Rect2(8.0 * tile, 30.0 * tile, 16.0 * tile, 2.0 * tile),
+		true
+	)
 
 	var grid_color := Color(0.12, 0.16, 0.11, 0.10)
 	for x_line: int in range(Catalog.MAP_SIZE.x + 1):
