@@ -19,6 +19,8 @@ func _draw() -> void:
 	var screen_center := viewport_size * 0.5
 	var half_bounds := viewport_size * 0.5 - Vector2(24.0, 24.0)
 	for marker: Dictionary in Session.get_markers():
+		if not bool(marker.get("enabled", true)):
+			continue
 		var raw_position := marker.get("position", []) as Array
 		if raw_position.size() < 2:
 			continue

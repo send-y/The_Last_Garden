@@ -123,7 +123,21 @@ func _ready() -> void:
 		_fail("Shift+L did not reopen the list for marker deletion.")
 		return
 	marker_row = marker_list.get_child(0) as HBoxContainer
-	var delete_button := marker_row.get_child(3) as Button
+	var marker_toggle_button := marker_row.get_child(3) as Button
+	marker_toggle_button.pressed.emit()
+	await get_tree().process_frame
+	if bool(Session.get_markers()[0].get("enabled", true)):
+		_fail("Temporarily disabling a marker did not hide it in saved state.")
+		return
+	marker_row = marker_list.get_child(0) as HBoxContainer
+	marker_toggle_button = marker_row.get_child(3) as Button
+	marker_toggle_button.pressed.emit()
+	await get_tree().process_frame
+	if not bool(Session.get_markers()[0].get("enabled", false)):
+		_fail("A disabled marker could not be enabled again.")
+		return
+	marker_row = marker_list.get_child(0) as HBoxContainer
+	var delete_button := marker_row.get_child(4) as Button
 	delete_button.pressed.emit()
 	await get_tree().process_frame
 	if not Session.get_markers().is_empty():

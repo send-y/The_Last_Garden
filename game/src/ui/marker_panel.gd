@@ -3,6 +3,7 @@ extends PanelContainer
 signal close_requested
 signal create_requested(marker_name: String, color: Color)
 signal rename_requested(marker_id: String, marker_name: String)
+signal enabled_changed(marker_id: String, enabled: bool)
 signal delete_requested(marker_id: String)
 
 const Localized := preload("res://src/localization/localized_text.gd")
@@ -158,6 +159,15 @@ func _refresh_marker_list(markers: Array[Dictionary]) -> void:
 			func() -> void: _begin_rename(marker_id, marker_name)
 		)
 		row.add_child(rename_button)
+		var marker_enabled := bool(marker.get("enabled", true))
+		var toggle_button := Button.new()
+		toggle_button.text = Localized.resolve(
+			"ui.marker.disable" if marker_enabled else "ui.marker.enable"
+		)
+		toggle_button.pressed.connect(
+			func() -> void: enabled_changed.emit(marker_id, not marker_enabled)
+		)
+		row.add_child(toggle_button)
 		var delete_button := Button.new()
 		delete_button.text = Localized.resolve("ui.marker.delete")
 		delete_button.pressed.connect(

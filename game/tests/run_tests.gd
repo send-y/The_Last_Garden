@@ -727,8 +727,12 @@ func _test_named_markers_and_save_round_trip() -> void:
 	_expect(String(marker.get("color", "")) == "e5b94f", "marker keeps its chosen random color")
 	var marker_id := String(marker.get("id", ""))
 	var renamed := simulation.rename_marker(marker_id, "North spring")
+	var disabled := simulation.set_marker_enabled(marker_id, false)
 	var restored := FirstNightSimulation.new(simulation.export_state())
 	_expect(bool(renamed.get("success", false)) and String(restored.get_markers()[0].get("name", "")) == "North spring", "marker name and location survive save/load")
+	_expect(bool(disabled.get("success", false)) and not bool(restored.get_markers()[0].get("enabled", true)), "a temporarily hidden marker remains disabled after save/load")
+	var enabled := restored.set_marker_enabled(marker_id, true)
+	_expect(bool(enabled.get("success", false)) and bool(restored.get_markers()[0].get("enabled", false)), "a hidden marker can be shown again")
 	var removed := restored.remove_marker(marker_id)
 	_expect(bool(removed.get("success", false)) and restored.get_markers().is_empty(), "marker can be deleted from the list")
 

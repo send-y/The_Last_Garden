@@ -93,6 +93,10 @@ func rename_marker(marker_id: String, marker_name: String) -> Dictionary:
 	return simulation.rename_marker(marker_id, marker_name)
 
 
+func set_marker_enabled(marker_id: String, enabled: bool) -> Dictionary:
+	return simulation.set_marker_enabled(marker_id, enabled)
+
+
 func remove_marker(marker_id: String) -> Dictionary:
 	return simulation.remove_marker(marker_id)
 

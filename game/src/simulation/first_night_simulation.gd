@@ -1598,6 +1598,7 @@ func create_marker(marker_name: String, color: Color) -> Dictionary:
 		"id": "core:marker_%04d" % serial,
 		"name": safe_name,
 		"color": color.to_html(false),
+		"enabled": true,
 		"position": [get_player_position().x, get_player_position().y],
 	}
 	markers.append(marker)
@@ -1615,6 +1616,21 @@ func rename_marker(marker_id: String, marker_name: String) -> Dictionary:
 			continue
 		marker["name"] = safe_name
 		return _emit_result(true, "ui.marker.renamed", true, false, {"name": safe_name})
+	return _emit_result(false, "ui.marker.failure.missing")
+
+
+func set_marker_enabled(marker_id: String, enabled: bool) -> Dictionary:
+	for marker: Dictionary in state.get("markers", []):
+		if String(marker.get("id", "")) != marker_id:
+			continue
+		if bool(marker.get("enabled", true)) == enabled:
+			return _emit_result(true, "ui.marker.enabled" if enabled else "ui.marker.disabled")
+		marker["enabled"] = enabled
+		return _emit_result(
+			true,
+			"ui.marker.enabled" if enabled else "ui.marker.disabled",
+			true
+		)
 	return _emit_result(false, "ui.marker.failure.missing")
 
 
@@ -2337,6 +2353,7 @@ func _normalize_markers(value: Variant) -> Array[Dictionary]:
 			"id": marker_id,
 			"name": marker_name,
 			"color": color_text.to_lower(),
+			"enabled": bool(marker.get("enabled", true)),
 			"position": [x, y],
 		})
 	return markers

@@ -123,6 +123,7 @@ func _build_marker_ui() -> void:
 	_marker_panel.connect("close_requested", _close_marker_panel)
 	_marker_panel.connect("create_requested", _on_marker_create_requested)
 	_marker_panel.connect("rename_requested", _on_marker_rename_requested)
+	_marker_panel.connect("enabled_changed", _on_marker_enabled_changed)
 	_marker_panel.connect("delete_requested", _on_marker_delete_requested)
 	add_child(_marker_panel)
 
@@ -158,6 +159,11 @@ func _on_marker_rename_requested(marker_id: String, marker_name: String) -> void
 		_close_marker_panel()
 		return
 	_marker_panel.call("set_feedback", Localized.resolve(String(result.get("message_key", ""))))
+
+
+func _on_marker_enabled_changed(marker_id: String, enabled: bool) -> void:
+	Session.set_marker_enabled(marker_id, enabled)
+	_marker_panel.call("show_list", Session.get_markers())
 
 
 func _on_marker_delete_requested(marker_id: String) -> void:
