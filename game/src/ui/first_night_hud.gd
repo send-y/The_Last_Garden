@@ -158,17 +158,12 @@ func _build_ui() -> void:
 	_objective_label = _make_label(self, Vector2(434, 38), Vector2(158, 48), 9)
 	_objective_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 
-	var feedback_panel := _make_pixel_panel(
-		Vector2(210.0, 258.0), Vector2(220.0, 28.0)
-	)
-	_selection_label = _make_label(
-		feedback_panel, Vector2(5.0, 2.0), Vector2(210.0, 15.0), 8
-	)
+	# Keep feedback in a dedicated, background-free area above the hotbar. The
+	# previous 9-patch panel was compressed vertically into a purple strip.
+	_selection_label = _make_bottom_centered_label(-106.0, -87.0, 10)
 	_selection_label.add_theme_color_override("font_color", UiSkin.TEXT_ACCENT)
 	_selection_label.text = Localized.resolve("ui.hud.selection.none")
-	_message_label = _make_label(
-		feedback_panel, Vector2(5.0, 15.0), Vector2(210.0, 12.0), 8
-	)
+	_message_label = _make_bottom_centered_label(-87.0, -68.0, 9)
 	_message_label.autowrap_mode = TextServer.AUTOWRAP_OFF
 	_message_label.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 	_message_label.text = Localized.resolve("ui.hud.intro")
@@ -187,11 +182,23 @@ func _build_ui() -> void:
 	stamina_unknown.text = "—"
 	stamina_unknown.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	stamina_unknown.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	_add_ui_texture("hotbar.png", Vector2(201, 294), Vector2(238, 56))
+	var hotbar := Control.new()
+	hotbar.anchor_left = 0.5
+	hotbar.anchor_right = 0.5
+	hotbar.anchor_top = 1.0
+	hotbar.anchor_bottom = 1.0
+	hotbar.offset_left = -119.0
+	hotbar.offset_right = 119.0
+	hotbar.offset_top = -66.0
+	hotbar.offset_bottom = -10.0
+	hotbar.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(hotbar)
+	_add_ui_texture_to(hotbar, "hotbar.png", Vector2.ZERO, Vector2(238, 56))
 	for slot_index in range(5):
-		_add_ui_texture(
+		_add_ui_texture_to(
+			hotbar,
 			"hotbar_slot_normal.png",
-			Vector2(208 + slot_index * 44, 301),
+			Vector2(10 + slot_index * 44, 7),
 			Vector2(42, 42)
 		)
 
@@ -220,6 +227,15 @@ func _build_ui() -> void:
 
 
 func _add_ui_texture(file_name: String, at: Vector2, texture_size: Vector2) -> TextureRect:
+	return _add_ui_texture_to(self, file_name, at, texture_size)
+
+
+func _add_ui_texture_to(
+	parent: Control,
+	file_name: String,
+	at: Vector2,
+	texture_size: Vector2
+) -> TextureRect:
 	var texture_rect := TextureRect.new()
 	texture_rect.texture = load("res://assets/sprites/ui/%s" % file_name) as Texture2D
 	texture_rect.position = at
@@ -227,8 +243,31 @@ func _add_ui_texture(file_name: String, at: Vector2, texture_size: Vector2) -> T
 	texture_rect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	texture_rect.stretch_mode = TextureRect.STRETCH_SCALE
 	texture_rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	add_child(texture_rect)
+	parent.add_child(texture_rect)
 	return texture_rect
+
+
+func _make_bottom_centered_label(
+	top_offset: float,
+	bottom_offset: float,
+	font_size: int
+) -> Label:
+	var label := Label.new()
+	label.anchor_left = 0.5
+	label.anchor_right = 0.5
+	label.anchor_top = 1.0
+	label.anchor_bottom = 1.0
+	label.offset_left = -200.0
+	label.offset_right = 200.0
+	label.offset_top = top_offset
+	label.offset_bottom = bottom_offset
+	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	label.add_theme_font_size_override("font_size", font_size)
+	label.add_theme_color_override("font_color", UiSkin.TEXT_PRIMARY)
+	add_child(label)
+	return label
 
 
 func _toggle_tasks_panel() -> void:
@@ -243,19 +282,6 @@ func _toggle_tasks_panel() -> void:
 	_tasks_toggle.text = Localized.resolve(
 		"ui.hud.tasks.collapse" if _tasks_expanded else "ui.hud.tasks.expand"
 	)
-
-
-func _make_pixel_panel(at: Vector2, panel_size: Vector2) -> Control:
-	var panel := PanelContainer.new()
-	panel.position = at
-	panel.size = panel_size
-	panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	panel.add_theme_stylebox_override("panel", UiSkin.panel_style())
-	add_child(panel)
-	var content := Control.new()
-	content.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	panel.add_child(content)
-	return content
 
 
 func _make_label(parent: Node, at: Vector2, label_size: Vector2, font_size: int) -> Label:
