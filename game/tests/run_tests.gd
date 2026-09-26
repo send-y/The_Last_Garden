@@ -614,6 +614,10 @@ func _test_surface_berry_bushes_are_seeded_and_collectible() -> void:
 		simulation.is_collected(bush_id),
 		"harvested berry bush does not produce food repeatedly"
 	)
+	_expect(
+		not simulation.should_hide_interactable(bush_id, "food"),
+		"picked bush stays in the world to show its berryless sprite"
+	)
 	var restored := FirstNightSimulation.new(simulation.export_state())
 	_expect(
 		restored.is_collected(bush_id)

@@ -1622,6 +1622,8 @@ func should_hide_interactable(object_id: String, kind: String) -> bool:
 		return not npc_catalog.is_visible(get_npcs(), object_id)
 	if kind == "tools":
 		return bool(get_flags().get("tools_found", false))
+	if kind == "food":
+		return false
 	if content.has_collect_rule(kind) and not content.is_collect_rule_repeatable(kind):
 		return is_collected(object_id)
 	return false

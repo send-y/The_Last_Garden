@@ -49,6 +49,7 @@
 	{
 	  "id": "core:food",
 	  "label_key": "item.core.food.name",
+	  "icon_path": "res://assets/sprites/items/berry.png",
 	  "max_stack": 5,
 	  "footprint": [[0, 0]]
 	}

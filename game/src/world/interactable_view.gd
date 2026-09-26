@@ -14,6 +14,12 @@ const BOULDER_STAGE_TEXTURES := [
 	preload("res://assets/sprites/resources/rock_4.png"),
 ]
 const TREE_TEXTURE := preload("res://assets/sprites/world/tree_1.png")
+const BERRY_BUSH_TEXTURE := preload(
+	"res://assets/sprites/resources/bush_berries.png"
+)
+const BERRY_BUSH_EMPTY_TEXTURE := preload(
+	"res://assets/sprites/resources/bush_no_berries.png"
+)
 const BOULDER_COLLISION_SIZE: Vector2 = Vector2(64.0, 18.0)
 const BOULDER_COLLISION_OFFSET: Vector2 = Vector2(0.0, 12.0)
 const BOULDER_SORT_LINE_OFFSET: float = BOULDER_COLLISION_OFFSET.y
@@ -256,12 +262,16 @@ func _draw() -> void:
 		return
 	if presentation_id == "berry_bush":
 		draw_ellipse_shadow()
-		draw_circle(Vector2(-5.0, 0.0), 9.0, Color("45613a"))
-		draw_circle(Vector2(5.0, -2.0), 10.0, Color("587747"))
-		draw_circle(Vector2(0.0, -6.0), 9.0, Color("66884d"))
-		draw_circle(Vector2(-4.0, -6.0), 2.0, Color("b64a55"))
-		draw_circle(Vector2(4.0, -3.0), 2.0, Color("c45a5a"))
-		draw_circle(Vector2(1.0, 1.0), 2.0, Color("b64a55"))
+		var bush_texture := (
+			BERRY_BUSH_EMPTY_TEXTURE
+			if Session.is_collected(object_id)
+			else BERRY_BUSH_TEXTURE
+		)
+		draw_texture_rect(
+			bush_texture,
+			Rect2(Vector2(-16.0, -16.0), Vector2(32.0, 32.0)),
+			false
+		)
 		if _is_selected:
 			draw_rect(rect.grow(4.0), Color("f1d66b"), false, 2.0)
 		return
