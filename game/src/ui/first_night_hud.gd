@@ -16,6 +16,8 @@ const CraftingPanelScene: PackedScene = preload(
 const ConstructionPaletteScene: PackedScene = preload(
 	"res://src/ui/construction_palette.tscn"
 )
+const MarkerPanelScene: PackedScene = preload("res://src/ui/marker_panel.tscn")
+const MarkerOverlayScript := preload("res://src/ui/marker_overlay.gd")
 
 var _content_data: FirstNightContent = Content.new()
 var _time_label: Label
@@ -30,6 +32,9 @@ var _crafting_panel: CraftingPanel
 var _construction_palette: ConstructionPalette
 var _crafting_cell: Vector2i = Vector2i(-1, -1)
 var _inventory_was_paused: bool = false
+var _marker_panel: PanelContainer
+var _marker_overlay: Control
+var _marker_was_paused: bool = false
 
 @onready var _inventory_panel: InventoryPanel = (
 	$InventoryPanel as InventoryPanel
@@ -40,9 +45,16 @@ var _inventory_was_paused: bool = false
 
 func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
+	# This fullscreen dimmer is visual only. Let modal panels receive GUI input.
+	_inventory_backdrop.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_build_ui()
+	_build_marker_ui()
 	_inventory_panel.close_requested.connect(
 		_on_inventory_close_requested
+	)
+	_inventory_panel.eat_food_requested.connect(_on_eat_food_requested)
+	_inventory_panel.inventory_layout_changed.connect(
+		_on_inventory_layout_changed
 	)
 	_inventory_panel.hide()
 	_inventory_backdrop.hide()
@@ -86,6 +98,79 @@ func set_selection(selection: Dictionary) -> void:
 	_selection_label.text = Localized.resolve("ui.hud.selection.none")
 
 
+func request_marker_creation() -> void:
+	_show_marker_panel()
+	_marker_panel.call("show_creation")
+
+
+func toggle_marker_list() -> void:
+	if _marker_panel.visible:
+		_close_marker_panel()
+		return
+	_show_marker_panel()
+	_marker_panel.call("show_list", Session.get_markers())
+
+
+func is_marker_list_open() -> bool:
+	return bool(_marker_panel.call("is_list_open"))
+
+
+func _build_marker_ui() -> void:
+	_marker_overlay = MarkerOverlayScript.new() as Control
+	add_child(_marker_overlay)
+	move_child(_marker_overlay, 0)
+	_marker_panel = MarkerPanelScene.instantiate() as PanelContainer
+	_marker_panel.connect("close_requested", _close_marker_panel)
+	_marker_panel.connect("create_requested", _on_marker_create_requested)
+	_marker_panel.connect("rename_requested", _on_marker_rename_requested)
+	_marker_panel.connect("enabled_changed", _on_marker_enabled_changed)
+	_marker_panel.connect("delete_requested", _on_marker_delete_requested)
+	add_child(_marker_panel)
+
+
+func _show_marker_panel() -> void:
+	if _marker_panel.visible:
+		return
+	_marker_was_paused = Session.is_paused()
+	Session.set_paused(true, false)
+	_inventory_backdrop.show()
+
+
+func _close_marker_panel() -> void:
+	if not _marker_panel.visible:
+		return
+	_marker_panel.hide()
+	_inventory_backdrop.hide()
+	if not _marker_was_paused:
+		Session.set_paused(false, false)
+
+
+func _on_marker_create_requested(marker_name: String, color: Color) -> void:
+	var result := Session.create_marker(marker_name, color)
+	if bool(result.get("success", false)):
+		_close_marker_panel()
+		return
+	_marker_panel.call("set_feedback", Localized.resolve(String(result.get("message_key", ""))))
+
+
+func _on_marker_rename_requested(marker_id: String, marker_name: String) -> void:
+	var result := Session.rename_marker(marker_id, marker_name)
+	if bool(result.get("success", false)):
+		_close_marker_panel()
+		return
+	_marker_panel.call("set_feedback", Localized.resolve(String(result.get("message_key", ""))))
+
+
+func _on_marker_enabled_changed(marker_id: String, enabled: bool) -> void:
+	Session.set_marker_enabled(marker_id, enabled)
+	_marker_panel.call("show_list", Session.get_markers())
+
+
+func _on_marker_delete_requested(marker_id: String) -> void:
+	Session.remove_marker(marker_id)
+	_marker_panel.call("show_list", Session.get_markers())
+
+
 func refresh() -> void:
 	var time_key: String = "ui.hud.day_time_paused" if Session.is_paused() else "ui.hud.day_time"
 	_time_label.text = Localized.resolve(time_key, {
@@ -99,9 +184,10 @@ func refresh() -> void:
 	_refresh_inventory_panel()
 
 func _refresh_inventory_panel() -> void:
-	var packed: Dictionary = InventoryPacker.pack(
+	var packed: Dictionary = InventoryPacker.pack_with_layout(
 		Session.get_inventory(),
-		_content_data
+		_content_data,
+		Session.get_inventory_layout()
 	)
 	var packed_placements := (
 		packed.get("placements", []) as Array
@@ -125,27 +211,10 @@ func _refresh_inventory_panel() -> void:
 		placement["label"] = Localized.resolve(
 			_content_data.item_label_key(item_id)
 		)
-		placement["total_weight"] = (
-			_content_data.item_weight(item_id)
-			* int(placement.get("amount", 1))
-		)
 		placements.append(placement)
 
 	_inventory_panel.present(
 		Localized.resolve("ui.inventory.title"),
-		Localized.resolve(
-			"ui.inventory.weight",
-			{
-				"weight": String.num(
-					Session.get_inventory_weight(),
-					1
-				),
-				"max_weight": String.num(
-					Session.get_max_carry_weight(),
-					0
-				),
-			}
-		),
 		placements
 	)
 
@@ -175,18 +244,14 @@ func _build_ui() -> void:
 	_objective_label = _make_label(self, Vector2(434, 38), Vector2(158, 48), 9)
 	_objective_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 
-	var feedback_panel := _make_pixel_panel(
-		Vector2(210.0, 258.0), Vector2(220.0, 28.0)
-	)
-	_selection_label = _make_label(
-		feedback_panel, Vector2(5.0, 2.0), Vector2(210.0, 15.0), 8
-	)
+	# Keep feedback in a dedicated, background-free area above the hotbar. The
+	# previous 9-patch panel was compressed vertically into a purple strip.
+	_selection_label = _make_bottom_centered_label(-106.0, -87.0, 10)
 	_selection_label.add_theme_color_override("font_color", UiSkin.TEXT_ACCENT)
 	_selection_label.text = Localized.resolve("ui.hud.selection.none")
-	_message_label = _make_label(
-		feedback_panel, Vector2(5.0, 15.0), Vector2(210.0, 12.0), 8
-	)
-	_message_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_message_label = _make_bottom_centered_label(-87.0, -68.0, 9)
+	_message_label.autowrap_mode = TextServer.AUTOWRAP_OFF
+	_message_label.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 	_message_label.text = Localized.resolve("ui.hud.intro")
 
 	_add_ui_texture("status_heart.png", Vector2(10, 299), Vector2(18, 18))
@@ -203,11 +268,23 @@ func _build_ui() -> void:
 	stamina_unknown.text = "—"
 	stamina_unknown.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	stamina_unknown.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	_add_ui_texture("hotbar.png", Vector2(201, 294), Vector2(238, 56))
+	var hotbar := Control.new()
+	hotbar.anchor_left = 0.5
+	hotbar.anchor_right = 0.5
+	hotbar.anchor_top = 1.0
+	hotbar.anchor_bottom = 1.0
+	hotbar.offset_left = -119.0
+	hotbar.offset_right = 119.0
+	hotbar.offset_top = -66.0
+	hotbar.offset_bottom = -10.0
+	hotbar.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(hotbar)
+	_add_ui_texture_to(hotbar, "hotbar.png", Vector2.ZERO, Vector2(238, 56))
 	for slot_index in range(5):
-		_add_ui_texture(
+		_add_ui_texture_to(
+			hotbar,
 			"hotbar_slot_normal.png",
-			Vector2(208 + slot_index * 44, 301),
+			Vector2(10 + slot_index * 44, 7),
 			Vector2(42, 42)
 		)
 
@@ -236,6 +313,15 @@ func _build_ui() -> void:
 
 
 func _add_ui_texture(file_name: String, at: Vector2, texture_size: Vector2) -> TextureRect:
+	return _add_ui_texture_to(self, file_name, at, texture_size)
+
+
+func _add_ui_texture_to(
+	parent: Control,
+	file_name: String,
+	at: Vector2,
+	texture_size: Vector2
+) -> TextureRect:
 	var texture_rect := TextureRect.new()
 	texture_rect.texture = load("res://assets/sprites/ui/%s" % file_name) as Texture2D
 	texture_rect.position = at
@@ -243,8 +329,31 @@ func _add_ui_texture(file_name: String, at: Vector2, texture_size: Vector2) -> T
 	texture_rect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	texture_rect.stretch_mode = TextureRect.STRETCH_SCALE
 	texture_rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	add_child(texture_rect)
+	parent.add_child(texture_rect)
 	return texture_rect
+
+
+func _make_bottom_centered_label(
+	top_offset: float,
+	bottom_offset: float,
+	font_size: int
+) -> Label:
+	var label := Label.new()
+	label.anchor_left = 0.5
+	label.anchor_right = 0.5
+	label.anchor_top = 1.0
+	label.anchor_bottom = 1.0
+	label.offset_left = -200.0
+	label.offset_right = 200.0
+	label.offset_top = top_offset
+	label.offset_bottom = bottom_offset
+	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	label.add_theme_font_size_override("font_size", font_size)
+	label.add_theme_color_override("font_color", UiSkin.TEXT_PRIMARY)
+	add_child(label)
+	return label
 
 
 func _toggle_tasks_panel() -> void:
@@ -261,19 +370,6 @@ func _toggle_tasks_panel() -> void:
 	)
 
 
-func _make_pixel_panel(at: Vector2, panel_size: Vector2) -> Control:
-	var panel := PanelContainer.new()
-	panel.position = at
-	panel.size = panel_size
-	panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	panel.add_theme_stylebox_override("panel", UiSkin.panel_style())
-	add_child(panel)
-	var content := Control.new()
-	content.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	panel.add_child(content)
-	return content
-
-
 func _make_label(parent: Node, at: Vector2, label_size: Vector2, font_size: int) -> Label:
 	var label := Label.new()
 	label.position = at
@@ -288,8 +384,6 @@ func _make_label(parent: Node, at: Vector2, label_size: Vector2, font_size: int)
 func _format_inventory() -> String:
 	var inventory: Dictionary = Session.get_inventory()
 	return Localized.resolve("ui.hud.inventory_brief", {
-		"weight": String.num(Session.get_inventory_weight(), 1),
-		"max_weight": String.num(Session.get_max_carry_weight(), 0),
 		"wood": int(inventory.get(FirstNightContent.WOOD_ID, 0)),
 		"stone": int(inventory.get(FirstNightContent.STONE_ID, 0)),
 	})
@@ -313,6 +407,9 @@ func _on_building_selected(building_id: String) -> void:
 	building_selected.emit(building_id)
 
 func toggle_inventory() -> void:
+	if _marker_panel.visible:
+		_close_marker_panel()
+		return
 	if _crafting_panel.visible:
 		_set_crafting_open(false)
 	_set_inventory_open(not _inventory_panel.visible)
@@ -323,7 +420,7 @@ func is_inventory_open() -> bool:
 
 
 func is_modal_open() -> bool:
-	return _inventory_panel.visible or _crafting_panel.visible
+	return _inventory_panel.visible or _crafting_panel.visible or _marker_panel.visible
 
 
 func open_crafting(cell: Vector2i, recipes: Array[Dictionary]) -> void:
@@ -356,6 +453,18 @@ func _set_inventory_open(should_open: bool) -> void:
 
 func _on_inventory_close_requested() -> void:
 	_set_inventory_open(false)
+
+
+func _on_eat_food_requested() -> void:
+	Session.eat_food()
+	_refresh_inventory_panel()
+
+
+func _on_inventory_layout_changed(layout: Array[Dictionary]) -> void:
+	var result: Dictionary = Session.set_inventory_layout(layout)
+	if not bool(result.get("success", false)):
+		return
+	_refresh_inventory_panel()
 
 
 func _set_crafting_open(should_open: bool) -> void:

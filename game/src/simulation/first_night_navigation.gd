@@ -1,7 +1,7 @@
 class_name FirstNightNavigation
 extends RefCounted
 
-const MAP_SIZE: Vector2i = Vector2i(48, 48)
+const MAP_SIZE: Vector2i = Vector2i(128, 128)
 const CELL_SIZE: int = 32
 
 

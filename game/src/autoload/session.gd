@@ -66,6 +66,41 @@ func get_inventory() -> Dictionary:
 	return simulation.get_inventory().duplicate(true)
 
 
+func get_inventory_layout() -> Array[Dictionary]:
+	var layout: Array[Dictionary] = []
+	for placement: Dictionary in simulation.state.get("inventory_layout", []):
+		layout.append(placement.duplicate(true))
+	return layout
+
+
+func set_inventory_layout(layout: Array[Dictionary]) -> Dictionary:
+	return simulation.set_inventory_layout(layout)
+
+
+func eat_food() -> Dictionary:
+	return simulation.eat_food()
+
+
+func get_markers() -> Array[Dictionary]:
+	return simulation.get_markers()
+
+
+func create_marker(marker_name: String, color: Color) -> Dictionary:
+	return simulation.create_marker(marker_name, color)
+
+
+func rename_marker(marker_id: String, marker_name: String) -> Dictionary:
+	return simulation.rename_marker(marker_id, marker_name)
+
+
+func set_marker_enabled(marker_id: String, enabled: bool) -> Dictionary:
+	return simulation.set_marker_enabled(marker_id, enabled)
+
+
+func remove_marker(marker_id: String) -> Dictionary:
+	return simulation.remove_marker(marker_id)
+
+
 func try_pickup_item(item_id: String, amount: int) -> Dictionary:
 	return simulation.try_pickup_item(item_id, amount)
 
@@ -74,16 +109,20 @@ func get_world_drops() -> Array:
 	return simulation.get_world_drops()
 
 
+func get_surface_boulders() -> Array[Dictionary]:
+	return simulation.get_surface_boulders()
+
+
+func get_surface_trees() -> Array[Dictionary]:
+	return simulation.get_surface_trees()
+
+
+func get_surface_berry_bushes() -> Array[Dictionary]:
+	return simulation.get_surface_berry_bushes()
+
+
 func try_pickup_world_drop(drop_id: String) -> Dictionary:
 	return simulation.try_pickup_world_drop(drop_id)
-
-
-func get_inventory_weight() -> float:
-	return simulation.get_inventory_weight()
-
-
-func get_max_carry_weight() -> float:
-	return simulation.MAX_CARRY_WEIGHT
 
 
 func get_flags() -> Dictionary:

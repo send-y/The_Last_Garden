@@ -32,14 +32,16 @@ const NpcMemoryScript := preload("res://src/simulation/npc_memory.gd")
 const InventoryPackerScript := preload(
 	"res://src/inventory/inventory_auto_packer.gd"
 )
+const ResourceNodeCatalogScript := preload(
+	"res://src/content/resource_node_catalog.gd"
+)
 
-const SAVE_VERSION: int = 13
+const SAVE_VERSION: int = 16
 const DEFAULT_SEED: int = 247061
 const START_MINUTE: int = 11 * 60
 const EVENING_MINUTE: int = 18 * 60
 const LATEST_MINUTE: int = 23 * 60 + 50
 const GAME_MINUTES_PER_SECOND: float = 0.75
-const MAX_CARRY_WEIGHT: float = 24.0
 const PLAYER_ACTOR_ID: String = "core:player"
 const ACTION_INTERACT: String = "core:interact"
 const OUTCOME_DRY_ROOM_ID: String = "core:dry_room"
@@ -83,6 +85,7 @@ var npc_autonomy
 var building_catalog: BuildingCatalog
 var crafting_catalog: CraftingCatalog
 var _minute_accumulator: float = 0.0
+var _berry_bush_nodes: Array[Dictionary] = []
 
 
 func _init(initial_state: Dictionary = {}) -> void:
@@ -107,6 +110,9 @@ func _init(initial_state: Dictionary = {}) -> void:
 static func create_new_state(seed_value: int = DEFAULT_SEED) -> Dictionary:
 	var content_data: FirstNightContent = Content.new()
 	var npc_data := Npcs.new()
+	var boulders: Array[Dictionary] = (
+		ResourceNodeCatalogScript.generate_surface_boulders(seed_value)
+	)
 	return {
 		"version": SAVE_VERSION,
 		"seed": seed_value,
@@ -114,6 +120,14 @@ static func create_new_state(seed_value: int = DEFAULT_SEED) -> Dictionary:
 		"minute_of_day": START_MINUTE,
 		"player_position": [784.0, 944.0],
 		"inventory": content_data.create_empty_inventory(),
+		"inventory_layout": [],
+		"markers": [],
+		"next_marker_serial": 1,
+		"resource_nodes": boulders,
+		"tree_nodes": ResourceNodeCatalogScript.generate_surface_trees(
+			seed_value,
+			boulders
+		),
 		"collected": {},
 		"resource_work": {},
 		"world_drops": [],
@@ -291,10 +305,15 @@ func execute_resource_work(
 
 	var kind: String = String(target.get("kind", ""))
 	var rule: Dictionary = content.get_collect_rule(kind)
+	var presentation_id := String(target.get("presentation_id", ""))
 	var required_work: int = maxi(
 		0,
 		int(rule.get("work_minutes", 0))
 	)
+	if presentation_id == "surface_tree":
+		required_work = 8
+	elif presentation_id == "surface_stump":
+		required_work = 4
 
 	if required_work <= 0:
 		return {
@@ -342,6 +361,13 @@ func execute_resource_work(
 
 	if next_work < required_work:
 		resource_work[normalized_id] = next_work
+		var pinecone_drop_ids: Array[String] = []
+		if presentation_id == "surface_tree":
+			pinecone_drop_ids = _maybe_drop_pinecone(
+				normalized_id,
+				next_work,
+				target_position
+			)
 		event_emitted.emit({"type": "state_changed"})
 
 		return {
@@ -351,20 +377,42 @@ func execute_resource_work(
 			"target_id": normalized_id,
 			"work_progress_minutes": next_work,
 			"required_work_minutes": required_work,
+			"created_drop_ids": pinecone_drop_ids,
 		}
 
 	resource_work.erase(normalized_id)
 
 	var collected: Dictionary = state["collected"] as Dictionary
-	collected[normalized_id] = true
+	var tree_node: Dictionary = _get_tree_node(normalized_id)
+	if presentation_id == "surface_tree":
+		_update_tree_stage(normalized_id, "stump")
+	elif not tree_node.is_empty():
+		collected[normalized_id] = true
+	else:
+		collected[normalized_id] = true
 	var drop_item_id: String = String(rule.get("item_id", ""))
 	var drop_amount: int = maxi(0, int(rule.get("amount", 0)))
+	if not tree_node.is_empty():
+		drop_amount = int(tree_node.get("yield_amount", drop_amount))
+	if presentation_id == "surface_stump":
+		drop_amount = 0
+	if presentation_id == "surface_boulder":
+		drop_amount = int(target.get("yield_amount", drop_amount))
+	var drop_origin: Vector2 = target_position
+	if String(target.get("presentation_id", "")) == "surface_boulder":
+		drop_origin += Vector2(0.0, 40.0)
 	var created_drop_ids: Array[String] = _create_resource_drops(
 		normalized_id,
 		drop_item_id,
 		drop_amount,
-		target_position
+		drop_origin
 	)
+	if presentation_id == "surface_tree":
+		created_drop_ids.append_array(_maybe_drop_pinecone(
+			normalized_id,
+			next_work,
+			drop_origin
+		))
 
 	event_emitted.emit({"type": "state_changed"})
 
@@ -377,9 +425,30 @@ func execute_resource_work(
 		"required_work_minutes": required_work,
 		"drop_item_id": drop_item_id,
 		"drop_amount": drop_amount,
-		"drop_origin": target_position,
+		"drop_origin": drop_origin,
 		"created_drop_ids": created_drop_ids,
 	}
+
+
+func _maybe_drop_pinecone(
+	tree_id: String,
+	work_step: int,
+	origin: Vector2
+) -> Array[String]:
+	var rng := RandomNumberGenerator.new()
+	rng.seed = (
+		int(state.get("seed", DEFAULT_SEED))
+		^ int(tree_id.hash())
+		^ (work_step * 0x45D9F3B)
+	)
+	if rng.randf() >= 0.15:
+		return []
+	return _create_resource_drops(
+		tree_id,
+		"core:pinecone",
+		1,
+		origin
+	)
 
 
 func _create_resource_drops(
@@ -1334,6 +1403,39 @@ func get_world_drops() -> Array:
 	return (state.get("world_drops", []) as Array).duplicate(true)
 
 
+func get_surface_boulders() -> Array[Dictionary]:
+	var result: Array[Dictionary] = []
+	for node_value: Variant in state.get("resource_nodes", []) as Array:
+		if typeof(node_value) != TYPE_DICTIONARY:
+			continue
+		var interactable: Dictionary = ResourceNodeCatalogScript.to_interactable(
+			node_value as Dictionary
+		)
+		if not interactable.is_empty():
+			result.append(interactable)
+	return result
+
+
+func get_surface_trees() -> Array[Dictionary]:
+	var result: Array[Dictionary] = []
+	for node_value: Variant in state.get("tree_nodes", []) as Array:
+		if typeof(node_value) != TYPE_DICTIONARY:
+			continue
+		var interactable := ResourceNodeCatalogScript.to_interactable(
+			node_value as Dictionary
+		)
+		if not interactable.is_empty():
+			result.append(interactable)
+	return result
+
+
+func get_surface_berry_bushes() -> Array[Dictionary]:
+	var result: Array[Dictionary] = []
+	for bush: Dictionary in _berry_bush_nodes:
+		result.append(ResourceNodeCatalogScript.to_interactable(bush))
+	return result
+
+
 func try_pickup_world_drop(drop_id: String) -> Dictionary:
 	var drops: Array = state["world_drops"] as Array
 	var drop_index: int = -1
@@ -1411,6 +1513,11 @@ func get_resource_work_required(object_id: String) -> int:
 		return 0
 
 	var kind: String = String(target.get("kind", ""))
+	var presentation_id := String(target.get("presentation_id", ""))
+	if presentation_id == "surface_tree":
+		return 8
+	if presentation_id == "surface_stump":
+		return 4
 	var rule: Dictionary = content.get_collect_rule(kind)
 	return maxi(0, int(rule.get("work_minutes", 0)))
 
@@ -1451,15 +1558,6 @@ func get_item_count(item_id: String) -> int:
 	return int(get_inventory().get(content.normalize_item_id(item_id), 0))
 
 
-func get_inventory_weight() -> float:
-	var total: float = 0.0
-	var inventory: Dictionary = get_inventory()
-	for item_variant: Variant in inventory.keys():
-		var item_id: String = String(item_variant)
-		total += float(inventory[item_id]) * content.item_weight(item_id)
-	return total
-
-
 func get_day() -> int:
 	return int(state.get("day", 1))
 
@@ -1478,6 +1576,120 @@ func get_player_position() -> Vector2:
 	if stored.size() < 2:
 		return Vector2(784.0, 944.0)
 	return Vector2(float(stored[0]), float(stored[1]))
+
+
+func get_markers() -> Array[Dictionary]:
+	var result: Array[Dictionary] = []
+	for marker_variant: Variant in state.get("markers", []):
+		if typeof(marker_variant) == TYPE_DICTIONARY:
+			result.append((marker_variant as Dictionary).duplicate(true))
+	return result
+
+
+func create_marker(marker_name: String, color: Color) -> Dictionary:
+	var safe_name := marker_name.strip_edges().substr(0, 32)
+	if safe_name.is_empty():
+		return _emit_result(false, "ui.marker.failure.empty_name")
+	var markers := get_markers()
+	if markers.size() >= 64:
+		return _emit_result(false, "ui.marker.failure.limit")
+	var serial := maxi(1, int(state.get("next_marker_serial", 1)))
+	var marker := {
+		"id": "core:marker_%04d" % serial,
+		"name": safe_name,
+		"color": color.to_html(false),
+		"enabled": true,
+		"position": [get_player_position().x, get_player_position().y],
+	}
+	markers.append(marker)
+	state["markers"] = markers
+	state["next_marker_serial"] = serial + 1
+	return _emit_result(true, "ui.marker.created", true, false, {"name": safe_name})
+
+
+func rename_marker(marker_id: String, marker_name: String) -> Dictionary:
+	var safe_name := marker_name.strip_edges().substr(0, 32)
+	if safe_name.is_empty():
+		return _emit_result(false, "ui.marker.failure.empty_name")
+	for marker: Dictionary in state.get("markers", []):
+		if String(marker.get("id", "")) != marker_id:
+			continue
+		marker["name"] = safe_name
+		return _emit_result(true, "ui.marker.renamed", true, false, {"name": safe_name})
+	return _emit_result(false, "ui.marker.failure.missing")
+
+
+func set_marker_enabled(marker_id: String, enabled: bool) -> Dictionary:
+	for marker: Dictionary in state.get("markers", []):
+		if String(marker.get("id", "")) != marker_id:
+			continue
+		if bool(marker.get("enabled", true)) == enabled:
+			return _emit_result(true, "ui.marker.enabled" if enabled else "ui.marker.disabled")
+		marker["enabled"] = enabled
+		return _emit_result(
+			true,
+			"ui.marker.enabled" if enabled else "ui.marker.disabled",
+			true
+		)
+	return _emit_result(false, "ui.marker.failure.missing")
+
+
+func remove_marker(marker_id: String) -> Dictionary:
+	var markers: Array = state.get("markers", []) as Array
+	for index: int in range(markers.size()):
+		if String((markers[index] as Dictionary).get("id", "")) != marker_id:
+			continue
+		markers.remove_at(index)
+		state["markers"] = markers
+		return _emit_result(true, "ui.marker.removed", true)
+	return _emit_result(false, "ui.marker.failure.missing")
+
+
+func eat_food() -> Dictionary:
+	if get_item_count(FirstNightContent.FOOD_ID) <= 0:
+		return _emit_result(false, "ui.inventory.food.none")
+	_consume_items({FirstNightContent.FOOD_ID: 1})
+	return _emit_result(true, "ui.inventory.food.eaten", true)
+
+
+func set_inventory_layout(layout: Array[Dictionary]) -> Dictionary:
+	var current: Dictionary = InventoryPackerScript.pack(
+		get_inventory(), content, 4, 4
+	)
+	var expected_placements: Array = current.get("placements", []) as Array
+	if layout.size() != expected_placements.size():
+		return _emit_result(false, "ui.inventory.move.invalid")
+	var expected_ids: Dictionary = {}
+	for placement_variant: Variant in expected_placements:
+		var placement: Dictionary = placement_variant as Dictionary
+		expected_ids["%s:%d" % [
+			String(placement.get("item_id", "")),
+			int(placement.get("stack_index", 0)),
+		]] = true
+	var supplied_ids: Dictionary = {}
+	for entry: Dictionary in layout:
+		var key := "%s:%d" % [
+			String(entry.get("item_id", "")),
+			_safe_int(entry.get("stack_index"), -1),
+		]
+		var origin: Variant = entry.get("origin", [])
+		var rotation: int = _safe_int(entry.get("rotation"), -1)
+		if (
+			not expected_ids.has(key)
+			or supplied_ids.has(key)
+			or typeof(origin) != TYPE_ARRAY
+			or (origin as Array).size() != 2
+			or rotation < 0 or rotation > 3
+		):
+			return _emit_result(false, "ui.inventory.move.invalid")
+		supplied_ids[key] = true
+	var result: Dictionary = InventoryPackerScript.pack_with_layout(
+		get_inventory(), content, layout, 4, 4
+	)
+	if not bool(result.get("requested_layout_valid", false)):
+		return _emit_result(false, "ui.inventory.move.invalid")
+	state["inventory_layout"] = result.get("layout", [])
+	return _emit_result(true, "ui.inventory.move.success", true)
 
 
 func set_player_position(value: Vector2) -> void:
@@ -1527,6 +1739,8 @@ func should_hide_interactable(object_id: String, kind: String) -> bool:
 		return not npc_catalog.is_visible(get_npcs(), object_id)
 	if kind == "tools":
 		return bool(get_flags().get("tools_found", false))
+	if kind == "food":
+		return false
 	if content.has_collect_rule(kind) and not content.is_collect_rule_repeatable(kind):
 		return is_collected(object_id)
 	return false
@@ -1605,6 +1819,21 @@ func _resolve_interaction_target(target_id: String) -> Dictionary:
 	var object_target: Dictionary = content.get_interactable(target_id)
 	if not object_target.is_empty():
 		return object_target
+	for node_value: Variant in state.get("resource_nodes", []) as Array:
+		if typeof(node_value) != TYPE_DICTIONARY:
+			continue
+		var node := node_value as Dictionary
+		if String(node.get("id", "")) == target_id:
+			return ResourceNodeCatalogScript.to_interactable(node)
+	for node_value: Variant in state.get("tree_nodes", []) as Array:
+		if typeof(node_value) != TYPE_DICTIONARY:
+			continue
+		var node := node_value as Dictionary
+		if String(node.get("id", "")) == target_id:
+			return ResourceNodeCatalogScript.to_interactable(node)
+	for node: Dictionary in _berry_bush_nodes:
+		if String(node.get("id", "")) == target_id:
+			return ResourceNodeCatalogScript.to_interactable(node)
 
 	if npc_catalog.get_definition(target_id).is_empty() or not get_npcs().has(target_id):
 		return {}
@@ -1681,7 +1910,7 @@ func _collect_resource(object_id: String, kind: String) -> Dictionary:
 	if not _can_add_item(item_id, amount):
 		return _emit_result(
 			false,
-			String(rule.get("full_message_key", "first_night.inventory.too_heavy"))
+			String(rule.get("full_message_key", "first_night.inventory.no_space"))
 		)
 
 	if not repeatable:
@@ -1916,16 +2145,6 @@ func _sleep_until_morning() -> Dictionary:
 
 func _can_add_item(item_id: String, amount: int) -> bool:
 	var normalized_id: String = content.normalize_item_id(item_id)
-	var added_weight: float = (
-		content.item_weight(normalized_id) * float(amount)
-	)
-
-	if (
-		get_inventory_weight() + added_weight
-		> MAX_CARRY_WEIGHT + 0.001
-	):
-		return false
-
 	var candidate_inventory: Dictionary = get_inventory()
 	candidate_inventory[normalized_id] = (
 		int(candidate_inventory.get(normalized_id, 0)) + amount
@@ -2009,6 +2228,36 @@ func _normalize_state() -> void:
 	)
 
 	state["inventory"] = content.normalize_inventory(_as_dictionary(state.get("inventory")))
+	var layout_value: Variant = state.get("inventory_layout", [])
+	var raw_layout: Array = []
+	if typeof(layout_value) == TYPE_ARRAY:
+		raw_layout = layout_value as Array
+	var normalized_layout: Array[Dictionary] = []
+	for entry_variant: Variant in raw_layout:
+		if typeof(entry_variant) == TYPE_DICTIONARY:
+			normalized_layout.append((entry_variant as Dictionary).duplicate(true))
+	var inventory_layout_result: Dictionary = InventoryPackerScript.pack_with_layout(
+		state["inventory"] as Dictionary, content, normalized_layout, 4, 4
+	)
+	state["inventory_layout"] = inventory_layout_result.get("layout", [])
+	state["markers"] = _normalize_markers(state.get("markers", []))
+	state["next_marker_serial"] = _normalize_next_marker_serial(
+		state.get("next_marker_serial", 1), state["markers"] as Array
+	)
+	state["resource_nodes"] = _normalize_resource_nodes(
+		state.get("resource_nodes", defaults["resource_nodes"]),
+		seed_value
+	)
+	state["tree_nodes"] = _normalize_tree_nodes(
+		state.get("tree_nodes", defaults["tree_nodes"]),
+		seed_value,
+		state["resource_nodes"] as Array
+	)
+	_berry_bush_nodes = ResourceNodeCatalogScript.generate_berry_bushes(
+		seed_value,
+		state["resource_nodes"] as Array,
+		state["tree_nodes"] as Array
+	)
 	state["collected"] = content.normalize_collected(_as_dictionary(state.get("collected")))
 	state["resource_work"] = _normalize_resource_work(state.get("resource_work", {}))
 	state["world_drops"] = _normalize_world_drops(
@@ -2069,6 +2318,71 @@ static func _as_dictionary(value: Variant) -> Dictionary:
 	return (value as Dictionary).duplicate(true)
 
 
+func _normalize_markers(value: Variant) -> Array[Dictionary]:
+	var markers: Array[Dictionary] = []
+	if typeof(value) != TYPE_ARRAY:
+		return markers
+	var seen_ids: Dictionary = {}
+	for marker_variant: Variant in value as Array:
+		if typeof(marker_variant) != TYPE_DICTIONARY or markers.size() >= 64:
+			continue
+		var marker: Dictionary = marker_variant as Dictionary
+		var marker_id := String(marker.get("id", ""))
+		var marker_name := String(marker.get("name", "")).strip_edges().substr(0, 32)
+		var color_text := String(marker.get("color", ""))
+		var position: Variant = marker.get("position", [])
+		if (
+			not marker_id.begins_with("core:marker_")
+			or seen_ids.has(marker_id)
+			or marker_name.is_empty()
+			or not _is_valid_hex_color(color_text)
+			or not _is_valid_position(position)
+		):
+			continue
+		var coordinates := position as Array
+		var x := float(coordinates[0])
+		var y := float(coordinates[1])
+		if (
+			x < 0.0 or y < 0.0
+			or x >= float(FirstNightContent.MAP_SIZE.x * FirstNightContent.CELL_SIZE)
+			or y >= float(FirstNightContent.MAP_SIZE.y * FirstNightContent.CELL_SIZE)
+		):
+			continue
+		seen_ids[marker_id] = true
+		markers.append({
+			"id": marker_id,
+			"name": marker_name,
+			"color": color_text.to_lower(),
+			"enabled": bool(marker.get("enabled", true)),
+			"position": [x, y],
+		})
+	return markers
+
+
+func _normalize_next_marker_serial(value: Variant, markers: Array) -> int:
+	var serial := maxi(1, _safe_int(value, 1))
+	while serial < 1000000:
+		var candidate := "core:marker_%04d" % serial
+		var exists := false
+		for marker_variant: Variant in markers:
+			if typeof(marker_variant) == TYPE_DICTIONARY and String((marker_variant as Dictionary).get("id", "")) == candidate:
+				exists = true
+				break
+		if not exists:
+			return serial
+		serial += 1
+	return serial
+
+
+static func _is_valid_hex_color(value: String) -> bool:
+	if value.length() != 6 and value.length() != 8:
+		return false
+	for character: int in value.to_lower().to_ascii_buffer():
+		if not (character >= 48 and character <= 57) and not (character >= 97 and character <= 102):
+			return false
+	return true
+
+
 func _normalize_resource_work(
 	value: Variant
 ) -> Dictionary:
@@ -2083,19 +2397,22 @@ func _normalize_resource_work(
 		var object_id: String = content.normalize_object_id(
 			String(object_variant)
 		)
-		var target: Dictionary = content.get_interactable(
-			object_id
-		)
+		var target: Dictionary = _resolve_interaction_target(object_id)
 
 		if target.is_empty() or is_collected(object_id):
 			continue
 
 		var kind: String = String(target.get("kind", ""))
 		var rule: Dictionary = content.get_collect_rule(kind)
+		var presentation_id := String(target.get("presentation_id", ""))
 		var required: int = maxi(
 			0,
 			int(rule.get("work_minutes", 0))
 		)
+		if presentation_id == "surface_tree":
+			required = 8
+		elif presentation_id == "surface_stump":
+			required = 4
 
 		if required <= 0:
 			continue
@@ -2110,6 +2427,138 @@ func _normalize_resource_work(
 			normalized[object_id] = progress
 
 	return normalized
+
+
+func _normalize_resource_nodes(
+	value: Variant,
+	world_seed: int
+) -> Array[Dictionary]:
+	var generated: Array[Dictionary] = (
+		ResourceNodeCatalogScript.generate_surface_boulders(world_seed)
+	)
+	if typeof(value) != TYPE_ARRAY:
+		return generated
+	var raw_nodes := value as Array
+	if (
+		raw_nodes.size() < ResourceNodeCatalogScript.BOULDER_COUNT_MIN
+		or raw_nodes.size() > ResourceNodeCatalogScript.BOULDER_COUNT_MAX
+	):
+		return generated
+
+	var normalized: Array[Dictionary] = []
+	var seen_cells: Dictionary = {}
+	for index: int in range(raw_nodes.size()):
+		if typeof(raw_nodes[index]) != TYPE_DICTIONARY:
+			return generated
+		var node := raw_nodes[index] as Dictionary
+		var expected_id := "core:surface_boulder_%02d" % (index + 1)
+		var cell_value: Variant = node.get("cell", [])
+		if (
+			String(node.get("id", "")) != expected_id
+			or typeof(cell_value) != TYPE_ARRAY
+			or (cell_value as Array).size() != 2
+		):
+			return generated
+		var cell := cell_value as Array
+		if typeof(cell[0]) != TYPE_INT or typeof(cell[1]) != TYPE_INT:
+			return generated
+		var cell_position := Vector2i(int(cell[0]), int(cell[1]))
+		if (
+		not ResourceNodeCatalogScript.position_in_bounds(cell_position)
+			or ResourceNodeCatalogScript.is_reserved_cell(cell_position)
+		):
+			return generated
+		var cell_key := "%d,%d" % [cell_position.x, cell_position.y]
+		if seen_cells.has(cell_key):
+			return generated
+		seen_cells[cell_key] = true
+		normalized.append(
+			ResourceNodeCatalogScript.make_surface_boulder(
+				index + 1,
+				cell_position,
+				clampi(_safe_int(node.get("yield_amount"), 9), 9, 12)
+			)
+		)
+	return normalized
+
+
+func _normalize_tree_nodes(
+	value: Variant,
+	world_seed: int,
+	boulders: Array
+) -> Array[Dictionary]:
+	var generated := ResourceNodeCatalogScript.generate_surface_trees(
+		world_seed,
+		boulders
+	)
+	if typeof(value) != TYPE_ARRAY:
+		return generated
+	var raw_nodes := value as Array
+	if (
+		raw_nodes.size() < ResourceNodeCatalogScript.TREE_COUNT_MIN
+		or raw_nodes.size() > ResourceNodeCatalogScript.TREE_COUNT_MAX
+	):
+		return generated
+	var normalized: Array[Dictionary] = []
+	var seen_cells: Dictionary = {}
+	for index: int in range(raw_nodes.size()):
+		if typeof(raw_nodes[index]) != TYPE_DICTIONARY:
+			return generated
+		var node := raw_nodes[index] as Dictionary
+		var expected_id := "core:surface_tree_%02d" % (index + 1)
+		var cell_value: Variant = node.get("cell", [])
+		if (
+			String(node.get("id", "")) != expected_id
+			or typeof(cell_value) != TYPE_ARRAY
+			or (cell_value as Array).size() != 2
+		):
+			return generated
+		var cell := cell_value as Array
+		if typeof(cell[0]) != TYPE_INT or typeof(cell[1]) != TYPE_INT:
+			return generated
+		var cell_position := Vector2i(int(cell[0]), int(cell[1]))
+		if (
+			not ResourceNodeCatalogScript.position_in_bounds(cell_position)
+			or ResourceNodeCatalogScript.is_reserved_cell(cell_position)
+		):
+			return generated
+		var cell_key := "%d,%d" % [cell_position.x, cell_position.y]
+		if seen_cells.has(cell_key):
+			return generated
+		seen_cells[cell_key] = true
+		var stage_id := String(node.get("stage_id", "tree"))
+		if stage_id != "tree" and stage_id != "stump":
+			return generated
+		normalized.append(ResourceNodeCatalogScript.make_surface_tree(
+			index + 1,
+			cell_position,
+			clampi(_safe_int(node.get("yield_amount"), 12), 12, 13),
+			stage_id
+		))
+	return normalized
+
+
+func _get_tree_node(node_id: String) -> Dictionary:
+	for node_value: Variant in state.get("tree_nodes", []) as Array:
+		if typeof(node_value) != TYPE_DICTIONARY:
+			continue
+		var node := node_value as Dictionary
+		if String(node.get("id", "")) == node_id:
+			return node
+	return {}
+
+
+func _update_tree_stage(node_id: String, stage_id: String) -> void:
+	var nodes: Array = state.get("tree_nodes", []) as Array
+	for index: int in range(nodes.size()):
+		if typeof(nodes[index]) != TYPE_DICTIONARY:
+			continue
+		var node := (nodes[index] as Dictionary).duplicate(true)
+		if String(node.get("id", "")) != node_id:
+			continue
+		node["stage_id"] = stage_id
+		nodes[index] = node
+		return
 
 
 func _normalize_world_drops(value: Variant) -> Array[Dictionary]:

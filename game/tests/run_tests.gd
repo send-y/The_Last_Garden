@@ -2,6 +2,10 @@ extends SceneTree
 
 const Simulation := preload("res://src/simulation/first_night_simulation.gd")
 const Content := preload("res://src/content/first_night_content.gd")
+const InventoryPacker := preload("res://src/inventory/inventory_auto_packer.gd")
+const ResourceNodeCatalogScript := preload(
+	"res://src/content/resource_node_catalog.gd"
+)
 const AppearanceCatalog := preload("res://src/characters/character_appearance.gd")
 const SaveStore := preload("res://src/save/first_night_save_store.gd")
 const SessionNodeScript := preload("res://src/autoload/session.gd")
@@ -35,6 +39,7 @@ const LOCALIZATION_SOURCE_PATHS: Array[String] = [
 	"res://src/autoload/session.gd",
 	"res://src/characters/npc_catalog.gd",
 	"res://src/content/first_night_content.gd",
+	"res://src/content/resource_node_catalog.gd",
 	"res://src/save/first_night_save_store.gd",
 	"res://src/simulation/first_night_simulation.gd",
 	"res://src/simulation/npc_autonomy.gd",
@@ -61,7 +66,13 @@ func _run() -> void:
 	_test_command_boundary_rejects_forged_commands()
 	_test_command_boundary_enforces_range_and_resolves_kind()
 	_test_resource_work_progress_completion_and_serialization()
+	_test_surface_boulders_are_seeded_and_workable()
+	_test_surface_trees_are_seeded_and_workable()
+	_test_surface_berry_bushes_are_seeded_and_collectible()
 	_test_pickup_respects_inventory_limits()
+	_test_manual_inventory_layout_and_rotation()
+	_test_player_food_consumption()
+	_test_named_markers_and_save_round_trip()
 	_test_world_drops_persist_and_pickup_by_id()
 	_test_query_snapshots_are_isolated()
 	_test_corrupt_nested_state_uses_defaults()
@@ -100,6 +111,7 @@ func _run() -> void:
 	_test_lab_mira_resting()
 	_test_lab_mira_after_shared_wall()
 	_test_lab_workbench_crafting()
+	_test_lab_surface_boulders()
 	_test_lab_scenarios_are_deterministic()
 	_test_lab_rebuild_discards_previous_changes()
 	_test_session_installs_lab_state_without_aliasing_or_save()
@@ -197,7 +209,7 @@ func _test_complete_first_night() -> void:
 	_interact_near(simulation, "berry_bush")
 	_interact_near(simulation, "shore_water")
 
-	_expect(simulation.get_inventory_weight() <= simulation.MAX_CARRY_WEIGHT, "collected resources fit the weight limit")
+	_expect(simulation.get_item_count(FirstNightContent.WOOD_ID) == 9, "first-night starter wood remains unchanged")
 	for _step: int in range(3):
 		_interact_near(simulation, "repair_room")
 	_expect(simulation.get_object_stage("repair") == 3, "room repair reaches stage 3")
@@ -378,6 +390,246 @@ func _test_resource_work_progress_completion_and_serialization() -> void:
 	)
 
 
+func _test_surface_boulders_are_seeded_and_workable() -> void:
+	var state_a: Dictionary = Simulation.create_new_state(4127)
+	var simulation := FirstNightSimulation.new(state_a)
+	var same_seed := FirstNightSimulation.new(
+		Simulation.create_new_state(4127)
+	)
+	var other_seed := FirstNightSimulation.new(
+		Simulation.create_new_state(4128)
+	)
+	var boulders: Array[Dictionary] = simulation.get_surface_boulders()
+	_expect(
+		boulders.size() >= 30 and boulders.size() <= 35,
+		"world generation creates thirty to thirty-five surface boulders"
+	)
+	_expect(
+		boulders == same_seed.get_surface_boulders(),
+		"same world seed generates the same boulder locations"
+	)
+	var boulder_grouping_found := false
+	for first_index: int in range(boulders.size()):
+		for second_index: int in range(first_index + 1, boulders.size()):
+			var first_pos: Vector2 = boulders[first_index]["position"] as Vector2
+			var second_pos: Vector2 = boulders[second_index]["position"] as Vector2
+			if first_pos.distance_to(second_pos) <= 32.0 * 3.0:
+				boulder_grouping_found = true
+	_expect(boulder_grouping_found, "boulders include nearby clusters")
+	_expect(
+		boulders != other_seed.get_surface_boulders(),
+		"different world seed varies generated boulder locations"
+	)
+	for seed_value: int in range(100, 110):
+		var seed_boulders := ResourceNodeCatalogScript.generate_surface_boulders(seed_value)
+		var seed_trees := ResourceNodeCatalogScript.generate_surface_trees(
+			seed_value,
+			seed_boulders
+		)
+		_expect(
+			seed_boulders.size() >= 30 and seed_boulders.size() <= 35
+				and seed_trees.size() >= 40 and seed_trees.size() <= 45,
+			"generated resource counts stay within target ranges across seeds"
+		)
+	for index: int in range(boulders.size()):
+		var boulder: Dictionary = boulders[index]
+		_expect(
+			String(boulder.get("id", ""))
+				== "core:surface_boulder_%02d" % (index + 1),
+			"generated boulder IDs are stable and unique"
+		)
+	var legacy_state: Dictionary = Simulation.create_new_state(4129)
+	legacy_state["version"] = 13
+	legacy_state.erase("resource_nodes")
+	var migrated := FirstNightSimulation.new(legacy_state)
+	_expect(
+		migrated.get_surface_boulders().size() >= 30
+			and migrated.get_surface_boulders().size() <= 35,
+		"version 13 saves receive deterministic surface boulders"
+	)
+	if boulders.is_empty():
+		return
+
+	var first_boulder: Dictionary = boulders[0]
+	var target_id: String = String(first_boulder.get("id", ""))
+	var target_position: Vector2 = first_boulder.get(
+		"position",
+		Vector2.ZERO
+	) as Vector2
+	simulation.set_player_position(target_position)
+	_expect(
+		simulation.get_resource_work_required(target_id) == 8,
+		"surface boulder uses the configured stone work duration"
+	)
+	var completed := _work_resource_to_completion(simulation, target_id)
+	_expect(bool(completed.get("success", false)), "surface boulder can be mined")
+	_expect(
+		int(completed.get("drop_amount", 0)) >= 9
+			and int(completed.get("drop_amount", 0)) <= 12,
+		"surface boulder yields nine to twelve stones"
+	)
+	_expect(
+		simulation.is_collected(target_id),
+		"mined surface boulder remains depleted"
+	)
+	var restored := FirstNightSimulation.new(simulation.export_state())
+	_expect(
+		restored.get_surface_boulders() == boulders,
+		"generated boulder layout survives a save-state round trip"
+	)
+	_expect(
+		restored.is_collected(target_id)
+			and restored.get_world_drops().size() == int(completed.get("drop_amount", 0)),
+		"depletion and physical stone drops survive a save-state round trip"
+	)
+
+
+func _test_surface_trees_are_seeded_and_workable() -> void:
+	var simulation := FirstNightSimulation.new(
+		Simulation.create_new_state(7712)
+	)
+	var trees := simulation.get_surface_trees()
+	var same_seed := FirstNightSimulation.new(
+		Simulation.create_new_state(7712)
+	)
+	_expect(
+		trees.size() >= 40 and trees.size() <= 45,
+		"world generation creates forty to forty-five surface trees"
+	)
+	_expect(
+		trees == same_seed.get_surface_trees(),
+		"same world seed generates the same tree groves"
+	)
+	var grove_found := false
+	for first_index: int in range(trees.size()):
+		for second_index: int in range(first_index + 1, trees.size()):
+			var first_pos: Vector2 = trees[first_index]["position"] as Vector2
+			var second_pos: Vector2 = trees[second_index]["position"] as Vector2
+			if first_pos.distance_to(second_pos) <= 32.0 * 3.0:
+				grove_found = true
+	_expect(grove_found, "world generation places trees in groves")
+	if trees.is_empty():
+		return
+	var tree: Dictionary = trees[0]
+	var tree_id := String(tree.get("id", ""))
+	simulation.set_player_position(tree.get("position", Vector2.ZERO) as Vector2)
+	_expect(
+		simulation.get_resource_work_required(tree_id) == 8,
+		"tree requires eight work steps"
+	)
+	var felled: Dictionary = {}
+	for _step: int in range(8):
+		felled = simulation.execute_resource_work("core:player", tree_id)
+	_expect(
+		bool(felled.get("success", false))
+			and int(felled.get("drop_amount", 0)) >= 12
+			and int(felled.get("drop_amount", 0)) <= 13,
+		"felled tree drops twelve to thirteen logs"
+	)
+	var pinecones_before_stump: int = 0
+	for drop: Dictionary in simulation.get_world_drops():
+		if String(drop.get("item_id", "")) == "core:pinecone":
+			pinecones_before_stump += int(drop.get("amount", 0))
+	_expect(
+		pinecones_before_stump >= 0 and pinecones_before_stump <= 8,
+		"each of the eight tree work steps can drop at most one pinecone"
+	)
+	var stump: Dictionary = {}
+	for tree_view: Dictionary in simulation.get_surface_trees():
+		if String(tree_view.get("id", "")) == tree_id:
+			stump = tree_view
+			break
+	_expect(
+		String(stump.get("presentation_id", "")) == "surface_stump"
+			and simulation.get_resource_work_required(tree_id) == 4,
+		"felled tree becomes a stump requiring four more steps"
+	)
+	var restored := FirstNightSimulation.new(simulation.export_state())
+	var saved_stump: Dictionary = {}
+	for tree_view: Dictionary in restored.get_surface_trees():
+		if String(tree_view.get("id", "")) == tree_id:
+			saved_stump = tree_view
+			break
+	_expect(
+		String(saved_stump.get("presentation_id", "")) == "surface_stump"
+			and restored.get_world_drops().size() == simulation.get_world_drops().size(),
+		"stump stage and dropped resources survive save/load"
+	)
+	for _step: int in range(4):
+		restored.execute_resource_work("core:player", tree_id)
+	_expect(restored.is_collected(tree_id), "cleared stump is depleted")
+	var pinecones_after_stump: int = 0
+	for drop: Dictionary in restored.get_world_drops():
+		if String(drop.get("item_id", "")) == "core:pinecone":
+			pinecones_after_stump += int(drop.get("amount", 0))
+	_expect(
+		pinecones_after_stump == pinecones_before_stump,
+		"stump work does not produce pinecones"
+	)
+
+func _test_surface_berry_bushes_are_seeded_and_collectible() -> void:
+	var simulation := FirstNightSimulation.new(
+		Simulation.create_new_state(55821)
+	)
+	var bushes := simulation.get_surface_berry_bushes()
+	var same_seed := FirstNightSimulation.new(
+		Simulation.create_new_state(55821)
+	)
+	var different_seed := FirstNightSimulation.new(
+		Simulation.create_new_state(55822)
+	)
+	_expect(
+		bushes.size() >= ResourceNodeCatalogScript.BERRY_BUSH_COUNT_MIN
+			and bushes.size() <= ResourceNodeCatalogScript.BERRY_BUSH_COUNT_MAX,
+		"world generation creates the configured number of berry bushes"
+	)
+	_expect(
+		bushes == same_seed.get_surface_berry_bushes(),
+		"berry bush locations are stable for a world seed"
+	)
+	_expect(
+		bushes != different_seed.get_surface_berry_bushes(),
+		"berry bush locations vary with the world seed"
+	)
+	for starter_resource_id: String in [
+		"core:wood_north",
+		"core:wood_west",
+		"core:wood_east",
+		"core:stone_south",
+		"core:stone_east",
+	]:
+		var starter_definition := simulation.content.get_interactable(starter_resource_id)
+		_expect(
+			not bool(starter_definition.get("spawn_in_world", true)),
+			"legacy starter resource is retained for compatibility but disabled in world: %s" % starter_resource_id
+		)
+	if bushes.is_empty():
+		return
+	var bush: Dictionary = bushes[0]
+	var bush_id := String(bush.get("id", ""))
+	simulation.set_player_position(bush.get("position", Vector2.ZERO) as Vector2)
+	var harvested := simulation.execute_interaction(bush_id)
+	_expect(
+		bool(harvested.get("success", false))
+			and simulation.get_item_count("core:food") == 2,
+		"harvesting a berry bush gives two servings of the first food"
+	)
+	_expect(
+		simulation.is_collected(bush_id),
+		"harvested berry bush does not produce food repeatedly"
+	)
+	_expect(
+		not simulation.should_hide_interactable(bush_id, "food"),
+		"picked bush stays in the world to show its berryless sprite"
+	)
+	var restored := FirstNightSimulation.new(simulation.export_state())
+	_expect(
+		restored.is_collected(bush_id)
+			and restored.get_surface_berry_bushes() == bushes,
+		"berry harvest and generated layout persist through save/load"
+	)
+
+
 func _test_pickup_respects_inventory_limits() -> void:
 	var simulation: FirstNightSimulation = Simulation.new()
 	var valid: Dictionary = simulation.try_pickup_item(
@@ -392,20 +644,97 @@ func _test_pickup_respects_inventory_limits() -> void:
 
 	var fill: Dictionary = simulation.try_pickup_item(
 		FirstNightContent.WOOD_ID,
-		23
+		79
 	)
-	_expect(bool(fill.get("success", false)), "pickup can fill remaining carry weight")
+	_expect(bool(fill.get("success", false)), "pickup fills all inventory slots without a weight cap")
 	var overflow: Dictionary = simulation.try_pickup_item(
 		FirstNightContent.WOOD_ID,
 		1
 	)
-	_expect(not bool(overflow.get("success", false)), "pickup rejects carry-weight overflow")
+	_expect(not bool(overflow.get("success", false)), "pickup rejects items beyond grid capacity")
 	_expect(
-		simulation.get_item_count(FirstNightContent.WOOD_ID) == 24,
+		simulation.get_item_count(FirstNightContent.WOOD_ID) == 80,
 		"rejected pickup leaves inventory unchanged"
 	)
 	var invalid: Dictionary = simulation.try_pickup_item("core:not_an_item", 1)
 	_expect(not bool(invalid.get("success", false)), "pickup rejects unknown item ids")
+
+
+func _test_manual_inventory_layout_and_rotation() -> void:
+	var inventory := Content.new().create_empty_inventory()
+	inventory[FirstNightContent.WOOD_ID] = 1
+	inventory[FirstNightContent.RAW_WATER_ID] = 1
+	var layout: Array[Dictionary] = [
+		{"item_id": FirstNightContent.WOOD_ID, "stack_index": 0, "origin": [3, 3], "rotation": 0},
+		{"item_id": FirstNightContent.RAW_WATER_ID, "stack_index": 0, "origin": [1, 1], "rotation": 1},
+	]
+	var packed: Dictionary = InventoryPacker.pack_with_layout(
+		inventory, Content.new(), layout
+	)
+	var placements: Array = packed.get("placements", []) as Array
+	var rotated_water: Dictionary = {}
+	for placement_variant: Variant in placements:
+		var placement: Dictionary = placement_variant as Dictionary
+		if String(placement.get("item_id", "")) == FirstNightContent.RAW_WATER_ID:
+			rotated_water = placement
+	_expect(bool(packed.get("requested_layout_valid", false)), "manual inventory positions are accepted")
+	_expect(
+		int(rotated_water.get("rotation", 0)) == 1
+			and (rotated_water.get("footprint", []) as Array).size() == 2,
+		"two-cell item remembers its quarter-turn rotation"
+	)
+	var collision_layout := layout.duplicate(true)
+	(collision_layout[0] as Dictionary)["origin"] = [1, 1]
+	var collision := InventoryPacker.pack_with_layout(
+		inventory, Content.new(), collision_layout
+	)
+	_expect(not bool(collision.get("requested_layout_valid", false)), "inventory rejects overlapping manual placements")
+	var state := Simulation.create_new_state()
+	(state["inventory"] as Dictionary)[FirstNightContent.WOOD_ID] = 1
+	(state["inventory"] as Dictionary)[FirstNightContent.RAW_WATER_ID] = 1
+	var simulation: FirstNightSimulation = Simulation.new(state)
+	var moved: Dictionary = simulation.set_inventory_layout(layout)
+	var restored := FirstNightSimulation.new(simulation.export_state())
+	_expect(bool(moved.get("success", false)), "manual inventory placement applies")
+	_expect(restored.export_state().get("inventory_layout", []) == simulation.export_state().get("inventory_layout", []), "manual inventory layout survives save/load")
+
+
+func _test_player_food_consumption() -> void:
+	var state := Simulation.create_new_state()
+	(state["inventory"] as Dictionary)[FirstNightContent.FOOD_ID] = 2
+	var simulation: FirstNightSimulation = Simulation.new(state)
+	var eaten: Dictionary = simulation.eat_food()
+	_expect(bool(eaten.get("success", false)), "player can eat carried berries")
+	_expect(simulation.get_item_count(FirstNightContent.FOOD_ID) == 1, "eating consumes exactly one berry portion")
+	simulation.eat_food()
+	var empty_result: Dictionary = simulation.eat_food()
+	_expect(not bool(empty_result.get("success", false)), "player cannot eat food that is not in inventory")
+
+
+func _test_named_markers_and_save_round_trip() -> void:
+	var simulation: FirstNightSimulation = Simulation.new()
+	simulation.set_player_position(Vector2(224.0, 416.0))
+	var empty_name := simulation.create_marker("  ", Color("e5b94f"))
+	_expect(not bool(empty_name.get("success", false)), "marker requires a non-empty name")
+	var created := simulation.create_marker("Old well", Color("e5b94f"))
+	var markers := simulation.get_markers()
+	_expect(bool(created.get("success", false)) and markers.size() == 1, "named marker can be created")
+	if markers.is_empty():
+		return
+	var marker := markers[0]
+	var position := marker.get("position", []) as Array
+	_expect(position == [224.0, 416.0], "marker records the player's current position")
+	_expect(String(marker.get("color", "")) == "e5b94f", "marker keeps its chosen random color")
+	var marker_id := String(marker.get("id", ""))
+	var renamed := simulation.rename_marker(marker_id, "North spring")
+	var disabled := simulation.set_marker_enabled(marker_id, false)
+	var restored := FirstNightSimulation.new(simulation.export_state())
+	_expect(bool(renamed.get("success", false)) and String(restored.get_markers()[0].get("name", "")) == "North spring", "marker name and location survive save/load")
+	_expect(bool(disabled.get("success", false)) and not bool(restored.get_markers()[0].get("enabled", true)), "a temporarily hidden marker remains disabled after save/load")
+	var enabled := restored.set_marker_enabled(marker_id, true)
+	_expect(bool(enabled.get("success", false)) and bool(restored.get_markers()[0].get("enabled", false)), "a hidden marker can be shown again")
+	var removed := restored.remove_marker(marker_id)
+	_expect(bool(removed.get("success", false)) and restored.get_markers().is_empty(), "marker can be deleted from the list")
 
 
 func _test_world_drops_persist_and_pickup_by_id() -> void:
@@ -483,7 +812,11 @@ func _test_corrupt_nested_state_uses_defaults() -> void:
 	var restored: FirstNightSimulation = Simulation.new(corrupt)
 	_expect(restored.get_day() == 1, "invalid negative day is clamped")
 	_expect(restored.get_minute_of_day() == restored.LATEST_MINUTE, "late time is clamped")
-	_expect(restored.get_inventory_weight() == 0.0, "invalid inventory falls back to empty")
+	_expect(
+		restored.get_item_count(FirstNightContent.WOOD_ID) == 0
+			and restored.get_item_count(FirstNightContent.STONE_ID) == 0,
+		"invalid inventory falls back to zero counts"
+	)
 	_expect(not bool(restored.get_flags()["tools_found"]), "invalid flags fall back to defaults")
 	_expect(
 		restored.get_player_position().is_equal_approx(Vector2(784.0, 944.0)),
@@ -539,7 +872,7 @@ func _test_corrupt_nested_state_uses_defaults() -> void:
 		"invalid NPC activity uses default"
 	)
 	_expect(
-		normalized_npc.get_npc_target_cell("core:first_neighbor") == Vector2i(47, 0),
+		normalized_npc.get_npc_target_cell("core:first_neighbor") == Vector2i(127, 0),
 		"NPC target cell is clamped to the map"
 	)
 	_expect(
@@ -1646,7 +1979,7 @@ func _test_construction_command_validation() -> void:
 	)
 
 	var outside_complete: Dictionary = (
-		ConstructionCommandScript.complete_blueprint(Vector2i(48, 29))
+		ConstructionCommandScript.complete_blueprint(Vector2i(128, 29))
 	)
 	var outside_complete_result: Dictionary = (
 		ConstructionValidatorScript.validate_complete_blueprint(outside_complete)
@@ -2213,7 +2546,11 @@ func _test_lab_fresh_start() -> void:
 	_expect(simulation.export_state() == Simulation.new().export_state(), "fresh lab scenario matches a new game")
 	_expect(simulation.get_day() == 1, "fresh lab scenario starts on day 1")
 	_expect(simulation.get_time_text() == "11:00", "fresh lab scenario starts at 11:00")
-	_expect(simulation.get_inventory_weight() == 0.0, "fresh lab scenario has an empty inventory")
+	_expect(
+		simulation.get_item_count(FirstNightContent.WOOD_ID) == 0
+			and simulation.get_item_count(FirstNightContent.STONE_ID) == 0,
+		"fresh lab scenario has no collected starter resources"
+	)
 	_expect(simulation.get_object_stage("repair") == 0, "fresh lab scenario has no repair progress")
 	_expect(simulation.get_object_stage("campfire") == 0, "fresh lab scenario has no campfire progress")
 	_expect(not simulation.is_npc_visible("core:first_neighbor"), "fresh lab scenario keeps Mira hidden")
@@ -2234,6 +2571,33 @@ func _test_lab_workbench_crafting() -> void:
 		structures.size() == 1
 		and String((structures[0] as Dictionary).get("building_id", "")) == "core:workbench",
 		"workbench lab scenario contains one completed workbench"
+	)
+
+
+func _test_lab_surface_boulders() -> void:
+	var result: Dictionary = LabScenarios.build(
+		LabScenarios.SURFACE_BOULDERS
+	)
+	_expect(bool(result.get("success", false)), "boulder lab scenario builds")
+	if not bool(result.get("success", false)):
+		return
+	var simulation: FirstNightSimulation = result[
+		"simulation"
+	] as FirstNightSimulation
+	var boulders: Array[Dictionary] = simulation.get_surface_boulders()
+	_expect(
+		boulders.size() >= 30 and boulders.size() <= 35,
+		"boulder lab scenario retains generated world resources"
+	)
+	if boulders.is_empty():
+		return
+	var target: Vector2 = boulders[0].get(
+		"position",
+		Vector2.ZERO
+	) as Vector2
+	_expect(
+		simulation.get_player_position().distance_to(target) <= 68.0,
+		"boulder lab scenario places the player within work range"
 	)
 
 

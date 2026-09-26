@@ -2,7 +2,7 @@
   "schema_version": 2,
   "map": {
 	"cell_size": 32,
-	"map_size": [48, 48],
+	"map_size": [128, 128],
 	"interaction_range": 68.0
   },
   "objects": [
@@ -52,7 +52,8 @@
 	  "label_key": "object.core.wood_north.name",
 	  "cell": [15, 17],
 	  "color": "8a5a3b",
-	  "size": [26.0, 18.0]
+	  "size": [26.0, 18.0],
+	  "spawn_in_world": false
 	},
 	{
 	  "id": "core:wood_west",
@@ -60,7 +61,8 @@
 	  "label_key": "object.core.wood_west.name",
 	  "cell": [13, 24],
 	  "color": "8a5a3b",
-	  "size": [26.0, 18.0]
+	  "size": [26.0, 18.0],
+	  "spawn_in_world": false
 	},
 	{
 	  "id": "core:wood_east",
@@ -68,7 +70,8 @@
 	  "label_key": "object.core.wood_east.name",
 	  "cell": [33, 24],
 	  "color": "8a5a3b",
-	  "size": [26.0, 18.0]
+	  "size": [26.0, 18.0],
+	  "spawn_in_world": false
 	},
 	{
 	  "id": "core:stone_south",
@@ -76,7 +79,8 @@
 	  "label_key": "object.core.stone_south.name",
 	  "cell": [17, 33],
 	  "color": "777c82",
-	  "size": [24.0, 18.0]
+	  "size": [24.0, 18.0],
+	  "spawn_in_world": false
 	},
 	{
 	  "id": "core:stone_east",
@@ -84,7 +88,8 @@
 	  "label_key": "object.core.stone_east.name",
 	  "cell": [34, 18],
 	  "color": "777c82",
-	  "size": [24.0, 18.0]
+	  "size": [24.0, 18.0],
+	  "spawn_in_world": false
 	},
 	{
 	  "id": "core:shore_water",
@@ -110,7 +115,7 @@
 	  "work_minutes": 8,
 	  "repeatable": false,
 	  "message_key": "first_night.collect.wood.success",
-	  "full_message_key": "first_night.inventory.too_heavy",
+	  "full_message_key": "first_night.inventory.no_space",
 	  "empty_message_key": "first_night.collect.empty"
 	},
 	"stone": {
@@ -119,7 +124,7 @@
 	  "work_minutes": 8,
 	  "repeatable": false,
 	  "message_key": "first_night.collect.stone.success",
-	  "full_message_key": "first_night.inventory.too_heavy",
+	  "full_message_key": "first_night.inventory.no_space",
 	  "empty_message_key": "first_night.collect.empty"
 	},
 	"food": {
@@ -127,7 +132,7 @@
 	  "amount": 2,
 	  "repeatable": false,
 	  "message_key": "first_night.collect.food.success",
-	  "full_message_key": "first_night.inventory.too_heavy",
+	  "full_message_key": "first_night.inventory.no_space",
 	  "empty_message_key": "first_night.collect.empty"
 	},
 	"water": {

@@ -74,14 +74,6 @@ custom_minimum_size = Vector2(64, 28)
 layout_mode = 2
 toggle_mode = true
 
-[node name="WeightLabel" type="Label" parent="ContentMargin/ContentColumn" unique_id=43410928]
-custom_minimum_size = Vector2(0, 18)
-layout_mode = 2
-theme_override_colors/font_color = Color(0.937255, 0.886275, 0.811765, 1)
-theme_override_font_sizes/font_size = 11
-horizontal_alignment = 1
-vertical_alignment = 1
-
 [node name="GridCenter" type="CenterContainer" parent="ContentMargin/ContentColumn" unique_id=95995594]
 layout_mode = 2
 size_flags_vertical = 3
@@ -102,10 +94,18 @@ theme_override_constants/margin_top = 4
 theme_override_constants/margin_right = 8
 theme_override_constants/margin_bottom = 4
 
-[node name="DetailsLabel" type="Label" parent="ContentMargin/ContentColumn/DetailsPanel/DetailsMargin"]
+[node name="DetailsRow" type="HBoxContainer" parent="ContentMargin/ContentColumn/DetailsPanel/DetailsMargin"]
 layout_mode = 2
+
+[node name="DetailsLabel" type="Label" parent="ContentMargin/ContentColumn/DetailsPanel/DetailsMargin/DetailsRow"]
+layout_mode = 2
+size_flags_horizontal = 3
 theme_override_colors/font_color = Color(0.937255, 0.886275, 0.811765, 1)
 theme_override_font_sizes/font_size = 11
 text = "—"
 vertical_alignment = 1
 autowrap_mode = 2
+
+[node name="EatButton" type="Button" parent="ContentMargin/ContentColumn/DetailsPanel/DetailsMargin/DetailsRow"]
+custom_minimum_size = Vector2(74, 28)
+layout_mode = 2

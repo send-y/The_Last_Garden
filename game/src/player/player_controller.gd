@@ -2,9 +2,16 @@ class_name PlayerController
 extends CharacterBody2D
 
 const CharacterVisualScene := preload("res://src/characters/character_visual.gd")
+const FirstNightContentScript := preload(
+	"res://src/content/first_night_content.gd"
+)
 
 const MOVE_SPEED: float = 118.0
-const MAP_LIMIT: Vector2 = Vector2(1536.0, 1536.0)
+const MAP_LIMIT: Vector2 = Vector2(
+	FirstNightContentScript.MAP_SIZE * FirstNightContentScript.CELL_SIZE
+)
+const DEPTH_SORT_FOOT_OFFSET: float = 12.0
+const DEPTH_SORT_Z_INDEX: int = 10
 
 var _facing: Vector2 = Vector2.DOWN
 var _walk_time: float = 0.0
@@ -15,6 +22,7 @@ var _visual
 func _ready() -> void:
 	collision_layer = 1
 	collision_mask = 2
+	z_index = DEPTH_SORT_Z_INDEX
 	position = Session.get_player_position()
 	_visual = CharacterVisualScene.new()
 	add_child(_visual)
@@ -49,6 +57,10 @@ func _physics_process(delta: float) -> void:
 func apply_loaded_position() -> void:
 	position = Session.get_player_position()
 	velocity = Vector2.ZERO
+
+
+func get_depth_sort_y() -> float:
+	return global_position.y + DEPTH_SORT_FOOT_OFFSET
 
 
 func _update_facing(direction: Vector2) -> void:

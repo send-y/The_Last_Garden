@@ -19,6 +19,15 @@ const CraftingCatalogScript := preload(
 const DroppedItemScene: PackedScene = preload(
 	"res://src/items/dropped_item.tscn"
 )
+const GRASS_TILE: Texture2D = preload(
+	"res://assets/sprites/tiles/ai_grass.png"
+)
+const DIRT_TILE: Texture2D = preload(
+	"res://assets/sprites/tiles/ai_dirt.png"
+)
+const ROAD_TILE: Texture2D = preload(
+	"res://assets/sprites/tiles/ai_road.png"
+)
 
 var _interactables: Array[InteractableView] = []
 var _drop_views: Dictionary = {}
@@ -41,6 +50,17 @@ func _ready() -> void:
 	Session.state_changed.connect(_on_state_changed)
 	Session.state_reloaded.connect(_on_state_reloaded)
 	queue_redraw()
+
+
+func _process(_delta: float) -> void:
+	if _player == null:
+		return
+	var player_controller := _player as PlayerController
+	if player_controller == null:
+		return
+	var player_foot_y: float = player_controller.get_depth_sort_y()
+	for interactable: InteractableView in _interactables:
+		interactable.update_boulder_depth_order(player_foot_y)
 
 
 func _sync_dropped_items() -> void:
@@ -121,6 +141,14 @@ func _on_dropped_item_pickup_requested(
 
 
 func _unhandled_input(event: InputEvent) -> void:
+	var hud := get_node_or_null("../Hud/HudRoot")
+	if hud != null and bool(hud.call("is_modal_open")):
+		if (
+			event is InputEventMouseButton
+			or event.is_action_pressed(&"interact")
+		):
+			get_viewport().set_input_as_handled()
+			return
 	if event is InputEventMouseButton and event.pressed:
 		var mouse_event := event as InputEventMouseButton
 		if mouse_event.button_index == MOUSE_BUTTON_LEFT:
@@ -244,16 +272,49 @@ func _set_selected(value: InteractableView) -> void:
 
 
 func _spawn_interactables() -> void:
-	for definition: Dictionary in Catalog.interactables():
-		var interactable: InteractableView = Interactable.new()
-		add_child(interactable)
+	var definitions: Array[Dictionary] = Catalog.interactables()
+	definitions = definitions.filter(
+		func(definition: Dictionary) -> bool:
+			return bool(definition.get("spawn_in_world", true))
+	)
+	definitions.append_array(Session.get_surface_boulders())
+	definitions.append_array(Session.get_surface_trees())
+	definitions.append_array(Session.get_surface_berry_bushes())
+	var existing_by_id: Dictionary = {}
+	for interactable: InteractableView in _interactables:
+		if is_instance_valid(interactable):
+			existing_by_id[interactable.object_id] = interactable
+	var next_interactables: Array[InteractableView] = []
+	var retained_ids: Dictionary = {}
+	for definition: Dictionary in definitions:
+		var object_id := String(definition.get("id", ""))
+		var interactable: InteractableView
+		if existing_by_id.has(object_id):
+			interactable = existing_by_id[object_id] as InteractableView
+		else:
+			interactable = Interactable.new()
+			add_child(interactable)
 		interactable.configure(definition)
-		_interactables.append(interactable)
+		next_interactables.append(interactable)
+		retained_ids[object_id] = true
+	for old_interactable: InteractableView in _interactables:
+		if (
+			is_instance_valid(old_interactable)
+			and not retained_ids.has(old_interactable.object_id)
+		):
+			old_interactable.queue_free()
+	_interactables = next_interactables
 
 
 func _refresh_interactables(snap: bool = false) -> void:
+	var tree_definitions: Dictionary = {}
+	for definition: Dictionary in Session.get_surface_trees():
+		tree_definitions[String(definition.get("id", ""))] = definition
 	for interactable: InteractableView in _interactables:
-		interactable.refresh_from_state(snap)
+		if tree_definitions.has(interactable.object_id):
+			interactable.configure(tree_definitions[interactable.object_id])
+		else:
+			interactable.refresh_from_state(snap)
 	queue_redraw()
 
 
@@ -273,10 +334,11 @@ func _on_state_changed() -> void:
 
 
 func _on_state_reloaded() -> void:
-	_refresh_interactables(true)
-	_sync_dropped_items()
 	_selected_cell = Vector2i(-1, -1)
 	_set_selected(null)
+	_spawn_interactables()
+	_refresh_interactables(true)
+	_sync_dropped_items()
 
 
 func _selection_payload(interactable: InteractableView, in_range: bool) -> Dictionary:
@@ -429,12 +491,11 @@ func _add_static_rect(rect: Rect2) -> void:
 func _draw() -> void:
 	var tile: float = float(Catalog.CELL_SIZE)
 	var map_pixels := Vector2(Catalog.MAP_SIZE * Catalog.CELL_SIZE)
-	draw_rect(Rect2(Vector2.ZERO, map_pixels), Color("566f46"))
-
-	for y: int in range(Catalog.MAP_SIZE.y):
-		for x: int in range(Catalog.MAP_SIZE.x):
-			if (x * 7 + y * 11) % 9 == 0:
-				draw_rect(Rect2(x * tile + 4.0, y * tile + 5.0, 4.0, 3.0), Color(0.30, 0.42, 0.25, 0.55))
+	draw_texture_rect(
+		GRASS_TILE,
+		Rect2(Vector2.ZERO, map_pixels),
+		true
+	)
 
 	var water_rect := Rect2(0.0, 20.0 * tile, 7.5 * tile, 15.0 * tile)
 	draw_rect(water_rect, Color("356c79"))
@@ -448,17 +509,32 @@ func _draw() -> void:
 		Vector2(7.0 * tile, 35.0 * tile),
 	]), Color("b39a69"))
 
-	draw_rect(Rect2(19.0 * tile, 17.0 * tile, 10.0 * tile, 9.0 * tile), Color("746b58"))
+	# Keep the paths narrow and draw them beneath buildings and the shoreline.
+	var road_tint := Color(1.0, 1.0, 1.0, 0.86)
+	draw_texture_rect(
+		ROAD_TILE,
+		Rect2(23.5 * tile, 26.0 * tile, tile, 12.0 * tile),
+		true,
+		road_tint
+	)
+	draw_texture_rect(
+		ROAD_TILE,
+		Rect2(8.0 * tile, 30.5 * tile, 16.0 * tile, tile),
+		true,
+		road_tint
+	)
+
+	draw_texture_rect(
+		DIRT_TILE,
+		Rect2(19.0 * tile, 17.0 * tile, 10.0 * tile, 9.0 * tile),
+		true
+	)
 	draw_rect(Rect2(19.0 * tile, 17.0 * tile, 10.0 * tile, 16.0), Color("3d3933"))
 	draw_rect(Rect2(19.0 * tile, 17.0 * tile, 16.0, 9.0 * tile), Color("3d3933"))
 	draw_rect(Rect2(29.0 * tile - 16.0, 17.0 * tile, 16.0, 9.0 * tile), Color("3d3933"))
 	draw_rect(Rect2(19.0 * tile, 26.0 * tile - 16.0, 5.0 * tile, 16.0), Color("3d3933"))
 	draw_rect(Rect2(25.0 * tile, 26.0 * tile - 16.0, 4.0 * tile, 16.0), Color("3d3933"))
 	draw_rect(Rect2(24.0 * tile, 26.0 * tile - 8.0, tile, 8.0), Color("b99b68"))
-
-	var road_color := Color(0.55, 0.46, 0.33, 0.55)
-	draw_rect(Rect2(23.2 * tile, 26.0 * tile, 2.6 * tile, 12.0 * tile), road_color)
-	draw_rect(Rect2(8.0 * tile, 30.0 * tile, 16.0 * tile, 2.0 * tile), road_color)
 
 	var grid_color := Color(0.12, 0.16, 0.11, 0.10)
 	for x_line: int in range(Catalog.MAP_SIZE.x + 1):

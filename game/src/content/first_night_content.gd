@@ -2,7 +2,7 @@ class_name FirstNightContent
 extends RefCounted
 
 const CELL_SIZE: int = 32
-const MAP_SIZE: Vector2i = Vector2i(48, 48)
+const MAP_SIZE: Vector2i = Vector2i(128, 128)
 const INTERACTION_RANGE: float = 68.0
 
 const WOOD_ID: String = "core:wood"
@@ -79,12 +79,6 @@ func item_ids() -> Array[String]:
 	var result: Array[String] = []
 	result.append_array(_item_order)
 	return result
-
-func item_weight(item_id: String) -> float:
-	var normalized_id: String = normalize_item_id(item_id)
-	var definition: Dictionary = _item_defs.get(normalized_id, {}) as Dictionary
-	return float(definition.get("weight", 0.0))
-
 
 func item_label_key(item_id: String) -> String:
 	var normalized_id: String = normalize_item_id(item_id)
@@ -219,6 +213,7 @@ func _build_interactable(object_id: String, definition: Dictionary) -> Dictionar
 		"position": cell_center(int(cell[0]), int(cell[1])),
 		"color": Color(String(definition.get("color", "ffffff"))),
 		"size": Vector2(float(size[0]), float(size[1])),
+		"spawn_in_world": bool(definition.get("spawn_in_world", true)),
 	}
 
 

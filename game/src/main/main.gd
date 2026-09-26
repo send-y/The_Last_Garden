@@ -103,10 +103,34 @@ func _unhandled_input(event: InputEvent) -> void:
 		_hud.toggle_inventory()
 		get_viewport().set_input_as_handled()
 		return
+	if (
+		event is InputEventKey
+		and (event as InputEventKey).pressed
+		and not (event as InputEventKey).echo
+		and (event as InputEventKey).physical_keycode == KEY_L
+		and (event as InputEventKey).shift_pressed
+		and _hud.is_marker_list_open()
+	):
+		_hud.toggle_marker_list()
+		get_viewport().set_input_as_handled()
+		return
 
 	if _hud.is_modal_open():
 		get_viewport().set_input_as_handled()
 		return
+	if event is InputEventKey:
+		var key_event := event as InputEventKey
+		if (
+			key_event.pressed
+			and not key_event.echo
+			and key_event.physical_keycode == KEY_L
+		):
+			if key_event.shift_pressed:
+				_hud.toggle_marker_list()
+			else:
+				_hud.request_marker_creation()
+			get_viewport().set_input_as_handled()
+			return
 
 	if event.is_action_pressed(&"pause_time"):
 		Session.toggle_pause()

@@ -14,6 +14,7 @@ const MORNING_WITH_MIRA: StringName = &"morning_with_mira"
 const MIRA_RESTING: StringName = &"mira_resting"
 const MIRA_AFTER_SHARED_WALL: StringName = &"mira_after_shared_wall"
 const WORKBENCH_CRAFTING: StringName = &"workbench_crafting"
+const SURFACE_BOULDERS: StringName = &"surface_boulders"
 const PREPARED_MINUTE: int = 17 * 60 + 50
 
 
@@ -49,6 +50,11 @@ static func definitions() -> Array[Dictionary]:
 			"label": "Верстак и первые рецепты",
 			"description": "Готовый верстак рядом с игроком и два бревна в рюкзаке.",
 		},
+		{
+			"id": SURFACE_BOULDERS,
+			"label": "Крупные валуны",
+			"description": "Сгенерированные валуны рядом с игроком для проверки добычи.",
+		},
 	]
 
 
@@ -80,6 +86,18 @@ static func build(scenario_id: StringName) -> Dictionary:
 			"stage_id": "core:complete",
 		})
 		simulation = Simulation.new(crafting_state)
+	if scenario_id == SURFACE_BOULDERS:
+		var boulders: Array[Dictionary] = simulation.get_surface_boulders()
+		if boulders.is_empty():
+			return _failed_build(scenario_id, simulation, steps)
+		var first_boulder: Dictionary = boulders[0]
+		var boulder_position: Vector2 = first_boulder.get(
+			"position",
+			Vector2.ZERO
+		) as Vector2
+		simulation.set_player_position(
+			boulder_position + Vector2(56.0, 0.0)
+		)
 	if (
 		scenario_id == PREPARED_EVENING
 		or scenario_id == MORNING_WITH_MIRA

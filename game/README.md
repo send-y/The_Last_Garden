@@ -45,8 +45,9 @@ godot --headless --path game --script res://tests/run_tests.gd
 godot --headless --path game res://tests/npc_collision_integration_test.tscn
 godot --headless --path game res://tests/inventory_close_integration_test.tscn
 godot --headless --path game res://tests/crafting_integration_test.tscn
+godot --headless --path game res://tests/boulder_depth_integration_test.tscn
 godot --headless --path game --quit-after 3
 godot --headless --path game res://src/dev/mechanics_lab.tscn --quit-after 3 -- --lab-scenario=fresh_start
 ```
 
-Первый вызов импортирует исходные ресурсы, включая CSV локализации. Второй проверяет симуляцию, миграции сохранений, каталог локализации и сценарии лаборатории. Третий запускает настоящую физическую сцену и проверяет, что коллизия скрытого NPC выключена, а видимого — следует за ним. Четвёртый настоящими GUI-кликами проверяет выбор предмета, закрытие модального инвентаря и восстановление предыдущего состояния паузы. Пятый проверяет загрузку основной сцены, шестой — загрузку Mechanics Lab с выбранным сценарием. Доступные ID: `fresh_start`, `prepared_evening`, `morning_with_mira` и `mira_resting`. Последний сценарий сразу открывает поздний вечер после детерминированно прожитого дня Миры. Эти автоматические проверки пройдены. Временная графика предназначена только для проверки управления, масштаба и игровых систем.
+Первый вызов импортирует исходные ресурсы, включая CSV локализации. Второй проверяет симуляцию, миграции сохранений, каталог локализации и сценарии лаборатории. Третий запускает физическую сцену и проверяет коллизию NPC. Четвёртый настоящими GUI-кликами проверяет инвентарь и паузу; пятый — интеграцию крафта; шестой — нижнюю коллизию валуна и порядок отрисовки игрока относительно него. Седьмой проверяет загрузку основной сцены, восьмой — Mechanics Lab. Доступные ID: `fresh_start`, `prepared_evening`, `morning_with_mira` и `mira_resting`. Временная графика предназначена для проверки управления, масштаба и систем.

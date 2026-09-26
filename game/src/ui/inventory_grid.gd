@@ -2,11 +2,14 @@ class_name InventoryGrid
 extends Control
 
 signal selection_changed(placement: Dictionary)
+signal layout_changed(layout: Array[Dictionary])
 
 const GRID_COLUMNS: int = 4
 const GRID_ROWS: int = 4
 const CELL_SIZE: float = 42.0
 const CELL_GAP: float = 2.0
+const FirstNightContent := preload("res://src/content/first_night_content.gd")
+const PlacementRules := preload("res://src/inventory/inventory_placement_rules.gd")
 
 const GRID_PIXEL_SIZE := Vector2(
 	GRID_COLUMNS * CELL_SIZE + (GRID_COLUMNS - 1) * CELL_GAP,
@@ -49,11 +52,17 @@ var _icon_cache: Dictionary = {}
 var _hover_cell := Vector2i(-1, -1)
 var _selected_placement_index: int = -1
 var _selected_key: String = ""
+var _dragged_placement_index: int = -1
+var _drag_rotation: int = 0
+var _drag_mouse_position := Vector2.ZERO
+var _drag_start_origin := Vector2i.ZERO
+var _drag_start_rotation: int = 0
 
 
 func _ready() -> void:
 	custom_minimum_size = GRID_PIXEL_SIZE
 	mouse_filter = Control.MOUSE_FILTER_STOP
+	focus_mode = Control.FOCUS_ALL
 	mouse_exited.connect(_on_mouse_exited)
 	queue_redraw()
 
@@ -108,14 +117,38 @@ func _draw() -> void:
 			)
 			_draw_slot(cell, state, occupied_cells)
 
-	for placement: Dictionary in _placements:
+	for placement_index: int in range(_placements.size()):
+		if placement_index == _dragged_placement_index:
+			continue
+		var placement: Dictionary = _placements[placement_index]
 		_draw_placement_icon(placement)
 		_draw_placement_amount(placement)
+	if _dragged_placement_index >= 0:
+		_draw_dragged_placement()
 
 
 func _gui_input(event: InputEvent) -> void:
+	if event is InputEventKey:
+		var key_event := event as InputEventKey
+		if (
+			key_event.pressed
+			and not key_event.echo
+			and key_event.physical_keycode == KEY_R
+			and _dragged_placement_index >= 0
+		):
+			_drag_rotation = posmod(_drag_rotation + 1, 4)
+			_drag_mouse_position = get_local_mouse_position()
+			queue_redraw()
+			accept_event()
+		return
+
 	if event is InputEventMouseMotion:
 		var motion := event as InputEventMouseMotion
+		if _dragged_placement_index >= 0:
+			_drag_mouse_position = motion.position
+			queue_redraw()
+			accept_event()
+			return
 		_set_hover_cell(_cell_at_position(motion.position))
 		return
 
@@ -126,12 +159,109 @@ func _gui_input(event: InputEvent) -> void:
 	if mouse_button.button_index != MOUSE_BUTTON_LEFT:
 		return
 	if not mouse_button.pressed:
+		if _dragged_placement_index >= 0:
+			_finish_drag(_cell_at_position(mouse_button.position))
+			accept_event()
 		return
 
 	var cell := _cell_at_position(mouse_button.position)
 	var placement_index := int(_cell_to_placement.get(cell, -1))
 	_select_placement(placement_index)
+	if placement_index >= 0:
+		_dragged_placement_index = placement_index
+		_drag_rotation = int(_placements[placement_index].get("rotation", 0))
+		_drag_start_rotation = _drag_rotation
+		_drag_start_origin = _placements[placement_index].get("origin", Vector2i.ZERO)
+		_drag_mouse_position = mouse_button.position
+		grab_focus()
+		queue_redraw()
 	accept_event()
+
+
+func _finish_drag(target_cell: Vector2i) -> void:
+	var dragged := _placements[_dragged_placement_index]
+	if target_cell == _drag_start_origin and _drag_rotation == _drag_start_rotation:
+		_dragged_placement_index = -1
+		queue_redraw()
+		return
+	var candidate_layout: Array[Dictionary] = []
+	for index: int in range(_placements.size()):
+		if index == _dragged_placement_index:
+			continue
+		var placement: Dictionary = _placements[index]
+		candidate_layout.append(_layout_entry(placement))
+	if _is_drag_target_valid(target_cell):
+		var moved := dragged.duplicate(true)
+		moved["origin"] = target_cell
+		moved["rotation"] = _drag_rotation
+		moved["footprint"] = _dragged_footprint()
+		candidate_layout.append(_layout_entry(moved))
+		layout_changed.emit(candidate_layout)
+	_dragged_placement_index = -1
+	queue_redraw()
+
+
+func _is_drag_target_valid(target_cell: Vector2i) -> bool:
+	if (
+		_dragged_placement_index < 0
+		or target_cell.x < 0 or target_cell.y < 0
+	):
+		return false
+	var occupied: Dictionary = {}
+	for index: int in range(_placements.size()):
+		if index == _dragged_placement_index:
+			continue
+		var placement: Dictionary = _placements[index]
+		var origin: Vector2i = placement.get("origin", Vector2i.ZERO)
+		for local_cell: Vector2i in placement.get("footprint", []):
+			occupied[origin + local_cell] = true
+	return PlacementRules.can_place(
+		_dragged_footprint(), target_cell, occupied,
+		GRID_COLUMNS, GRID_ROWS
+	)
+
+
+func _dragged_footprint() -> Array[Vector2i]:
+	var dragged: Dictionary = _placements[_dragged_placement_index]
+	var content := FirstNightContent.new()
+	return content.item_footprint(String(dragged.get("item_id", "")), _drag_rotation)
+
+
+func _layout_entry(placement: Dictionary) -> Dictionary:
+	var origin: Vector2i = placement.get("origin", Vector2i.ZERO)
+	return {
+		"item_id": String(placement.get("item_id", "")),
+		"stack_index": int(placement.get("stack_index", 0)),
+		"origin": [origin.x, origin.y],
+		"rotation": int(placement.get("rotation", 0)),
+	}
+
+
+func _draw_dragged_placement() -> void:
+	var cell := _cell_at_position(_drag_mouse_position)
+	if cell.x < 0:
+		return
+	var preview_color := (
+		Color(0.85, 0.95, 0.65, 0.34)
+		if _is_drag_target_valid(cell)
+		else Color(0.95, 0.35, 0.3, 0.38)
+	)
+	for local_cell: Vector2i in _dragged_footprint():
+		var target_cell := cell + local_cell
+		if target_cell.x >= GRID_COLUMNS or target_cell.y >= GRID_ROWS:
+			continue
+		var rect := _cell_rect(target_cell)
+		draw_rect(rect, preview_color, true)
+	var placement: Dictionary = _placements[_dragged_placement_index]
+	var texture := _icon_cache.get(String(placement.get("icon_path", ""))) as Texture2D
+	if texture != null:
+		var origin_rect := _cell_rect(cell)
+		draw_texture_rect(
+			texture,
+			Rect2(origin_rect.position + Vector2(5.0, 5.0), Vector2(CELL_SIZE - 10.0, CELL_SIZE - 10.0)),
+			false,
+			Color(1.0, 1.0, 1.0, 0.75)
+		)
 
 
 func _draw_slot(
@@ -276,11 +406,9 @@ func _select_placement(placement_index: int) -> void:
 
 
 func _placement_key(placement: Dictionary) -> String:
-	var origin: Vector2i = placement.get("origin", Vector2i.ZERO)
-	return "%s:%d:%d" % [
+	return "%s:%d" % [
 		String(placement.get("item_id", "")),
-		origin.x,
-		origin.y,
+		int(placement.get("stack_index", 0)),
 	]
 
 
