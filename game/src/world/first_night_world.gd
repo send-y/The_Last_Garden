@@ -501,6 +501,21 @@ func _draw() -> void:
 		Vector2(7.0 * tile, 35.0 * tile),
 	]), Color("b39a69"))
 
+	# Keep the paths narrow and draw them beneath buildings and the shoreline.
+	var road_tint := Color(1.0, 1.0, 1.0, 0.86)
+	draw_texture_rect(
+		ROAD_TILE,
+		Rect2(23.5 * tile, 26.0 * tile, tile, 12.0 * tile),
+		true,
+		road_tint
+	)
+	draw_texture_rect(
+		ROAD_TILE,
+		Rect2(8.0 * tile, 30.5 * tile, 16.0 * tile, tile),
+		true,
+		road_tint
+	)
+
 	draw_texture_rect(
 		DIRT_TILE,
 		Rect2(19.0 * tile, 17.0 * tile, 10.0 * tile, 9.0 * tile),
@@ -512,17 +527,6 @@ func _draw() -> void:
 	draw_rect(Rect2(19.0 * tile, 26.0 * tile - 16.0, 5.0 * tile, 16.0), Color("3d3933"))
 	draw_rect(Rect2(25.0 * tile, 26.0 * tile - 16.0, 4.0 * tile, 16.0), Color("3d3933"))
 	draw_rect(Rect2(24.0 * tile, 26.0 * tile - 8.0, tile, 8.0), Color("b99b68"))
-
-	draw_texture_rect(
-		ROAD_TILE,
-		Rect2(23.2 * tile, 26.0 * tile, 2.6 * tile, 12.0 * tile),
-		true
-	)
-	draw_texture_rect(
-		ROAD_TILE,
-		Rect2(8.0 * tile, 30.0 * tile, 16.0 * tile, 2.0 * tile),
-		true
-	)
 
 	var grid_color := Color(0.12, 0.16, 0.11, 0.10)
 	for x_line: int in range(Catalog.MAP_SIZE.x + 1):

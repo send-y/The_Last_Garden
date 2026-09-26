@@ -169,7 +169,8 @@ func _build_ui() -> void:
 	_message_label = _make_label(
 		feedback_panel, Vector2(5.0, 15.0), Vector2(210.0, 12.0), 8
 	)
-	_message_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_message_label.autowrap_mode = TextServer.AUTOWRAP_OFF
+	_message_label.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 	_message_label.text = Localized.resolve("ui.hud.intro")
 
 	_add_ui_texture("status_heart.png", Vector2(10, 299), Vector2(18, 18))
