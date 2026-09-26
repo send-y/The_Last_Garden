@@ -36,13 +36,15 @@ const ResourceNodeCatalogScript := preload(
 	"res://src/content/resource_node_catalog.gd"
 )
 
-const SAVE_VERSION: int = 16
+const SAVE_VERSION: int = 17
 const DEFAULT_SEED: int = 247061
 const START_MINUTE: int = 11 * 60
 const EVENING_MINUTE: int = 18 * 60
 const LATEST_MINUTE: int = 23 * 60 + 50
 const GAME_MINUTES_PER_SECOND: float = 0.75
 const PLAYER_ACTOR_ID: String = "core:player"
+const MAX_STORAGE_ZONE_CELLS: int = 256
+const MAX_STORAGE_ZONES: int = 256
 const ACTION_INTERACT: String = "core:interact"
 const OUTCOME_DRY_ROOM_ID: String = "core:dry_room"
 const OUTCOME_COLD_DRAFT_ID: String = "core:cold_draft"
@@ -132,6 +134,9 @@ static func create_new_state(seed_value: int = DEFAULT_SEED) -> Dictionary:
 		"resource_work": {},
 		"world_drops": [],
 		"next_drop_serial": 1,
+		"storage_zones": [],
+		"storage_items": [],
+		"next_storage_zone_serial": 1,
 		"npcs": npc_data.create_initial_states(seed_value),
 		"flags": {
 			"house_inspected": false,
@@ -1403,6 +1408,187 @@ func get_world_drops() -> Array:
 	return (state.get("world_drops", []) as Array).duplicate(true)
 
 
+func get_storage_zones() -> Array[Dictionary]:
+	var result: Array[Dictionary] = []
+	for zone_value: Variant in state.get("storage_zones", []):
+		if typeof(zone_value) == TYPE_DICTIONARY:
+			result.append((zone_value as Dictionary).duplicate(true))
+	return result
+
+
+func get_storage_items() -> Array[Dictionary]:
+	var result: Array[Dictionary] = []
+	for item_value: Variant in state.get("storage_items", []):
+		if typeof(item_value) == TYPE_DICTIONARY:
+			result.append((item_value as Dictionary).duplicate(true))
+	return result
+
+
+func get_storage_contents(cell: Vector2i) -> Dictionary:
+	var zone_index := _storage_zone_index_at_cell(cell)
+	if zone_index < 0:
+		return {}
+	var zone: Dictionary = (state["storage_zones"] as Array)[zone_index] as Dictionary
+	var cell_keys := _storage_zone_cell_keys(zone)
+	var contents: Dictionary = {}
+	for item: Dictionary in state.get("storage_items", []):
+		if not cell_keys.has(_storage_cell_key(item.get("cell", []))):
+			continue
+		var item_id := String(item.get("item_id", ""))
+		contents[item_id] = int(contents.get(item_id, 0)) + int(item.get("amount", 0))
+	return contents
+
+
+func create_storage_zone(from_cell: Vector2i, to_cell: Vector2i) -> Dictionary:
+	var first := Vector2i(mini(from_cell.x, to_cell.x), mini(from_cell.y, to_cell.y))
+	var last := Vector2i(maxi(from_cell.x, to_cell.x), maxi(from_cell.y, to_cell.y))
+	var map_rect := Rect2i(Vector2i.ZERO, FirstNightContent.MAP_SIZE)
+	if not map_rect.has_point(first) or not map_rect.has_point(last):
+		return _emit_result(false, "ui.storage.failure.outside_map")
+	var area_size := (last.x - first.x + 1) * (last.y - first.y + 1)
+	if area_size > MAX_STORAGE_ZONE_CELLS:
+		return _emit_result(false, "ui.storage.failure.area_too_large")
+	if (state.get("storage_zones", []) as Array).size() >= MAX_STORAGE_ZONES:
+		return _emit_result(false, "ui.storage.failure.zone_limit")
+	for y: int in range(first.y, last.y + 1):
+		for x: int in range(first.x, last.x + 1):
+			var cell := Vector2i(x, y)
+			if _storage_zone_index_at_cell(cell) >= 0:
+				return _emit_result(false, "ui.storage.failure.overlap")
+			if _construction_cell_has_structure(cell) or _world_cell_blocks_storage(cell):
+				return _emit_result(false, "ui.storage.failure.blocked")
+	var serial := maxi(1, int(state.get("next_storage_zone_serial", 1)))
+	var cells: Array = []
+	for y: int in range(first.y, last.y + 1):
+		for x: int in range(first.x, last.x + 1):
+			cells.append([x, y])
+	var zones: Array = state.get("storage_zones", []) as Array
+	zones.append({"id": "core:storage_zone_%04d" % serial, "cells": cells})
+	state["storage_zones"] = zones
+	state["next_storage_zone_serial"] = serial + 1
+	return _emit_result(true, "ui.storage.zone_created", true, true, {"cells": area_size})
+
+
+func remove_storage_zone_at(cell: Vector2i) -> Dictionary:
+	var zone_index := _storage_zone_index_at_cell(cell)
+	if zone_index < 0:
+		return _emit_result(false, "ui.storage.failure.no_zone")
+	var zone: Dictionary = (state["storage_zones"] as Array)[zone_index] as Dictionary
+	var zone_cells := _storage_zone_cell_keys(zone)
+	for item: Dictionary in state.get("storage_items", []):
+		if zone_cells.has(_storage_cell_key(item.get("cell", []))):
+			return _emit_result(false, "ui.storage.failure.not_empty")
+	(state["storage_zones"] as Array).remove_at(zone_index)
+	return _emit_result(true, "ui.storage.zone_removed", true, true)
+
+
+func store_item_in_storage(cell: Vector2i, item_id: String) -> Dictionary:
+	var access := _validate_storage_access(cell)
+	if not bool(access.get("success", false)):
+		return access
+	var normalized_item_id := content.normalize_item_id(item_id)
+	if not content.has_item(normalized_item_id):
+		return _emit_result(false, "ui.storage.failure.invalid_item")
+	var inventory := _inventory_mutable()
+	var available := int(inventory.get(normalized_item_id, 0))
+	if available <= 0:
+		return _emit_result(false, "ui.storage.failure.none_to_store")
+	var zone: Dictionary = access["zone"] as Dictionary
+	var storage_items: Array = state["storage_items"] as Array
+	var max_stack := content.item_max_stack(normalized_item_id)
+	var remaining_capacity := 0
+	for cell_value: Variant in zone.get("cells", []):
+		var key := _storage_cell_key(cell_value)
+		var slot := _storage_item_at_key(storage_items, key)
+		if slot.is_empty():
+			remaining_capacity += max_stack
+		elif String(slot.get("item_id", "")) == normalized_item_id:
+			remaining_capacity += max_stack - int(slot.get("amount", 0))
+	var moved := mini(available, remaining_capacity)
+	if moved <= 0:
+		return _emit_result(false, "ui.storage.failure.no_capacity")
+	var remaining := moved
+	for cell_value: Variant in zone.get("cells", []):
+		if remaining <= 0:
+			break
+		var key := _storage_cell_key(cell_value)
+		var slot := _storage_item_at_key(storage_items, key)
+		if slot.is_empty() or String(slot.get("item_id", "")) != normalized_item_id:
+			continue
+		var added := mini(remaining, max_stack - int(slot.get("amount", 0)))
+		slot["amount"] = int(slot.get("amount", 0)) + added
+		remaining -= added
+	for cell_value: Variant in zone.get("cells", []):
+		if remaining <= 0:
+			break
+		var key := _storage_cell_key(cell_value)
+		if not _storage_item_at_key(storage_items, key).is_empty():
+			continue
+		var added := mini(remaining, max_stack)
+		storage_items.append({
+			"cell": _storage_cell_array(key),
+			"item_id": normalized_item_id,
+			"amount": added,
+		})
+		remaining -= added
+	inventory[normalized_item_id] = available - moved
+	return _emit_result(true, "ui.storage.transfer.stored", true, true, {
+		"item": Localized.resolve(content.item_label_key(normalized_item_id)),
+		"amount": moved,
+	})
+
+
+func take_item_from_storage(cell: Vector2i, item_id: String) -> Dictionary:
+	var access := _validate_storage_access(cell)
+	if not bool(access.get("success", false)):
+		return access
+	var normalized_item_id := content.normalize_item_id(item_id)
+	if not content.has_item(normalized_item_id):
+		return _emit_result(false, "ui.storage.failure.invalid_item")
+	var zone := access["zone"] as Dictionary
+	var zone_cells := _storage_zone_cell_keys(zone)
+	var storage_items: Array = state["storage_items"] as Array
+	var available := 0
+	for item: Dictionary in storage_items:
+		if (
+			String(item.get("item_id", "")) == normalized_item_id
+			and zone_cells.has(_storage_cell_key(item.get("cell", [])))
+		):
+			available += int(item.get("amount", 0))
+	if available <= 0:
+		return _emit_result(false, "ui.storage.failure.none_to_take")
+	var low := 0
+	var high := available
+	while low < high:
+		var middle := int(ceil(float(low + high + 1) * 0.5))
+		if _can_add_item(normalized_item_id, middle):
+			low = middle
+		else:
+			high = middle - 1
+	if low <= 0:
+		return _emit_result(false, "ui.storage.failure.inventory_full")
+	var remaining := low
+	for index: int in range(storage_items.size() - 1, -1, -1):
+		var item: Dictionary = storage_items[index] as Dictionary
+		if (
+			String(item.get("item_id", "")) != normalized_item_id
+			or not zone_cells.has(_storage_cell_key(item.get("cell", [])))
+		):
+			continue
+		var removed := mini(remaining, int(item.get("amount", 0)))
+		item["amount"] = int(item.get("amount", 0)) - removed
+		remaining -= removed
+		if int(item.get("amount", 0)) <= 0:
+			storage_items.remove_at(index)
+		if remaining <= 0:
+			break
+	_add_item(normalized_item_id, low)
+	return _emit_result(true, "ui.storage.transfer.taken", true, true, {
+		"item": Localized.resolve(content.item_label_key(normalized_item_id)),
+		"amount": low,
+	})
+
+
 func get_surface_boulders() -> Array[Dictionary]:
 	var result: Array[Dictionary] = []
 	for node_value: Variant in state.get("resource_nodes", []) as Array:
@@ -2267,6 +2453,17 @@ func _normalize_state() -> void:
 		state.get("next_drop_serial", 1),
 		state["world_drops"] as Array
 	)
+	state["storage_zones"] = _normalize_storage_zones(
+		state.get("storage_zones", [])
+	)
+	state["storage_items"] = _normalize_storage_items(
+		state.get("storage_items", []),
+		state["storage_zones"] as Array
+	)
+	state["next_storage_zone_serial"] = _normalize_next_storage_zone_serial(
+		state.get("next_storage_zone_serial", 1),
+		state["storage_zones"] as Array
+	)
 	state["npcs"] = npc_catalog.normalize_states(_as_dictionary(state.get("npcs")), seed_value)
 
 	var normalized_structures: Array[Dictionary] = (
@@ -2357,6 +2554,195 @@ func _normalize_markers(value: Variant) -> Array[Dictionary]:
 			"position": [x, y],
 		})
 	return markers
+
+
+func _normalize_storage_zones(value: Variant) -> Array[Dictionary]:
+	var zones: Array[Dictionary] = []
+	if typeof(value) != TYPE_ARRAY:
+		return zones
+	var seen_ids: Dictionary = {}
+	var claimed_cells: Dictionary = {}
+	var map_rect := Rect2i(Vector2i.ZERO, FirstNightContent.MAP_SIZE)
+	for zone_value: Variant in value as Array:
+		if typeof(zone_value) != TYPE_DICTIONARY or zones.size() >= MAX_STORAGE_ZONES:
+			continue
+		var zone: Dictionary = zone_value as Dictionary
+		var zone_id := String(zone.get("id", ""))
+		var raw_cells: Variant = zone.get("cells", [])
+		if (
+			not zone_id.begins_with("core:storage_zone_")
+			or seen_ids.has(zone_id)
+			or typeof(raw_cells) != TYPE_ARRAY
+			or (raw_cells as Array).is_empty()
+			or (raw_cells as Array).size() > MAX_STORAGE_ZONE_CELLS
+		):
+			continue
+		var valid_cells: Array = []
+		for cell_value: Variant in raw_cells as Array:
+			if typeof(cell_value) != TYPE_ARRAY or (cell_value as Array).size() != 2:
+				continue
+			var cell_data := cell_value as Array
+			if not _is_whole_number(cell_data[0]) or not _is_whole_number(cell_data[1]):
+				continue
+			var cell := Vector2i(int(cell_data[0]), int(cell_data[1]))
+			var key := _storage_cell_key([cell.x, cell.y])
+			if (
+				not map_rect.has_point(cell)
+				or claimed_cells.has(key)
+				or _construction_cell_has_structure(cell)
+				or _world_cell_blocks_storage(cell)
+			):
+				continue
+			claimed_cells[key] = true
+			valid_cells.append([cell.x, cell.y])
+		if valid_cells.is_empty():
+			continue
+		seen_ids[zone_id] = true
+		zones.append({"id": zone_id, "cells": valid_cells})
+	return zones
+
+
+func _normalize_storage_items(value: Variant, zones: Array) -> Array[Dictionary]:
+	var items: Array[Dictionary] = []
+	if typeof(value) != TYPE_ARRAY:
+		return items
+	var available_cells: Dictionary = {}
+	for zone_value: Variant in zones:
+		if typeof(zone_value) != TYPE_DICTIONARY:
+			continue
+		for cell_value: Variant in (zone_value as Dictionary).get("cells", []):
+			available_cells[_storage_cell_key(cell_value)] = true
+	var occupied_cells: Dictionary = {}
+	for item_value: Variant in value as Array:
+		if typeof(item_value) != TYPE_DICTIONARY:
+			continue
+		var item: Dictionary = item_value as Dictionary
+		var raw_cell: Variant = item.get("cell", [])
+		var item_id := content.normalize_item_id(String(item.get("item_id", "")))
+		var amount := _safe_int(item.get("amount"), 0)
+		var cell_key := _storage_cell_key(raw_cell)
+		if (
+			not available_cells.has(cell_key)
+			or occupied_cells.has(cell_key)
+			or not content.has_item(item_id)
+			or amount <= 0
+		):
+			continue
+		var cell := raw_cell as Array
+		occupied_cells[cell_key] = true
+		items.append({
+			"cell": [int(cell[0]), int(cell[1])],
+			"item_id": item_id,
+			"amount": mini(amount, content.item_max_stack(item_id)),
+		})
+	return items
+
+
+func _normalize_next_storage_zone_serial(value: Variant, zones: Array) -> int:
+	var serial := maxi(1, _safe_int(value, 1))
+	while serial < 1000000:
+		var candidate := "core:storage_zone_%04d" % serial
+		var exists := false
+		for zone_value: Variant in zones:
+			if typeof(zone_value) == TYPE_DICTIONARY and String((zone_value as Dictionary).get("id", "")) == candidate:
+				exists = true
+				break
+		if not exists:
+			return serial
+		serial += 1
+	return serial
+
+
+func _validate_storage_access(cell: Vector2i) -> Dictionary:
+	var zone_index := _storage_zone_index_at_cell(cell)
+	if zone_index < 0:
+		return _emit_result(false, "ui.storage.failure.no_zone")
+	var target := FirstNightContent.cell_center(cell.x, cell.y)
+	if get_player_position().distance_to(target) > FirstNightContent.INTERACTION_RANGE:
+		return _emit_result(false, "interaction.failure.too_far")
+	return {
+		"success": true,
+		"zone": (state["storage_zones"] as Array)[zone_index] as Dictionary,
+	}
+
+
+func _storage_zone_index_at_cell(cell: Vector2i) -> int:
+	for index: int in range((state.get("storage_zones", []) as Array).size()):
+		var zone_value: Variant = (state["storage_zones"] as Array)[index]
+		if typeof(zone_value) != TYPE_DICTIONARY:
+			continue
+		for cell_value: Variant in (zone_value as Dictionary).get("cells", []):
+			if _storage_cell_key(cell_value) == _storage_cell_key([cell.x, cell.y]):
+				return index
+	return -1
+
+
+func _storage_zone_cell_keys(zone: Dictionary) -> Dictionary:
+	var keys: Dictionary = {}
+	for cell_value: Variant in zone.get("cells", []):
+		keys[_storage_cell_key(cell_value)] = true
+	return keys
+
+
+func _storage_item_at_key(items: Array, cell_key: String) -> Dictionary:
+	for item_value: Variant in items:
+		if typeof(item_value) == TYPE_DICTIONARY:
+			var item := item_value as Dictionary
+			if _storage_cell_key(item.get("cell", [])) == cell_key:
+				return item
+	return {}
+
+
+func _storage_cell_key(value: Variant) -> String:
+	if typeof(value) != TYPE_ARRAY or (value as Array).size() != 2:
+		return ""
+	var cell := value as Array
+	if not _is_whole_number(cell[0]) or not _is_whole_number(cell[1]):
+		return ""
+	return "%d,%d" % [int(cell[0]), int(cell[1])]
+
+
+func _storage_cell_array(cell_key: String) -> Array:
+	var coordinates := cell_key.split(",", false)
+	if coordinates.size() != 2:
+		return []
+	return [int(coordinates[0]), int(coordinates[1])]
+
+
+func _construction_cell_has_structure(cell: Vector2i) -> bool:
+	for key: String in ["blueprints", "structures"]:
+		for value: Variant in state.get(key, []):
+			if typeof(value) != TYPE_DICTIONARY:
+				continue
+			var cell_data: Variant = (value as Dictionary).get("cell", [])
+			if _storage_cell_key(cell_data) == _storage_cell_key([cell.x, cell.y]):
+				return true
+	return false
+
+
+func _world_cell_blocks_storage(cell: Vector2i) -> bool:
+	if ResourceNodeCatalogScript.is_reserved_cell(cell):
+		return true
+	for interactable: Dictionary in content.interactables():
+		if not bool(interactable.get("spawn_in_world", true)):
+			continue
+		var world_position: Vector2 = interactable.get("position", Vector2.ZERO) as Vector2
+		var object_cell := Vector2i(
+			floori(world_position.x / FirstNightContent.CELL_SIZE),
+			floori(world_position.y / FirstNightContent.CELL_SIZE)
+		)
+		if object_cell == cell:
+			return true
+	for key: String in ["resource_nodes", "tree_nodes"]:
+		for node_value: Variant in state.get(key, []):
+			if typeof(node_value) != TYPE_DICTIONARY:
+				continue
+			if _storage_cell_key((node_value as Dictionary).get("cell", [])) == _storage_cell_key([cell.x, cell.y]):
+				return true
+	for bush: Dictionary in _berry_bush_nodes:
+		if _storage_cell_key(bush.get("cell", [])) == _storage_cell_key([cell.x, cell.y]):
+			return true
+	return false
 
 
 func _normalize_next_marker_serial(value: Variant, markers: Array) -> int:

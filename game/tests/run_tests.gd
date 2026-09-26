@@ -46,6 +46,7 @@ const LOCALIZATION_SOURCE_PATHS: Array[String] = [
 	"res://src/ui/first_night_hud.gd",
 	"res://src/ui/construction_palette.gd",
 	"res://src/ui/crafting_panel.gd",
+	"res://src/ui/storage_panel.gd",
 	"res://src/ui/inventory_panel.gd",
 	"res://src/world/first_night_world.gd",
 ]
@@ -74,6 +75,7 @@ func _run() -> void:
 	_test_player_food_consumption()
 	_test_named_markers_and_save_round_trip()
 	_test_world_drops_persist_and_pickup_by_id()
+	_test_storage_zones_and_physical_transfers()
 	_test_query_snapshots_are_isolated()
 	_test_corrupt_nested_state_uses_defaults()
 	_test_save_header_validation()
@@ -771,6 +773,47 @@ func _test_world_drops_persist_and_pickup_by_id() -> void:
 		restored.get_item_count(FirstNightContent.WOOD_ID) == 1,
 		"duplicate drop pickup cannot duplicate inventory items"
 	)
+
+
+func _test_storage_zones_and_physical_transfers() -> void:
+	var legacy_state: Dictionary = Simulation.create_new_state(941)
+	legacy_state["version"] = 16
+	legacy_state.erase("storage_zones")
+	legacy_state.erase("storage_items")
+	legacy_state.erase("next_storage_zone_serial")
+	var migrated := FirstNightSimulation.new(legacy_state)
+	_expect(migrated.get_storage_zones().is_empty() and migrated.get_storage_items().is_empty(), "v16 saves migrate with empty storage state")
+
+	var simulation: FirstNightSimulation = Simulation.new()
+	simulation.set_player_position(Content.cell_center(10, 10))
+	simulation.try_pickup_item(FirstNightContent.WOOD_ID, 8)
+	var first_zone := simulation.create_storage_zone(Vector2i(10, 10), Vector2i(10, 10))
+	var second_zone := simulation.create_storage_zone(Vector2i(12, 10), Vector2i(12, 10))
+	_expect(bool(first_zone.get("success", false)), "storage zone can be designated on an open map cell")
+	_expect(bool(second_zone.get("success", false)), "separate storage zones can coexist")
+	var reserved_zone := simulation.create_storage_zone(Vector2i(20, 20), Vector2i(20, 20))
+	_expect(not bool(reserved_zone.get("success", false)), "storage zones respect the current house and map reservations")
+	var object_zone := simulation.create_storage_zone(Vector2i(12, 31), Vector2i(12, 31))
+	_expect(not bool(object_zone.get("success", false)), "storage zones cannot cover a world object")
+	var overlap := simulation.create_storage_zone(Vector2i(10, 10), Vector2i(11, 10))
+	_expect(not bool(overlap.get("success", false)), "storage zones cannot overlap")
+	var first_store := simulation.store_item_in_storage(Vector2i(10, 10), FirstNightContent.WOOD_ID)
+	var first_store_args := first_store.get("message_args", {}) as Dictionary
+	_expect(bool(first_store.get("success", false)) and int(first_store_args.get("amount", 0)) == 5, "a one-cell storage zone obeys the item's maximum stack")
+	_expect(simulation.get_item_count(FirstNightContent.WOOD_ID) == 3, "partial storage transfer leaves overflow in the backpack")
+	var second_store := simulation.store_item_in_storage(Vector2i(12, 10), FirstNightContent.WOOD_ID)
+	_expect(bool(second_store.get("success", false)) and simulation.get_storage_contents(Vector2i(12, 10)).get(FirstNightContent.WOOD_ID, 0) == 3, "items are physically assigned to the selected zone")
+	var first_take := simulation.take_item_from_storage(Vector2i(10, 10), FirstNightContent.WOOD_ID)
+	var first_take_args := first_take.get("message_args", {}) as Dictionary
+	_expect(bool(first_take.get("success", false)) and int(first_take_args.get("amount", 0)) == 5, "taking from one zone only moves that zone's stack")
+	_expect(simulation.get_storage_contents(Vector2i(12, 10)).get(FirstNightContent.WOOD_ID, 0) == 3, "taking from one zone cannot withdraw from a different zone")
+	var cannot_remove := simulation.remove_storage_zone_at(Vector2i(12, 10))
+	_expect(not bool(cannot_remove.get("success", false)), "a non-empty storage zone cannot be removed")
+	var second_take := simulation.take_item_from_storage(Vector2i(12, 10), FirstNightContent.WOOD_ID)
+	_expect(bool(second_take.get("success", false)), "contents can be withdrawn from the matching storage zone")
+	var restored := FirstNightSimulation.new(simulation.export_state())
+	_expect(restored.get_storage_zones().size() == 2 and restored.get_storage_items().is_empty(), "storage zone layout persists through save/load")
+	_expect(bool(restored.remove_storage_zone_at(Vector2i(12, 10)).get("success", false)), "an emptied storage zone can be removed")
 
 
 func _test_query_snapshots_are_isolated() -> void:

@@ -13,6 +13,7 @@ const UiSkin := preload("res://src/ui/pixel_ui_skin.gd")
 const CraftingPanelScene: PackedScene = preload(
 	"res://src/ui/crafting_panel.tscn"
 )
+const StoragePanelScene: PackedScene = preload("res://src/ui/storage_panel.tscn")
 const ConstructionPaletteScene: PackedScene = preload(
 	"res://src/ui/construction_palette.tscn"
 )
@@ -29,8 +30,10 @@ var _tasks_background: TextureRect
 var _tasks_toggle: Button
 var _tasks_expanded: bool = true
 var _crafting_panel: CraftingPanel
+var _storage_panel: StoragePanel
 var _construction_palette: ConstructionPalette
 var _crafting_cell: Vector2i = Vector2i(-1, -1)
+var _storage_cell: Vector2i = Vector2i(-1, -1)
 var _inventory_was_paused: bool = false
 var _marker_panel: PanelContainer
 var _marker_overlay: Control
@@ -74,7 +77,7 @@ func set_selection(selection: Dictionary) -> void:
 			"y": int(selection.get("y", -1)),
 		})
 		return
-	if kind == "interactable" or kind == "blueprint" or kind == "structure":
+	if kind == "interactable" or kind == "blueprint" or kind == "structure" or kind == "storage":
 		var status: String = String(selection.get("status", ""))
 		var in_range: bool = bool(selection.get("in_range", false))
 		var selection_key: String
@@ -310,6 +313,14 @@ func _build_ui() -> void:
 	_crafting_panel.recipe_requested.connect(_on_recipe_pressed)
 	add_child(_crafting_panel)
 	_crafting_panel.hide()
+	_storage_panel = StoragePanelScene.instantiate() as StoragePanel
+	_storage_panel.z_index = 23
+	_storage_panel.set_anchors_preset(Control.PRESET_CENTER)
+	_storage_panel.position = Vector2(-220.0, -180.0)
+	_storage_panel.close_requested.connect(_on_storage_close_requested)
+	_storage_panel.transfer_requested.connect(_on_storage_transfer_requested)
+	add_child(_storage_panel)
+	_storage_panel.hide()
 
 
 func _add_ui_texture(file_name: String, at: Vector2, texture_size: Vector2) -> TextureRect:
@@ -420,7 +431,11 @@ func is_inventory_open() -> bool:
 
 
 func is_modal_open() -> bool:
-	return _inventory_panel.visible or _crafting_panel.visible or _marker_panel.visible
+	return _inventory_panel.visible or _crafting_panel.visible or _storage_panel.visible or _marker_panel.visible
+
+
+func is_build_mode_active() -> bool:
+	return _construction_palette.is_build_mode_active()
 
 
 func open_crafting(cell: Vector2i, recipes: Array[Dictionary]) -> void:
@@ -428,6 +443,12 @@ func open_crafting(cell: Vector2i, recipes: Array[Dictionary]) -> void:
 	_crafting_cell = cell
 	_crafting_panel.present(recipes, _content_data)
 	_set_crafting_open(true)
+
+
+func open_storage(cell: Vector2i) -> void:
+	_storage_cell = cell
+	_storage_panel.present(cell, _content_data)
+	_set_storage_open(true)
 
 
 func _set_inventory_open(should_open: bool) -> void:
@@ -492,3 +513,33 @@ func _on_recipe_pressed(recipe_id: String) -> void:
 
 func _on_crafting_close_requested() -> void:
 	_set_crafting_open(false)
+
+
+func _set_storage_open(should_open: bool) -> void:
+	if _storage_panel.visible == should_open:
+		return
+	if should_open:
+		_inventory_was_paused = Session.is_paused()
+		Session.set_paused(true, false)
+		_construction_palette.hide()
+		_inventory_backdrop.show()
+		_storage_panel.show()
+		_storage_panel.refresh(_storage_cell)
+		return
+	_storage_panel.hide()
+	_inventory_backdrop.hide()
+	_construction_palette.show()
+	if not _inventory_was_paused:
+		Session.set_paused(false, false)
+
+
+func _on_storage_close_requested() -> void:
+	_set_storage_open(false)
+
+
+func _on_storage_transfer_requested(item_id: String, store: bool) -> void:
+	if store:
+		Session.store_item_in_storage(_storage_cell, item_id)
+	else:
+		Session.take_item_from_storage(_storage_cell, item_id)
+	_storage_panel.refresh(_storage_cell)

@@ -5,6 +5,7 @@ signal selection_changed(selection: Dictionary)
 signal blueprint_interaction_requested(cell: Vector2i, continuous_work: bool)
 signal resource_interaction_requested(target_id: String, continuous_work: bool)
 signal structure_interaction_requested(cell: Vector2i, continuous_work: bool)
+signal storage_interaction_requested(cell: Vector2i)
 
 const Catalog := preload("res://src/world/first_night_catalog.gd")
 const Interactable := preload("res://src/world/interactable_view.gd")
@@ -205,6 +206,13 @@ func interact_with_selection(continuous_work: bool = false) -> void:
 			return
 		structure_interaction_requested.emit(_selected_cell, continuous_work)
 		return
+	if _is_selected_storage_cell():
+		var storage_position := Content.cell_center(_selected_cell.x, _selected_cell.y)
+		if _player.global_position.distance_to(storage_position) > Catalog.INTERACTION_RANGE:
+			Session.notify_player_key("interaction.failure.too_far")
+			return
+		storage_interaction_requested.emit(_selected_cell)
+		return
 
 	if _selected == null or not is_instance_valid(_selected) or not _selected.visible:
 		Session.notify_player_key("interaction.prompt.select_object")
@@ -259,6 +267,8 @@ func _set_selected(value: InteractableView) -> void:
 			selection_changed.emit(_blueprint_selection_payload())
 		elif not _get_selected_structure().is_empty():
 			selection_changed.emit(_structure_selection_payload())
+		elif _is_selected_storage_cell():
+			selection_changed.emit(_storage_selection_payload())
 		else:
 			selection_changed.emit({
 				"kind": "cell",
@@ -376,6 +386,37 @@ func _get_selected_structure() -> Dictionary:
 		if structure.get("cell", []) == [_selected_cell.x, _selected_cell.y]:
 			return structure
 	return {}
+
+
+func _is_selected_storage_cell() -> bool:
+	return not _get_selected_storage_zone().is_empty()
+
+
+func _get_selected_storage_zone() -> Dictionary:
+	if _selected_cell.x < 0 or _selected_cell.y < 0:
+		return {}
+	for zone: Dictionary in Session.get_storage_zones():
+		for cell_value: Variant in zone.get("cells", []):
+			if cell_value == [_selected_cell.x, _selected_cell.y]:
+				return zone
+	return {}
+
+
+func _storage_selection_payload() -> Dictionary:
+	var target := Content.cell_center(_selected_cell.x, _selected_cell.y)
+	var total_items := 0
+	for amount_value: Variant in Session.get_storage_contents(_selected_cell).values():
+		total_items += int(amount_value)
+	return {
+		"kind": "storage",
+		"x": _selected_cell.x,
+		"y": _selected_cell.y,
+		"label": Localized.resolve("ui.storage.zone.name"),
+		"status": Localized.resolve("ui.storage.zone.contents", {
+			"count": total_items,
+		}),
+		"in_range": _player.global_position.distance_to(target) <= Catalog.INTERACTION_RANGE,
+	}
 
 
 func _structure_selection_payload() -> Dictionary:
@@ -535,6 +576,29 @@ func _draw() -> void:
 	draw_rect(Rect2(19.0 * tile, 26.0 * tile - 16.0, 5.0 * tile, 16.0), Color("3d3933"))
 	draw_rect(Rect2(25.0 * tile, 26.0 * tile - 16.0, 4.0 * tile, 16.0), Color("3d3933"))
 	draw_rect(Rect2(24.0 * tile, 26.0 * tile - 8.0, tile, 8.0), Color("b99b68"))
+
+	for zone: Dictionary in Session.get_storage_zones():
+		for cell_value: Variant in zone.get("cells", []):
+			if typeof(cell_value) != TYPE_ARRAY or (cell_value as Array).size() != 2:
+				continue
+			var cell := Vector2i(int(cell_value[0]), int(cell_value[1]))
+			var zone_rect := Rect2(Vector2(cell * Catalog.CELL_SIZE), Vector2(Catalog.CELL_SIZE, Catalog.CELL_SIZE))
+			draw_rect(zone_rect.grow(-2.0), Color(0.38, 0.68, 0.50, 0.24), true)
+			draw_rect(zone_rect.grow(-2.0), Color(0.48, 0.82, 0.62, 0.58), false, 1.0)
+	for stored_item: Dictionary in Session.get_storage_items():
+		var cell_data: Array = stored_item.get("cell", []) as Array
+		if cell_data.size() != 2:
+			continue
+		var icon_path := _content.item_icon_path(String(stored_item.get("item_id", "")))
+		var item_origin := Vector2(int(cell_data[0]) * Catalog.CELL_SIZE, int(cell_data[1]) * Catalog.CELL_SIZE)
+		var icon: Texture2D
+		if not icon_path.is_empty():
+			icon = load(icon_path) as Texture2D
+		if icon != null:
+			draw_texture_rect(icon, Rect2(item_origin + Vector2(6.0, 6.0), Vector2(20.0, 20.0)), true)
+		else:
+			draw_rect(Rect2(item_origin + Vector2(7.0, 7.0), Vector2(18.0, 18.0)), Color("d4b277"), true)
+		draw_string(ThemeDB.fallback_font, item_origin + Vector2(27.0, 29.0), str(stored_item.get("amount", 0)), HORIZONTAL_ALIGNMENT_RIGHT, 20.0, 9, Color.WHITE)
 
 	var grid_color := Color(0.12, 0.16, 0.11, 0.10)
 	for x_line: int in range(Catalog.MAP_SIZE.x + 1):

@@ -34,6 +34,7 @@ func _ready() -> void:
 	_world.blueprint_interaction_requested.connect(_on_blueprint_interaction_requested)
 	_world.resource_interaction_requested.connect(_on_resource_interaction_requested)
 	_world.structure_interaction_requested.connect(_on_structure_interaction_requested)
+	_world.storage_interaction_requested.connect(_on_storage_interaction_requested)
 	_hud.build_mode_toggled.connect(_on_build_mode_toggled)
 	_hud.building_selected.connect(_on_building_selected)
 	_hud.crafting_recipe_requested.connect(_on_crafting_recipe_requested)
@@ -43,6 +44,8 @@ func _ready() -> void:
 	_construction_cursor.cell_cancel_requested.connect(
 		_on_construction_cell_cancel_requested
 	)
+	_construction_cursor.storage_area_selected.connect(_on_storage_area_selected)
+	_construction_cursor.storage_zone_cancel_requested.connect(_on_storage_zone_cancel_requested)
 	Session.state_reloaded.connect(_player.apply_loaded_position)
 	Session.state_reloaded.connect(_on_session_state_reloaded)
 	Session.time_changed.connect(_update_dusk_overlay)
@@ -154,6 +157,14 @@ func _on_construction_cell_cancel_requested(cell: Vector2i) -> void:
 	_show_construction_result(result)
 
 
+func _on_storage_area_selected(from_cell: Vector2i, to_cell: Vector2i) -> void:
+	_show_storage_result(Session.create_storage_zone(from_cell, to_cell))
+
+
+func _on_storage_zone_cancel_requested(cell: Vector2i) -> void:
+	_show_storage_result(Session.remove_storage_zone_at(cell))
+
+
 func _on_blueprint_interaction_requested(
 	cell: Vector2i,
 	continuous_work: bool
@@ -221,6 +232,9 @@ func _on_world_selection_changed(selection: Dictionary) -> void:
 
 func _on_build_mode_toggled(active: bool) -> void:
 	_construction_cursor.set_build_mode_active(active)
+	_construction_cursor.set_storage_mode_active(
+		active and _selected_building_id == "core:storage_zone"
+	)
 	if active:
 		_stop_player_resource_work(true)
 		_stop_player_construction(true)
@@ -229,6 +243,13 @@ func _on_build_mode_toggled(active: bool) -> void:
 
 func _on_building_selected(building_id: String) -> void:
 	_selected_building_id = building_id
+	_construction_cursor.set_storage_mode_active(
+		_hud.is_build_mode_active() and building_id == "core:storage_zone"
+	)
+
+
+func _on_storage_interaction_requested(cell: Vector2i) -> void:
+	_hud.open_storage(cell)
 
 
 func _on_session_state_reloaded() -> void:
@@ -509,6 +530,12 @@ func _show_construction_result(result: Dictionary) -> void:
 		},
 		bool(result.get("success", false))
 	)
+
+
+func _show_storage_result(result: Dictionary) -> void:
+	var message_key := String(result.get("message_key", "ui.storage.failure.invalid"))
+	var message_args := result.get("message_args", {}) as Dictionary
+	Session.notify_player_key(message_key, message_args, bool(result.get("success", false)))
 
 
 func _update_dusk_overlay() -> void:

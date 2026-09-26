@@ -109,6 +109,34 @@ func get_world_drops() -> Array:
 	return simulation.get_world_drops()
 
 
+func get_storage_zones() -> Array[Dictionary]:
+	return simulation.get_storage_zones()
+
+
+func get_storage_items() -> Array[Dictionary]:
+	return simulation.get_storage_items()
+
+
+func get_storage_contents(cell: Vector2i) -> Dictionary:
+	return simulation.get_storage_contents(cell)
+
+
+func create_storage_zone(from_cell: Vector2i, to_cell: Vector2i) -> Dictionary:
+	return simulation.create_storage_zone(from_cell, to_cell)
+
+
+func remove_storage_zone_at(cell: Vector2i) -> Dictionary:
+	return simulation.remove_storage_zone_at(cell)
+
+
+func store_item_in_storage(cell: Vector2i, item_id: String) -> Dictionary:
+	return simulation.store_item_in_storage(cell, item_id)
+
+
+func take_item_from_storage(cell: Vector2i, item_id: String) -> Dictionary:
+	return simulation.take_item_from_storage(cell, item_id)
+
+
 func get_surface_boulders() -> Array[Dictionary]:
 	return simulation.get_surface_boulders()
 
