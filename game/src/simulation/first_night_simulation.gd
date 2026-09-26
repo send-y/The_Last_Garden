@@ -85,6 +85,7 @@ var npc_autonomy
 var building_catalog: BuildingCatalog
 var crafting_catalog: CraftingCatalog
 var _minute_accumulator: float = 0.0
+var _berry_bush_nodes: Array[Dictionary] = []
 
 
 func _init(initial_state: Dictionary = {}) -> void:
@@ -1425,6 +1426,13 @@ func get_surface_trees() -> Array[Dictionary]:
 	return result
 
 
+func get_surface_berry_bushes() -> Array[Dictionary]:
+	var result: Array[Dictionary] = []
+	for bush: Dictionary in _berry_bush_nodes:
+		result.append(ResourceNodeCatalogScript.to_interactable(bush))
+	return result
+
+
 func try_pickup_world_drop(drop_id: String) -> Dictionary:
 	var drops: Array = state["world_drops"] as Array
 	var drop_index: int = -1
@@ -1702,6 +1710,9 @@ func _resolve_interaction_target(target_id: String) -> Dictionary:
 		if typeof(node_value) != TYPE_DICTIONARY:
 			continue
 		var node := node_value as Dictionary
+		if String(node.get("id", "")) == target_id:
+			return ResourceNodeCatalogScript.to_interactable(node)
+	for node: Dictionary in _berry_bush_nodes:
 		if String(node.get("id", "")) == target_id:
 			return ResourceNodeCatalogScript.to_interactable(node)
 
@@ -2106,6 +2117,11 @@ func _normalize_state() -> void:
 		state.get("tree_nodes", defaults["tree_nodes"]),
 		seed_value,
 		state["resource_nodes"] as Array
+	)
+	_berry_bush_nodes = ResourceNodeCatalogScript.generate_berry_bushes(
+		seed_value,
+		state["resource_nodes"] as Array,
+		state["tree_nodes"] as Array
 	)
 	state["collected"] = content.normalize_collected(_as_dictionary(state.get("collected")))
 	state["resource_work"] = _normalize_resource_work(state.get("resource_work", {}))

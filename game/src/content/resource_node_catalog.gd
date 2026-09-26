@@ -9,6 +9,8 @@ const BOULDER_COUNT_MIN: int = 30
 const BOULDER_COUNT_MAX: int = 35
 const TREE_COUNT_MIN: int = 40
 const TREE_COUNT_MAX: int = 45
+const BERRY_BUSH_COUNT_MIN: int = 18
+const BERRY_BUSH_COUNT_MAX: int = 24
 const BOULDER_GROUP_MIN: int = 1
 const BOULDER_GROUP_MAX: int = 3
 const TREE_GROUP_MIN: int = 3
@@ -54,6 +56,33 @@ static func generate_surface_trees(
 		TREE_GROUP_MIN,
 		TREE_GROUP_MAX,
 		"tree",
+		FirstNightContent.new().interactables(),
+		occupied
+	)
+
+
+static func generate_berry_bushes(
+	world_seed: int,
+	boulders: Array = [],
+	trees: Array = []
+) -> Array[Dictionary]:
+	var rng := RandomNumberGenerator.new()
+	rng.seed = world_seed ^ 0xBE221E5
+	var target_count := rng.randi_range(
+		BERRY_BUSH_COUNT_MIN,
+		BERRY_BUSH_COUNT_MAX
+	)
+	var occupied: Array[Vector2] = []
+	for node: Dictionary in boulders:
+		occupied.append(_position_from_node(node))
+	for node: Dictionary in trees:
+		occupied.append(_position_from_node(node))
+	return _generate_clustered_nodes(
+		rng,
+		target_count,
+		2,
+		4,
+		"food",
 		FirstNightContent.new().interactables(),
 		occupied
 	)
@@ -126,6 +155,8 @@ static func _generate_clustered_nodes(
 			var index := result.size() + 1
 			if kind == "boulder":
 				result.append(make_surface_boulder(index, cell, rng.randi_range(9, 12)))
+			elif kind == "food":
+				result.append(make_berry_bush(index, cell))
 			else:
 				result.append(make_surface_tree(index, cell, rng.randi_range(12, 13)))
 			placed_in_cluster += 1
@@ -162,6 +193,15 @@ static func make_surface_tree(
 	}
 
 
+static func make_berry_bush(index: int, cell: Vector2i) -> Dictionary:
+	return {
+		"id": "core:berry_bush_%02d" % index,
+		"kind": "food",
+		"label_key": "object.core.berry_bush.name",
+		"cell": [cell.x, cell.y],
+	}
+
+
 static func to_interactable(definition: Dictionary) -> Dictionary:
 	var cell_value: Variant = definition.get("cell", [])
 	if typeof(cell_value) != TYPE_ARRAY or (cell_value as Array).size() != 2:
@@ -169,23 +209,28 @@ static func to_interactable(definition: Dictionary) -> Dictionary:
 	var cell := cell_value as Array
 	if typeof(cell[0]) != TYPE_INT or typeof(cell[1]) != TYPE_INT:
 		return {}
-	var is_tree := String(definition.get("kind", "stone")) == "wood"
+	var kind := String(definition.get("kind", "stone"))
+	var is_tree := kind == "wood"
+	var is_food := kind == "food"
 	var stage_id := String(definition.get("stage_id", "tree"))
 	return {
 		"id": String(definition.get("id", "")),
-		"kind": "wood" if is_tree else "stone",
+		"kind": kind,
 		"label_key": String(definition.get(
 			"label_key",
-			"object.core.surface_tree.name" if is_tree else "object.core.surface_boulder.name"
+			"object.core.surface_tree.name" if is_tree
+			else "object.core.berry_bush.name" if is_food
+			else "object.core.surface_boulder.name"
 		)),
 		"position": FirstNightContent.cell_center(int(cell[0]), int(cell[1])),
-		"color": Color("626a6b" if not is_tree else "456342"),
-		"size": Vector2(64.0, 64.0) if not is_tree else Vector2(72.0, 88.0),
+		"color": Color("526d3d" if is_food else "626a6b" if not is_tree else "456342"),
+		"size": Vector2(30.0, 24.0) if is_food else Vector2(64.0, 64.0) if not is_tree else Vector2(72.0, 88.0),
 		"yield_amount": int(definition.get("yield_amount", 9 if not is_tree else 12)),
 		"stage_id": stage_id,
 		"presentation_id": (
 			"surface_stump" if is_tree and stage_id == "stump"
 			else "surface_tree" if is_tree
+			else "berry_bush" if is_food
 			else "surface_boulder"
 		),
 	}

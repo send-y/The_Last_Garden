@@ -67,6 +67,7 @@ func _run() -> void:
 	_test_resource_work_progress_completion_and_serialization()
 	_test_surface_boulders_are_seeded_and_workable()
 	_test_surface_trees_are_seeded_and_workable()
+	_test_surface_berry_bushes_are_seeded_and_collectible()
 	_test_pickup_respects_inventory_limits()
 	_test_world_drops_persist_and_pickup_by_id()
 	_test_query_snapshots_are_isolated()
@@ -561,6 +562,65 @@ func _test_surface_trees_are_seeded_and_workable() -> void:
 		pinecones_after_stump == pinecones_before_stump,
 		"stump work does not produce pinecones"
 	)
+
+func _test_surface_berry_bushes_are_seeded_and_collectible() -> void:
+	var simulation := FirstNightSimulation.new(
+		Simulation.create_new_state(55821)
+	)
+	var bushes := simulation.get_surface_berry_bushes()
+	var same_seed := FirstNightSimulation.new(
+		Simulation.create_new_state(55821)
+	)
+	var different_seed := FirstNightSimulation.new(
+		Simulation.create_new_state(55822)
+	)
+	_expect(
+		bushes.size() >= ResourceNodeCatalogScript.BERRY_BUSH_COUNT_MIN
+			and bushes.size() <= ResourceNodeCatalogScript.BERRY_BUSH_COUNT_MAX,
+		"world generation creates the configured number of berry bushes"
+	)
+	_expect(
+		bushes == same_seed.get_surface_berry_bushes(),
+		"berry bush locations are stable for a world seed"
+	)
+	_expect(
+		bushes != different_seed.get_surface_berry_bushes(),
+		"berry bush locations vary with the world seed"
+	)
+	for starter_resource_id: String in [
+		"core:wood_north",
+		"core:wood_west",
+		"core:wood_east",
+		"core:stone_south",
+		"core:stone_east",
+	]:
+		var starter_definition := simulation.content.get_interactable(starter_resource_id)
+		_expect(
+			not bool(starter_definition.get("spawn_in_world", true)),
+			"legacy starter resource is retained for compatibility but disabled in world: %s" % starter_resource_id
+		)
+	if bushes.is_empty():
+		return
+	var bush: Dictionary = bushes[0]
+	var bush_id := String(bush.get("id", ""))
+	simulation.set_player_position(bush.get("position", Vector2.ZERO) as Vector2)
+	var harvested := simulation.execute_interaction(bush_id)
+	_expect(
+		bool(harvested.get("success", false))
+			and simulation.get_item_count("core:food") == 2,
+		"harvesting a berry bush gives two servings of the first food"
+	)
+	_expect(
+		simulation.is_collected(bush_id),
+		"harvested berry bush does not produce food repeatedly"
+	)
+	var restored := FirstNightSimulation.new(simulation.export_state())
+	_expect(
+		restored.is_collected(bush_id)
+			and restored.get_surface_berry_bushes() == bushes,
+		"berry harvest and generated layout persist through save/load"
+	)
+
 
 func _test_pickup_respects_inventory_limits() -> void:
 	var simulation: FirstNightSimulation = Simulation.new()

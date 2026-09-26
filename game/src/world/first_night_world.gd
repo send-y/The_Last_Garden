@@ -256,8 +256,13 @@ func _set_selected(value: InteractableView) -> void:
 
 func _spawn_interactables() -> void:
 	var definitions: Array[Dictionary] = Catalog.interactables()
+	definitions = definitions.filter(
+		func(definition: Dictionary) -> bool:
+			return bool(definition.get("spawn_in_world", true))
+	)
 	definitions.append_array(Session.get_surface_boulders())
 	definitions.append_array(Session.get_surface_trees())
+	definitions.append_array(Session.get_surface_berry_bushes())
 	var existing_by_id: Dictionary = {}
 	for interactable: InteractableView in _interactables:
 		if is_instance_valid(interactable):

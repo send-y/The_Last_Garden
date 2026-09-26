@@ -213,6 +213,7 @@ func _build_interactable(object_id: String, definition: Dictionary) -> Dictionar
 		"position": cell_center(int(cell[0]), int(cell[1])),
 		"color": Color(String(definition.get("color", "ffffff"))),
 		"size": Vector2(float(size[0]), float(size[1])),
+		"spawn_in_world": bool(definition.get("spawn_in_world", true)),
 	}
 
 

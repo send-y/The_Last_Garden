@@ -82,6 +82,10 @@ func get_surface_trees() -> Array[Dictionary]:
 	return simulation.get_surface_trees()
 
 
+func get_surface_berry_bushes() -> Array[Dictionary]:
+	return simulation.get_surface_berry_bushes()
+
+
 func try_pickup_world_drop(drop_id: String) -> Dictionary:
 	return simulation.try_pickup_world_drop(drop_id)
 
