@@ -1,0 +1,22 @@
+Godot Engine v4.7.stable.mono.official.5b4e0cb0f - https://godotengine.org
+
+WORKER_ORDER {  } other={ "kind": "build", "phase": "craft_take", "cell": [40, 34], "station_cell": [36, 34], "recipe_id": "core:saw_planks", "drops": [] } report1=materials report2={ "reason": "working", "current": 0, "total": 8, "station_cell": [36, 34] }
+NPC_HOME_PRODUCTION: 3 failures
+ERROR: First worker reserves station before withdrawing input
+   at: push_error (core/variant/variant_utility.cpp:1023)
+   GDScript backtrace (most recent call first):
+       [0] check (res://tests/npc_home_production_test.gd:13)
+       [1] test_multiple_batches_and_workers (res://tests/npc_home_production_test.gd:110)
+       [2] run (res://tests/npc_home_production_test.gd:40)
+ERROR: Second worker must wait for the same workshop
+   at: push_error (core/variant/variant_utility.cpp:1023)
+   GDScript backtrace (most recent call first):
+       [0] check (res://tests/npc_home_production_test.gd:13)
+       [1] test_multiple_batches_and_workers (res://tests/npc_home_production_test.gd:111)
+       [2] run (res://tests/npc_home_production_test.gd:40)
+ERROR: Waiting worker identifies workshop contention
+   at: push_error (core/variant/variant_utility.cpp:1023)
+   GDScript backtrace (most recent call first):
+       [0] check (res://tests/npc_home_production_test.gd:13)
+       [1] test_multiple_batches_and_workers (res://tests/npc_home_production_test.gd:112)
+       [2] run (res://tests/npc_home_production_test.gd:40)

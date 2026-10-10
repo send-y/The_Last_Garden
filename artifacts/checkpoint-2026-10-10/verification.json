@@ -1,0 +1,415 @@
+[
+  {
+    "name": "character_needs_test",
+    "exit": 0,
+    "passed": true,
+    "seconds": 4.11,
+    "errors": []
+  },
+  {
+    "name": "farming_rules_test",
+    "exit": 0,
+    "passed": true,
+    "seconds": 4.33,
+    "errors": []
+  },
+  {
+    "name": "household_feedback_test",
+    "exit": 0,
+    "passed": true,
+    "seconds": 2.55,
+    "errors": []
+  },
+  {
+    "name": "furniture_rules_test",
+    "exit": 0,
+    "passed": true,
+    "seconds": 3.12,
+    "errors": []
+  },
+  {
+    "name": "minute_geometry_cache_test",
+    "exit": 0,
+    "passed": true,
+    "seconds": 2.09,
+    "errors": []
+  },
+  {
+    "name": "housing_sleep_test",
+    "exit": 0,
+    "passed": true,
+    "seconds": 3.52,
+    "errors": []
+  },
+  {
+    "name": "npc_conversation_state_test",
+    "exit": 0,
+    "passed": true,
+    "seconds": 2.75,
+    "errors": []
+  },
+  {
+    "name": "npc_discovery_test",
+    "exit": 0,
+    "passed": true,
+    "seconds": 2.58,
+    "errors": []
+  },
+  {
+    "name": "npc_generation_test",
+    "exit": 0,
+    "passed": true,
+    "seconds": 2.0,
+    "errors": []
+  },
+  {
+    "name": "npc_home_production_test",
+    "exit": 0,
+    "passed": true,
+    "seconds": 6.84,
+    "errors": []
+  },
+  {
+    "name": "npc_home_projects_test",
+    "exit": 0,
+    "passed": true,
+    "seconds": 7.31,
+    "errors": []
+  },
+  {
+    "name": "npc_nonblocking_navigation_test",
+    "exit": 0,
+    "passed": true,
+    "seconds": 2.02,
+    "errors": []
+  },
+  {
+    "name": "npc_preferences_test",
+    "exit": 0,
+    "passed": true,
+    "seconds": 1.92,
+    "errors": []
+  },
+  {
+    "name": "npc_roster_test",
+    "exit": 0,
+    "passed": true,
+    "seconds": 5.56,
+    "errors": []
+  },
+  {
+    "name": "npc_practical_work_test",
+    "exit": 0,
+    "passed": true,
+    "seconds": 8.7,
+    "errors": []
+  },
+  {
+    "name": "resident_home_projects_test",
+    "exit": 0,
+    "passed": true,
+    "seconds": 5.97,
+    "errors": []
+  },
+  {
+    "name": "world_editing_test",
+    "exit": 0,
+    "passed": true,
+    "seconds": 2.66,
+    "errors": []
+  },
+  {
+    "name": "persistent_world_test",
+    "exit": 0,
+    "passed": true,
+    "seconds": 15.16,
+    "errors": []
+  },
+  {
+    "name": "boulder_depth_integration_test",
+    "exit": 0,
+    "passed": true,
+    "seconds": 3.76,
+    "errors": []
+  },
+  {
+    "name": "full",
+    "exit": 0,
+    "passed": true,
+    "seconds": 46.02,
+    "errors": []
+  },
+  {
+    "name": "character_needs_ui_test",
+    "exit": 0,
+    "passed": true,
+    "seconds": 3.95,
+    "errors": []
+  },
+  {
+    "name": "crafting_integration_test",
+    "exit": 0,
+    "passed": true,
+    "seconds": 3.89,
+    "errors": []
+  },
+  {
+    "name": "frame_rate_hud_test",
+    "exit": 0,
+    "passed": true,
+    "seconds": 2.25,
+    "errors": []
+  },
+  {
+    "name": "farming_integration_test",
+    "exit": 0,
+    "passed": true,
+    "seconds": 5.11,
+    "errors": []
+  },
+  {
+    "name": "furniture_ui_test",
+    "exit": 0,
+    "passed": true,
+    "seconds": 5.12,
+    "errors": []
+  },
+  {
+    "name": "generated_npcs_integration_test",
+    "exit": 0,
+    "passed": true,
+    "seconds": 3.86,
+    "errors": []
+  },
+  {
+    "name": "generated_npcs_ui_test",
+    "exit": 0,
+    "passed": true,
+    "seconds": 4.05,
+    "errors": []
+  },
+  {
+    "name": "held_item_integration_test",
+    "exit": 0,
+    "passed": true,
+    "seconds": 3.95,
+    "errors": []
+  },
+  {
+    "name": "household_feedback_ui_test",
+    "exit": 0,
+    "passed": true,
+    "seconds": 4.16,
+    "errors": []
+  },
+  {
+    "name": "housing_ui_test",
+    "exit": 0,
+    "passed": true,
+    "seconds": 3.94,
+    "errors": []
+  },
+  {
+    "name": "inventory_close_integration_test",
+    "exit": 0,
+    "passed": true,
+    "seconds": 3.19,
+    "errors": []
+  },
+  {
+    "name": "inventory_context_integration_test",
+    "exit": 0,
+    "passed": true,
+    "seconds": 3.59,
+    "errors": []
+  },
+  {
+    "name": "inventory_cursor_integration_test",
+    "exit": 0,
+    "passed": true,
+    "seconds": 4.55,
+    "errors": []
+  },
+  {
+    "name": "inventory_markers_integration_test",
+    "exit": 0,
+    "passed": true,
+    "seconds": 4.45,
+    "errors": []
+  },
+  {
+    "name": "minute_structure_refresh_test",
+    "exit": 0,
+    "passed": true,
+    "seconds": 4.78,
+    "errors": []
+  },
+  {
+    "name": "mechanics_lab_dialogue_ui_test",
+    "exit": 0,
+    "passed": true,
+    "seconds": 6.25,
+    "errors": []
+  },
+  {
+    "name": "npc_home_production_ui_test",
+    "exit": 0,
+    "passed": true,
+    "seconds": 4.89,
+    "errors": []
+  },
+  {
+    "name": "npc_collision_integration_test",
+    "exit": 0,
+    "passed": true,
+    "seconds": 6.94,
+    "errors": []
+  },
+  {
+    "name": "npc_practical_work_ui_test",
+    "exit": 0,
+    "passed": true,
+    "seconds": 4.3,
+    "errors": []
+  },
+  {
+    "name": "npc_home_projects_ui_test",
+    "exit": 0,
+    "passed": true,
+    "seconds": 6.2,
+    "errors": []
+  },
+  {
+    "name": "persistent_world_integration_test",
+    "exit": 0,
+    "passed": true,
+    "seconds": 5.09,
+    "errors": []
+  },
+  {
+    "name": "pickup_refresh_integration_test",
+    "exit": 0,
+    "passed": true,
+    "seconds": 4.26,
+    "errors": []
+  },
+  {
+    "name": "quick_save_input_integration_test",
+    "exit": 0,
+    "passed": true,
+    "seconds": 3.69,
+    "errors": []
+  },
+  {
+    "name": "resident_homes_ui_test",
+    "exit": 0,
+    "passed": true,
+    "seconds": 6.49,
+    "errors": []
+  },
+  {
+    "name": "resource_access_integration_test",
+    "exit": 0,
+    "passed": true,
+    "seconds": 3.33,
+    "errors": []
+  },
+  {
+    "name": "resource_guidance_integration_test",
+    "exit": 0,
+    "passed": true,
+    "seconds": 3.67,
+    "errors": []
+  },
+  {
+    "name": "responsive_hud_layout_integration_test",
+    "exit": 0,
+    "passed": true,
+    "seconds": 3.2,
+    "errors": []
+  },
+  {
+    "name": "room_designation_integration_test",
+    "exit": 0,
+    "passed": true,
+    "seconds": 3.78,
+    "errors": []
+  },
+  {
+    "name": "roof_sleep_energy_integration_test",
+    "exit": 0,
+    "passed": true,
+    "seconds": 4.89,
+    "errors": []
+  },
+  {
+    "name": "starting_pantry_integration_test",
+    "exit": 0,
+    "passed": true,
+    "seconds": 4.53,
+    "errors": []
+  },
+  {
+    "name": "storage_integration_test",
+    "exit": 0,
+    "passed": true,
+    "seconds": 3.97,
+    "errors": []
+  },
+  {
+    "name": "world_drop_scene_test",
+    "exit": 0,
+    "passed": true,
+    "seconds": 3.78,
+    "errors": []
+  },
+  {
+    "name": "world_editing_ui_test",
+    "exit": 0,
+    "passed": true,
+    "seconds": 3.66,
+    "errors": []
+  },
+  {
+    "name": "main-startup",
+    "exit": 0,
+    "passed": true,
+    "seconds": 3.03,
+    "errors": []
+  },
+  {
+    "name": "resident_home_policy_test",
+    "exit": 0,
+    "passed": true,
+    "seconds": 3.05,
+    "errors": []
+  },
+  {
+    "name": "hoe_alignment_integration_test",
+    "exit": 0,
+    "passed": true,
+    "seconds": 3.22,
+    "errors": []
+  },
+  {
+    "name": "held_item_render_integration_test",
+    "exit": 0,
+    "passed": true,
+    "seconds": 3.24,
+    "errors": []
+  },
+  {
+    "name": "wall_cell_visual_test",
+    "exit": 0,
+    "passed": true,
+    "seconds": 2.73,
+    "errors": []
+  },
+  {
+    "name": "inventory_rotation_integration_test",
+    "exit": 0,
+    "passed": true,
+    "seconds": 2.97,
+    "errors": []
+  }
+]

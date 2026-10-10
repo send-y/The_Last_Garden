@@ -1,0 +1,13 @@
+{
+	"average_fps": 640.192477738387,
+	"frames": 12804,
+	"game_minutes": 15,
+	"hud_text": "FPS 604 · 1.7 мс · пик 2.8 мс",
+	"maximum_ms": 15.03,
+	"over_10_ms": 15,
+	"p99_ms": 2.77,
+	"renderer": "NVIDIA GeForce RTX 4060",
+	"scenario": "three generated residents; stationary player; natural calendar ticks",
+	"seconds": 20.000235,
+	"vsync": "disabled only in probe"
+}

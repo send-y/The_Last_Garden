@@ -1,0 +1,6 @@
+Godot Engine v4.7.stable.mono.official.5b4e0cb0f - https://godotengine.org
+
+ERROR: NPC collision mismatch: hidden=0 old=0 new=1
+   at: push_error (core/variant/variant_utility.cpp:1023)
+   GDScript backtrace (most recent call first):
+       [0] _ready (res://tests/npc_collision_integration_test.gd:53)

@@ -1,10 +1,12 @@
 class_name NpcCatalog
 extends RefCounted
 
+const Needs := preload("res://src/needs/character_needs.gd")
 const Appearance := preload("res://src/characters/character_appearance.gd")
 const FirstNightContentScript := preload("res://src/content/first_night_content.gd")
 const Localized := preload("res://src/localization/localized_text.gd")
 const NpcMemory := preload("res://src/simulation/npc_memory.gd")
+const BuildingCatalogScript := preload("res://src/construction/building_catalog.gd")
 
 const NPCS_PATH: String = "res://content/core/npcs.json"
 
@@ -40,14 +42,17 @@ func create_initial_states(world_seed: int) -> Dictionary:
 			"id": npc_id,
 			"active": false,
 			"known": false,
+			"known_facts": {},
 			"talk_count": 0,
 			"position": _cell_center_array(int(cell[0]), int(cell[1])),
 			"appearance_seed": world_seed + seed_offset,
 			"appearance": _appearance_catalog.generate_npc_appearance(world_seed + seed_offset),
 			"needs": {
+				"restedness": 100.0,
 				"hunger": clampf(float(autonomy.get("initial_hunger", 72.0)), 0.0, 100.0),
 				"energy": clampf(float(autonomy.get("initial_energy", 82.0)), 0.0, 100.0),
 			},
+			"psychology": Needs.normalize_psychology({}),
 			"activity_id": "core:arriving",
 			"activity_started_minute": 7 * 60,
 			"target_cell": [int(cell[0]), int(cell[1])],
@@ -88,6 +93,8 @@ func normalize_states(raw_npcs: Dictionary, world_seed: int) -> Dictionary:
 		npc_state["id"] = npc_id
 		npc_state["active"] = _safe_bool(npc_state.get("active"), bool(default_state["active"]))
 		npc_state["known"] = _safe_bool(npc_state.get("known"), bool(default_state["known"]))
+		var known_facts: Variant = npc_state.get("known_facts", {})
+		npc_state["known_facts"] = known_facts.duplicate(true) if known_facts is Dictionary else {}
 		npc_state["talk_count"] = maxi(0, _safe_int(npc_state.get("talk_count"), int(default_state["talk_count"])))
 		npc_state["appearance_seed"] = _safe_int(
 			npc_state.get("appearance_seed"),
@@ -115,7 +122,9 @@ func normalize_states(raw_npcs: Dictionary, world_seed: int) -> Dictionary:
 		var needs: Dictionary = {}
 		if typeof(needs_value) == TYPE_DICTIONARY:
 			needs = needs_value as Dictionary
+		npc_state["psychology"] = Needs.normalize_psychology(npc_state.get("psychology", {}))
 		npc_state["needs"] = {
+			"restedness": Needs.value(needs.get("restedness"), 100),
 			"hunger": clampf(
 				_safe_float(needs.get("hunger"), float(default_needs["hunger"])),
 				0.0,
@@ -177,6 +186,8 @@ func normalize_states(raw_npcs: Dictionary, world_seed: int) -> Dictionary:
 			npc_state.get("memories", [])
 		)
 
+		preload("res://src/npc_work/npc_work_state.gd").normalize(npc_state, preload("res://src/content/first_night_content.gd").new())
+		preload("res://src/npc_work/npc_home_projects.gd").normalize(npc_state)
 		normalized[npc_id] = npc_state
 	return normalized
 
@@ -399,7 +410,8 @@ func _normalize_work_commitment(value: Variant) -> Dictionary:
 		return {}
 	if String(commitment.get("requester_id", "")) != "core:player":
 		return {}
-	if String(commitment.get("building_id", "")) != "core:wood_wall":
+	var building_id := String(commitment.get("building_id", ""))
+	if BuildingCatalogScript.new().get_definition(building_id).is_empty():
 		return {}
 	if not _is_valid_cell(commitment.get("target_cell")):
 		return {}
@@ -429,7 +441,7 @@ func _normalize_work_commitment(value: Variant) -> Dictionary:
 		"requester_id": "core:player",
 		"target_cell": [int(target_cell[0]), int(target_cell[1])],
 		"work_cell": [int(work_cell[0]), int(work_cell[1])],
-		"building_id": "core:wood_wall",
+		"building_id": building_id,
 		"accepted_minute": clampi(
 			_safe_int(commitment.get("accepted_minute"), 0),
 			0,

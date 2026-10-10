@@ -1,287 +1,779 @@
 keys,ru
-item.core.wood.name,"Древесина"
-item.core.stone.name,"Камень"
-item.core.raw_water.name,"Небезопасная вода"
-item.core.boiled_water.name,"Кипячёная вода"
-item.core.food.name,"Ягоды"
-item.core.pinecone.name,"Шишка"
-object.core.common_house.name,"Общий дом"
-object.core.old_tools.name,"Старый ящик"
-object.core.repair_room.name,"Заваленная комната"
-object.core.campfire_site.name,"Место для костра"
-object.core.bed_site.name,"Место для постели"
-object.core.wood_north.name,"Упавшие ветви"
-object.core.wood_west.name,"Сухое дерево"
-object.core.wood_east.name,"Обломки досок"
-object.core.stone_south.name,"Камни у дороги"
-object.core.stone_east.name,"Каменная осыпь"
-object.core.surface_boulder.name,"Крупный валун"
-object.core.surface_tree.name,"Дерево"
-object.core.shore_water.name,"Берег ручья"
-object.core.berry_bush.name,"Куст с ягодами"
-object.core.old_tools.state.available,"Набор инструментов"
-object.core.repair_room.state.cleared,"Расчищенная комната"
-object.core.repair_room.state.roof_damaged,"Повреждённая крыша"
-object.core.repair_room.state.sheltered,"Укрытая комната"
-object.core.campfire_site.state.built,"Сложенный костёр"
-object.core.campfire_site.state.lit,"Горящий костёр"
-object.core.bed_site.state.ready,"Временная постель"
-character_part.core.cloak_none.name,"Без плаща"
-character_part.core.cloak_charcoal.name,"Тёмный дорожный плащ"
-character_part.core.cloak_moss.name,"Плащ цвета мха"
-character_part.core.pants_dark.name,"Тёмные штаны"
-character_part.core.pants_ash.name,"Пепельные штаны"
-character_part.core.boots_brown.name,"Коричневые ботинки"
-character_part.core.boots_dark.name,"Тёмные сапоги"
-character_part.core.body_warm.name,"Тёплый тон кожи"
-character_part.core.body_light.name,"Светлый тон кожи"
-character_part.core.shirt_green.name,"Зелёная рабочая куртка"
-character_part.core.shirt_moss.name,"Куртка цвета мха"
-character_part.core.shirt_linen.name,"Светлая рубаха"
-character_part.core.hair_short_dark.name,"Короткие тёмные волосы"
-character_part.core.hair_short_brown.name,"Короткие каштановые волосы"
-character_part.core.scarf_none.name,"Без шарфа"
-character_part.core.scarf_ochre.name,"Охристый шарф"
-character_part.core.scarf_green.name,"Зелёный шарф"
-character_part.core.held_none.name,"Пустые руки"
-character_part.core.held_tool_bundle.name,"Связка инструментов"
-npc.core.first_neighbor.name,"Мира"
-npc.core.first_neighbor.unknown,"Путник у Общего дома"
-npc.generic.traveler.name,"Путник"
-npc.activity.arriving,"Осматривается после дороги"
-npc.activity.morning,"Проводит утро у Общего дома"
-npc.activity.outdoors,"Гуляет неподалёку"
-npc.activity.evening,"Проводит вечер у костра"
-npc.activity.going_to_meal,"Идёт поесть"
-npc.activity.eating,"Ест"
-npc.activity.waiting_for_food,"Ищет еду"
-npc.activity.going_to_rest,"Идёт отдыхать"
-npc.activity.resting,"Отдыхает"
-npc.activity.blocked,"Не может пройти"
-npc.activity.going_to_build,"Идёт помогать со строительством"
-npc.activity.building,"Строит стену"
-npc.activity.unknown,"Занята своими делами"
-npc.work_request.accepted,"Мира согласилась помочь с выбранной стеной."
-npc.work_request.failure.invalid,"Просьба сформирована неверно."
-npc.work_request.failure.missing_npc,"Сейчас попросить Миру нельзя."
-npc.work_request.failure.not_acquainted,"Сначала стоит познакомиться с Мирой."
-npc.work_request.failure.too_far,"Сначала подойдите к Мире ближе."
-npc.work_request.failure.busy,"Мира уже выполняет принятое обязательство."
-npc.work_request.failure.missing_blueprint,"В выбранной клетке нет чертежа."
-npc.work_request.failure.hungry,"Мира слишком голодна и сначала хочет поесть."
-npc.work_request.failure.tired,"Мира слишком устала и сначала хочет отдохнуть."
-npc.work_request.failure.unreachable,"Мира не видит доступного места для работы у этого чертежа."
-npc.work_request.failure.materials_missing,"У Миры нет всех недостающих материалов. Позже она сможет забрать их со склада."
-npc.work_request.prompt.select_blueprint,"Выключите строительный режим и выберите клетку с чертежом."
+npc.goal.status.producing,Готовлю доски на верстаке для своего домашнего проекта.
+npc.activity.work_craft_take,Берёт древесину для досок
+npc.activity.work_craft,Пилит доски на верстаке
+npc.production.ready,Досок не хватает. Сделаю их из доступной древесины на верстаке.
+npc.production.working,Подготовка досок: {current}/{total} мин работы на верстаке. Готовые доски отнесу к постройке.
+npc.production.wood,Для одной партии досок не хватает {amount} доступной древесины на складе.
+npc.production.wood_reserve,Для досок нужна ещё {amount} древесина сверх защищённого запаса.
+npc.production.station,Нужен доступный верстак рядом с поселением.
+npc.production.busy,Верстак занят другим заказом. Дождусь свободного рабочего места.
+npc.production.station_owner,Верстак занят: {name} готовит доски для домашнего проекта.
+ui.performance.line,FPS {fps} · {ms} мс · пик {peak} мс
+ui.performance.hint,Цель — 100 FPS: не больше 10 мс на кадр. Среднее и самый долгий кадр измеряются за каждый интервал от 0.5 секунды. Частота экрана и VSync могут ограничивать FPS.
+home.mode.settlement,Общее жильё поселения
+home.mode.personal,Личное жильё
+home.mode.shared,Совместное жильё
+home.mode.apply,Применить роль комнаты
+home.mode.fixed,Стартовый дом остаётся общим жильём поселения. Личную мебель здесь жители самостоятельно не ставят.
+home.mode.hint,В личном жилье — один жилец. В совместном — несколько; каждому нужно отдельное спальное место.
+home.members,Жильцы выбранной комнаты: {names}
+home.members.none,пока нет
+housing.mode.changed,Роль комнаты сохранена.
+housing.failure.mode,Выберите допустимую роль комнаты.
+housing.failure.personal,Для личного жилья в комнате должен оставаться не более одного жильца.
+housing.failure.settlement,Стартовый дом всегда остаётся общим жильём поселения.
+stock.items.tab,Предметы
+stock.reserve.tab,Защищённый запас
+stock.reserve.hint,Запас действует на весь общий склад. Жители расходуют на личное обустройство только остаток сверх запаса. Действия игрока и помощь его чертежам доступны как прежде.
+stock.reserve.amount,Оставлять на складе:
+stock.reserve.summary,На общем складе: {stock}\nЗащищено: {reserved}\nДля личных проектов доступно: {available}
+stock.reserve.apply,Сохранить запас
+stock.reserve.empty,На общем складе пока нет подходящих ресурсов.
+stock.reserve.changed,Защищённый запас сохранён: {amount}.
+stock.reserve.failure.item,Этот предмет нельзя выбрать для запаса.
+stock.reserve.failure.amount,Введите целое неотрицательное количество запаса.
+npc.goal.housing,Жильё: {mode}
+npc.goal.protected,Защищённый запас: {item} ×{amount}. Для личного проекта недоступен.
+npc.goal.expansion,Нужно расширить жильё или освободить место для: {item}.
+npc.goal.status.communal,Это общее жильё поселения. Помогу твоим чертежам; личную мебель здесь самостоятельно не ставлю.
+npc.goal.status.reserve,Материалы входят в защищённый запас. Подожду доступного остатка.
+npc.goal.status.expansion,Нужно больше безопасного места для мебели. Границы комнаты самостоятельно не меняю.
+npc.home.expansion.space,В комнате не осталось безопасного места для нужной мебели без перекрытия прохода.
+npc.home.expansion.chair,У стола не осталось безопасного места для ещё одного пригодного стула.
+npc.home.expansion.requested,"{name} хочет поставить {item}, но просит расширить жильё или освободить место."
+conversation.home.expansion,"Хочу поставить {item}, но сейчас в комнате для этого нет безопасного места. Поможешь расширить жильё или освободить место?"
+conversation.home.reserve,"Для обустройства нужны материалы, но они входят в защищённый запас. Подожду новых припасов или твоего решения."
+household.tab.plans,Планы
+npc.goal.intent.table,Хочу поставить стол у нас дома.
+npc.goal.intent.chair,Хочу сделать место для еды за столом.
+npc.goal.intent.torch,Хочу осветить наш дом вечером.
+npc.goal.reason.table,В моём жилье нет стола. За ним можно будет есть и поставить стулья.
+npc.goal.reason.chair,Стол уже есть. Нужен стул рядом — для еды и дневного отдыха.
+npc.goal.reason.torch,В моём жилье нет включённого светильника. Начну с одного факела; имеющийся выключенный факел просто зажгу.
+npc.goal.none,Пока присматриваюсь к дому.
+npc.goal.status.idle,Подходящего нового проекта пока нет.
+npc.goal.status.unknown,Сначала нужно познакомиться.
+npc.goal.status.inactive,Житель сейчас не в поселении.
+npc.goal.status.permission,Жду разрешения на стройку во вкладке «Состояние».
+npc.goal.status.home,Нужно доступное назначенное спальное место в пригодном жилье.
+npc.goal.status.pending,Проект выбран. Начну при первой возможности.
+npc.goal.status.materials,Жду доступных материалов на общем складе.
+npc.goal.status.needs,Сначала поем или восстановлю силы. Проект помню.
+npc.goal.status.request,Сначала займусь принятой просьбой.
+npc.goal.status.later,Продолжу в дневное время.
+npc.goal.status.working,Занимаюсь проектом: иду за материалами или строю.
+npc.goal.status.space,Выбранное место занято или закроет проход. Освободите его либо отложите проект.
+npc.goal.status.done,Готово. Можно пользоваться.
+npc.goal.status.declined,Этот проект отложен. Снова за него не возьмусь без твоего согласия.
+npc.goal.location,"Выбранное место в моём жилье: ({x}, {y})."
+npc.goal.missing,Не хватает на доступном общем складе: {item} ×{amount}.
+npc.goal.progress,Стройка: {current} из {total} минут работы.
+npc.goal.scope,Обустраиваю личное или совместное жильё. Общая мебель подходит всем; еда и сон важнее проекта. Доски нужно изготовить и положить на общий склад сверх защищённого запаса.
+npc.goal.results,Завершённые проекты:
+npc.goal.result,"{item} — ({x}, {y})."
+npc.goal.defer,Не делай этот проект
+npc.goal.resume,Снова разрешить отложенные проекты
+npc.goal.chosen,{name}: займусь домом — {item}.
+npc.goal.finished,{name}: готово — {item}.
+npc.activity.work_switch_on,Зажигает свет у себя дома
+household.tab.state,Состояние
+household.tab.household,Быт
+household.title.sleep,Ночлег
+household.title.food,Еда
+household.title.dining,Место за столом
+household.title.light,Вечерний свет
+household.severity.good,Условие выполнено
+household.severity.problem,Нужно решить
+household.severity.improvement,Можно улучшить
+household.row_heading,{topic} · {status}
+household.scope,Доступность проверяется сейчас. Место может быть временно занято. Житель может поесть и без стола.
+household.current,Сейчас: {needs}.
+household.current.hungry,хочет есть
+household.current.sleepy,не выспался
+household.current.tired,нужен отдых
+household.current.stable,Срочных физических потребностей нет.
+household.home.unassigned,Ночлег: личное место не назначено.
+household.home.missing,Ночлег: закреплённое место исчезло.
+household.home.base,Общий дом
+household.home.room,Жилая комната
+household.home.invalid,Комната непригодна
+household.home.location,"Ночлег: {place} · {location} ({x}, {y})"
+household.sleep.unassigned,Личного спального места нет.
+household.sleep.missing,Закреплённая кровать или спальник отсутствует.
+household.sleep.blocked,К спальному месту нет прохода.
+household.sleep.obstructed,Спальник перекрыт постройкой.
+household.sleep.poor_roof,"Место назначено, но крыша ещё не укрывает от сквозняка."
+household.sleep.ready,Личное место доступно и укрыто: полноценный сон возможен.
+household.sleep.room_open,Комната потеряла замкнутость.
+household.sleep.room_size,Размер помещения не подходит для жилой комнаты.
+household.sleep.room_furniture,В комнате не хватает необходимой мебели.
+household.sleep.room,Помещение не признано жилой комнатой.
+household.food.personal,Порция еды есть при себе.
+household.food.carrying,Несёт порцию к месту еды.
+household.food.storage,На общем складе есть доступная еда.
+household.food.blocked,"Еда на складе есть, но до неё не добраться."
+household.food.missing,"Еды нет ни при себе, ни на общем складе."
+household.dining.ready,Есть свободный стул рядом со столом.
+household.dining.missing,Стола со стулом рядом нет.
+household.dining.busy,Места за ближайшими столами заняты.
+household.dining.blocked,"Свободное место есть, но проход к нему закрыт."
+household.dining.far,Места за столами сейчас слишком далеко.
+household.light.ready,Доступное место еды или отдыха освещено факелом.
+household.light.dark,Доступный стул останется без света вечером.
+household.light.no_place,"Нет доступного места, где можно проверить свет для еды или отдыха."
+household.hint.assign,Через «Назначить жильё» закрепите свободную кровать или спальник.
+household.hint.replace,Восстановите место или назначьте другое через «Назначить жильё».
+household.hint.sleep_path,Освободите путь к кровати и хотя бы одну клетку у её края.
+household.hint.sleep_obstructed,Уберите перекрывающую постройку или назначьте другое место.
+household.hint.roof,Закройте кровлю Общего дома досками: тогда достаточно долгий сон восстановит силы полностью.
+household.hint.room_close,Восстановите стены помещения; проверьте разрывы и дверные места.
+household.hint.room_size,Жилая комната должна содержать от {min} до {max} внутренних клеток.
+household.hint.room_furniture,Добавьте внутри комнаты: {items}.
+household.hint.room_define,Обозначьте помещение как жилую комнату; спальное место должно целиком находиться внутри.
+household.hint.food,Положите съедобный продукт на общий склад. Подойдёт и сырой урожай.
+household.hint.food_path,Освободите путь к продуктам и соседнюю клетку для их получения.
+household.hint.table,Поставьте стул вплотную к столу — трапеза даст жителю дополнительный комфорт.
+household.hint.table_near,Обычное питание сохранится. Место за столом пригодится рядом с повседневными делами жителя.
+household.hint.seat_free,Можно дождаться свободного места или добавить ещё один стул у стола.
+household.hint.table_path,Освободите путь к свободной стороне стула.
+household.hint.light,Поставьте или зажгите факел рядом со стулом. Стены могут перекрывать свет.
+household.hint.light_place,Сначала обеспечьте доступный стул для еды или отдыха.
+household.room_role.bed,кровать или спальник
+household.room_role.table,стол
+household.room_role.lighting,светильник
+furniture.eat,Поесть за столом (5 мин)
+furniture.rest,Отдохнуть на стуле (15 мин)
+furniture.ate,Вы поели за столом.
+furniture.rested,"Вы отдохнули на стуле. Чтобы встать, начните движение."
+furniture.seat.available,Есть свободное место для отдыха.
+furniture.failure.seat,Нужно свободное доступное место. Для еды поставьте стул вплотную к столу.
+furniture.failure.approach,Подойдите к свободной стороне стула.
+furniture.meal.hint,Расходуется одна порция из вашего рюкзака.
+furniture.rest.hint,Стул ускоряет восстановление энергии. Выспанность восстанавливается в постели.
+furniture.light.on,Факел зажжён.
+furniture.light.off,Факел потушен.
+furniture.light.on_hint,Горит · E — потушить
+furniture.light.off_hint,Не горит · E — зажечь
+furniture.light.day,Дневной свет.
+furniture.light.seat,Место освещено.
+furniture.light.dark,Место в темноте.
+furniture.open_hint,E — еда и дневной отдых
+needs.reason.table_meal,Поел за столом
+needs.reason.lit_seat,Еда или отдых в освещённом месте
+needs.reason.dark_seat,Еда или отдых в темноте
+npc.activity.chair_resting,Отдыхает на стуле
+npc.activity.table_eating,Ест за столом
+npc.activity.collecting_meal,Берёт порцию еды со склада
+building.core.bedroll.name,Спальник
+housing.manage,Назначить жильё
+housing.title,Жильё
+housing.player,Игрок
+housing.current,Спальное место: {place}
+housing.assign,Закрепить выбранное место
+housing.release,Снять назначение
+housing.close,Закрыть
+housing.hint,Комната может быть общей. Каждому нужна своя кровать или спальник. В базовом доме доступен временный ночлег; новое жильё нужно обозначить как жилую комнату.
+housing.no_place,Спальное место не назначено
+housing.missing,Назначенное место исчезло
+housing.unavailable,Непригодно
+housing.base_temporary,Временный ночлег в базовом доме
+housing.valid,Подходящее место в жилой комнате
+housing.failure.character,Сначала познакомьтесь с жителем.
+housing.failure.room,Нужна пригодная жилая комната или спальник в базовом доме.
+housing.failure.occupied,Это спальное место уже занято другим человеком.
+housing.failure.path,К спальному месту нет свободного прохода.
+housing.failure.obstructed,Стартовый спальник перекрыт другой постройкой.
+housing.day_rest,Днём: короткий отдых в постели (15 минут).
+housing.assigned,Спальное место закреплено.
+housing.released,Назначение спального места снято.
+needs.reason.personal_bed,Собственная кровать в доме
+needs.reason.personal_bedroll,Собственный спальник в доме
+npc.activity.sleeping,Спит у своего спального места
+building.core.study_table.name,Стол изучений
+farming.extract_button,Семена
+farming.extract_hint,Расходует один продукт. Ягода: 2–4 случайных семени; урожай: 1–5 семян своего вида.
+farming.energy_hint," · сытость +{satiety}, энергия +{energy}"
+farming.failure.actor,Это действие доступно игроку.
+farming.failure.soil,Здесь нельзя подготовить грядку.
+farming.failure.hoe,Выберите мотыгу в хотбаре.
+farming.failure.plant,Нужна свободная грядка и подходящие семена.
+farming.failure.seeds,Нет семян этой культуры.
+farming.failure.water,Выберите наполненное ведро в хотбаре.
+farming.failure.already_wet,Полив ещё действует.
+farming.failure.unripe,Урожай ещё не готов.
+farming.failure.action,Неизвестное действие с грядкой.
+farming.failure.product,Выберите ягоду или готовый продукт.
+farming.failure.study,Постройте стол изучений для семян из урожая.
+farming.tilled,Грядка готова. Выберите её для посадки.
+farming.planted,Семя посажено. Для роста нужна вода.
+farming.watered,Грядка полита на 24 часа.
+farming.harvested,Урожай собран: {amount}. Подберите продукты.
+farming.removed,Грядка убрана.
+farming.extracted,Получено семян: {crop} — {amount}.
+farming.eaten,"Продукт съеден. Сытость +{satiety}, энергия +{energy}."
+farming.berry.wait,Ягоды ещё восстанавливаются. Новый сбор через три дня после предыдущего.
+farming.berry.empty,Ягоды восстанавливаются
+farming.bed.empty,Свободная грядка · одно растение
+farming.bed.status,{crop} · рост {percent}% · {state}
+farming.ready,урожай готов
+farming.wet,полито
+farming.dry,сухо — рост остановлен
+farming.study_ready,Стол готов. Извлекайте семена из урожая в инвентаре.
+farming.plant_button,Посадить: {crop} · семян {amount}
+farming.harvest_button,Собрать урожай
+farming.water_button,Полить · 1 порция воды
+farming.equip_bucket,Для полива выберите полное ведро
+farming.remove_button,Убрать грядку
+farming.confirm_remove,Подтвердить удаление растения и грядки
+farming.close_button,Закрыть
+farming.crop_info,Продуктов: {yield} · энергия за продукт: +{energy}
+farming.open_hint,[E / ПКМ] Посадка и уход
+farming.objective.seeds,Соберите особые ягоды. В рюкзаке извлеките семена.
+farming.objective.bed,Выберите мотыгу. Подготовьте грядку рядом с домом.
+farming.objective.plant,Посадите семя на свободной грядке.
+farming.objective.water,Наполните ведро у реки. Полейте растение.
+farming.objective.grow,Ухаживайте за растением. Сон продвигает рост.
+farming.objective.harvest,Урожай готов. Соберите и подберите продукты.
+farming.objective.study,Постройте стол изучений через «Прочее».
+farming.objective.extract,Извлеките семена из урожая в рюкзаке.
+farming.objective.repeat,Запасите семена. Вырастите следующий урожай.
+farming.objective.complete,Хозяйство работает. Используйте урожай и сохраняйте семена.
+crop.carrot,Морковь
+item.core.carrot.name,Морковь
+item.core.carrot_seed.name,Семена: морковь
+crop.cabbage,Капуста
+item.core.cabbage.name,Капуста
+item.core.cabbage_seed.name,Семена: капуста
+crop.potato,Картофель
+item.core.potato.name,Картофель
+item.core.potato_seed.name,Семена: картофель
+crop.strawberry,Клубника
+item.core.strawberry.name,Клубника
+item.core.strawberry_seed.name,Семена: клубника
+item.core.wood.name,Древесина
+item.core.stone.name,Камень
+item.core.raw_water.name,Небезопасная вода
+item.core.bucket.name,Ведро
+ui.hotbar.failure.invalid_slot,Неверный слот хотбара.
+ui.hotbar.failure.item_missing,Этот предмет нельзя назначить в хотбар.
+ui.hotbar.assigned,Предмет назначен в слот хотбара.
+ui.hotbar.selected,Выбран слот хотбара.
+ui.bucket.failure.not_water,Здесь нет воды.
+ui.bucket.failure.not_equipped,Сначала назначьте ведро в хотбар и выберите его.
+ui.bucket.failure.blocked,До воды нельзя дотянуться.
+ui.bucket.full,Ведро уже наполнено.
+ui.bucket.filled,Ведро наполнено.
+item.core.boiled_water.name,Кипячёная вода
+item.core.food.name,Особые ягоды
+item.core.pinecone.name,Шишка
+object.core.common_house.name,Общий дом
+object.core.old_tools.name,Старый ящик
+object.core.repair_room.name,Заваленная комната
+object.core.campfire_site.name,Место для костра
+object.core.bed_site.name,Стартовый спальник
+object.core.wood_north.name,Упавшие ветви
+object.core.wood_west.name,Сухое дерево
+object.core.wood_east.name,Обломки досок
+object.core.stone_south.name,Камни у дороги
+object.core.stone_east.name,Каменная осыпь
+object.core.surface_boulder.name,Крупный валун
+object.core.surface_tree.name,Дерево
+object.core.shore_water.name,Берег ручья
+object.core.berry_bush.name,Особый ягодный куст
+object.core.old_tools.state.available,Набор инструментов
+object.core.repair_room.state.cleared,Расчищенная комната
+object.core.repair_room.state.roof_damaged,Повреждённая крыша
+object.core.repair_room.state.roof_covered,Закрытая кровля
+object.core.repair_room.state.sheltered,Отремонтированная комната
+object.core.campfire_site.state.built,Сложенный костёр
+object.core.campfire_site.state.lit,Горящий костёр
+object.core.bed_site.state.ready,Спальник в базовом доме
+character_part.core.cloak_none.name,Без плаща
+character_part.core.cloak_charcoal.name,Тёмный дорожный плащ
+character_part.core.cloak_moss.name,Плащ цвета мха
+character_part.core.pants_dark.name,Тёмные штаны
+character_part.core.pants_ash.name,Пепельные штаны
+character_part.core.boots_brown.name,Коричневые ботинки
+character_part.core.boots_dark.name,Тёмные сапоги
+character_part.core.body_warm.name,Тёплый тон кожи
+character_part.core.body_light.name,Светлый тон кожи
+character_part.core.shirt_green.name,Зелёная рабочая куртка
+character_part.core.shirt_moss.name,Куртка цвета мха
+character_part.core.shirt_linen.name,Светлая рубаха
+character_part.core.hair_short_dark.name,Короткие тёмные волосы
+character_part.core.hair_short_brown.name,Короткие каштановые волосы
+character_part.core.scarf_none.name,Без шарфа
+character_part.core.scarf_ochre.name,Охристый шарф
+character_part.core.scarf_green.name,Зелёный шарф
+character_part.core.held_none.name,Пустые руки
+character_part.core.held_tool_bundle.name,Связка инструментов
+npc.core.first_neighbor.name,Мира
+npc.core.first_neighbor.unknown,Путник у Общего дома
+npc.generic.traveler.name,Путник
+npc.activity.arriving,Осматривается после дороги
+npc.activity.morning,Проводит утро у Общего дома
+npc.activity.outdoors,Гуляет неподалёку
+npc.activity.evening,Проводит вечер у костра
+npc.activity.going_to_meal,Идёт поесть
+npc.activity.eating,Ест
+npc.activity.waiting_for_food,Ищет еду
+npc.activity.going_to_rest,Идёт отдыхать
+npc.activity.resting,Отдыхает
+npc.activity.blocked,Не может пройти
+npc.activity.going_to_build,Идёт помогать со строительством
+npc.activity.building,Строит стену
+npc.activity.unknown,Занята своими делами
+npc.work_request.accepted,Мира согласилась помочь с выбранной стеной.
+npc.work_request.failure.invalid,Просьба сформирована неверно.
+npc.work_request.failure.missing_npc,Сейчас попросить Миру нельзя.
+npc.work_request.failure.not_acquainted,Сначала стоит познакомиться с Мирой.
+npc.work_request.failure.too_far,Сначала подойдите к Мире ближе.
+npc.work_request.failure.busy,Мира уже выполняет принятое обязательство.
+npc.work_request.failure.missing_blueprint,В выбранной клетке нет чертежа.
+npc.work_request.failure.hungry,Мира слишком голодна и сначала хочет поесть.
+npc.work_request.failure.tired,Мира слишком устала и сначала хочет отдохнуть.
+npc.work_request.failure.unreachable,Мира не видит доступного места для работы у этого чертежа.
+npc.work_request.failure.materials_missing,У Миры нет всех недостающих материалов. Позже она сможет забрать их со склада.
+npc.work_request.prompt.select_blueprint,Выключите строительный режим и выберите клетку с чертежом.
 dialogue.core.first_neighbor.greeting,"Я увидела дым от костра. Не думала, что здесь ещё кто-то сможет переночевать."
 dialogue.core.first_neighbor.repeat,"Если ты правда остаёшься, утром стоит осмотреть крышу снаружи. Одному это долго."
-dialogue.core.first_neighbor.shared_wall,"Стена вышла крепкой. Теперь это место чуть больше похоже на дом."
-ui.dialogue.speaker_line,"{speaker}: {line}"
-first_night.message.house.first,"Внутри Общего дома видны старые инструменты и комната с повреждённой крышей."
+dialogue.core.first_neighbor.shared_wall,Стена вышла крепкой. Теперь это место чуть больше похоже на дом.
+ui.dialogue.speaker_line,{speaker}: {line}
+first_night.message.house.first,Внутри Общего дома видны старые инструменты и комната с повреждённой крышей.
 first_night.message.house.repeat,"Общий дом сильно повреждён, но одну комнату ещё можно спасти."
 first_night.message.tools.first,"Найдены изношенные топорик, молоток, пила, нож и котелок."
-first_night.message.tools.repeat,"Инструменты уже у вас."
-first_night.message.repair.cleared,"Вы расчистили завал и добрались до повреждённой крыши."
-first_night.message.repair.roof_strengthened,"Крыша укреплена. Осталось закрыть щели в комнате."
-first_night.message.repair.finished,"Комната укрыта от ветра и готова к первой ночи."
-first_night.message.repair.already_done,"Отремонтированная комната выдержит эту ночь."
+first_night.message.tools.repeat,Инструменты уже у вас.
+first_night.message.repair.cleared,Вы расчистили завал и добрались до повреждённой крыши.
+first_night.message.repair.roof_strengthened,Кровля закрыта. После сна — полная энергия.
+first_night.message.repair.finished,Щели в комнате закрыты. Кровля уже обеспечивает полный отдых после сна.
+first_night.message.repair.already_done,Отремонтированная комната выдержит эту ночь.
 first_night.message.campfire.built,"Кострище сложено. Взаимодействуйте снова, чтобы разжечь огонь."
-first_night.message.campfire.lit,"Огонь разгорелся и начал прогревать двор."
-first_night.message.water.boiled,"Вода прокипела и теперь безопасна."
-first_night.message.bed.ready,"Временная постель готова. После 18:00 здесь можно завершить день."
-first_night.failure.repair.tools_required,"Для ремонта нужен найденный набор инструментов."
-first_night.failure.repair.roof_resources,"Для ремонта крыши нужно 3 древесины и 2 камня."
-first_night.failure.repair.finish_resources,"Для завершения комнаты нужно ещё 2 древесины."
-first_night.failure.campfire.resources,"Для костра нужно 2 древесины и 2 камня."
-first_night.failure.campfire.tools_required,"Без инструментов и старого огнива разжечь костёр не получится."
+first_night.message.campfire.lit,Огонь разгорелся и начал прогревать двор.
+first_night.message.water.boiled,Вода прокипела и теперь безопасна.
+first_night.message.bed.ready,Временная постель готова. После 18:00 здесь можно завершить день.
+first_night.failure.repair.tools_required,Для ремонта нужен найденный набор инструментов.
+first_night.failure.repair.roof_resources,Для закрытия кровли нужно 10 досок. Распилите древесину на верстаке.
+first_night.failure.repair.finish_resources,Для завершения комнаты нужно ещё 2 древесины.
+first_night.failure.campfire.resources,Для костра нужно 2 древесины и 2 камня.
+first_night.failure.campfire.tools_required,Без инструментов и старого огнива разжечь костёр не получится.
 first_night.failure.water.raw_required,"Принесите котелок сырой воды, чтобы вскипятить её."
-first_night.failure.bed.room_required,"Сначала нужно закончить ремонт комнаты."
-first_night.failure.bed.resources,"Для основания временной постели нужна 1 древесина."
-first_night.failure.bed.too_early,"Ещё слишком рано спать. Используйте оставшееся дневное время."
-first_night.collect.wood.success,"Собрана древесина: {amount} ед."
-first_night.collect.stone.success,"Собран камень: {amount} ед."
-first_night.collect.food.success,"Найдены съедобные ягоды: {amount} порции."
-first_night.collect.water.success,"Котелок наполнен небезопасной водой."
-first_night.collect.generic.success,"Ресурс собран."
-first_night.collect.empty,"Здесь больше ничего нет."
-first_night.inventory.no_space,"В инвентаре нет свободных слотов. Освободите место перед сбором."
-first_night.water.container_full,"Котелок полон или груз уже слишком тяжёлый."
-first_night.objective.meet_neighbor,"Утром у Общего дома появился путник. Поговорите с ним."
-first_night.objective.complete,"Первое утро наступило. Срез пройден."
-first_night.objective.find_tools,"Осмотрите Общий дом и найдите инструменты."
-first_night.objective.repair_room,"Соберите древесину и камень, затем отремонтируйте комнату."
-first_night.objective.light_campfire,"Соберите костёр из древесины и камня, затем разожгите его."
-first_night.objective.boil_water,"Наберите воду у берега и вскипятите её на костре."
-first_night.objective.prepare_bed,"Подготовьте временную постель в отремонтированной комнате."
-first_night.objective.wait_for_evening,"Подготовка закончена. Дождитесь 18:00 или исследуйте карту."
-first_night.objective.sleep,"Вернитесь к постели и завершите первую ночь."
-first_night.message.dusk,"Солнце садится. Пора заканчивать подготовку к ночи."
-first_night.message.exhausted,"Вы слишком устали. Подготовьте постель и завершите день."
-interaction.failure.unknown_actor,"Неизвестный участник действия."
-interaction.failure.unsupported_action,"Это действие пока недоступно."
-interaction.failure.missing_target,"Такой цели здесь нет."
-interaction.failure.target_unavailable,"Сейчас с этим нельзя взаимодействовать."
-interaction.failure.too_far,"Слишком далеко: подойдите ближе к выбранному объекту."
-interaction.failure.unsupported_target,"С этим пока нельзя взаимодействовать."
-interaction.failure.no_npc,"Здесь никого нет."
-interaction.prompt.select_object,"Сначала выберите объект левой кнопкой мыши."
-first_night.outcome.dry_room,"сухая комната"
-first_night.outcome.cold_draft,"холодный сквозняк"
-first_night.outcome.residual_warmth,"остаточное тепло"
-first_night.outcome.safe_water,"безопасная вода"
-first_night.outcome.light_supper,"лёгкий ужин"
-first_night.outcome.hungry_sleep,"голодный сон"
-first_night.message.morning.summary,"Наступило новое утро. Итог: {outcomes}."
-first_night.message.morning.summary_with_neighbor,"Наступило новое утро. Итог: {outcomes}. На рассвете у Общего дома появился путник."
-ui.hud.selection.none,"Выбор: —"
+first_night.failure.bed.room_required,Сначала нужно закончить ремонт комнаты.
+first_night.failure.bed.resources,Для основания временной постели нужна 1 древесина.
+first_night.failure.bed.too_early,Ещё слишком рано спать. Используйте оставшееся дневное время.
+first_night.collect.wood.success,Собрана древесина: {amount} ед.
+first_night.collect.stone.success,Собран камень: {amount} ед.
+first_night.collect.food.success,Найдены съедобные ягоды: {amount} порции.
+first_night.collect.water.success,Котелок наполнен небезопасной водой.
+first_night.collect.generic.success,Ресурс собран.
+first_night.collect.empty,Здесь больше ничего нет.
+first_night.inventory.no_space,В инвентаре нет свободных слотов. Освободите место перед сбором.
+first_night.water.container_full,Котелок полон или груз уже слишком тяжёлый.
+first_night.objective.meet_neighbor,Утром у Общего дома появился путник. Поговорите с ним.
+first_night.objective.complete,Кровля закрыта. Энергия восстановлена.
+first_night.objective.find_tools,Осмотрите Общий дом и найдите инструменты.
+first_night.objective.repair_room,Соберите ресурсы и почините комнату.
+first_night.objective.light_campfire,Соберите и разожгите костёр.
+first_night.objective.boil_water,Наберите воду у берега и вскипятите её на костре.
+first_night.objective.prepare_bed,Подготовьте временную постель.
+first_night.objective.wait_for_evening,Подготовка закончена. Дождитесь 18:00 или исследуйте карту.
+first_night.objective.sleep,После 18:00 спите у места для постели.
+first_night.message.dusk,Солнце садится. Пора заканчивать подготовку к ночи.
+first_night.message.exhausted,Уже поздно. Сон под закрытой крышей восстановит силы к утру.
+world.message.neighbor_arrived,Наступило утро. К Общему дому пришла первая соседка.
+interaction.failure.unknown_actor,Неизвестный участник действия.
+interaction.failure.unsupported_action,Это действие пока недоступно.
+interaction.failure.missing_target,Такой цели здесь нет.
+interaction.failure.target_unavailable,Сейчас с этим нельзя взаимодействовать.
+interaction.failure.too_far,Слишком далеко: подойдите ближе к выбранному объекту.
+interaction.failure.unsupported_target,С этим пока нельзя взаимодействовать.
+interaction.failure.no_npc,Здесь никого нет.
+interaction.prompt.select_object,Сначала выберите объект левой кнопкой мыши.
+first_night.outcome.dry_room,сухая комната
+first_night.outcome.cold_draft,холодный сквозняк
+first_night.outcome.residual_warmth,остаточное тепло
+first_night.outcome.safe_water,безопасная вода
+first_night.outcome.light_supper,лёгкий ужин
+first_night.outcome.hungry_sleep,голодный сон
+first_night.message.morning.summary,Утро: энергия {energy}/{energy_max}. Итог: {outcomes}.
+first_night.message.morning.summary_with_neighbor,Утро: энергия {energy}/{energy_max}. Итог: {outcomes}. У дома появился путник.
+ui.hud.selection.none,Выбор: —
 ui.hud.selection.cell,"Выбор: Клетка {x}, {y}"
-ui.hud.selection.in_range,"Выбор: {label}  [E / ПКМ]"
-ui.hud.selection.out_of_range,"Выбор: {label}  [подойдите ближе]"
-ui.hud.selection.in_range_with_status,"Выбор: {label} — {status}  [E / ПКМ]"
-ui.hud.selection.out_of_range_with_status,"Выбор: {label} — {status}  [подойдите ближе]"
-ui.hud.day_time,"День {day}  {time}"
-ui.hud.day_time_paused,"День {day}  {time}  ПАУЗА"
-ui.hud.objective,"Цель: {objective}"
+ui.hud.selection.in_range,Выбор: {label}  [E / ПКМ]
+ui.hud.selection.out_of_range,Выбор: {label}  [подойдите ближе]
+ui.hud.selection.in_range_with_status,Выбор: {label} — {status}  [E / ПКМ]
+ui.hud.selection.out_of_range_with_status,Выбор: {label} — {status}  [подойдите ближе]
+ui.hud.day_time,День {day}  {time}
+ui.hud.day_time_paused,День {day}  {time}  ПАУЗА
+ui.hud.objective,Цель: {objective}
 ui.hud.intro,"Осмотрите Общий дом. ЛКМ выбирает объект, ПКМ взаимодействует."
-ui.hud.controls,"WASD/стрелки — движение   Space — пауза   I — рюкзак\nF5 — сохранить   F9 — загрузить"
-ui.hud.inventory,"Дерево {wood}  Камень {stone}  Вода {raw_water}/{boiled_water}  Еда {food}"
-ui.hud.inventory_with_tools,"Дерево {wood}  Камень {stone}  Вода {raw_water}/{boiled_water}  Еда {food}  Инструменты ✓"
-ui.hud.inventory_brief,"Д {wood} · К {stone}"
-ui.hud.tasks.collapse,"−"
-ui.hud.tasks.expand,"+"
-ui.inventory.title,"Рюкзак"
-ui.inventory.details.empty,"Выберите предмет"
-ui.inventory.details.item,"{item} ×{amount}"
-ui.inventory.eat,"Съесть"
-ui.inventory.food.eaten,"Вы съели ягоды."
-ui.inventory.food.none,"Ягод для еды нет."
-ui.inventory.move.invalid,"Здесь недостаточно места или клетка занята."
-ui.inventory.move.success,"Предмет перемещён."
-ui.marker.create_title,"Новая метка"
-ui.marker.list_title,"Метки"
-ui.marker.name_placeholder,"Название метки"
-ui.marker.save,"Сохранить"
-ui.marker.close,"Закрыть"
-ui.marker.empty,"Метки ещё не созданы. Нажмите L в нужном месте."
-ui.marker.rename,"Имя"
-ui.marker.rename_title,"Переименовать метку"
-ui.marker.delete,"Удалить"
-ui.marker.disable,"Отключить"
-ui.marker.enable,"Включить"
-ui.marker.created,"Метка «{name}» создана."
-ui.marker.renamed,"Метка переименована в «{name}»."
-ui.marker.removed,"Метка удалена."
-ui.marker.disabled,"Метка скрыта. Её можно включить снова из списка."
-ui.marker.enabled,"Метка снова включена."
-ui.marker.failure.empty_name,"Введите название метки."
-ui.marker.failure.limit,"Достигнут предел: 64 метки."
-ui.marker.failure.missing,"Метка не найдена."
-ui.inventory.tab.items,"Вещи"
-ui.inventory.tab.future,"Этот раздел появится позже"
-system.pause.enabled,"Время остановлено."
-system.pause.disabled,"Время снова идёт."
-system.save.success,"Состояние сохранено."
-system.save.failed,"Не удалось сохранить состояние."
-system.load.success,"Состояние загружено."
-system.load.failed,"Не удалось прочитать сохранение."
-system.load.incompatible,"Сохранение несовместимо."
-system.load.recovered_backup,"Основное сохранение повреждено. Загружена резервная копия."
-save.error.temp_open,"Не удалось открыть временный файл сохранения."
-save.error.temp_write,"Не удалось полностью записать временное сохранение."
-save.error.temp_verify_json,"Временное сохранение не прошло проверку JSON."
-save.error.primary_unavailable,"Основное сохранение недоступно."
-save.error.backup_prepare,"Не удалось подготовить резервную копию сохранения."
-save.error.backup_create,"Не удалось создать резервную копию сохранения."
-save.error.replace_primary,"Не удалось заменить основной файл сохранения."
-save.error.not_found,"Файл сохранения ещё не создан."
-save.error.read_failed,"Не удалось прочитать файл сохранения."
-save.error.json_line,"Сохранение повреждено: ошибка JSON в строке {line}."
-save.error.expected_object,"Сохранение повреждено: ожидался объект JSON."
-save.error.missing_version,"Сохранение повреждено: отсутствует версия формата."
-save.error.version_type,"Сохранение повреждено: версия формата имеет неверный тип."
-save.error.version_integer,"Сохранение повреждено: версия формата должна быть целым числом."
-save.error.version_range,"Сохранение повреждено: версия формата вне допустимого диапазона."
-save.error.future_version,"Сохранение создано более новой версией игры."
-ui.construction.mode.off,"Строительство: ВЫКЛ"
-ui.construction.mode.on,"Строительство: ВКЛ"
-construction.feedback.blueprint_placed,"Чертёж постройки размещён."
-construction.feedback.blueprint_cancelled,"Чертёж отменён. Доставленные материалы возвращены в инвентарь."
-construction.feedback.materials_delivered,"Материалы доставлены: {amount}."
+ui.hud.controls,WASD/стрелки — движение   Space — пауза   I — рюкзак\nF5 — сохранить   F9 — загрузить
+ui.hud.inventory,Дерево {wood}  Камень {stone}  Вода {raw_water}/{boiled_water}  Еда {food}
+ui.hud.inventory_with_tools,Дерево {wood}  Камень {stone}  Вода {raw_water}/{boiled_water}  Еда {food}  Инструменты ✓
+ui.hud.inventory_brief,Д {wood} · К {stone}
+ui.hud.tasks.collapse,−
+ui.hud.tasks.expand,+
+ui.inventory.title,Рюкзак
+ui.inventory.details.empty,Выберите предмет
+ui.inventory.details.item,{item} ×{amount}
+ui.inventory.eat,Съесть
+ui.inventory.drop_stack,Выбросить стопку
+ui.inventory.extract_seeds,Извлечь семена
+ui.inventory.controls_hint,ЛКМ — взять в курсор и выбрать в руку. Второй ЛКМ — разместить. R — повернуть; ПКМ — отменить перенос или открыть действия.
+ui.inventory.food.eaten,Вы съели ягоды.
+ui.inventory.food.none,Ягод для еды нет.
+ui.inventory.move.invalid,Здесь недостаточно места или клетка занята.
+ui.inventory.move.success,Предмет перемещён.
+ui.inventory.drop.success,Выброшено: {item} ×{amount}.
+ui.inventory.drop.failure,Не удалось выбросить предмет.
+item.core.pickaxe.name,Кирка
+item.core.hoe.name,Мотыга
+item.core.axe.name,Топор
+ui.marker.create_title,Новая метка
+ui.marker.list_title,Метки
+ui.marker.name_placeholder,Название метки
+ui.marker.save,Сохранить
+ui.marker.close,Закрыть
+ui.marker.empty,Метки ещё не созданы. Нажмите L в нужном месте.
+ui.marker.rename,Имя
+ui.marker.rename_title,Переименовать метку
+ui.marker.delete,Удалить
+ui.marker.disable,Отключить
+ui.marker.enable,Включить
+ui.marker.created,Метка «{name}» создана.
+ui.marker.renamed,Метка переименована в «{name}».
+ui.marker.removed,Метка удалена.
+ui.marker.disabled,Метка скрыта. Её можно включить снова из списка.
+ui.marker.enabled,Метка снова включена.
+ui.marker.failure.empty_name,Введите название метки.
+ui.marker.failure.limit,Достигнут предел: 64 метки.
+ui.marker.failure.missing,Метка не найдена.
+ui.inventory.tab.items,Вещи
+ui.inventory.tab.future,Этот раздел появится позже
+system.pause.enabled,Время остановлено.
+system.pause.disabled,Время снова идёт.
+system.save.success,Состояние сохранено.
+system.save.failed,Не удалось сохранить состояние.
+system.load.success,Состояние загружено.
+system.load.failed,Не удалось прочитать сохранение.
+system.load.incompatible,Сохранение несовместимо.
+system.load.recovered_backup,Основное сохранение повреждено. Загружена резервная копия.
+save.error.temp_open,Не удалось открыть временный файл сохранения.
+save.error.temp_write,Не удалось полностью записать временное сохранение.
+save.error.temp_verify_json,Временное сохранение не прошло проверку JSON.
+save.error.primary_unavailable,Основное сохранение недоступно.
+save.error.backup_prepare,Не удалось подготовить резервную копию сохранения.
+save.error.backup_create,Не удалось создать резервную копию сохранения.
+save.error.replace_primary,Не удалось заменить основной файл сохранения.
+save.error.not_found,Файл сохранения ещё не создан.
+save.error.read_failed,Не удалось прочитать файл сохранения.
+save.error.json_line,Сохранение повреждено: ошибка JSON в строке {line}.
+save.error.expected_object,Сохранение повреждено: ожидался объект JSON.
+save.error.missing_version,Сохранение повреждено: отсутствует версия формата.
+save.error.version_type,Сохранение повреждено: версия формата имеет неверный тип.
+save.error.version_integer,Сохранение повреждено: версия формата должна быть целым числом.
+save.error.version_range,Сохранение повреждено: версия формата вне допустимого диапазона.
+save.error.future_version,Сохранение создано более новой версией игры.
+ui.construction.mode.off,Строительство: ВЫКЛ
+ui.construction.mode.on,Строительство: ВКЛ
+construction.feedback.blueprint_placed,Чертёж постройки размещён.
+construction.feedback.blueprint_cancelled,Чертёж отменён. Доставленные материалы возвращены в инвентарь.
+construction.feedback.materials_delivered,Материалы доставлены: {amount}.
 construction.feedback.materials_delivered_ready,"Материалы доставлены: {amount}. Теперь нажмите E ещё раз и удерживайте, чтобы строить."
-construction.feedback.materials_already_delivered,"Все необходимые материалы уже доставлены."
-construction.feedback.required_materials_missing,"В инвентаре нет необходимых материалов."
-construction.feedback.too_far,"Сначала подойдите к чертежу ближе."
+construction.feedback.materials_already_delivered,Все необходимые материалы уже доставлены.
+construction.feedback.required_materials_missing,В инвентаре нет необходимых материалов.
+construction.feedback.too_far,Сначала подойдите к чертежу ближе.
 construction.feedback.hold_to_build,"Материалы готовы. Удерживайте E, чтобы строить."
-construction.feedback.work_started,"Вы начали строительство. Удерживайте E и не двигайтесь."
-construction.feedback.work_interrupted,"Строительство прервано. Накопленный прогресс сохранён."
-construction.feedback.work_progressed,"Строительство: {progress}/{required}."
-construction.feedback.structure_completed,"Постройка завершена."
-construction.feedback.occupied_by_actor,"Клетка постройки занята персонажем."
-construction.feedback.blocked_cell,"Здесь нельзя строить."
-construction.feedback.occupied_cell,"Эта клетка уже занята."
-construction.feedback.missing_blueprint,"В этой клетке нет чертежа."
-construction.feedback.out_of_bounds,"Эта клетка находится за пределами карты."
-construction.feedback.invalid,"Команда строительства отклонена."
-construction.blueprint.material_progress,"{item}: {delivered}/{required}"
-construction.blueprint.work_progress,"Работа: {progress}/{required}"
-object.core.surface_stump.name,"Пень"
-building.core.wood_wall.name,"Деревянная стена"
-world.pickup.success,"Подобрано: {item} ×{amount}."
-world.pickup.failure.inventory_full,"В рюкзаке нет свободного места."
-world.pickup.failure.invalid_item,"Этот предмет нельзя подобрать."
-world.pickup.failure.missing_drop,"Этого предмета больше нет на земле."
-resource.selection.work_progress,"Работа: {progress}/{required}"
+construction.feedback.work_started,Вы начали строительство. Удерживайте E и не двигайтесь.
+construction.feedback.work_interrupted,Строительство прервано. Накопленный прогресс сохранён.
+construction.feedback.work_progressed,Строительство: {progress}/{required}.
+construction.feedback.structure_completed,Постройка завершена.
+construction.feedback.occupied_by_actor,Клетка постройки занята персонажем.
+construction.feedback.blocked_cell,Здесь нельзя строить.
+construction.feedback.occupied_cell,Эта клетка уже занята.
+construction.feedback.missing_blueprint,В этой клетке нет чертежа.
+construction.feedback.out_of_bounds,Эта клетка находится за пределами карты.
+construction.feedback.invalid,Команда строительства отклонена.
+construction.blueprint.material_progress,{item}: {delivered}/{required}
+construction.blueprint.work_progress,Работа: {progress}/{required}
+object.core.surface_stump.name,Пень
+building.core.wood_wall.name,Деревянная стена
+building.core.brick_wall.name,Кирпичная стена
+building.core.wood_floor.name,Деревянный пол
+building.core.brick_floor.name,Кирпичный пол
+building.core.wood_door.name,Дверь
+building.core.chair.name,Стул
+building.core.table.name,Стол
+building.core.bed.name,Кровать
+building.core.torch.name,Факел
+world.pickup.success,Подобрано: {item} ×{amount}.
+world.pickup.failure.inventory_full,В рюкзаке нет свободного места.
+world.pickup.failure.invalid_item,Этот предмет нельзя подобрать.
+world.pickup.failure.missing_drop,Этого предмета больше нет на земле.
+resource.selection.work_progress,Работа: {progress}/{required}
 resource.feedback.hold_to_work,"Удерживайте E, чтобы работать."
-resource.feedback.work_progressed,"Работа: {progress}/{required}"
-resource.feedback.completed,"Добыча завершена."
-resource.feedback.interrupted,"Работа прервана."
-resource.feedback.invalid,"Сейчас с этим ресурсом нельзя работать."
-item.core.plank.name,"Доски"
-item.core.firewood.name,"Дрова"
-building.core.workbench.name,"Верстак"
-recipe.core.saw_planks.name,"Распилить бревно на доски"
-recipe.core.split_firewood.name,"Расколоть бревно на дрова"
-ui.crafting.title,"Верстак"
-ui.crafting.hint,"Выберите рецепт. Материалы сразу перейдут из рюкзака в заготовку. После этого удерживайте E у верстака."
-ui.crafting.close,"Закрыть"
+resource.feedback.work_progressed,Работа: {progress}/{required}
+resource.feedback.completed,Добыча завершена.
+resource.feedback.interrupted,Работа прервана.
+resource.feedback.invalid,Сейчас с этим ресурсом нельзя работать.
+item.core.plank.name,Доски
+item.core.brick.name,Кирпичи
+item.core.firewood.name,Дрова
+building.core.workbench.name,Верстак
+recipe.core.saw_planks.name,Распилить бревно на доски
+recipe.core.split_firewood.name,Расколоть бревно на дрова
+ui.crafting.title,Верстак
+ui.crafting.hint,Выберите рецепт. Материалы сразу перейдут из рюкзака в заготовку. После этого удерживайте E у верстака.
+ui.crafting.close,Закрыть
 crafting.project.status,"{recipe}, работа: {progress}/{required}"
 crafting.feedback.project_started,"Материалы переданы. Удерживайте E у верстака, чтобы работать."
 crafting.feedback.hold_to_work,"Удерживайте E, чтобы продолжить работу."
-crafting.feedback.work_started,"Вы начали работу за верстаком."
-crafting.feedback.work_progressed,"Изготовление: {progress}/{required}."
-crafting.feedback.completed,"Изделие готово и лежит рядом с верстаком."
-crafting.feedback.interrupted,"Работа прервана. Прогресс сохранён."
-crafting.feedback.materials_missing,"В рюкзаке не хватает материалов для этого рецепта."
-crafting.feedback.station_busy,"На верстаке уже есть незавершённая работа."
-crafting.feedback.too_far,"Сначала подойдите к верстаку ближе."
-crafting.feedback.invalid,"Действие с верстаком отклонено."
+crafting.feedback.work_started,Вы начали работу за верстаком.
+crafting.feedback.work_progressed,Изготовление: {progress}/{required}.
+crafting.feedback.completed,Изделие готово и лежит рядом с верстаком.
+crafting.feedback.interrupted,Работа прервана. Прогресс сохранён.
+crafting.feedback.materials_missing,В рюкзаке не хватает материалов для этого рецепта.
+crafting.feedback.station_busy,На верстаке уже есть незавершённая работа.
+crafting.feedback.too_far,Сначала подойдите к верстаку ближе.
+crafting.feedback.invalid,Действие с верстаком отклонено.
 ui.crafting.hint.short,"Выберите, что сделать из материалов в рюкзаке."
-ui.crafting.footer,"После выбора удерживайте E у верстака"
-ui.construction.palette.start,"Строительство"
-ui.construction.palette.finish,"Закончить строительство"
-ui.construction.palette.wall,"Стена\n1 дерево"
-ui.construction.palette.workbench,"Верстак\n2 дерева"
-ui.storage.zone.designate,"Зона хранения"
-ui.storage.zone.name,"Складская зона"
-ui.storage.zone.contents,"В зоне: {count} шт."
-ui.storage.zone_created,"Зона хранения создана: {cells} клеток."
-ui.storage.zone_removed,"Зона хранения удалена."
-ui.storage.panel.title,"Хранение"
-ui.storage.panel.hint,"Стрелка вправо — положить все доступные предметы; влево — забрать сколько поместится."
-ui.storage.transfer.store,"Положить предметы"
-ui.storage.transfer.take,"Забрать предметы"
-ui.storage.transfer.stored,"На склад: {amount} шт. — {item}."
-ui.storage.transfer.taken,"В рюкзак: {amount} шт. — {item}."
-ui.storage.failure.invalid,"Не удалось выполнить действие со складом."
-ui.storage.failure.outside_map,"Зона должна находиться внутри карты."
-ui.storage.failure.area_too_large,"Зона слишком большая; максимум 256 клеток."
-ui.storage.failure.zone_limit,"Достигнут лимит складских зон."
-ui.storage.failure.overlap,"Здесь уже есть складская зона."
+ui.crafting.footer,После выбора удерживайте E у верстака
+ui.construction.palette.start,Строительство
+ui.construction.palette.finish,Закончить строительство
+ui.construction.category.walls,Стены
+ui.construction.category.floors,Полы
+ui.construction.category.furniture,Мебель
+ui.construction.category.other,Ещё
+ui.room.plan.storage,Назначить склад
+ui.room.plan.living,Назначить жилую
+ui.room.assigned.storage,Назначен склад: {cells} клеток.
+ui.room.assigned.living,Назначена жилая комната: {cells} клеток.
+ui.room.removed,Назначение помещения снято.
+ui.room.failure.invalid,Не удалось назначить помещение.
+ui.room.failure.not_enclosed,Помещение не замкнуто стенами и дверью.
+ui.room.failure.door_required,Для склада нужна дверь в замкнутой стене.
+ui.room.failure.too_small,Внутри слишком мало клеток для этого типа помещения.
+ui.room.failure.too_large,Внутри слишком много клеток для этого типа помещения.
+ui.room.failure.missing_requirements,"Для жилой комнаты нужны кровать, стол и свет."
+ui.room.failure.storage_furniture,На складе разрешены только стеллажи и шкафы.
+ui.room.failure.already_assigned,Эти клетки уже назначены помещению.
+ui.room.failure.overlaps_storage,Эти клетки уже принадлежат зоне хранения.
+ui.room.failure.storage_not_empty,Сначала освободите склад.
+ui.room.failure.not_assigned,Здесь нет назначенного помещения.
+ui.construction.palette.wall,Стена\n1 дерево
+ui.construction.palette.workbench,Верстак\n2 дерева
+ui.construction.palette.work_minutes,{minutes} мин работы
+ui.storage.zone.designate,Зона хранения
+ui.storage.zone.name,Складская зона
+ui.storage.zone.contents,В зоне: {count} шт.
+ui.storage.zone_created,Зона хранения создана: {cells} клеток.
+ui.storage.zone_removed,Зона хранения удалена.
+ui.storage.panel.title,Хранение
+ui.storage.panel.hint,"ЛКМ — взять в курсор; второй ЛКМ — разместить. Shift+ЛКМ — быстрый перенос. R — повернуть, ПКМ — отменить."
+ui.storage.panel.backpack,Рюкзак 4×4
+ui.storage.panel.cell,Клетка хранения {columns}×{rows}
+ui.storage.transfer.store,Положить стопку
+ui.storage.transfer.take,Забрать стопку
+ui.storage.transfer.stored,На склад: {amount} шт. — {item}.
+ui.storage.transfer.taken,В рюкзак: {amount} шт. — {item}.
+ui.storage.failure.invalid,Не удалось выполнить действие со складом.
+ui.storage.failure.outside_map,Зона должна находиться внутри карты.
+ui.storage.failure.area_too_large,Зона слишком большая; максимум 256 клеток.
+ui.storage.failure.zone_limit,Достигнут лимит складских зон.
+ui.storage.failure.overlap,Здесь уже есть складская зона.
 ui.storage.failure.blocked,"Нельзя размещать склад поверх ресурсов, построек, берега или общей дороги."
-ui.storage.failure.no_zone,"В этой клетке нет складской зоны."
-ui.storage.failure.not_empty,"Сначала освободите складскую зону."
-ui.storage.failure.no_capacity,"В складской зоне больше нет места для этого предмета."
-ui.storage.failure.none_to_store,"В рюкзаке нет таких предметов."
-ui.storage.failure.none_to_take,"В этой зоне нет такого предмета."
-ui.storage.failure.inventory_full,"В рюкзаке нет места."
-ui.storage.failure.invalid_item,"Этот предмет нельзя хранить."
+ui.storage.failure.no_zone,В этой клетке нет складской зоны.
+ui.storage.failure.not_empty,Сначала освободите складскую зону.
+ui.storage.failure.no_capacity,В складской зоне больше нет места для этого предмета.
+ui.storage.failure.none_to_store,В рюкзаке нет таких предметов.
+ui.storage.failure.none_to_take,В этой зоне нет такого предмета.
+ui.storage.failure.inventory_full,В рюкзаке нет места.
+ui.storage.failure.invalid_item,Этот предмет нельзя хранить.
+resource.feedback.axe_required,"Чтобы рубить дерево, выберите топор в хотбаре."
+resource.feedback.pickaxe_required,"Чтобы добывать камень, выберите кирку в хотбаре."
+resource.feedback.tool_changed,Работа прервана: выбранный инструмент сменился или был убран.
+resource.selection.in_range,{label}{status}\n{action}.
+resource.selection.out_of_range,{label}{status} — подойдите ближе\n{action}.
+resource.selection.hold_to_work,Выберите {tool} в хотбаре; удерживайте E
+resource.objective.search_wood,"Дерево {direction}, ~{distance_cells} кл."
+resource.objective.search_stone,"Камень {direction}, ~{distance_cells} кл."
+resource.direction.north,к северу
+resource.direction.northeast,к северо-востоку
+resource.direction.east,к востоку
+resource.direction.southeast,к юго-востоку
+resource.direction.south,к югу
+resource.direction.southwest,к юго-западу
+resource.direction.west,к западу
+resource.direction.northwest,к северо-западу
+resource.direction.nearby,рядом
+ui.hud.energy_value,{energy}/{energy_max}
+sleep.preview.full,Сон: полная энергия {energy}/{energy_max}
+sleep.preview.partial,Сон: неполная энергия {energy}/{energy_max}
+sleep.selection.in_range,{label} [E / ПКМ]\n{status}
+sleep.selection.out_of_range,{label} — подойдите ближе\n{status}
+first_night.objective.clear_room,Расчистите комнату: E у крыши.
+first_night.objective.build_workbench,Постройте верстак: «Прочее».
+first_night.objective.finish_workbench,Удерживайте E у чертежа верстака.
+first_night.objective.saw_planks,На верстаке распилите древесину.
+first_night.objective.finish_saw_planks,Удерживайте E у верстака.
+first_night.objective.pick_up_planks,Подберите доски у верстака.
+first_night.objective.cover_roof,Закройте кровлю досками: E у крыши.
+
+needs.hunger,Сытость
+needs.energy,Энергия
+needs.restedness,Выспанность
+needs.mood,Настроение
+needs.wellbeing,Благополучие
+needs.player_title,Моё состояние
+needs.player_activity,Еда · работа · отдых · сон
+needs.details_hint,Нажми для подробностей и отдыха
+needs.npc_button,Состояние жителя
+needs.rest_button,Передохнуть · 15 минут
+needs.rested,Ты передохнул 15 минут. Мир продолжал жить.
+needs.hint.hunger,Еда насыщает. Голод мягко замедляет работу.
+needs.hint.energy,Работа расходует силы. Еда и отдых их возвращают.
+needs.hint.restedness,Бодрствование утомляет. Только сон возвращает выспанность.
+needs.hint.mood,Настроение жителя реагирует на текущие условия и события.
+needs.hint.wellbeing,Благополучие меняется постепенно за несколько дней.
+needs.roof.full,Под закрытой крышей полноценная ночь восстанавливает до 100.
+needs.roof.poor,Без крыши сон восстанавливает энергию и выспанность до 60.
+needs.reasons_title,Что сейчас влияет на настроение:
+needs.reason.fed,Сыт
+needs.reason.hungry,Хочется есть
+needs.reason.slept,Выспался
+needs.reason.sleepy,Не выспался
+needs.reason.home,Дом укрыт крышей
+needs.reason.draft,В доме сквозняк
+needs.reason.conversation,Недавно поговорили
+needs.reason.shared_wall,Вместе построили стену
+needs.refusal.sleepy,Житель не выспался и хочет отдохнуть перед работой.
+needs.refusal.unwell,Житель сейчас не готов брать дополнительную работу.
+npc.work.water,Полив
+npc.work.gather,Ресурсы
+npc.work.build,Стройка
+npc.work.permissions_hint,Разрешённая помощь. Житель сам выбирает дело; еда и отдых важнее.
+npc.work.meet_first,Познакомьтесь с жителем прежде чем обсуждать помощь.
+npc.activity.work_travel,Идёт по своему делу
+npc.activity.work_borrow,Берёт общий инструмент
+npc.activity.work_refill,Набирает воду
+npc.activity.work_work,Помогает по хозяйству
+npc.activity.work_collect,Собирает добытые ресурсы
+npc.activity.work_take_materials,Берёт материалы на складе
+npc.activity.work_deliver,Несёт материалы к постройке
+npc.activity.work_build,Строит
+npc.activity.work_return,Возвращает инструмент и запасы
+npc.activity.work_watering,Поливает грядку
+npc.activity.work_chopping,Рубит дерево
+npc.activity.work_mining,Добывает камень
+npc.gen.river_households,прибрежная община
+npc.gen.road_households,поселение у торгового пути
+npc.gen.rural_households,небольшая земледельческая община
+npc.gen.war_family_a,В семье сохранились рассказы о старой войне.
+npc.gen.war_family_b,В семье рассказывали о переселении после войны.
+npc.gen.climate_family,"Старшие рассказывали, как семье пришлось оставить истощённые земли."
+npc.gen.disease_family,В семье сохранились рассказы о давней эпидемии.
+npc.gen.child_garden,С детства мне знаком уход за садом и посевами.
+npc.gen.child_workshop,В детстве много времени проходило в мастерской рядом с взрослыми.
+npc.gen.child_road,Моё детство прошло среди людей торгового пути.
+npc.gen.child_river,Меня с детства учили беречь воду и припасы.
+npc.gen.child_common,"Моё детство прошло в доме, где жили несколько семей."
+npc.gen.exp_grower,Мне доводилось ухаживать за посевами.
+npc.gen.exp_builder,У меня есть опыт строительства и ремонта домов.
+npc.gen.exp_gatherer,Мне доводилось заготавливать древесину и камень.
+npc.gen.exp_repairer,Мне знаком ремонт бытовых вещей: этому учили в местной мастерской.
+npc.gen.exp_apprentice,Учёба закончилась совсем недавно. Многое ещё предстоит освоить.
+npc.gen.care,Мне важно заботиться о людях рядом.
+npc.gen.independence,Мне важно самому выбирать своё дело.
+npc.gen.order,"Мне спокойнее, когда вещи и дела в порядке."
+npc.gen.belonging,Мне важно чувствовать себя частью дома.
+npc.gen.curiosity,Мне нравится разбираться в незнакомых вещах.
+npc.gen.reliability,"Мне важно, чтобы на меня могли положиться."
+npc.gen.habit_together,Мне приятнее работать рядом с другими.
+npc.gen.habit_quiet,Мне легче сосредоточиться в спокойной обстановке.
+npc.gen.habit_prepare,Я стараюсь заранее подготовить всё нужное.
+npc.gen.habit_try,Иногда мне хочется попробовать новое занятие.
+npc.gen.asp_garden,Мне хотелось бы вырастить здесь собственный сад.
+npc.gen.asp_workshop,Мне хотелось бы устроить свой рабочий уголок.
+npc.gen.asp_common,"Мне хотелось бы место, где мы могли бы ужинать вместе."
+npc.gen.asp_travel,Я хочу подготовиться к дальней дороге.
+npc.gen.leave_independent,Я ищу возможность жить самостоятельнее.
+npc.gen.leave_new_work,Мне хотелось попробовать новое дело.
+npc.gen.leave_travel,Я путешествую. Пока хотелось бы передохнуть здесь.
+npc.gen.leave_new_home,"Я ищу место, которое смогу назвать домом."
+npc.gen.name_vera,Вера
+npc.gen.name_lada,Лада
+npc.gen.name_nina,Нина
+npc.gen.name_taya,Тая
+npc.gen.name_sonya,Соня
+npc.gen.name_marta,Марта
+npc.gen.name_savva,Савва
+npc.gen.name_lev,Лев
+npc.gen.name_mark,Марк
+npc.gen.name_ilya,Илья
+npc.gen.name_dan,Дан
+npc.gen.name_tim,Тим
+npc.generated.greeting,Привет. Давай познакомимся.
+npc.generated.repeat,Хорошо снова встретиться.
+conversation.topic.greeting,Познакомиться
+conversation.topic.work,Чем тебе хотелось бы заняться?
+conversation.topic.home,Как тебе живётся здесь?
+conversation.topic.stay,Хочешь остаться у нас?
+conversation.topic.past,Расскажешь о прежней жизни?
+conversation.topic.values,Что для тебя важно?
+conversation.topic.heritage,Что рассказывали в твоей семье?
+conversation.introduction,Привет. Меня зовут {name}.
+conversation.experience,{experience}
+conversation.aspiration,{aspiration}
+conversation.community,Раньше мой дом был среди этих людей: {community}.
+conversation.childhood,{childhood}
+conversation.values,{values}
+conversation.habits,{habits}
+conversation.heritage,"Это семейные рассказы, а не мои собственные воспоминания. {heritage}"
+conversation.home,Давай поговорим о доме.
+conversation.home.assigned,У меня уже есть место для ночлега. Можно постепенно обустраиваться.
+conversation.home.missing,Мне пока негде спать как следует. Поможешь найти отдельное спальное место?
+conversation.stay,"Хорошо, попробуем устроить здесь жизнь вместе. Покажешь моё спальное место? А затем решим, чем я могу помочь."
+conversation.refuse.context,Пока не хочется говорить об этом. Давай сначала немного освоимся.
+conversation.refuse.needs,Давай поговорим позже: сейчас нужно поесть или отдохнуть.
+conversation.free_input.placeholder,Свободный ввод появится позже
+conversation.history,История
+conversation.history.empty,История пока пустая.
+conversation.next,Далее
+conversation.goodbye,До встречи
+conversation.undocumented,подробностей пока нет
+conversation.profile.tab,Знакомство
+conversation.profile.empty,Мы ещё мало знаем друг о друге. Новые подробности появятся здесь после разговора.
+conversation.open,Поговорить
+npc.preference.interest.water,Мне нравится ухаживать за растениями.
+npc.preference.interest.gather,Мне интересно готовить припасы для пути.
+npc.preference.interest.build,Хочу обустроить место для жизни и работы.
+npc.preference.experience.water,Мне знаком уход за посевами.
+npc.preference.experience.gather,У меня есть опыт заготовки ресурсов.
+npc.preference.experience.build,Мне доводилось строить и чинить.
+npc.preference.useful,Это пригодится нашему дому.
+conversation.fact.community_id,Прежний дом
+conversation.fact.childhood_id,Детство
+conversation.fact.experience_id,Опыт
+conversation.fact.aspiration_id,Стремление
+conversation.fact.departure_id,Причина пути
+conversation.fact.heritage_ids,Семейный рассказ
+conversation.fact.value_ids,Ценности
+conversation.fact.habit_ids,Привычки
+conversation.fact.age_years,Возраст
+conversation.free_input.send,Отправить
+conversation.free_input.caption,Пока выбираем готовые ответы; свою реплику можно будет написать позже.
+conversation.topic.chat,Как дела?
+world_edit.failure.actor,Разбор доступен только игроку.
+world_edit.failure.target,Здесь нечего разбирать или убирать.
+world_edit.failure.occupied,Сначала освободите клетку от персонажей.
+world_edit.failure.busy,Сначала завершите работу на этом верстаке.
+world_edit.failure.axe,Выберите топор в руку чтобы выкорчевать куст.
+world_edit.door.opened,Дверь открыта.
+world_edit.door.closed,Дверь закрыта.
+world_edit.dismantled,Постройка разобрана. Возвращена половина материалов; лишнее лежит рядом.
+world_edit.bush.cleared,Куст выкорчеван. На этом месте он больше не вырастет.
+world_edit.bush.hint,Shift + ПКМ с топором: выкорчевать куст.
+world_edit.dismantle.hint,Shift + ПКМ: разобрать (возврат 50%).
+world_edit.door.open_hint,Открыта. ПКМ / E: закрыть.
+world_edit.door.closed_hint,Закрыта. ПКМ / E: открыть.
+world_edit.failure.storage,Сначала уберите предметы с этой клетки склада.

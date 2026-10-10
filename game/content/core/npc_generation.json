@@ -1,0 +1,292 @@
+{
+  "schema_version": 1,
+  "settings": {
+    "min_age": 18,
+    "max_age": 65,
+    "max_attempts": 32,
+    "visit_interval_days": 3
+  },
+  "names": [
+    {
+      "id": "core:name_vera",
+      "label_key": "npc.gen.name_vera",
+      "name": "Вера"
+    },
+    {
+      "id": "core:name_lada",
+      "label_key": "npc.gen.name_lada",
+      "name": "Лада"
+    },
+    {
+      "id": "core:name_nina",
+      "label_key": "npc.gen.name_nina",
+      "name": "Нина"
+    },
+    {
+      "id": "core:name_taya",
+      "label_key": "npc.gen.name_taya",
+      "name": "Тая"
+    },
+    {
+      "id": "core:name_sonya",
+      "label_key": "npc.gen.name_sonya",
+      "name": "Соня"
+    },
+    {
+      "id": "core:name_marta",
+      "label_key": "npc.gen.name_marta",
+      "name": "Марта"
+    },
+    {
+      "id": "core:name_savva",
+      "label_key": "npc.gen.name_savva",
+      "name": "Савва"
+    },
+    {
+      "id": "core:name_lev",
+      "label_key": "npc.gen.name_lev",
+      "name": "Лев"
+    },
+    {
+      "id": "core:name_mark",
+      "label_key": "npc.gen.name_mark",
+      "name": "Марк"
+    },
+    {
+      "id": "core:name_ilya",
+      "label_key": "npc.gen.name_ilya",
+      "name": "Илья"
+    },
+    {
+      "id": "core:name_dan",
+      "label_key": "npc.gen.name_dan",
+      "name": "Дан"
+    },
+    {
+      "id": "core:name_tim",
+      "label_key": "npc.gen.name_tim",
+      "name": "Тим"
+    }
+  ],
+  "communities": [
+    {
+      "id": "core:river_households",
+      "label_key": "npc.gen.river_households"
+    },
+    {
+      "id": "core:road_households",
+      "label_key": "npc.gen.road_households"
+    },
+    {
+      "id": "core:rural_households",
+      "label_key": "npc.gen.rural_households"
+    }
+  ],
+  "heritages": [
+    {
+      "id": "core:war_family_a",
+      "label_key": "npc.gen.war_family_a"
+    },
+    {
+      "id": "core:war_family_b",
+      "label_key": "npc.gen.war_family_b"
+    },
+    {
+      "id": "core:climate_family",
+      "label_key": "npc.gen.climate_family"
+    },
+    {
+      "id": "core:disease_family",
+      "label_key": "npc.gen.disease_family"
+    }
+  ],
+  "childhoods": [
+    {
+      "id": "core:child_garden",
+      "label_key": "npc.gen.child_garden",
+      "requires": {
+        "community_id": [
+          "core:rural_households",
+          "core:river_households"
+        ]
+      }
+    },
+    {
+      "id": "core:child_workshop",
+      "label_key": "npc.gen.child_workshop"
+    },
+    {
+      "id": "core:child_road",
+      "label_key": "npc.gen.child_road",
+      "requires": {
+        "community_id": [
+          "core:road_households"
+        ]
+      }
+    },
+    {
+      "id": "core:child_river",
+      "label_key": "npc.gen.child_river",
+      "requires": {
+        "community_id": [
+          "core:river_households"
+        ]
+      }
+    },
+    {
+      "id": "core:child_common",
+      "label_key": "npc.gen.child_common"
+    }
+  ],
+  "experiences": [
+    {
+      "id": "core:exp_grower",
+      "label_key": "npc.gen.exp_grower",
+      "min_age": 18,
+      "training_years": 3,
+      "skills": {
+        "water": 3,
+        "gather": 1,
+        "build": 1
+      }
+    },
+    {
+      "id": "core:exp_builder",
+      "label_key": "npc.gen.exp_builder",
+      "min_age": 22,
+      "training_years": 6,
+      "skills": {
+        "water": 1,
+        "gather": 2,
+        "build": 3
+      }
+    },
+    {
+      "id": "core:exp_gatherer",
+      "label_key": "npc.gen.exp_gatherer",
+      "min_age": 18,
+      "training_years": 2,
+      "skills": {
+        "water": 1,
+        "gather": 3,
+        "build": 1
+      }
+    },
+    {
+      "id": "core:exp_repairer",
+      "label_key": "npc.gen.exp_repairer",
+      "min_age": 20,
+      "training_years": 5,
+      "technology": "repair",
+      "skills": {
+        "water": 1,
+        "gather": 1,
+        "build": 3
+      }
+    },
+    {
+      "id": "core:exp_apprentice",
+      "label_key": "npc.gen.exp_apprentice",
+      "min_age": 18,
+      "training_years": 2,
+      "skills": {
+        "water": 2,
+        "gather": 2,
+        "build": 2
+      }
+    }
+  ],
+  "values": [
+    {
+      "id": "core:care",
+      "label_key": "npc.gen.care"
+    },
+    {
+      "id": "core:independence",
+      "label_key": "npc.gen.independence"
+    },
+    {
+      "id": "core:order",
+      "label_key": "npc.gen.order"
+    },
+    {
+      "id": "core:belonging",
+      "label_key": "npc.gen.belonging"
+    },
+    {
+      "id": "core:curiosity",
+      "label_key": "npc.gen.curiosity"
+    },
+    {
+      "id": "core:reliability",
+      "label_key": "npc.gen.reliability"
+    }
+  ],
+  "habits": [
+    {
+      "id": "core:habit_together",
+      "label_key": "npc.gen.habit_together"
+    },
+    {
+      "id": "core:habit_quiet",
+      "label_key": "npc.gen.habit_quiet"
+    },
+    {
+      "id": "core:habit_prepare",
+      "label_key": "npc.gen.habit_prepare"
+    },
+    {
+      "id": "core:habit_try",
+      "label_key": "npc.gen.habit_try"
+    }
+  ],
+  "aspirations": [
+    {
+      "id": "core:asp_garden",
+      "label_key": "npc.gen.asp_garden",
+      "interests": [
+        "water"
+      ]
+    },
+    {
+      "id": "core:asp_workshop",
+      "label_key": "npc.gen.asp_workshop",
+      "interests": [
+        "build"
+      ]
+    },
+    {
+      "id": "core:asp_common",
+      "label_key": "npc.gen.asp_common",
+      "interests": [
+        "water",
+        "build"
+      ]
+    },
+    {
+      "id": "core:asp_travel",
+      "label_key": "npc.gen.asp_travel",
+      "interests": [
+        "gather"
+      ]
+    }
+  ],
+  "departures": [
+    {
+      "id": "core:leave_independent",
+      "label_key": "npc.gen.leave_independent"
+    },
+    {
+      "id": "core:leave_new_work",
+      "label_key": "npc.gen.leave_new_work"
+    },
+    {
+      "id": "core:leave_travel",
+      "label_key": "npc.gen.leave_travel"
+    },
+    {
+      "id": "core:leave_new_home",
+      "label_key": "npc.gen.leave_new_home"
+    }
+  ]
+}

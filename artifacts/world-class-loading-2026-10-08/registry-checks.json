@@ -1,0 +1,27 @@
+[
+  {
+    "name": "core",
+    "exit": 0,
+    "errors": []
+  },
+  {
+    "name": "session",
+    "exit": 0,
+    "errors": []
+  },
+  {
+    "name": "lab",
+    "exit": 0,
+    "errors": []
+  },
+  {
+    "name": "persistent-world",
+    "exit": 0,
+    "errors": []
+  },
+  {
+    "name": "persistent-world-ui",
+    "exit": 0,
+    "errors": []
+  }
+]

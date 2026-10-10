@@ -16,8 +16,19 @@ func _run() -> void:
 	if not bool(scenario.get("success", false)):
 		_fail("could not build surface boulders scenario")
 		return
+	var scenario_state := (scenario.get("state", {}) as Dictionary).duplicate(true)
+	var test_tool_id := "core:item_instance_000001"
+	scenario_state["item_instances"] = [{
+		"instance_id": test_tool_id,
+		"item_id": "core:pickaxe",
+		"state": {},
+		"location": {"kind": "inventory", "id": ""},
+	}]
+	scenario_state["next_item_instance_serial"] = 2
+	scenario_state["hotbar_slots"] = [test_tool_id, "", "", "", ""]
+	scenario_state["active_hotbar_slot"] = 0
 	if not Session.apply_debug_state(
-		scenario.get("state", {}) as Dictionary,
+		scenario_state,
 		"boulder depth integration test",
 		false
 	):
@@ -29,7 +40,7 @@ func _run() -> void:
 	await get_tree().physics_frame
 	await get_tree().physics_frame
 	Session.apply_debug_state(
-		scenario.get("state", {}) as Dictionary,
+		scenario_state,
 		"boulder view refresh check",
 		false
 	)

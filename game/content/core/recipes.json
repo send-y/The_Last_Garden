@@ -5,8 +5,8 @@
       "id": "core:saw_planks",
       "label_key": "recipe.core.saw_planks.name",
       "station_type": "core:workbench",
-      "inputs": {"core:wood": 1},
-      "outputs": {"core:plank": 2},
+      "inputs": {"core:wood": 5},
+      "outputs": {"core:plank": 10},
       "work_minutes": 8
     },
     {

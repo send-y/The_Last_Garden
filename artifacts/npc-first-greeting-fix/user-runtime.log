@@ -1,0 +1,14 @@
+Godot Engine v4.7.stable.mono.official.5b4e0cb0f - https://godotengine.org
+OpenGL API 3.3.0 NVIDIA 617.14 - Compatibility - Using Device: NVIDIA - NVIDIA GeForce RTX 4060
+
+LAB_READY scenario=fresh_start day=1 time=11:00
+LAB_READY scenario=resident_homes day=2 time=09:00
+SCRIPT ERROR: Invalid access to property or key 'known_facts' on a base object of type 'Dictionary'.
+   at: remember (res://src/characters/npc_knowledge.gd:5)
+   GDScript backtrace (most recent call first):
+       [0] remember (res://src/characters/npc_knowledge.gd:5)
+       [1] acknowledge (res://src/characters/npc_conversation.gd:93)
+       [2] acknowledge_npc_utterance (res://src/simulation/world_simulation.gd:108)
+       [3] acknowledge_npc_utterance (res://src/autoload/session.gd:44)
+       [4] <anonymous lambda> (res://src/ui/first_night_hud.gd:98)
+       [5] _show_chunk (res://src/ui/npc_conversation_panel.gd:194)

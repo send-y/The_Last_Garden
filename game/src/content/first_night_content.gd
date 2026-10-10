@@ -86,11 +86,17 @@ func item_label_key(item_id: String) -> String:
 	return String(definition.get("label_key", normalized_id))
 
 
-func item_icon_path(item_id: String) -> String:
+func item_icon_path(item_id: String, item_state: Dictionary = {}) -> String:
 	var normalized_id: String = normalize_item_id(item_id)
 	var definition: Dictionary = (
 		_item_defs.get(normalized_id, {}) as Dictionary
 	)
+	var state_property := String(definition.get("icon_state_property", ""))
+	var icon_states: Dictionary = definition.get("icon_state_paths", {}) as Dictionary
+	if not state_property.is_empty() and not icon_states.is_empty():
+		var state_key := str(item_state.get(state_property, ""))
+		if icon_states.has(state_key):
+			return String(icon_states[state_key])
 	return String(definition.get("icon_path", ""))
 
 
@@ -100,6 +106,13 @@ func item_max_stack(item_id: String) -> int:
 		_item_defs.get(normalized_id, {}) as Dictionary
 	)
 	return maxi(1, int(definition.get("max_stack", 1)))
+
+
+func item_is_instance_based(item_id: String) -> bool:
+	var definition: Dictionary = _item_defs.get(
+		normalize_item_id(item_id), {}
+	) as Dictionary
+	return bool(definition.get("instance_based", false))
 
 
 func item_footprint(

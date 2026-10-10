@@ -1,0 +1,4 @@
+[gd_scene load_steps=2 format=3]
+[ext_resource type="Script" path="res://../artifacts/minute-performance-2026-10-09/profile_scene.gd" id="1"]
+[node name="MinuteProfile" type="Node"]
+script = ExtResource("1")

@@ -1,0 +1,7 @@
+{
+  "exit": 0,
+  "errors": [],
+  "passes": [
+    "PASS: furniture UI clicks, real meal, chair movement, pause, bounds, disk persistence and rendered lighting"
+  ]
+}

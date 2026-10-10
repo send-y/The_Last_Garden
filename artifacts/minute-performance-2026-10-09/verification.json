@@ -1,0 +1,122 @@
+[
+  {
+    "test": "minute_geometry_cache_test.gd",
+    "graphical": false,
+    "exit": 0,
+    "passed": true
+  },
+  {
+    "test": "resident_home_policy_test.gd",
+    "graphical": false,
+    "exit": 0,
+    "passed": true
+  },
+  {
+    "test": "minute_structure_refresh_test.tscn",
+    "graphical": false,
+    "exit": 0,
+    "passed": true
+  },
+  {
+    "test": "resident_home_projects_test.gd",
+    "graphical": false,
+    "exit": 0,
+    "passed": true
+  },
+  {
+    "test": "resident_homes_ui_test.tscn",
+    "graphical": false,
+    "exit": 0,
+    "passed": true
+  },
+  {
+    "test": "npc_home_projects_test.gd",
+    "graphical": false,
+    "exit": 0,
+    "passed": true
+  },
+  {
+    "test": "housing_sleep_test.gd",
+    "graphical": false,
+    "exit": 0,
+    "passed": true
+  },
+  {
+    "test": "furniture_rules_test.gd",
+    "graphical": false,
+    "exit": 0,
+    "passed": true
+  },
+  {
+    "test": "housing_ui_test.tscn",
+    "graphical": false,
+    "exit": 0,
+    "passed": true
+  },
+  {
+    "test": "furniture_ui_test.tscn",
+    "graphical": false,
+    "exit": 0,
+    "passed": true
+  },
+  {
+    "test": "household_feedback_test.gd",
+    "graphical": false,
+    "exit": 0,
+    "passed": true
+  },
+  {
+    "test": "household_feedback_ui_test.tscn",
+    "graphical": false,
+    "exit": 0,
+    "passed": true
+  },
+  {
+    "test": "generated_npcs_integration_test.tscn",
+    "graphical": false,
+    "exit": 0,
+    "passed": true
+  },
+  {
+    "test": "room_designation_integration_test.tscn",
+    "graphical": false,
+    "exit": 0,
+    "passed": true
+  },
+  {
+    "test": "pickup_refresh_integration_test.tscn",
+    "graphical": false,
+    "exit": 0,
+    "passed": true
+  },
+  {
+    "test": "npc_practical_work_test.gd",
+    "graphical": false,
+    "exit": 0,
+    "passed": true
+  },
+  {
+    "test": "mechanics_lab_dialogue_ui_test.tscn",
+    "graphical": false,
+    "exit": 0,
+    "passed": true
+  },
+  {
+    "test": "persistent_world_test.gd",
+    "graphical": false,
+    "exit": 0,
+    "passed": true
+  },
+  {
+    "test": "run_tests.gd",
+    "graphical": false,
+    "exit": 0,
+    "passed": true
+  },
+  {
+    "test": "minute_structure_refresh_test.tscn",
+    "graphical": true,
+    "exit": 0,
+    "passed": true
+  }
+]

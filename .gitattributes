@@ -1,0 +1,3 @@
+# Historical diagnostic logs preserve their exact line endings and whitespace.
+artifacts/**/*.log -text -whitespace
+artifacts/**/*.err -text -whitespace

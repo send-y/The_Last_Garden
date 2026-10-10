@@ -1,0 +1,7 @@
+Godot Engine v4.7.stable.mono.official.5b4e0cb0f - https://godotengine.org
+
+ERROR: Frame rate indicator must exist
+   at: push_error (core/variant/variant_utility.cpp:1023)
+   GDScript backtrace (most recent call first):
+       [0] check (res://tests/frame_rate_hud_test.gd:6)
+       [1] _ready (res://tests/frame_rate_hud_test.gd:9)

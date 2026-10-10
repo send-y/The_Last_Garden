@@ -6,12 +6,12 @@ signal time_changed
 signal message_emitted(message: String, success: bool)
 signal pause_changed(is_paused: bool)
 
-const Simulation := preload("res://src/simulation/first_night_simulation.gd")
+const Simulation := preload("res://src/simulation/world_simulation.gd")
 const SaveStore := preload("res://src/save/first_night_save_store.gd")
 const Localized := preload("res://src/localization/localized_text.gd")
 const SAVE_PATH: String = "user://first_night_save.json"
 
-var simulation: FirstNightSimulation
+var simulation: Simulation
 var _is_paused: bool = false
 var _mechanics_lab_active: bool = false
 var _save_store := SaveStore.new(SAVE_PATH)
@@ -30,6 +30,18 @@ func _process(delta: float) -> void:
 
 func execute_interaction(target_id: String) -> Dictionary:
 	return simulation.execute_interaction(target_id)
+
+func get_npc_profile_summary(npc_id: String) -> Dictionary:
+	return simulation.get_npc_profile_summary(npc_id)
+
+func get_npc_conversation_topics(npc_id: String) -> Array[Dictionary]:
+	return simulation.get_npc_conversation_topics(npc_id)
+
+func choose_npc_conversation(npc_id: String, topic_id: String) -> Dictionary:
+	return simulation.choose_npc_conversation(npc_id,topic_id)
+
+func acknowledge_npc_utterance(npc_id: String, utterance_id: String, page_index: int) -> Dictionary:
+	return simulation.acknowledge_npc_utterance(npc_id,utterance_id,page_index)
 
 
 func execute_command(actor_id: String, target_id: String, action_id: String) -> Dictionary:
@@ -73,12 +85,72 @@ func get_inventory_layout() -> Array[Dictionary]:
 	return layout
 
 
+func get_inventory_placements() -> Array[Dictionary]:
+	return simulation.get_inventory_placements()
+
+
+func get_hotbar_slots() -> Array[String]:
+	return simulation.get_hotbar_slots()
+
+
+func get_active_hotbar_slot() -> int:
+	return simulation.get_active_hotbar_slot()
+
+
+func get_active_item_instance() -> Dictionary:
+	return simulation.get_active_item_instance()
+
+
+func get_held_item() -> Dictionary:
+	return simulation.get_held_item()
+
+
+func select_inventory_item(item_id: String, instance_id: String = "") -> Dictionary:
+	return simulation.select_inventory_item(item_id, instance_id)
+
+
+func get_item_instance(instance_id: String) -> Dictionary:
+	return simulation.get_item_instance(instance_id)
+
+
+func assign_hotbar_slot(slot_index: int, instance_id: String) -> Dictionary:
+	return simulation.assign_hotbar_slot(slot_index, instance_id)
+
+
+func select_hotbar_slot(slot_index: int) -> Dictionary:
+	return simulation.select_hotbar_slot(slot_index)
+
+
+func fill_active_bucket(water_cell: Vector2i) -> Dictionary:
+	return simulation.fill_active_bucket(water_cell)
+
+
 func set_inventory_layout(layout: Array[Dictionary]) -> Dictionary:
 	return simulation.set_inventory_layout(layout)
 
 
-func eat_food() -> Dictionary:
-	return simulation.eat_food()
+func drop_inventory_stack(item_id: String, stack_index: int) -> Dictionary:
+	return simulation.drop_inventory_stack(item_id, stack_index)
+
+
+func eat_food(item_id: String = "core:food") -> Dictionary:
+	return simulation.eat_food(item_id)
+
+
+func execute_farming_command(command: Dictionary) -> Dictionary:
+	return simulation.execute_farming_command(command)
+
+
+func get_farm_beds() -> Array:
+	return simulation.get_farm_beds()
+
+
+func get_farm_bed(cell: Vector2i) -> Dictionary:
+	return simulation.get_farm_bed(cell)
+
+
+func get_player_work_speed_multiplier() -> float:
+	return simulation.get_player_work_speed_multiplier()
 
 
 func get_markers() -> Array[Dictionary]:
@@ -113,12 +185,36 @@ func get_storage_zones() -> Array[Dictionary]:
 	return simulation.get_storage_zones()
 
 
+func get_room_assignments() -> Array[Dictionary]:
+	return simulation.get_room_assignments()
+
+
+func assign_room_type(room_type_id: String, cell: Vector2i) -> Dictionary:
+	return simulation.assign_room_type(room_type_id, cell)
+
+
+func remove_room_at(cell: Vector2i) -> Dictionary:
+	return simulation.remove_room_at(cell)
+
+
 func get_storage_items() -> Array[Dictionary]:
 	return simulation.get_storage_items()
 
 
 func get_storage_contents(cell: Vector2i) -> Dictionary:
 	return simulation.get_storage_contents(cell)
+
+
+func get_storage_layout(cell: Vector2i) -> Array[Dictionary]:
+	return simulation.get_storage_layout(cell)
+
+
+func get_storage_grid_size(cell: Vector2i) -> Vector2i:
+	return simulation.get_storage_grid_size(cell)
+
+
+func set_storage_layout(cell: Vector2i, layout: Array[Dictionary]) -> Dictionary:
+	return simulation.set_storage_layout(cell, layout)
 
 
 func create_storage_zone(from_cell: Vector2i, to_cell: Vector2i) -> Dictionary:
@@ -135,6 +231,29 @@ func store_item_in_storage(cell: Vector2i, item_id: String) -> Dictionary:
 
 func take_item_from_storage(cell: Vector2i, item_id: String) -> Dictionary:
 	return simulation.take_item_from_storage(cell, item_id)
+
+
+func transfer_inventory_stack_to_storage(
+	cell: Vector2i,
+	item_id: String,
+	stack_index: int,
+	destination_origin: Vector2i = Vector2i(-1, -1),
+	destination_rotation: int = -1
+) -> Dictionary:
+	return simulation.transfer_inventory_stack_to_storage(
+		cell, item_id, stack_index, destination_origin, destination_rotation
+	)
+
+
+func transfer_storage_stack_to_inventory(
+	cell: Vector2i,
+	placement_id: String,
+	destination_origin: Vector2i = Vector2i(-1, -1),
+	destination_rotation: int = -1
+) -> Dictionary:
+	return simulation.transfer_storage_stack_to_inventory(
+		cell, placement_id, destination_origin, destination_rotation
+	)
 
 
 func get_surface_boulders() -> Array[Dictionary]:
@@ -157,6 +276,54 @@ func get_flags() -> Dictionary:
 	return simulation.get_flags().duplicate(true)
 
 
+func get_player_energy() -> float:
+	return simulation.get_player_energy()
+
+
+func get_player_needs() -> Dictionary:
+	return simulation.get_player_needs()
+
+
+func get_npc_psychology(npc_id: String) -> Dictionary:
+	return simulation.get_npc_psychology(npc_id)
+
+
+func set_npc_work_enabled(npc_id: String, kind: String, enabled: bool) -> Dictionary:
+	return simulation.set_npc_work_enabled(npc_id, kind, enabled)
+
+
+func get_npc_work_status(npc_id: String) -> Dictionary:
+	return simulation.get_npc_work_status(npc_id)
+
+
+func get_npc_personal_goal(npc_id: String) -> Dictionary:
+	return simulation.get_npc_personal_goal(npc_id)
+
+
+func defer_npc_personal_goal(npc_id: String, resume: bool = false) -> Dictionary:
+	return simulation.defer_npc_personal_goal(npc_id,resume)
+
+
+func get_npc_activity_key(npc_id: String) -> String:
+	return simulation.get_npc_activity_key(npc_id)
+
+
+func rest_player() -> Dictionary:
+	return simulation.rest_player()
+
+
+func get_player_energy_max() -> float:
+	return simulation.get_player_energy_max()
+
+
+func is_roof_covered() -> bool:
+	return simulation.is_roof_covered()
+
+
+func get_sleep_energy_preview(place_id: String = "") -> float:
+	return simulation.get_sleep_energy_preview(place_id)
+
+
 func get_day() -> int:
 	return simulation.get_day()
 
@@ -170,7 +337,23 @@ func get_time_text() -> String:
 
 
 func get_current_objective() -> String:
-	return Localized.resolve(simulation.get_current_objective_key())
+	var objective: String = Localized.resolve(simulation.get_current_objective_key())
+	var search_hint: Dictionary = simulation.get_resource_search_hint()
+	var resource_kind: String = String(search_hint.get("kind", ""))
+	if resource_kind != "wood" and resource_kind != "stone":
+		return objective
+	var direction_key: String = String(search_hint.get("direction_key", ""))
+	if direction_key.is_empty():
+		return objective
+	var hint_key: String = (
+		"resource.objective.search_wood"
+		if resource_kind == "wood"
+		else "resource.objective.search_stone"
+	)
+	return objective + "\n" + Localized.resolve(hint_key, {
+		"direction": Localized.text_reference(direction_key),
+		"distance_cells": int(search_hint.get("distance_cells", 0)),
+	})
 
 
 func get_player_position() -> Vector2:
@@ -191,6 +374,10 @@ func get_resource_work_progress(object_id: String) -> int:
 
 func get_resource_work_required(object_id: String) -> int:
 	return simulation.get_resource_work_required(object_id)
+
+
+func get_resource_required_tool_item_id(target_id: String) -> String:
+	return simulation.get_resource_required_tool_item_id(target_id)
 
 
 func get_object_stage(kind: String) -> int:
@@ -417,7 +604,7 @@ func load_game() -> bool:
 
 
 func _start_new_simulation() -> void:
-	_replace_simulation(Simulation.create_new_state())
+	_replace_simulation(Simulation.create_new_game_state())
 
 
 func _replace_simulation(initial_state: Dictionary) -> void:
@@ -483,3 +670,48 @@ func _bind_keys(action: StringName, physical_keys: Array[int]) -> void:
 		input_event.keycode = key_code as Key
 		input_event.physical_keycode = key_code as Key
 		InputMap.action_add_event(action, input_event)
+
+
+func assign_sleep_place(character_id: String, place_id: String) -> Dictionary:
+	return simulation.assign_sleep_place(character_id, place_id)
+
+
+func get_housing_rooms() -> Array[Dictionary]:
+	return simulation.get_housing_rooms()
+
+
+func get_home_policy(character_id: String) -> Dictionary:
+	return simulation.get_home_policy(character_id)
+
+
+func set_home_mode(room_id: String, mode: String) -> Dictionary:
+	return simulation.set_home_mode(room_id, mode)
+
+
+func get_stock_reserve_report() -> Array[Dictionary]:
+	return simulation.get_stock_reserve_report()
+
+
+func set_stock_reserve(item_id: String, amount: Variant) -> Dictionary:
+	return simulation.set_stock_reserve(item_id, amount)
+
+
+func get_character_home(character_id: String) -> Dictionary:
+	return simulation.get_character_home(character_id)
+
+
+func get_sleep_places() -> Array[Dictionary]:
+	return simulation.get_sleep_places()
+
+
+func sleep_at_place(place_id: String) -> Dictionary:
+	return simulation.sleep_at_place(place_id)
+
+func execute_furniture_command(cell: Vector2i, action: String, item_id: String = "") -> Dictionary:
+	return simulation.execute_furniture_command(cell,action,item_id)
+
+func get_furniture_options(cell: Vector2i) -> Dictionary:
+	return simulation.get_furniture_options(cell)
+
+func get_npc_household_status(npc_id: String) -> Dictionary:
+	return simulation.get_npc_household_status(npc_id)

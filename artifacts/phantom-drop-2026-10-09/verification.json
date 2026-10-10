@@ -1,0 +1,12 @@
+[
+  {
+    "name": "scene-graphical",
+    "exit": 0,
+    "passed": true
+  },
+  {
+    "name": "world-editing-ui",
+    "exit": 0,
+    "passed": true
+  }
+]

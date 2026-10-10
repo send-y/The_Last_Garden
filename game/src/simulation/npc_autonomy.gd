@@ -13,18 +13,17 @@ const ACTIVITY_EATING: String = "core:eating"
 const ACTIVITY_WAITING_FOR_FOOD: String = "core:waiting_for_food"
 const ACTIVITY_GOING_TO_REST: String = "core:going_to_rest"
 const ACTIVITY_RESTING: String = "core:resting"
+const ACTIVITY_SLEEPING: String = "core:sleeping"
+const ACTIVITY_CHAIR_RESTING := "core:chair_resting"
+const ACTIVITY_TABLE_EATING := "core:table_eating"
+const ACTIVITY_COLLECTING_MEAL := "core:collecting_meal"
 const ACTIVITY_BLOCKED: String = "core:blocked"
 const ACTIVITY_GOING_TO_BUILD: String = "core:going_to_build"
 const ACTIVITY_BUILDING: String = "core:building"
 
-const HUNGER_DECAY_PER_MINUTE: float = 0.12
-const SLEEP_HUNGER_DECAY_PER_MINUTE: float = 0.06
-const ENERGY_DECAY_PER_MINUTE: float = 0.07
-const REST_ENERGY_PER_MINUTE: float = 0.25
-const HUNGRY_THRESHOLD: float = 45.0
+const HUNGRY_THRESHOLD: float = 55.0
 const CRITICAL_ENERGY_THRESHOLD: float = 18.0
 const RESTED_THRESHOLD: float = 72.0
-const MEAL_RESTORE: float = 58.0
 const EVENING_START: int = 17 * 60
 const REST_START: int = 21 * 60
 const CONSTRUCTION_REQUEST_MIN_HUNGER: float = 35.0
@@ -33,6 +32,21 @@ const CONSTRUCTION_WORK_MINUTES: int = 12
 const INVALID_CELL: Vector2i = Vector2i(-1, -1)
 
 const ACTIVITY_KEYS: Dictionary = {
+	"core:work_craft_take": "npc.activity.work_craft_take",
+	"core:work_craft": "npc.activity.work_craft",
+	"core:work_travel": "npc.activity.work_travel",
+	"core:work_borrow": "npc.activity.work_borrow",
+	"core:work_refill": "npc.activity.work_refill",
+	"core:work_work": "npc.activity.work_work",
+	"core:work_collect": "npc.activity.work_collect",
+	"core:work_take_materials": "npc.activity.work_take_materials",
+	"core:work_deliver": "npc.activity.work_deliver",
+	"core:work_build": "npc.activity.work_build",
+	"core:work_switch_on": "npc.activity.work_switch_on",
+	"core:work_return": "npc.activity.work_return",
+	"core:work_watering": "npc.activity.work_watering",
+	"core:work_chopping": "npc.activity.work_chopping",
+	"core:work_mining": "npc.activity.work_mining",
 	ACTIVITY_ARRIVING: "npc.activity.arriving",
 	ACTIVITY_MORNING: "npc.activity.morning",
 	ACTIVITY_OUTDOORS: "npc.activity.outdoors",
@@ -42,6 +56,10 @@ const ACTIVITY_KEYS: Dictionary = {
 	ACTIVITY_WAITING_FOR_FOOD: "npc.activity.waiting_for_food",
 	ACTIVITY_GOING_TO_REST: "npc.activity.going_to_rest",
 	ACTIVITY_RESTING: "npc.activity.resting",
+	ACTIVITY_SLEEPING: "npc.activity.sleeping",
+	ACTIVITY_CHAIR_RESTING: "npc.activity.chair_resting",
+	ACTIVITY_TABLE_EATING: "npc.activity.table_eating",
+	ACTIVITY_COLLECTING_MEAL: "npc.activity.collecting_meal",
 	ACTIVITY_BLOCKED: "npc.activity.blocked",
 	ACTIVITY_GOING_TO_BUILD: "npc.activity.going_to_build",
 	ACTIVITY_BUILDING: "npc.activity.building",
@@ -77,10 +95,28 @@ func is_cell_walkable(cell: Vector2i) -> bool:
 	return _pathfinder.is_walkable(cell)
 
 
+func can_reach(from: Vector2i, target: Vector2i, _blocker: Vector2i = Vector2i(-1, -1)) -> bool:
+	# Keep call compatibility: actor positions no longer obstruct travel.
+	return _pathfinder.is_walkable(target) and (from == target or _pathfinder.next_cell(from, target) != from)
+
+
+func find_temporary_rest_cell(preferred: Vector2i, from: Vector2i, _blocker: Vector2i) -> Vector2i:
+	# Keep temporary rest physically reachable when furniture blocks the old spot.
+	for radius: int in range(9):
+		for y: int in range(-radius, radius + 1):
+			for x: int in range(-radius, radius + 1):
+				if absi(x) + absi(y) != radius:
+					continue
+				var candidate := preferred + Vector2i(x, y)
+				if can_reach(from, candidate):
+					return candidate
+	return from
+
+
 func find_construction_work_cell(
 	target_cell: Vector2i,
 	npc_cell: Vector2i,
-	player_cell: Vector2i
+	_player_cell: Vector2i
 ) -> Vector2i:
 	var candidates: Array[Vector2i] = [
 		target_cell + Vector2i.DOWN,
@@ -92,11 +128,11 @@ func find_construction_work_cell(
 	var best_distance: int = 1_000_000
 
 	for candidate: Vector2i in candidates:
-		if not _pathfinder.is_walkable(candidate) or candidate == player_cell:
+		if not _pathfinder.is_walkable(candidate):
 			continue
 		var reachable: bool = (
 			candidate == npc_cell
-			or _pathfinder.next_cell(npc_cell, candidate, player_cell) != npc_cell
+			or _pathfinder.next_cell(npc_cell, candidate) != npc_cell
 		)
 		if not reachable:
 			continue
@@ -113,7 +149,11 @@ func advance_minutes(
 	previous_minute: int,
 	next_minute: int,
 	player_position: Vector2,
-	blueprint_cells: Array[Vector2i] = []
+	blueprint_cells: Array[Vector2i] = [],
+	meals: Dictionary = {},
+	practical_work: Dictionary = {},
+	homes: Dictionary = {},
+	furniture: Dictionary = {}
 ) -> Dictionary:
 	if next_minute <= previous_minute:
 		return {
@@ -136,7 +176,11 @@ func advance_minutes(
 				minute,
 				player_position,
 				blueprint_cells,
-				effects
+				effects,
+				meals.get(npc_id, {}),
+				practical_work.get(npc_id, {}),
+				homes.get(npc_id, {}),
+				furniture.get(npc_id,{})
 			)
 			changed = true
 	return {
@@ -154,11 +198,6 @@ func start_morning(npcs: Dictionary, minute: int, first_arrival: bool) -> bool:
 		var npc: Dictionary = npcs[npc_id] as Dictionary
 		if not bool(npc.get("active", false)):
 			continue
-		var needs: Dictionary = npc.get("needs", {}) as Dictionary
-		if not first_arrival:
-			needs["hunger"] = maxf(0.0, float(needs.get("hunger", 72.0)) - 10.0)
-			needs["energy"] = 92.0
-		npc["needs"] = needs
 		var autonomy: Dictionary = definition.get("autonomy", {}) as Dictionary
 		var target_cell: Vector2i = _cell_from_value(
 			autonomy.get("morning_cell", definition.get("position_cell", [24, 29])),
@@ -181,24 +220,14 @@ func _advance_npc_minute(
 	minute: int,
 	player_position: Vector2,
 	blueprint_cells: Array[Vector2i],
-	effects: Array[Dictionary]
+	effects: Array[Dictionary],
+	meal: Dictionary = {},
+	practical: Dictionary = {},
+	home: Dictionary = {},
+	furniture: Dictionary = {}
 ) -> void:
 	var needs: Dictionary = npc.get("needs", {}) as Dictionary
 	var activity_id: String = String(npc.get("activity_id", ACTIVITY_ARRIVING))
-	var resting: bool = activity_id == ACTIVITY_RESTING
-	needs["hunger"] = clampf(
-		float(needs.get("hunger", 72.0))
-		- (SLEEP_HUNGER_DECAY_PER_MINUTE if resting else HUNGER_DECAY_PER_MINUTE),
-		0.0,
-		100.0
-	)
-	needs["energy"] = clampf(
-		float(needs.get("energy", 82.0))
-		+ (REST_ENERGY_PER_MINUTE if resting else -ENERGY_DECAY_PER_MINUTE),
-		0.0,
-		100.0
-	)
-	npc["needs"] = needs
 
 	var autonomy: Dictionary = definition.get("autonomy", {}) as Dictionary
 	var target_cell: Vector2i
@@ -206,8 +235,7 @@ func _advance_npc_minute(
 	var arrival_activity: String
 	var hunger: float = float(needs["hunger"])
 	var energy: float = float(needs["energy"])
-	var personal_inventory: Dictionary = npc.get("personal_inventory", {}) as Dictionary
-	var food_count: int = int(personal_inventory.get("core:food", 0))
+	var food_count: int = 0 if meal.is_empty() else 1
 	var commitment: Dictionary = npc.get("work_commitment", {}) as Dictionary
 	if not commitment.is_empty():
 		var committed_target: Vector2i = _cell_from_value(
@@ -223,18 +251,31 @@ func _advance_npc_minute(
 			commitment = {}
 
 	var should_keep_resting: bool = (
-		activity_id == ACTIVITY_RESTING
+		activity_id in [ACTIVITY_RESTING, ACTIVITY_SLEEPING,ACTIVITY_CHAIR_RESTING]
 		and minute < REST_START
 		and energy < RESTED_THRESHOLD
 	)
-	if minute >= REST_START or energy <= CRITICAL_ENERGY_THRESHOLD or should_keep_resting:
-		target_cell = _cell_from_value(autonomy.get("rest_cell"), Vector2i(25, 23))
-		travel_activity = ACTIVITY_GOING_TO_REST
-		arrival_activity = ACTIVITY_RESTING
-	elif hunger <= HUNGRY_THRESHOLD:
-		target_cell = _cell_from_value(autonomy.get("meal_cell"), Vector2i(20, 28))
+	var urgent_meal := hunger <= 35 and food_count > 0
+	if String(furniture.get("kind","")) == "meal":
+		target_cell = Vector2i(int(furniture.target_cell[0]),int(furniture.target_cell[1]))
 		travel_activity = ACTIVITY_GOING_TO_MEAL
-		arrival_activity = ACTIVITY_EATING if food_count > 0 else ACTIVITY_WAITING_FOR_FOOD
+		arrival_activity = ACTIVITY_TABLE_EATING
+	elif (minute >= REST_START or minute < 7 * 60 or energy <= CRITICAL_ENERGY_THRESHOLD or should_keep_resting) and not urgent_meal:
+		target_cell = _cell_from_value(home.get("target_cell", autonomy.get("rest_cell")), Vector2i(25, 23))
+		if home.is_empty():
+			target_cell = find_temporary_rest_cell(target_cell, _pathfinder.world_to_cell(_position_from_state(npc)), _pathfinder.world_to_cell(player_position))
+		travel_activity = ACTIVITY_GOING_TO_REST
+		arrival_activity = ACTIVITY_SLEEPING if not home.is_empty() and (minute >= REST_START or minute < 7 * 60) else ACTIVITY_RESTING
+		if minute >= 7 * 60 and minute < REST_START and String(furniture.get("kind","")) == "rest":
+			target_cell = Vector2i(int(furniture.target_cell[0]),int(furniture.target_cell[1]))
+			arrival_activity = ACTIVITY_CHAIR_RESTING
+	elif hunger <= HUNGRY_THRESHOLD or not npc.get("meal_trip",{}).is_empty():
+		target_cell = _cell_from_value(meal.get("target_cell", autonomy.get("meal_cell")), Vector2i(20, 28))
+		# The food system validates the seat; its owner may already occupy its solid cell.
+		if not meal.get("seat",{}).is_empty():
+			target_cell = Vector2i(int(meal.target_cell[0]),int(meal.target_cell[1]))
+		travel_activity = ACTIVITY_GOING_TO_MEAL
+		arrival_activity = (ACTIVITY_COLLECTING_MEAL if bool(meal.get("carry",false)) else ACTIVITY_EATING) if food_count > 0 else ACTIVITY_WAITING_FOR_FOOD
 	elif not commitment.is_empty():
 		var current_cell: Vector2i = _pathfinder.world_to_cell(_position_from_state(npc))
 		var committed_target: Vector2i = _cell_from_value(
@@ -266,6 +307,10 @@ func _advance_npc_minute(
 			target_cell = stored_work_cell
 			travel_activity = ACTIVITY_GOING_TO_BUILD
 			arrival_activity = ACTIVITY_BUILDING
+	elif not practical.is_empty():
+		target_cell = _cell_from_value(practical.target_cell, INVALID_CELL)
+		travel_activity = String(practical.travel_activity)
+		arrival_activity = String(practical.arrival_activity)
 	elif minute < 9 * 60:
 		target_cell = _cell_from_value(autonomy.get("morning_cell"), Vector2i(24, 29))
 		travel_activity = ACTIVITY_MORNING
@@ -283,12 +328,7 @@ func _advance_npc_minute(
 	var position: Vector2 = _position_from_state(npc)
 	var from_cell: Vector2i = _pathfinder.world_to_cell(position)
 	if from_cell != target_cell:
-		var player_cell: Vector2i = _pathfinder.world_to_cell(player_position)
-		if player_cell == target_cell:
-			npc["moving"] = false
-			_set_activity(npc, ACTIVITY_BLOCKED, minute)
-			return
-		var next_cell: Vector2i = _pathfinder.next_cell(from_cell, target_cell, player_cell)
+		var next_cell: Vector2i = _pathfinder.next_cell(from_cell, target_cell)
 		if next_cell == from_cell:
 			npc["moving"] = false
 			_set_activity(npc, ACTIVITY_BLOCKED, minute)
@@ -302,11 +342,12 @@ func _advance_npc_minute(
 
 	npc["moving"] = false
 	_set_activity(npc, arrival_activity, minute)
-	if arrival_activity == ACTIVITY_EATING and food_count > 0:
-		personal_inventory["core:food"] = food_count - 1
-		npc["personal_inventory"] = personal_inventory
-		needs["hunger"] = minf(100.0, float(needs["hunger"]) + MEAL_RESTORE)
-		npc["needs"] = needs
+	if arrival_activity in [ACTIVITY_EATING,ACTIVITY_COLLECTING_MEAL] and food_count > 0:
+		effects.append({"type": "consume_meal", "npc_id": String(npc.id), "meal": meal.duplicate(true)})
+	elif arrival_activity == ACTIVITY_CHAIR_RESTING and npc.get("furniture_use",{}).is_empty():
+		effects.append({"type":"sit_for_rest","npc_id":String(npc.id),"seat":furniture})
+	elif not practical.is_empty() and arrival_activity == String(practical.arrival_activity):
+		effects.append({"type": "advance_initiative", "npc_id": String(npc.id), "context": practical})
 	elif arrival_activity == ACTIVITY_BUILDING and not commitment.is_empty():
 		effects.append({
 			"type": "advance_construction_work",

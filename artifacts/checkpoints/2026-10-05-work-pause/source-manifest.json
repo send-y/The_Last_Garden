@@ -1,0 +1,872 @@
+{
+    "schemaVersion":  1,
+    "label":  "2026-10-05-work-pause",
+    "capturedAt":  "2026-10-05T02:28:04.2362515+03:00",
+    "scope":  "Game sources, content, tests, localization source and project settings; hashes identify files and do not back up contents.",
+    "branch":  "codex/storage-zones",
+    "head":  "c04f15dd7cb352adba7519e55c6e82a2f2c071a2",
+    "gameSaveVersion":  25,
+    "implementationStatus":  "Paused by user; seven-stage demo plan recorded; no new gameplay stage started.",
+    "beforeCheckpointDocumentation":  {
+                                          "changedTrackedFiles":  50,
+                                          "untrackedFiles":  305,
+                                          "trackedAddedLines":  6647,
+                                          "trackedDeletedLines":  682
+                                      },
+    "catalog":  {
+                    "itemDefinitions":  21,
+                    "buildingDefinitions":  11,
+                    "craftingRecipes":  2,
+                    "crops":  4,
+                    "npcDefinitions":  1,
+                    "integrationScenes":  14,
+                    "coreTestFunctions":  75
+                },
+    "lastVerification":  {
+                             "source":  "docs/implementation/repeatable-farming-increment-2026-10-05.md",
+                             "date":  "2026-10-05",
+                             "engine":  "4.7.stable.official.5b4e0cb0f",
+                             "core":  "passed",
+                             "farmingRules":  "passed",
+                             "integrationScenesPassed":  14,
+                             "repeatedDuringCheckpoint":  false,
+                             "manualIndependentPlaytest":  "not established"
+                         },
+    "files":  [
+                  {
+                      "path":  "game/content/core/buildings.json",
+                      "bytes":  3638,
+                      "sha256":  "adc9ff0fd8332460a237a4b6d00481d2a5dc93d172545c63d39af868c4b9afa2"
+                  },
+                  {
+                      "path":  "game/content/core/character_parts.json",
+                      "bytes":  5252,
+                      "sha256":  "326a8be80a55db8d5730288bf436bf71a68ab0eba7b2a9d7110c3a1af6d0c026"
+                  },
+                  {
+                      "path":  "game/content/core/crops.json",
+                      "bytes":  1070,
+                      "sha256":  "0f56445960e7ef8e71f4f132c292cc68bf5a919f65f3a30d4740323524120421"
+                  },
+                  {
+                      "path":  "game/content/core/first_night_objects.json",
+                      "bytes":  3337,
+                      "sha256":  "d8a02c294eb3ad60e89ce6d6788fa017f2c9ed13c4e105ea1928d64e3bfef134"
+                  },
+                  {
+                      "path":  "game/content/core/first_night_progression.json",
+                      "bytes":  2209,
+                      "sha256":  "60ffc84266822e87567bd0348e79389e0d1e5c941b5f6a63b1b7b299faeabd10"
+                  },
+                  {
+                      "path":  "game/content/core/items.json",
+                      "bytes":  3312,
+                      "sha256":  "fe3c2b0ab0afddbe10c37b5417dd56907373e84011b095a6f691e63f0600bc98"
+                  },
+                  {
+                      "path":  "game/content/core/npcs.json",
+                      "bytes":  884,
+                      "sha256":  "f7ccafb5e39938ea0f2058d4c50d57cbec558b655b14bd21f0810ed2f2cad998"
+                  },
+                  {
+                      "path":  "game/content/core/recipes.json",
+                      "bytes":  513,
+                      "sha256":  "f1a5341dada3ed344fb05c3a54ecd603d0af6e37fc6d56a4317ee9ab59543e6d"
+                  },
+                  {
+                      "path":  "game/content/core/water_map.json",
+                      "bytes":  119,
+                      "sha256":  "ffd3c65ce5444e47f9fb34cbd509d4570d88a3cb98c692d57ae52d0055310ee3"
+                  },
+                  {
+                      "path":  "game/localization/core.csv",
+                      "bytes":  35217,
+                      "sha256":  "c78aae189d31cbe3ba4f14a6d03c376a34181894000923c8087d4388b4c25a78"
+                  },
+                  {
+                      "path":  "game/localization/core.csv.import",
+                      "bytes":  317,
+                      "sha256":  "0c7617c59b5b8763abd5c0e9e49e056eff633f1e734f419bb16464ad4e15ac13"
+                  },
+                  {
+                      "path":  "game/project.godot",
+                      "bytes":  1213,
+                      "sha256":  "5f379c5d92db7617a508b9a427343e4663dddbc8844e9eed51a31bca5915bbf6"
+                  },
+                  {
+                      "path":  "game/src/autoload/session.gd",
+                      "bytes":  17363,
+                      "sha256":  "d18d5a43fa2155eb615944ede39c6154cfeb8ba8a1d724b71b82348c59c57a9a"
+                  },
+                  {
+                      "path":  "game/src/autoload/session.gd.uid",
+                      "bytes":  20,
+                      "sha256":  "8b2371ff30f78b9407f7032bc0e358723307195c79aecef405d3b267df1e543f"
+                  },
+                  {
+                      "path":  "game/src/characters/character_appearance.gd",
+                      "bytes":  7204,
+                      "sha256":  "e688e993c4374e9a04074960e32888610a5bd3f622d280bda83c796f47ae3e97"
+                  },
+                  {
+                      "path":  "game/src/characters/character_appearance.gd.uid",
+                      "bytes":  20,
+                      "sha256":  "619136c28e68a69e30a20c0a52294b44d14e821ef25067571354373c06c8ae35"
+                  },
+                  {
+                      "path":  "game/src/characters/character_visual.gd",
+                      "bytes":  6572,
+                      "sha256":  "6a7255fbf4378820cf169ea5f74c4638d41b8b01f198609b43c3bcb01de7ddac"
+                  },
+                  {
+                      "path":  "game/src/characters/character_visual.gd.uid",
+                      "bytes":  20,
+                      "sha256":  "0cbb45e61a8ced1a3c5b525c620cf47da58e5d6121d45ebb23d8c882687e5f56"
+                  },
+                  {
+                      "path":  "game/src/characters/npc_catalog.gd",
+                      "bytes":  18347,
+                      "sha256":  "37bbc68c7291a1af8e063b502f74574fba08448e31b72ec9e4b6991eb27128ba"
+                  },
+                  {
+                      "path":  "game/src/characters/npc_catalog.gd.uid",
+                      "bytes":  20,
+                      "sha256":  "cead58f4195bf6dbda9adbae391c24cc2653015cf27790bd8e8d3832bfb95401"
+                  },
+                  {
+                      "path":  "game/src/construction/blueprint_layer.gd",
+                      "bytes":  3150,
+                      "sha256":  "9627317bb6b908a5249c57455d8db504b106652769aa382d77f446afeadafa44"
+                  },
+                  {
+                      "path":  "game/src/construction/blueprint_layer.gd.uid",
+                      "bytes":  19,
+                      "sha256":  "e544e9293505109d2a099e96678ea8b8139afd5ca588c1451824181dd99470c5"
+                  },
+                  {
+                      "path":  "game/src/construction/building_catalog.gd",
+                      "bytes":  4126,
+                      "sha256":  "96cb555af3359c9a4ee9e9eb1991b9f2da098c1bbe1c6c443897cc089d33e567"
+                  },
+                  {
+                      "path":  "game/src/construction/building_catalog.gd.uid",
+                      "bytes":  20,
+                      "sha256":  "0a9d9de3e6997c6329434dc013bcfb207f319bb976f4bf9b903160a5bb6f9efc"
+                  },
+                  {
+                      "path":  "game/src/construction/construction_command.gd",
+                      "bytes":  1560,
+                      "sha256":  "4ab47dc5cd28f5c9896a6d84b518b84bbdf9ec731c1258261d4d8721f519b220"
+                  },
+                  {
+                      "path":  "game/src/construction/construction_command.gd.uid",
+                      "bytes":  20,
+                      "sha256":  "a20b9f4a05effbccf0efa627f399eceeec39d5f3ee452fb50b03679d0e9461ce"
+                  },
+                  {
+                      "path":  "game/src/construction/construction_cursor.gd",
+                      "bytes":  4434,
+                      "sha256":  "b94bc7ab6eac7a8fa8b9335227a2d60bc458837a16f16b0df547435ea46c7f00"
+                  },
+                  {
+                      "path":  "game/src/construction/construction_cursor.gd.uid",
+                      "bytes":  20,
+                      "sha256":  "65c3bae2134f5429ea19ae7c7d260187166e4c3c985e25403f64dd5f75a34d60"
+                  },
+                  {
+                      "path":  "game/src/construction/construction_validator.gd",
+                      "bytes":  3557,
+                      "sha256":  "ff12d4c8faa6e37b7a7468f16cb1ab862fe5eef4bdc9f2949cc885f8ecbf108d"
+                  },
+                  {
+                      "path":  "game/src/construction/construction_validator.gd.uid",
+                      "bytes":  19,
+                      "sha256":  "3709531c15b83e9c46ba95c733863ef60cf13b85b5f0b6b040c32bb6f2f05d5e"
+                  },
+                  {
+                      "path":  "game/src/construction/room_topology.gd",
+                      "bytes":  4667,
+                      "sha256":  "c09b0b636a97fd8d6619e2afb8de6e309304180aec2c3479e458565e5dd373e3"
+                  },
+                  {
+                      "path":  "game/src/construction/room_topology.gd.uid",
+                      "bytes":  20,
+                      "sha256":  "73fc3e1b5986520ffb484e54d3e02ae259ccf920c37fddb30280e564dc4754b1"
+                  },
+                  {
+                      "path":  "game/src/construction/structure_layer.gd",
+                      "bytes":  5355,
+                      "sha256":  "e78eab056b08fa7786af8ae1837536af8c0a448a1ff55e49a46c1aaeddab86f4"
+                  },
+                  {
+                      "path":  "game/src/construction/structure_layer.gd.uid",
+                      "bytes":  20,
+                      "sha256":  "fa057624e67e494adbba318059ceb3f8b1dc209070a29eb524eb210b6a813fbd"
+                  },
+                  {
+                      "path":  "game/src/content/first_night_content.gd",
+                      "bytes":  13426,
+                      "sha256":  "2a54cda42eedcdccd4e78fc8e54d996f54e472bcc1412b116238d6537c643c4e"
+                  },
+                  {
+                      "path":  "game/src/content/first_night_content.gd.uid",
+                      "bytes":  20,
+                      "sha256":  "2fa6d60eb32f87c0c3795bdec045e31f5ca88f40a43e7295481f12ec7a22140e"
+                  },
+                  {
+                      "path":  "game/src/content/resource_node_catalog.gd",
+                      "bytes":  11890,
+                      "sha256":  "fb58309fc07507a53b2a4b82d80d1c47d73c2a8922ad2ccc0696fd3babcae1d8"
+                  },
+                  {
+                      "path":  "game/src/content/resource_node_catalog.gd.uid",
+                      "bytes":  19,
+                      "sha256":  "150eef678cec7819dd920a890e4c15147761710739ba851120a70b33a75c1cb4"
+                  },
+                  {
+                      "path":  "game/src/crafting/crafting_catalog.gd",
+                      "bytes":  3181,
+                      "sha256":  "dcbd336b23a50623e092570b4448a8ba06ad379d5e65c7dd1118acc3d76f3de4"
+                  },
+                  {
+                      "path":  "game/src/crafting/crafting_catalog.gd.uid",
+                      "bytes":  19,
+                      "sha256":  "ec58250eea9739242d27b6ffd0832ffad5805eb01dbe9e25ff41932bc0b4099c"
+                  },
+                  {
+                      "path":  "game/src/crafting/crafting_command.gd",
+                      "bytes":  604,
+                      "sha256":  "904b7303935e18f1614274a55138a79e5f05a62830ab4c67f42d348de27698b8"
+                  },
+                  {
+                      "path":  "game/src/crafting/crafting_command.gd.uid",
+                      "bytes":  20,
+                      "sha256":  "2369bf42ee8281839b02937b1080dc56718d120058fb8dff546affc1ed78a972"
+                  },
+                  {
+                      "path":  "game/src/dev/mechanics_lab.gd",
+                      "bytes":  11830,
+                      "sha256":  "edda0ba1ef72d988dfdac0722712b6dd74f5d28ad7733cd5da0539237d97271a"
+                  },
+                  {
+                      "path":  "game/src/dev/mechanics_lab.gd.uid",
+                      "bytes":  19,
+                      "sha256":  "e9f7c6bd4599cfb79b5b9d3e281c11a95704b36411fd0bb0562e91f237c442c1"
+                  },
+                  {
+                      "path":  "game/src/dev/mechanics_lab.tscn",
+                      "bytes":  1131,
+                      "sha256":  "fe687ac1c91c9077d13c1cec0d0796547b52b75571aaa190c37d7fe7a6def691"
+                  },
+                  {
+                      "path":  "game/src/dev/mechanics_lab_scenarios.gd",
+                      "bytes":  12029,
+                      "sha256":  "84311160e73236fa024aa348989a6becb01de1f36b44d23c821f2f44a5b382fb"
+                  },
+                  {
+                      "path":  "game/src/dev/mechanics_lab_scenarios.gd.uid",
+                      "bytes":  20,
+                      "sha256":  "ebb29ed6a5b91e09769126b0ec69296a5bc45c8eacbad0e18247d44b4905ec59"
+                  },
+                  {
+                      "path":  "game/src/farming/crop_catalog.gd",
+                      "bytes":  1119,
+                      "sha256":  "ac5efcfec62c1e65e4ea435fb64a8228268d1b4a1ca2b02de62707f14515a99f"
+                  },
+                  {
+                      "path":  "game/src/farming/crop_catalog.gd.uid",
+                      "bytes":  20,
+                      "sha256":  "5cc9368053366685b2bbcf18e237317a9552c6cacc70219a69567b0dae651107"
+                  },
+                  {
+                      "path":  "game/src/farming/farming_system.gd",
+                      "bytes":  13750,
+                      "sha256":  "a4cfb5f3cefee2f91fbad70f7f11cb1f6b5933674e98da25f8c4f414d7ed0714"
+                  },
+                  {
+                      "path":  "game/src/farming/farming_system.gd.uid",
+                      "bytes":  20,
+                      "sha256":  "2c9c2d7610fc78a8d79116d50b3599aff02db017de2129d757db6760451429f5"
+                  },
+                  {
+                      "path":  "game/src/inventory/inventory_auto_packer.gd",
+                      "bytes":  3727,
+                      "sha256":  "0eafeb2d1a1eb84b9812304ebaf29f32a38dda7763c33fb5d4b856b81fde2734"
+                  },
+                  {
+                      "path":  "game/src/inventory/inventory_auto_packer.gd.uid",
+                      "bytes":  20,
+                      "sha256":  "8b94f8af0b066399706f2b92a088aafb910949e7bf564e5353c4641de32509a2"
+                  },
+                  {
+                      "path":  "game/src/inventory/inventory_placement_rules.gd",
+                      "bytes":  1615,
+                      "sha256":  "bb6ae432def37e8e00224c16aeba7bedd86508bfdea95924e1d25145b4532e69"
+                  },
+                  {
+                      "path":  "game/src/inventory/inventory_placement_rules.gd.uid",
+                      "bytes":  20,
+                      "sha256":  "83c56cd0c302baa2ac1ef37a56ecbe734d5dff325be98692efba0de8d68ceff8"
+                  },
+                  {
+                      "path":  "game/src/inventory/inventory_shape.gd",
+                      "bytes":  1551,
+                      "sha256":  "a421ceec631d08e135581d0d766c44ec84b8d87400bd863a569e1b445a70f822"
+                  },
+                  {
+                      "path":  "game/src/inventory/inventory_shape.gd.uid",
+                      "bytes":  20,
+                      "sha256":  "cd97083e7bb1ddfa14466766e7f28ddae66573da0055f5ce04deea7b40ae785b"
+                  },
+                  {
+                      "path":  "game/src/inventory/item_instance_registry.gd",
+                      "bytes":  1363,
+                      "sha256":  "a4134f01930644112b1efc7d9aebb3eb039ddfd491c8187ca90bed9d5a6f52b5"
+                  },
+                  {
+                      "path":  "game/src/inventory/item_instance_registry.gd.uid",
+                      "bytes":  19,
+                      "sha256":  "f4f8bcc0dcf09dd5bb48db705420ce5de49a87d8df351d4e6c94078e4646df1a"
+                  },
+                  {
+                      "path":  "game/src/items/dropped_item.gd",
+                      "bytes":  1144,
+                      "sha256":  "05a7c79cbf6e25f3b758c87f9de48b27f4dd1c5b0381815cf557e25fdae39840"
+                  },
+                  {
+                      "path":  "game/src/items/dropped_item.gd.uid",
+                      "bytes":  20,
+                      "sha256":  "8a6c1afdcd63856d5c8964b0155ad568c1ec39875430e46e5d789dcdd0f407be"
+                  },
+                  {
+                      "path":  "game/src/items/dropped_item.tscn",
+                      "bytes":  515,
+                      "sha256":  "09741e19f29e2b6072e56ccd34675e701e286b12b0e16a2298ec175d04ae952f"
+                  },
+                  {
+                      "path":  "game/src/items/item_placeholder_icon.gd",
+                      "bytes":  4066,
+                      "sha256":  "b7c51ee1b1132e81055dcae5d42f73df1ce1daee688730955bf71f3bc01c9860"
+                  },
+                  {
+                      "path":  "game/src/items/item_placeholder_icon.gd.uid",
+                      "bytes":  20,
+                      "sha256":  "a4fe12e6671e25f3caaf49e824e762224f961da5f36034cd7a60785077f9c5f7"
+                  },
+                  {
+                      "path":  "game/src/localization/localized_text.gd",
+                      "bytes":  1892,
+                      "sha256":  "ff6e9bb9dfe5fe19795f25ab61bbbbc13f6e29c0adfcc30a3cc4a7f9c8e66727"
+                  },
+                  {
+                      "path":  "game/src/localization/localized_text.gd.uid",
+                      "bytes":  19,
+                      "sha256":  "ad02f4a81d1e22f84d51a8f62efdfdd5a62312ae1d4baa5b50abbb422923409c"
+                  },
+                  {
+                      "path":  "game/src/main/main.gd",
+                      "bytes":  21153,
+                      "sha256":  "dea37202795cec0c89de1c28cf68a5b4a29378a073e56b9c4f8515376c6c367b"
+                  },
+                  {
+                      "path":  "game/src/main/main.gd.uid",
+                      "bytes":  20,
+                      "sha256":  "08f3c2545340003186a334d1a6f76431c50e8f9755a8526a4775fd238a201858"
+                  },
+                  {
+                      "path":  "game/src/main/main.tscn",
+                      "bytes":  3674,
+                      "sha256":  "2286a60e0d17103c237adfc29eb8c661eeca44d89598fc2bfa6dec93768ec821"
+                  },
+                  {
+                      "path":  "game/src/player/player_controller.gd",
+                      "bytes":  2153,
+                      "sha256":  "2af1d4444bd3e61380ba2c9682fb7c6fb57319eaede3002796b428ca39879b3b"
+                  },
+                  {
+                      "path":  "game/src/player/player_controller.gd.uid",
+                      "bytes":  20,
+                      "sha256":  "12bc3dc2cba1fe6768a5cfcf7a26b36b80314e8025af9ceee199c25c9f8dea81"
+                  },
+                  {
+                      "path":  "game/src/save/first_night_save_store.gd",
+                      "bytes":  3788,
+                      "sha256":  "1d9875961252718090253a8cd308cb44f39c20b6d1bf8e0cac86606692ce8e37"
+                  },
+                  {
+                      "path":  "game/src/save/first_night_save_store.gd.uid",
+                      "bytes":  20,
+                      "sha256":  "f3434d9e833607a93f408174a8d6b73f9a9856182affa2ad0d3b926a809b5602"
+                  },
+                  {
+                      "path":  "game/src/simulation/first_night_navigation.gd",
+                      "bytes":  784,
+                      "sha256":  "5025ac56a41fb7dd66944f8c3ca9b6fbf5225d835d7440196c44e3afe88e165e"
+                  },
+                  {
+                      "path":  "game/src/simulation/first_night_navigation.gd.uid",
+                      "bytes":  20,
+                      "sha256":  "0c3e3884ec9775ea78396665132e9d0ee6c3c09c4d6c699bc1d3e1400f4d23f8"
+                  },
+                  {
+                      "path":  "game/src/simulation/first_night_simulation.gd",
+                      "bytes":  180580,
+                      "sha256":  "ae9344fa0a5d30d9625e506aa7fcf21062afdfd29a516210b84051ba3ef2dad9"
+                  },
+                  {
+                      "path":  "game/src/simulation/first_night_simulation.gd.uid",
+                      "bytes":  20,
+                      "sha256":  "fd83e9364ab93ecc6fd69a643e9ce364b60cd0bbf94fab5c93c1426475bd58c5"
+                  },
+                  {
+                      "path":  "game/src/simulation/local_grid_pathfinder.gd",
+                      "bytes":  1950,
+                      "sha256":  "166c3865c5851135367bdd2f898abe60725462b23a38cbf3af5751f8080cebe4"
+                  },
+                  {
+                      "path":  "game/src/simulation/local_grid_pathfinder.gd.uid",
+                      "bytes":  20,
+                      "sha256":  "c8d760c55054d303a22a4bf5b9e4be070566ce13a4a5962cb1941cbf992b539f"
+                  },
+                  {
+                      "path":  "game/src/simulation/npc_autonomy.gd",
+                      "bytes":  11663,
+                      "sha256":  "4a469f5a57f3c3f1fc706f4c149ea67e464b302f9ac5eb7eb05e556ae48f1f76"
+                  },
+                  {
+                      "path":  "game/src/simulation/npc_autonomy.gd.uid",
+                      "bytes":  20,
+                      "sha256":  "990991d1a061d61445013d79c071d18673cf328718a60353ad66d6699ad128cb"
+                  },
+                  {
+                      "path":  "game/src/simulation/npc_memory.gd",
+                      "bytes":  5504,
+                      "sha256":  "406cf18851e0fa2a6156e614309b9f33c5ee5c2089f3261c2fac1469b48637c2"
+                  },
+                  {
+                      "path":  "game/src/simulation/npc_memory.gd.uid",
+                      "bytes":  19,
+                      "sha256":  "c82274f1b8facbeadd803e48fe1b22db83b74d48d18cc0a711f8b7647cf227bb"
+                  },
+                  {
+                      "path":  "game/src/simulation/npc_work_request.gd",
+                      "bytes":  463,
+                      "sha256":  "9842fdb077fd7312fd47004a774d1bd0e060cc5029b84bc3c87e3c1b1ba963cb"
+                  },
+                  {
+                      "path":  "game/src/simulation/npc_work_request.gd.uid",
+                      "bytes":  20,
+                      "sha256":  "a9b51f7b5d584548283810efe7e203d8b3af9a4b5977b43dd1dacc3c1fd929a6"
+                  },
+                  {
+                      "path":  "game/src/simulation/npc_work_request_validator.gd",
+                      "bytes":  1387,
+                      "sha256":  "943c3b5b95496dcddb760630f5152eb6f596bda5fe2f152ff2f8db3ed8717e5a"
+                  },
+                  {
+                      "path":  "game/src/simulation/npc_work_request_validator.gd.uid",
+                      "bytes":  20,
+                      "sha256":  "52f29ae8ad9c82871b820b9891707728f05e6a42c0bafa61d05873d736ef5830"
+                  },
+                  {
+                      "path":  "game/src/ui/construction_palette.gd",
+                      "bytes":  6550,
+                      "sha256":  "4ff209100873a9d1a1355663445d55452ff4bf4e5f42659597d6a27dbdd683fa"
+                  },
+                  {
+                      "path":  "game/src/ui/construction_palette.gd.uid",
+                      "bytes":  20,
+                      "sha256":  "31ec3aa9c1b00292d41d6106f5878b094ad8d4177de23e5d609ca040b8483daa"
+                  },
+                  {
+                      "path":  "game/src/ui/construction_palette.tscn",
+                      "bytes":  3357,
+                      "sha256":  "b2d696baabe1dd4c90bc65b5ec97b69e4a3600942cde95dfb96b92e5c686f571"
+                  },
+                  {
+                      "path":  "game/src/ui/crafting_panel.gd",
+                      "bytes":  2717,
+                      "sha256":  "823ad0fe3afa127bce78f9caa7461526b67b665283bf94ee5f513b3ef108b8ab"
+                  },
+                  {
+                      "path":  "game/src/ui/crafting_panel.gd.uid",
+                      "bytes":  20,
+                      "sha256":  "12f2a2c0416c0c9cffa9451bcf788422f6e5b436bea37b5ec0ddf18ef4870b11"
+                  },
+                  {
+                      "path":  "game/src/ui/crafting_panel.tscn",
+                      "bytes":  1490,
+                      "sha256":  "744db56205f8ce9cedb7e2c94d427aa43b0b289a45d1955c87cfcdaa173bddb1"
+                  },
+                  {
+                      "path":  "game/src/ui/farming_panel.gd",
+                      "bytes":  3859,
+                      "sha256":  "e5bbc2869b633e93ac886c81711d201388729135d13861806aba4e8b83baa1c4"
+                  },
+                  {
+                      "path":  "game/src/ui/farming_panel.gd.uid",
+                      "bytes":  20,
+                      "sha256":  "9d275822ef10190d8371787ade8c0b0ec0eae116f3e37bf14e3f598831c08da5"
+                  },
+                  {
+                      "path":  "game/src/ui/first_night_hud.gd",
+                      "bytes":  28040,
+                      "sha256":  "b49ab0b9ca9bd60e94f40a93057a0ad119c04d5425ee83b1f9622968d4a0cf4a"
+                  },
+                  {
+                      "path":  "game/src/ui/first_night_hud.gd.uid",
+                      "bytes":  20,
+                      "sha256":  "dd4567e46821477f579660a835071805ee1dfd6ef359b101103f4bbf23c9c41f"
+                  },
+                  {
+                      "path":  "game/src/ui/inventory_grid.gd",
+                      "bytes":  19234,
+                      "sha256":  "bd47aa0b754cba7ba7f466983f18565f5912bfc0440c3645bb0285f94b514176"
+                  },
+                  {
+                      "path":  "game/src/ui/inventory_grid.gd.uid",
+                      "bytes":  19,
+                      "sha256":  "77317474138251c0104897698cf1f7efa1526a74f42e2a864bcae84db15e50f8"
+                  },
+                  {
+                      "path":  "game/src/ui/inventory_panel.gd",
+                      "bytes":  7808,
+                      "sha256":  "e24f7c474e600a851a210b4c98477f5e55214529d98cad5792e004f458ae7b5f"
+                  },
+                  {
+                      "path":  "game/src/ui/inventory_panel.gd.uid",
+                      "bytes":  20,
+                      "sha256":  "1f550f16f67c59149d546f0a5d3331d12e6f1d4ee5d0f2295a2f40491b2511d1"
+                  },
+                  {
+                      "path":  "game/src/ui/inventory_panel.tscn",
+                      "bytes":  4163,
+                      "sha256":  "2c47e4edc95aac30ee61b68bee0bdd956083c242ed22973bdfc94d1df49a1955"
+                  },
+                  {
+                      "path":  "game/src/ui/marker_overlay.gd",
+                      "bytes":  1874,
+                      "sha256":  "250a59d1364a97e86ccd9d68241a28685a529cac85e29f5f02bf9f0145dbb4c4"
+                  },
+                  {
+                      "path":  "game/src/ui/marker_overlay.gd.uid",
+                      "bytes":  20,
+                      "sha256":  "cac6466c0426fe121a7f2d6126b9a237cdc3f9af6ee961919ad868f7f57ee077"
+                  },
+                  {
+                      "path":  "game/src/ui/marker_panel.gd",
+                      "bytes":  6072,
+                      "sha256":  "c341b90f1e7613c0c49a785fc3810bcd7b98b07cf6650bfcb96659d7c0e642b3"
+                  },
+                  {
+                      "path":  "game/src/ui/marker_panel.gd.uid",
+                      "bytes":  20,
+                      "sha256":  "6b70cc514433b347f399fd1824f6686f6029d3ea8eee9191c450bf7529ac3820"
+                  },
+                  {
+                      "path":  "game/src/ui/marker_panel.tscn",
+                      "bytes":  181,
+                      "sha256":  "ff23e8889ccdc7cdb0c5fa82178c2beb7d3c744ccdc57acaaf162f121e165245"
+                  },
+                  {
+                      "path":  "game/src/ui/pixel_ui_skin.gd",
+                      "bytes":  3381,
+                      "sha256":  "0ca62fcddc8bb52b773d063119e0898aa37c25f2537c507fda830e5ba1cdffb5"
+                  },
+                  {
+                      "path":  "game/src/ui/pixel_ui_skin.gd.uid",
+                      "bytes":  20,
+                      "sha256":  "b2f6f7af23db724d806bd2d6da2ab09053293a7eafa0e7802ed601c7fcd8d3dc"
+                  },
+                  {
+                      "path":  "game/src/ui/storage_panel.gd",
+                      "bytes":  4778,
+                      "sha256":  "3a4bfce1c0b8aca1cb4202081d08a13c3909b14ab5272a1ad81d9b81b2d1382a"
+                  },
+                  {
+                      "path":  "game/src/ui/storage_panel.gd.uid",
+                      "bytes":  20,
+                      "sha256":  "4c91abe38177797a1ffd4d280621100deaceacc6481f62ee5be81c610b958f28"
+                  },
+                  {
+                      "path":  "game/src/ui/storage_panel.tscn",
+                      "bytes":  2447,
+                      "sha256":  "8aa9972f163b0bfd91381e777c43cfb45da7f776f4b6ab264226257bb6c1f705"
+                  },
+                  {
+                      "path":  "game/src/world/first_night_catalog.gd",
+                      "bytes":  645,
+                      "sha256":  "182123501c8b0d07799860889e946e6b5a2f4663e75b18c93521f7b82f5da04f"
+                  },
+                  {
+                      "path":  "game/src/world/first_night_catalog.gd.uid",
+                      "bytes":  19,
+                      "sha256":  "433ab6f05022fd5be2d20002cde5df4c6ea3b1ddf8c9e05c544f8ea9cc2fe10f"
+                  },
+                  {
+                      "path":  "game/src/world/first_night_world.gd",
+                      "bytes":  29542,
+                      "sha256":  "b307b21f74a28e30eff80ff9fc7b95f69c3f106222fcc98cf6b96d23cf7fa4fd"
+                  },
+                  {
+                      "path":  "game/src/world/first_night_world.gd.uid",
+                      "bytes":  19,
+                      "sha256":  "5a24f6a46938825875f7ee6d3eca9ac9de3d449baee21e28cad4e841420bd0e2"
+                  },
+                  {
+                      "path":  "game/src/world/interactable_view.gd",
+                      "bytes":  11016,
+                      "sha256":  "3d733aecd53d2d1b8db5fca145ae2ebfbf7d574efa82cac14f78cf7b55bc64fe"
+                  },
+                  {
+                      "path":  "game/src/world/interactable_view.gd.uid",
+                      "bytes":  20,
+                      "sha256":  "0631ce590b83a6a8f44d67cfc58e409c3b532280ed2de78d63e7e3d01821629a"
+                  },
+                  {
+                      "path":  "game/src/world/water_map.gd",
+                      "bytes":  2052,
+                      "sha256":  "724c669cb84be8c4a3f7e352f31fa0e66c588868f59210461afd008d40dc442b"
+                  },
+                  {
+                      "path":  "game/src/world/water_map.gd.uid",
+                      "bytes":  19,
+                      "sha256":  "6047a0b31ae5d1a263c196495cb96abb556e0dd9b7b3da6cd8f7afe477daf100"
+                  },
+                  {
+                      "path":  "game/tests/boulder_depth_integration_test.gd",
+                      "bytes":  4442,
+                      "sha256":  "144b4dab2de4be954d6e7e5cc0a02cda7cb3ebdd1075bbba0dfaaa033a7d06bd"
+                  },
+                  {
+                      "path":  "game/tests/boulder_depth_integration_test.gd.uid",
+                      "bytes":  19,
+                      "sha256":  "8fed60e7adca8ff4ceeabd2c245ee36c70ec2ecc028c207fbc4c9722a833f579"
+                  },
+                  {
+                      "path":  "game/tests/boulder_depth_integration_test.tscn",
+                      "bytes":  204,
+                      "sha256":  "f81cf73ee535ddc21545ab2bf096b3f345ed7042d0a2ad957e1122241fb0181f"
+                  },
+                  {
+                      "path":  "game/tests/crafting_integration_test.gd",
+                      "bytes":  2143,
+                      "sha256":  "f14dfb11f20071a1c796994ed1575059c8ae4eb2809ce9c79578cb0164ca138f"
+                  },
+                  {
+                      "path":  "game/tests/crafting_integration_test.gd.uid",
+                      "bytes":  20,
+                      "sha256":  "34300056c9aedde11b7f6e0815b7405617a2d2cc5785cc7871a00391d6f47dab"
+                  },
+                  {
+                      "path":  "game/tests/crafting_integration_test.tscn",
+                      "bytes":  195,
+                      "sha256":  "f9c4e6f5a6114f0349d5e4739a7813e151ebd3893f357542adf8336dadd4883d"
+                  },
+                  {
+                      "path":  "game/tests/farming_integration_test.gd",
+                      "bytes":  11018,
+                      "sha256":  "a1f9677771191b3472ca035bb47484e6561530b32d79be582bf349250c924a77"
+                  },
+                  {
+                      "path":  "game/tests/farming_integration_test.gd.uid",
+                      "bytes":  19,
+                      "sha256":  "1bb50a34bdd32c794cd9b900837e0cb8ad9f3ccdcc317a150c8876a09ef50965"
+                  },
+                  {
+                      "path":  "game/tests/farming_integration_test.tscn",
+                      "bytes":  193,
+                      "sha256":  "0e8f72a405d75798c401306756275820aa7fba7aa20a33643c125f08699bbb19"
+                  },
+                  {
+                      "path":  "game/tests/farming_rules_test.gd",
+                      "bytes":  13108,
+                      "sha256":  "f6445016f10893c54d7e87f14c3a4b8333af194bb774aad750852e10bc8872a6"
+                  },
+                  {
+                      "path":  "game/tests/farming_rules_test.gd.uid",
+                      "bytes":  20,
+                      "sha256":  "7a9755da85241eea3d0ccbac30023d15c0be2437ace421a7d3251dd8720f1798"
+                  },
+                  {
+                      "path":  "game/tests/fixtures/legacy_resources_seed_247061.json",
+                      "bytes":  16543,
+                      "sha256":  "744c9bad4d372025755a7296baafb61841e3e90f139c71abc03256cf7700f4f5"
+                  },
+                  {
+                      "path":  "game/tests/inventory_close_integration_test.gd",
+                      "bytes":  3561,
+                      "sha256":  "59b4eac850fe86dcc8037718162621e358ec977023b2e4685f38a3202ae8bbed"
+                  },
+                  {
+                      "path":  "game/tests/inventory_close_integration_test.gd.uid",
+                      "bytes":  19,
+                      "sha256":  "5cf791dc1129700ec56d0db3b07e92ec3333725e40128cee2db5870c95209f74"
+                  },
+                  {
+                      "path":  "game/tests/inventory_close_integration_test.tscn",
+                      "bytes":  208,
+                      "sha256":  "5de44b7d6964a086803f5fe4647005769df8a75c343f60054085dd0548b3b775"
+                  },
+                  {
+                      "path":  "game/tests/inventory_markers_integration_test.gd",
+                      "bytes":  12395,
+                      "sha256":  "ea888978256b7baa49977280a757f26b84ab4c2ce9d7f5c199d2eab0e03f1d22"
+                  },
+                  {
+                      "path":  "game/tests/inventory_markers_integration_test.gd.uid",
+                      "bytes":  20,
+                      "sha256":  "df0f7f9d65b8f22867f59f778d373e5850cab2f8ef7f08aa63c0cbfb7e9d764d"
+                  },
+                  {
+                      "path":  "game/tests/inventory_markers_integration_test.tscn",
+                      "bytes":  212,
+                      "sha256":  "f6553db2b45bee519c9fab4992d0fce46af6087a940412a86a28ae558d97730d"
+                  },
+                  {
+                      "path":  "game/tests/npc_collision_integration_test.gd",
+                      "bytes":  2298,
+                      "sha256":  "3d4766ac4f0064dca3c6a2d14331c26a39a8722e5b152121be14401e68db70f7"
+                  },
+                  {
+                      "path":  "game/tests/npc_collision_integration_test.gd.uid",
+                      "bytes":  19,
+                      "sha256":  "24b00fd91063800a1d6b4d814682337acd3138379b6e0d0d7b4dd59b96e69ab7"
+                  },
+                  {
+                      "path":  "game/tests/npc_collision_integration_test.tscn",
+                      "bytes":  204,
+                      "sha256":  "5f3e265761a7d15ff83d1ecc059739888a391b40df23969f5d5b8a0fb827ab79"
+                  },
+                  {
+                      "path":  "game/tests/quick_save_input_integration_test.gd",
+                      "bytes":  1658,
+                      "sha256":  "72adc79cc6d6f927b7d59f3d03cf39b6f9e54b1f10d92bc255ef2cddea00a9b0"
+                  },
+                  {
+                      "path":  "game/tests/quick_save_input_integration_test.gd.uid",
+                      "bytes":  19,
+                      "sha256":  "2eb5b644e7a23d867f3c30ede0915b40e8d86bf06b86bff001e27eceea8705d8"
+                  },
+                  {
+                      "path":  "game/tests/quick_save_input_integration_test.tscn",
+                      "bytes":  209,
+                      "sha256":  "8928661e0fc2c264f339e0b1e6e3f278f95f9b16cae2551af6515b50d41bc839"
+                  },
+                  {
+                      "path":  "game/tests/resource_access_integration_test.gd",
+                      "bytes":  6179,
+                      "sha256":  "d30c61daa027698f1c82b78ce546ba37d8b167bc3eef657465560b9d9393107f"
+                  },
+                  {
+                      "path":  "game/tests/resource_access_integration_test.gd.uid",
+                      "bytes":  19,
+                      "sha256":  "61c9d1a31aaa3dd207acd0cdf54816f73790d5a3a97de60e23716ad9b7f57535"
+                  },
+                  {
+                      "path":  "game/tests/resource_access_integration_test.tscn",
+                      "bytes":  208,
+                      "sha256":  "b323e944b79a2bd281f088b6e3d7df9674182d8f723a5a8c1a64be75caea7c86"
+                  },
+                  {
+                      "path":  "game/tests/resource_guidance_integration_test.gd",
+                      "bytes":  12420,
+                      "sha256":  "81360ff487245dcdbc03549564eca07fa230127ac1ed7e83ca88bcb5ce05be55"
+                  },
+                  {
+                      "path":  "game/tests/resource_guidance_integration_test.gd.uid",
+                      "bytes":  19,
+                      "sha256":  "16d79f94faf4360f108d72d324476cc9a009a4fd1e3cbdc093dfe2b26c8d87f7"
+                  },
+                  {
+                      "path":  "game/tests/resource_guidance_integration_test.tscn",
+                      "bytes":  212,
+                      "sha256":  "ee332771ad15ac7b044e317a44446aa811b28ddc70bf449ded22aa90e8af68dd"
+                  },
+                  {
+                      "path":  "game/tests/responsive_hud_layout_integration_test.gd",
+                      "bytes":  2765,
+                      "sha256":  "9258e9d5e3bfcd6e8815beaa3110ab68492e1583e172865b3cf8eb6aea403e4d"
+                  },
+                  {
+                      "path":  "game/tests/responsive_hud_layout_integration_test.gd.uid",
+                      "bytes":  19,
+                      "sha256":  "a2a1e98b28f1cb65abc0d71aaee00a2ea7c528677edb59086cd09c526056dbc6"
+                  },
+                  {
+                      "path":  "game/tests/responsive_hud_layout_integration_test.tscn",
+                      "bytes":  219,
+                      "sha256":  "791fc3d96a7b20027ef9e221a29cbf019f99e61da1a92726e06f9b9376599abc"
+                  },
+                  {
+                      "path":  "game/tests/roof_sleep_energy_integration_test.gd",
+                      "bytes":  15743,
+                      "sha256":  "4ddb6a575f9b25683ec8829ab29d3003ea72a91ababbddc02e4846148c1c5abd"
+                  },
+                  {
+                      "path":  "game/tests/roof_sleep_energy_integration_test.gd.uid",
+                      "bytes":  20,
+                      "sha256":  "44d93b84fc7128321193ff777b268c19b91fe1dada4bd6433a423cd43968da74"
+                  },
+                  {
+                      "path":  "game/tests/roof_sleep_energy_integration_test.tscn",
+                      "bytes":  211,
+                      "sha256":  "634678f07998f9fd689850cac54bdfc9d760f157b73267421620da50646b0d0c"
+                  },
+                  {
+                      "path":  "game/tests/room_designation_integration_test.gd",
+                      "bytes":  2295,
+                      "sha256":  "fc75da957d6a00d22fd28db74cc9a49f285d9b2cdfd6ebafe5896633dc674933"
+                  },
+                  {
+                      "path":  "game/tests/room_designation_integration_test.gd.uid",
+                      "bytes":  20,
+                      "sha256":  "a13a30222366fbf554ee0fe95730d60e8154d9920d3078fe45d7cbe5d3e0743c"
+                  },
+                  {
+                      "path":  "game/tests/room_designation_integration_test.tscn",
+                      "bytes":  210,
+                      "sha256":  "b21e5278d3bac5ce64909eda4f173af8572b7eabd6fb7099b679522a7b28dd6f"
+                  },
+                  {
+                      "path":  "game/tests/run_tests.gd",
+                      "bytes":  229217,
+                      "sha256":  "7af03b76962098d5862e2c6c9c870566f0a2a0b7c50a434f791911e5cf3cbdc1"
+                  },
+                  {
+                      "path":  "game/tests/run_tests.gd.uid",
+                      "bytes":  19,
+                      "sha256":  "bf904c1a0de87c1dad1a33dd0b98a8df6838975d40d591612ee133dd60675e22"
+                  },
+                  {
+                      "path":  "game/tests/starting_pantry_integration_test.gd",
+                      "bytes":  12083,
+                      "sha256":  "7c3db3543ecbbd73585e866f05c211da766bfab89bbfd841dafe403f49544486"
+                  },
+                  {
+                      "path":  "game/tests/starting_pantry_integration_test.gd.uid",
+                      "bytes":  20,
+                      "sha256":  "e285bfac206181906782e4ddfc065d4bd8cb92eda00f65769d09f7b39e7ace7b"
+                  },
+                  {
+                      "path":  "game/tests/starting_pantry_integration_test.tscn",
+                      "bytes":  208,
+                      "sha256":  "af47146f95bf2833e50e1d7ccd395e2e2e7bd64b179b7939ac3acad17f4a903d"
+                  },
+                  {
+                      "path":  "game/tests/storage_integration_test.gd",
+                      "bytes":  7707,
+                      "sha256":  "730703305352352af235788525c46406d2a1e8b31479f2a2e33f734b88050d50"
+                  },
+                  {
+                      "path":  "game/tests/storage_integration_test.gd.uid",
+                      "bytes":  20,
+                      "sha256":  "efd3f016b115b988087a816042752c0f4dfaa9ccf9dbf3041af4bc5f174b5c78"
+                  },
+                  {
+                      "path":  "game/tests/storage_integration_test.tscn",
+                      "bytes":  193,
+                      "sha256":  "184ef9ba4b6e2210e88199af782d01dff324b2699200f56b61cdf93b6ccc9d44"
+                  }
+              ]
+}

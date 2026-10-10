@@ -8,9 +8,13 @@ const MATERIAL_COLOR := Color("9b6a42")
 const WORK_COLOR := Color("b7bcc5")
 const BADGE_COLOR := Color(0.05, 0.07, 0.06, 0.88)
 const TEXT_COLOR := Color("f4ead7")
+const BuildingCatalogScript := preload("res://src/construction/building_catalog.gd")
+
+var _building_catalog := BuildingCatalogScript.new()
 
 
 func _ready() -> void:
+	z_index = 1
 	Session.state_changed.connect(queue_redraw)
 	Session.state_reloaded.connect(queue_redraw)
 	queue_redraw()
@@ -25,12 +29,21 @@ func _draw() -> void:
 			int(cell_data[0]) * CELL_SIZE,
 			int(cell_data[1]) * CELL_SIZE
 		)
+		var footprint := _building_catalog.get_footprint_size(
+			String(blueprint.get("building_id", ""))
+		)
 		var rect := Rect2(
 			origin + Vector2(3.0, 3.0),
-			Vector2(CELL_SIZE - 6, CELL_SIZE - 6)
+			Vector2(footprint * CELL_SIZE) - Vector2(6.0, 6.0)
 		)
-
-		draw_rect(rect, FILL_COLOR, true)
+		for y: int in range(footprint.y):
+			for x: int in range(footprint.x):
+				var cell_rect := Rect2(
+					origin + Vector2(x, y) * CELL_SIZE + Vector2(3.0, 3.0),
+					Vector2(CELL_SIZE - 6, CELL_SIZE - 6)
+				)
+				draw_rect(cell_rect, FILL_COLOR, true)
+				draw_rect(cell_rect, OUTLINE_COLOR, false, 1.0)
 		draw_rect(rect, OUTLINE_COLOR, false, 2.0)
 		draw_line(rect.position, rect.end, OUTLINE_COLOR, 2.0)
 		draw_line(

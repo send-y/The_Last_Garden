@@ -1,6 +1,14 @@
 {
   "schema_version": 3,
   "items": [
+{"id":"core:carrot_seed","label_key":"item.core.carrot_seed.name","max_stack":20,"footprint":[[0,0]]},
+{"id":"core:carrot","label_key":"item.core.carrot.name","max_stack":5,"footprint":[[0,0],[0,1]]},
+{"id":"core:cabbage_seed","label_key":"item.core.cabbage_seed.name","max_stack":20,"footprint":[[0,0]]},
+{"id":"core:cabbage","label_key":"item.core.cabbage.name","max_stack":5,"footprint":[[0,0],[1,0],[0,1],[1,1]]},
+{"id":"core:potato_seed","label_key":"item.core.potato_seed.name","max_stack":20,"footprint":[[0,0]]},
+{"id":"core:potato","label_key":"item.core.potato.name","max_stack":5,"footprint":[[0,0]]},
+{"id":"core:strawberry_seed","label_key":"item.core.strawberry_seed.name","max_stack":20,"footprint":[[0,0]]},
+{"id":"core:strawberry","label_key":"item.core.strawberry.name","max_stack":5,"footprint":[[0,0]]},
 	{
 	  "id": "core:wood",
 	  "label_key": "item.core.wood.name",
@@ -18,7 +26,13 @@
 	{
 	  "id": "core:plank",
 	  "label_key": "item.core.plank.name",
-	  "max_stack": 5,
+	  "max_stack": 10,
+	  "footprint": [[0, 0], [0, 1]]
+	},
+	{
+	  "id": "core:brick",
+	  "label_key": "item.core.brick.name",
+	  "max_stack": 10,
 	  "footprint": [[0, 0]]
 	},
 	{
@@ -33,6 +47,20 @@
 	  "icon_path": "res://assets/sprites/items/pinecone.svg",
 	  "max_stack": 5,
 	  "footprint": [[0, 0]]
+	},
+	{
+	  "id": "core:bucket",
+	  "label_key": "item.core.bucket.name",
+	  "icon_path": "res://assets/sprites/items/bucket_not_full.png",
+	  "icon_state_property": "charges",
+	  "icon_state_paths": {
+		"0": "res://assets/sprites/items/bucket_not_full.png",
+		"1": "res://assets/sprites/items/bucket_full.png",
+		"2": "res://assets/sprites/items/bucket_full.png"
+	  },
+	  "max_stack": 1,
+	  "instance_based": true,
+	  "footprint": [[0, 0], [0, 1]]
 	},
 	{
 	  "id": "core:raw_water",
@@ -52,6 +80,30 @@
 	  "icon_path": "res://assets/sprites/items/berry.png",
 	  "max_stack": 5,
 	  "footprint": [[0, 0]]
+	},
+	{
+	  "id": "core:pickaxe",
+	  "label_key": "item.core.pickaxe.name",
+	  "icon_path": "res://assets/sprites/items/pickaxe_n.png",
+	  "max_stack": 1,
+	  "instance_based": true,
+	  "footprint": [[0, 0], [1, 0], [2, 0], [1, 1], [1, 2]]
+	},
+	{
+	  "id": "core:hoe",
+	  "label_key": "item.core.hoe.name",
+	  "icon_path": "res://assets/sprites/items/hoe_n.png",
+	  "max_stack": 1,
+	  "instance_based": true,
+	  "footprint": [[0, 0], [0, 1], [0, 2], [1, 2]]
+	},
+	{
+	  "id": "core:axe",
+	  "label_key": "item.core.axe.name",
+	  "icon_path": "res://assets/sprites/items/axe_n.png",
+	  "max_stack": 1,
+	  "instance_based": true,
+	  "footprint": [[0, 0], [1, 0], [0, 1], [1, 1], [0, 2]]
 	}
   ]
 }

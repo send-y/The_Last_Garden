@@ -35,12 +35,19 @@ func cell_to_world(cell: Vector2i) -> Vector2:
 func next_cell(
 	from_cell: Vector2i,
 	to_cell: Vector2i,
-	temporary_blocker: Vector2i = Vector2i(-1, -1)
+	temporary_blocker: Vector2i = Vector2i(-1, -1),
+	additional_blockers: Array[Vector2i] = []
 ) -> Vector2i:
 	if not _grid.is_in_boundsv(from_cell) or not _grid.is_in_boundsv(to_cell):
 		return from_cell
-	if _grid.is_point_solid(from_cell) or _grid.is_point_solid(to_cell):
+	if _grid.is_point_solid(to_cell):
 		return from_cell
+	if additional_blockers.has(to_cell): return from_cell
+	# A loaded resident can already occupy a cell made solid by newer navigation
+	# rules. Let that one actor leave its starting cell; keep it blocked afterwards.
+	var escape_from_solid: bool = _grid.is_point_solid(from_cell)
+	if escape_from_solid:
+		_grid.set_point_solid(from_cell, false)
 
 	var blocker_applied: bool = (
 		_grid.is_in_boundsv(temporary_blocker)
@@ -50,10 +57,18 @@ func next_cell(
 	)
 	if blocker_applied:
 		_grid.set_point_solid(temporary_blocker)
+	var applied: Array[Vector2i] = []
+	for cell: Vector2i in additional_blockers:
+		if _grid.is_in_boundsv(cell) and cell != from_cell and not _grid.is_point_solid(cell):
+			_grid.set_point_solid(cell)
+			applied.append(cell)
 
 	var path: Array[Vector2i] = _grid.get_id_path(from_cell, to_cell)
+	for cell: Vector2i in applied: _grid.set_point_solid(cell,false)
 	if blocker_applied:
 		_grid.set_point_solid(temporary_blocker, false)
+	if escape_from_solid:
+		_grid.set_point_solid(from_cell, true)
 	if path.size() < 2:
 		return from_cell
 	return path[1]

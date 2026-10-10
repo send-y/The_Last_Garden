@@ -24,6 +24,7 @@ var _marker_list: VBoxContainer
 
 func _ready() -> void:
 	name = "MarkerPanel"
+	custom_minimum_size = Vector2(400, 250)
 	z_index = 1000
 	mouse_filter = Control.MOUSE_FILTER_STOP
 	anchor_left = 0.5
@@ -115,6 +116,7 @@ func _build_contents() -> void:
 	column.add_child(_feedback)
 	var scroll := ScrollContainer.new()
 	scroll.name = "MarkerScroll"
+	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
 	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	column.add_child(scroll)
 	_marker_list = VBoxContainer.new()

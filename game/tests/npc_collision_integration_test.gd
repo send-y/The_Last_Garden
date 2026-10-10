@@ -43,10 +43,10 @@ func _ready() -> void:
 	var passed: bool = (
 		hidden_hits.is_empty()
 		and old_hits.is_empty()
-		and new_hits.size() == 1
+		and new_hits.is_empty()
 	)
 	if passed:
-		print("PASS: hidden NPC collision is disabled and follows visible Mira")
+		print("PASS: hidden and visible NPCs do not block player physics")
 		get_tree().quit(0)
 		return
 

@@ -1,25 +1,33 @@
 class_name MechanicsLabScenarios
 extends RefCounted
 
-const Simulation := preload("res://src/simulation/first_night_simulation.gd")
+const Simulation := preload("res://src/simulation/world_simulation.gd")
 const ConstructionCommand := preload(
 	"res://src/construction/construction_command.gd"
 )
 const NpcWorkRequest := preload("res://src/simulation/npc_work_request.gd")
 const FirstNightContent := preload("res://src/content/first_night_content.gd")
+const ResidentHomes := preload("res://src/dev/resident_homes_scenario.gd")
 
 const FRESH_START: StringName = &"fresh_start"
+const RESIDENT_HOMES: StringName = &"resident_homes"
+const HOME_PRODUCTION: StringName = &"home_production"
+const GENERATED_RESIDENTS: StringName = &"generated_residents"
 const PREPARED_EVENING: StringName = &"prepared_evening"
 const MORNING_WITH_MIRA: StringName = &"morning_with_mira"
 const MIRA_RESTING: StringName = &"mira_resting"
 const MIRA_AFTER_SHARED_WALL: StringName = &"mira_after_shared_wall"
 const WORKBENCH_CRAFTING: StringName = &"workbench_crafting"
 const SURFACE_BOULDERS: StringName = &"surface_boulders"
+const BUCKET_HOTBAR: StringName = &"bucket_hotbar"
 const PREPARED_MINUTE: int = 17 * 60 + 50
 
 
 static func definitions() -> Array[Dictionary]:
 	return [
+		{"id": HOME_PRODUCTION, "label":"Житель делает доски для дома", "description":"Личные дома и верстак. На общем складе 25 древесины; 5 защищены. Досок нет: житель должен изготовить их для своей мебели."},
+		{"id": RESIDENT_HOMES, "label":"Дома жителей и защищённый запас", "description":"Два знакомых жителя: отдельные дома, самостоятельная мебель, теснота и склад с защищённым запасом в 35 досок."},
+		{"id": GENERATED_RESIDENTS, "label":"Три случайных жителя", "description":"Три незнакомых человека рядом с домом: разговор, ночлег и работа."},
 		{
 			"id": FRESH_START,
 			"label": "Начало первого дня",
@@ -43,17 +51,22 @@ static func definitions() -> Array[Dictionary]:
 		{
 			"id": MIRA_AFTER_SHARED_WALL,
 			"label": "После совместной стены",
-			"description": "День 2, 07:20. Мира завершила стену и готова вспомнить об этом.",
+			"description": "День 2, 07:35. Мира завершила стену и готова вспомнить об этом.",
 		},
 		{
 			"id": WORKBENCH_CRAFTING,
 			"label": "Верстак и первые рецепты",
-			"description": "Готовый верстак рядом с игроком и два бревна в рюкзаке.",
+			"description": "Готовый верстак рядом с игроком и пять брёвен в рюкзаке.",
 		},
 		{
 			"id": SURFACE_BOULDERS,
 			"label": "Крупные валуны",
 			"description": "Сгенерированные валуны рядом с игроком для проверки добычи.",
+		},
+		{
+			"id": BUCKET_HOTBAR,
+			"label": "Ведро и хотбар",
+			"description": "Два ведра с разным наполнением у доступного берега.",
 		},
 	]
 
@@ -75,11 +88,57 @@ static func build(scenario_id: StringName) -> Dictionary:
 			"steps": [],
 		}
 
-	var simulation: FirstNightSimulation = Simulation.new()
+	var initial_state: Dictionary = Simulation.create_new_state()
+	if scenario_id in [RESIDENT_HOMES,HOME_PRODUCTION]: initial_state = ResidentHomes.initial_state()
+	if scenario_id == HOME_PRODUCTION:
+		initial_state.structures.append({"building_id":"core:workbench","cell":[36,34],"stage_id":"core:complete"})
+	if scenario_id == GENERATED_RESIDENTS: initial_state = Simulation.create_new_game_state()
+	if scenario_id == BUCKET_HOTBAR:
+		initial_state["item_instances"] = [
+			{
+				"instance_id": "core:item_instance_000001",
+				"item_id": "core:bucket",
+				"state": {"charges": 0},
+				"location": {"kind": "inventory", "id": ""},
+			},
+			{
+				"instance_id": "core:item_instance_000002",
+				"item_id": "core:bucket",
+				"state": {"charges": 1},
+				"location": {"kind": "inventory", "id": ""},
+			},
+		]
+		initial_state["next_item_instance_serial"] = 3
+		var shore_position := FirstNightContent.cell_center(7, 27)
+		initial_state["player_position"] = [shore_position.x, shore_position.y]
+	if scenario_id == MIRA_AFTER_SHARED_WALL:
+		(initial_state["inventory"] as Dictionary)["core:plank"] = 30
+	var simulation: Simulation = Simulation.new(initial_state)
+	if scenario_id == GENERATED_RESIDENTS:
+		for index: int in range(3):
+			var generated: Dictionary = simulation.create_generated_npc(94+index,Vector2i(24+index,29))
+			if not generated.ok or not simulation.arrive_npc(generated.npc_id,Vector2i(24+index,29)).ok:
+				return _failed_build(scenario_id,simulation,[])
 	var steps: Array[Dictionary] = []
+	if scenario_id in [RESIDENT_HOMES,HOME_PRODUCTION] and not ResidentHomes.prepare(simulation, steps):
+		return _failed_build(scenario_id, simulation, steps)
+	if scenario_id == HOME_PRODUCTION:
+		simulation.state.storage_items = simulation.state.storage_items.filter(func(record: Dictionary) -> bool: return String(record.item_id) != "core:plank")
+		simulation.set_stock_reserve("core:plank",0)
+		simulation.set_stock_reserve("core:wood",5)
+		for i: int in range(5):
+			simulation.state.inventory["core:wood"] = 5
+			var stored := false
+			for cell: Vector2i in ResidentHomes.WAREHOUSE:
+				if stored: break
+				simulation.set_player_position(FirstNightContent.cell_center(cell.x,cell.y+1))
+				stored = bool(simulation.transfer_inventory_stack_to_storage(cell,"core:wood",0).success)
+			if not stored: return _failed_build(scenario_id,simulation,steps)
+		simulation.set_player_position(FirstNightContent.cell_center(38,33))
+		steps = [{"kind":"home_production","wood":25,"protected":5,"success":true}]
 	if scenario_id == WORKBENCH_CRAFTING:
 		var crafting_state: Dictionary = Simulation.create_new_state()
-		(crafting_state["inventory"] as Dictionary)["core:wood"] = 2
+		(crafting_state["inventory"] as Dictionary)["core:wood"] = 5
 		(crafting_state["structures"] as Array).append({
 			"building_id": "core:workbench",
 			"cell": [22, 29],
@@ -133,7 +192,7 @@ static func build(scenario_id: StringName) -> Dictionary:
 
 
 static func _prepare_shared_wall_memory(
-	simulation: FirstNightSimulation,
+	simulation: Simulation,
 	steps: Array[Dictionary]
 ) -> bool:
 	if not _interact(simulation, "core:first_neighbor", steps):
@@ -181,7 +240,7 @@ static func _prepare_shared_wall_memory(
 	if not bool(request_result.get("success", false)):
 		return false
 
-	if not _advance_to(simulation, 7 * 60 + 20, steps):
+	if not _advance_to(simulation, 7 * 60 + 35, steps):
 		return false
 	if simulation.get_npc_memories("core:first_neighbor").size() != 1:
 		return false
@@ -192,7 +251,7 @@ static func _prepare_shared_wall_memory(
 
 
 static func _prepare_evening(
-	simulation: FirstNightSimulation,
+	simulation: Simulation,
 	steps: Array[Dictionary]
 ) -> bool:
 	var targets: Array[String] = [
@@ -205,6 +264,23 @@ static func _prepare_evening(
 		"core:stone_east",
 		"core:berry_bush",
 		"core:shore_water",
+	]
+	for target_id: String in targets:
+		if not _interact(simulation, target_id, steps):
+			return false
+	# Evening/NPC scenarios are explicit fixtures. The ordinary starter route
+	# separately proves workbench construction, board crafting, and physical pickup.
+	var roof_stock := simulation.try_pickup_item(
+		"core:plank",
+		int(simulation.content.get_cost("repair_stage_1").get("core:plank", 0))
+	)
+	steps.append({
+		"kind": "fixture_roof_stock",
+		"success": bool(roof_stock.get("success", false)),
+	})
+	if not bool(roof_stock.get("success", false)):
+		return false
+	var preparations: Array[String] = [
 		"core:repair_room",
 		"core:repair_room",
 		"core:repair_room",
@@ -213,14 +289,14 @@ static func _prepare_evening(
 		"core:campfire_site",
 		"core:bed_site",
 	]
-	for target_id: String in targets:
+	for target_id: String in preparations:
 		if not _interact(simulation, target_id, steps):
 			return false
 	return _advance_to(simulation, PREPARED_MINUTE, steps)
 
 
 static func _interact(
-	simulation: FirstNightSimulation,
+	simulation: Simulation,
 	target_id: String,
 	steps: Array[Dictionary]
 ) -> bool:
@@ -243,6 +319,22 @@ static func _interact(
 	var required_work: int = simulation.get_resource_work_required(
 		target_id
 	)
+	var scenario_tool_instance_id := ""
+	var required_tool_item_id := simulation.get_resource_required_tool_item_id(
+		target_id
+	)
+	if not required_tool_item_id.is_empty():
+		var scenario_tool_ids: Array[String] = simulation._create_item_instances(
+			required_tool_item_id,
+			1,
+			"inventory"
+		)
+		if scenario_tool_ids.is_empty():
+			return false
+		scenario_tool_instance_id = scenario_tool_ids[0]
+		if not bool(simulation.assign_hotbar_slot(4, scenario_tool_instance_id).get("success", false)):
+			return false
+		simulation.select_hotbar_slot(4)
 	if required_work > 0:
 		for _minute: int in range(required_work):
 			result = simulation.execute_resource_work(
@@ -251,6 +343,9 @@ static func _interact(
 			)
 			if not bool(result.get("success", false)):
 				break
+	if not scenario_tool_instance_id.is_empty():
+		simulation._clear_hotbar_instance(scenario_tool_instance_id)
+		simulation._remove_item_instance(scenario_tool_instance_id)
 		if bool(result.get("success", false)):
 			var created_drop_ids: Array = (
 				result.get("created_drop_ids", []) as Array
@@ -278,7 +373,7 @@ static func _interact(
 
 
 static func _advance_to(
-	simulation: FirstNightSimulation,
+	simulation: Simulation,
 	target_minute: int,
 	steps: Array[Dictionary]
 ) -> bool:
@@ -294,7 +389,7 @@ static func _advance_to(
 
 static func _failed_build(
 	scenario_id: StringName,
-	simulation: FirstNightSimulation,
+	simulation: Simulation,
 	steps: Array[Dictionary]
 ) -> Dictionary:
 	return {

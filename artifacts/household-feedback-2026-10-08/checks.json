@@ -1,0 +1,173 @@
+[
+  {
+    "name": "household-rules",
+    "exit": 0,
+    "errors": [],
+    "passes": [
+      "PASS: household location, availability, actual food, occupied furniture, evening lighting and read-only feedback"
+    ]
+  },
+  {
+    "name": "household-ui",
+    "exit": 0,
+    "errors": [],
+    "passes": [
+      "PASS: NPC household tabs, real housing clicks, live remedies, read-only UI, compact layout and save reload"
+    ]
+  },
+  {
+    "name": "furniture-rules",
+    "exit": 0,
+    "errors": [],
+    "passes": [
+      "PASS: furniture meals, real food transport, chair recovery, light, ownership, fallback and persistence"
+    ]
+  },
+  {
+    "name": "furniture-ui",
+    "exit": 0,
+    "errors": [],
+    "passes": [
+      "PASS: furniture UI clicks, real meal, chair movement, pause, bounds, disk persistence and rendered lighting"
+    ]
+  },
+  {
+    "name": "housing-ui",
+    "exit": 0,
+    "errors": [],
+    "passes": [
+      "PASS: housing UI clicks, shared ownership, physical interaction, save/load, pause and viewport bounds"
+    ]
+  },
+  {
+    "name": "housing-rules",
+    "exit": 0,
+    "errors": [],
+    "passes": [
+      "PASS: personal sleep places, shared housing, starter bedroll, NPC sleep, physical quality and persistence"
+    ]
+  },
+  {
+    "name": "npc-work",
+    "exit": 0,
+    "errors": [],
+    "passes": [
+      "PASS: NPC practical watering, physical resource work, hauling, blueprint construction, needs and persistence"
+    ]
+  },
+  {
+    "name": "npc-work-ui",
+    "exit": 0,
+    "errors": [],
+    "passes": [
+      "PASS: NPC work permission clicks, persistence, acquaintance and compact layout"
+    ]
+  },
+  {
+    "name": "needs-rules",
+    "exit": 0,
+    "errors": [],
+    "passes": [
+      "PASS: physical needs, food, rest, sleep, NPC psychology and migration"
+    ]
+  },
+  {
+    "name": "core",
+    "exit": 0,
+    "errors": [],
+    "passes": [
+      "PASS: ordinary pantry -> actual wood/planks/study table -> wild berry seeds -> watered crop -> own seeds -> replanted second harvest",
+      "PASS: 50-structure open-map room search (10.89 ms)",
+      "PASS: room enclosure, size limits, requirements, designation, and persistence",
+      "PASS: prototype simulation and mechanics lab tests"
+    ]
+  },
+  {
+    "name": "persistent-world",
+    "exit": 0,
+    "errors": [],
+    "passes": [
+      "PASS: persistent world midnight, multiple days, sleep, optional introduction, deadlines, reload and compatibility"
+    ]
+  },
+  {
+    "name": "farming-rules",
+    "exit": 0,
+    "errors": [],
+    "passes": [
+      "PASS: farming seed transactions, 72-hour bushes, physical tools/water, three harvest modes, dry growth, sleep, and save migration"
+    ]
+  },
+  {
+    "name": "needs-ui",
+    "exit": 0,
+    "errors": [],
+    "passes": [
+      "PASS: physical HUD input, player/NPC details, rest, pause, reload and bounds"
+    ]
+  },
+  {
+    "name": "roof-energy",
+    "exit": 0,
+    "errors": [],
+    "passes": [
+      "PASS: ordinary MainScene energy HUD, unprepared sleep, plank roof preview, comfortable sleep, and isolated save/load"
+    ]
+  },
+  {
+    "name": "inventory-context",
+    "exit": 0,
+    "errors": [],
+    "passes": [
+      "PASS: inventory context mouse actions, food, seeds, study gate, drop, cancellation, stale targets, modal pause and viewport edges"
+    ]
+  },
+  {
+    "name": "inventory-cursor",
+    "exit": 0,
+    "errors": [],
+    "passes": [
+      "PASS: one-click cursor, smooth movement outside panel, placement/cancellation, all five compact menus fit small/default/wide screens"
+    ]
+  },
+  {
+    "name": "pickup-refresh",
+    "exit": 0,
+    "errors": [],
+    "passes": [
+      "PASS: pickup skips unchanged resource views; real felling updates the stump and collider"
+    ]
+  },
+  {
+    "name": "farming-ui",
+    "exit": 0,
+    "errors": [],
+    "passes": [
+      "PASS: real MainScene farming UI, inventory extraction/table gate, world hoe/bucket, crop drops, raw food, modal pause, 640/wide layout, and isolated save/load"
+    ]
+  },
+  {
+    "name": "storage",
+    "exit": 0,
+    "errors": [],
+    "passes": [
+      "PASS: storage selection, pause, and item transfers integrate with the HUD"
+    ]
+  },
+  {
+    "name": "persistent-world-ui",
+    "exit": 0,
+    "errors": [],
+    "passes": [
+      "PASS: persistent world through Session, main scene, HUD, storage and disk reload"
+    ]
+  },
+  {
+    "name": "hud-layout",
+    "exit": 0,
+    "errors": [],
+    "passes": [
+      "PASS: responsive HUD layout ((714.0, 360.0) viewport)"
+    ]
+  }
+]

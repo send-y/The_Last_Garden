@@ -27,6 +27,32 @@ static func pack_with_layout(
 	var overflow: Dictionary = {}
 	var stack_indices: Dictionary = {}
 	var requested_layout_valid := true
+	var reserved_fits: Dictionary = {}
+	# Reserve every surviving manual placement before fitting any new stack.
+	for preference_variant: Variant in preferred_layout:
+		if typeof(preference_variant) != TYPE_DICTIONARY:
+			continue
+		var preference := preference_variant as Dictionary
+		var item_id := String(preference.get("item_id", ""))
+		if not content_data.has_item(item_id):
+			continue
+		var stack_index := int(preference.get("stack_index", -1))
+		var stack_count := ceili(float(maxi(0, int(inventory.get(item_id, 0)))) / content_data.item_max_stack(item_id))
+		if stack_index < 0 or stack_index >= stack_count:
+			continue
+		var key := "%s:%d" % [item_id, stack_index]
+		var raw_origin: Variant = preference.get("origin", [])
+		if reserved_fits.has(key) or typeof(raw_origin) != TYPE_ARRAY or (raw_origin as Array).size() != 2:
+			requested_layout_valid = false
+			continue
+		var origin := Vector2i(int(raw_origin[0]), int(raw_origin[1]))
+		var rotation := posmod(int(preference.get("rotation", 0)), 4)
+		var footprint := content_data.item_footprint(item_id, rotation)
+		if not PlacementRules.can_place(footprint, origin, occupied_cells, columns, rows):
+			requested_layout_valid = false
+			continue
+		reserved_fits[key] = {"origin": origin, "rotation": rotation}
+		PlacementRules.occupy(footprint, origin, occupied_cells, key)
 
 	for item_id: String in content_data.item_ids():
 		var remaining: int = maxi(
@@ -44,32 +70,7 @@ static func pack_with_layout(
 			var base_footprint: Array[Vector2i] = (
 				content_data.item_footprint(item_id)
 			)
-			var fit: Dictionary = {}
-			for preference_variant: Variant in preferred_layout:
-				if typeof(preference_variant) != TYPE_DICTIONARY:
-					continue
-				var preference: Dictionary = preference_variant as Dictionary
-				if (
-					String(preference.get("item_id", "")) != item_id
-					or int(preference.get("stack_index", -1)) != stack_index
-				):
-					continue
-				var raw_origin: Variant = preference.get("origin", [])
-				if typeof(raw_origin) == TYPE_ARRAY and (raw_origin as Array).size() == 2:
-					var preferred_origin := Vector2i(
-						int((raw_origin as Array)[0]),
-						int((raw_origin as Array)[1])
-					)
-					var preferred_rotation := posmod(int(preference.get("rotation", 0)), 4)
-					var preferred_footprint := content_data.item_footprint(item_id, preferred_rotation)
-					if PlacementRules.can_place(
-						preferred_footprint, preferred_origin,
-						occupied_cells, columns, rows
-					):
-						fit = {"origin": preferred_origin, "rotation": preferred_rotation}
-						break
-				requested_layout_valid = false
-				break
+			var fit: Dictionary = reserved_fits.get("%s:%d" % [item_id, stack_index], {})
 			if fit.is_empty():
 				fit = PlacementRules.find_first_fit(
 					base_footprint,

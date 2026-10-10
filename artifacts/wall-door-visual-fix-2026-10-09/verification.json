@@ -1,0 +1,22 @@
+[
+  {
+    "name": "wall-pixels",
+    "exit": 0,
+    "passed": true
+  },
+  {
+    "name": "door-and-input",
+    "exit": 0,
+    "passed": true
+  },
+  {
+    "name": "minute-refresh",
+    "exit": 0,
+    "passed": true
+  },
+  {
+    "name": "rules",
+    "exit": 0,
+    "passed": true
+  }
+]

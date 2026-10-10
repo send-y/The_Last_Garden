@@ -1,0 +1,6 @@
+WARNING: Save version 25 migrated into prototype version 26.
+   at: push_warning (core/variant/variant_utility.cpp:1033)
+   GDScript backtrace (most recent call first):
+       [0] _normalize_state (res://src/simulation/first_night_simulation.gd:3969)
+       [1] _init (res://src/simulation/first_night_simulation.gd:137)
+       [2] _run (res://tests/held_item_integration_test.gd:61)

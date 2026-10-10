@@ -8,8 +8,11 @@ signal storage_area_selected(from_cell: Vector2i, to_cell: Vector2i)
 signal storage_zone_cancel_requested(cell: Vector2i)
 
 const CELL_SIZE: int = 32
+const BuildingCatalogScript := preload("res://src/construction/building_catalog.gd")
 
 var _cell: Vector2i = Vector2i(-1, -1)
+var _building_id: String = "core:wood_wall"
+var _building_catalog := BuildingCatalogScript.new()
 var _build_mode_active: bool = false
 var _storage_mode_active: bool = false
 var _storage_drag_active: bool = false
@@ -37,12 +40,20 @@ func set_storage_mode_active(active: bool) -> void:
 	queue_redraw()
 
 
+func set_building_id(building_id: String) -> void:
+	_building_id = building_id
+	queue_redraw()
+
+
 func _process(_delta: float) -> void:
 	_update_cell_from_mouse()
 
 
 func _update_cell_from_mouse() -> void:
-	var mouse_position: Vector2 = get_global_mouse_position()
+	_update_cell_from_position(get_global_mouse_position())
+
+
+func _update_cell_from_position(mouse_position: Vector2) -> void:
 	var next_cell := Vector2i(
 		floori(mouse_position.x / CELL_SIZE),
 		floori(mouse_position.y / CELL_SIZE)
@@ -62,7 +73,10 @@ func _update_cell_from_mouse() -> void:
 func _unhandled_input(event: InputEvent) -> void:
 	if not _build_mode_active:
 		return
-	_update_cell_from_mouse()
+	if event is InputEventMouse:
+		_update_cell_from_position(get_canvas_transform().affine_inverse()*(event as InputEventMouse).position)
+	else:
+		_update_cell_from_mouse()
 	var hud := get_node_or_null("../Hud/HudRoot")
 	if hud != null and bool(hud.call("is_modal_open")):
 		if event is InputEventMouseButton:
@@ -75,6 +89,13 @@ func _unhandled_input(event: InputEvent) -> void:
 		return
 
 	var mouse_event := event as InputEventMouseButton
+	if mouse_event.button_index == MOUSE_BUTTON_RIGHT and mouse_event.pressed and mouse_event.shift_pressed:
+		var world := get_node_or_null("../World")
+		if world != null:
+			world.call("select_at_world_position",get_canvas_transform().affine_inverse()*mouse_event.position)
+			world.call("remove_selection")
+		get_viewport().set_input_as_handled()
+		return
 	if _storage_mode_active:
 		if mouse_event.button_index == MOUSE_BUTTON_LEFT:
 			if mouse_event.pressed:
@@ -126,9 +147,13 @@ func _draw() -> void:
 		)
 		draw_rect(selection_rect, Color(0.36, 0.72, 0.62, 0.25), true)
 		draw_rect(selection_rect, Color(0.55, 0.9, 0.75, 0.95), false, 2.0)
-	var rect := Rect2(
-		Vector2.ZERO,
-		Vector2(CELL_SIZE, CELL_SIZE)
-	)
+	var footprint := Vector2i.ONE
+	if not _storage_mode_active:
+		footprint = _building_catalog.get_footprint_size(_building_id)
+	var rect := Rect2(Vector2.ZERO, Vector2(footprint * CELL_SIZE))
 	draw_rect(rect, Color(0.95, 0.78, 0.25, 0.22), true)
 	draw_rect(rect, Color(0.95, 0.78, 0.25, 0.95), false, 2.0)
+	for x: int in range(1, footprint.x):
+		draw_line(Vector2(x * CELL_SIZE, 0.0), Vector2(x * CELL_SIZE, rect.size.y), Color(0.95, 0.78, 0.25, 0.8), 1.0)
+	for y: int in range(1, footprint.y):
+		draw_line(Vector2(0.0, y * CELL_SIZE), Vector2(rect.size.x, y * CELL_SIZE), Color(0.95, 0.78, 0.25, 0.8), 1.0)

@@ -1,0 +1,52 @@
+[
+  {
+    "name": "home-ui",
+    "exit": 0,
+    "passed": true
+  },
+  {
+    "name": "crafting-ui",
+    "exit": 0,
+    "passed": true
+  },
+  {
+    "name": "minute-refresh",
+    "exit": 0,
+    "passed": true
+  },
+  {
+    "name": "editing",
+    "exit": 0,
+    "passed": true
+  },
+  {
+    "name": "production-ui",
+    "exit": 0,
+    "passed": true
+  },
+  {
+    "name": "production-graphical",
+    "exit": 0,
+    "passed": true
+  },
+  {
+    "name": "production",
+    "exit": 0,
+    "passed": true
+  },
+  {
+    "name": "resident-projects",
+    "exit": 0,
+    "passed": true
+  },
+  {
+    "name": "home-projects",
+    "exit": 0,
+    "passed": true
+  },
+  {
+    "name": "full",
+    "exit": 0,
+    "passed": true
+  }
+]

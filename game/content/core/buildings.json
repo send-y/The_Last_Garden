@@ -1,21 +1,130 @@
 {
   "schema_version": 1,
-  "buildings": [
+	"buildings": [
+	{
+	  "id": "core:bedroll",
+	  "label_key": "building.core.bedroll.name",
+	  "category_id": "core:furniture",
+	  "footprint": {"width": 2, "height": 1},
+	  "material_cost": {"core:plank": 5},
+	  "work_minutes": 3,
+	  "blocks_movement": false,
+	  "room_role": "bed"
+	},
+	{
+	  "id": "core:study_table",
+	  "label_key": "building.core.study_table.name",
+	  "category_id": "core:station",
+	  "footprint": {"width": 2, "height": 1},
+	  "material_cost": {"core:plank": 10},
+	  "work_minutes": 12,
+	  "blocks_movement": true,
+	  "station_type": "core:study_table"
+	},
 	{
 	  "id": "core:wood_wall",
 	  "label_key": "building.core.wood_wall.name",
-	  "material_cost": {
-		"core:wood": 1
-	  },
-	  "work_minutes": 12,
+	  "category_id": "core:wall",
+	  "footprint": {"width": 1, "height": 1},
+	  "texture_path": "res://assets/sprites/structures/wood_wall.png",
+	  "material_cost": {"core:plank": 30},
+	  "work_minutes": 25,
+	  "blocks_movement": true,
+	  "room_boundary": true
+	},
+	{
+	  "id": "core:brick_wall",
+	  "label_key": "building.core.brick_wall.name",
+	  "category_id": "core:wall",
+	  "footprint": {"width": 1, "height": 1},
+	  "texture_path": "res://assets/sprites/structures/brick_wall.png",
+	  "material_cost": {"core:brick": 30},
+	  "work_minutes": 25,
+	  "blocks_movement": true,
+	  "room_boundary": true
+	},
+	{
+	  "id": "core:wood_floor",
+	  "label_key": "building.core.wood_floor.name",
+	  "category_id": "core:floor",
+	  "layer_id": "floor",
+	  "footprint": {"width": 1, "height": 1},
+	  "texture_path": "res://assets/sprites/tiles/wood_tile.png",
+	  "material_cost": {"core:plank": 10},
+	  "work_minutes": 4,
+	  "blocks_movement": false
+	},
+	{
+	  "id": "core:brick_floor",
+	  "label_key": "building.core.brick_floor.name",
+	  "category_id": "core:floor",
+	  "layer_id": "floor",
+	  "footprint": {"width": 1, "height": 1},
+	  "texture_path": "res://assets/sprites/tiles/brick_floor.png",
+	  "material_cost": {"core:brick": 10},
+	  "work_minutes": 4,
+	  "blocks_movement": false
+	},
+	{
+	  "id": "core:wood_door",
+	  "label_key": "building.core.wood_door.name",
+	  "category_id": "core:furniture",
+	  "footprint": {"width": 1, "height": 1},
+	  "texture_path": "res://assets/sprites/structures/wood_door.png",
+	  "material_cost": {"core:plank": 25},
+	  "work_minutes": 15,
+	  "blocks_movement": false,
+	  "room_boundary": true
+	},
+	{
+	  "id": "core:chair",
+	  "label_key": "building.core.chair.name",
+	  "category_id": "core:furniture",
+	  "footprint": {"width": 1, "height": 1},
+	  "texture_path": "res://assets/sprites/structures/wood_chair.png",
+	  "material_cost": {"core:plank": 15},
+	  "work_minutes": 13,
 	  "blocks_movement": true
+	},
+	{
+	  "id": "core:table",
+	  "label_key": "building.core.table.name",
+	  "category_id": "core:furniture",
+	  "footprint": {"width": 2, "height": 1},
+	  "texture_path": "res://assets/sprites/structures/wood_table.png",
+	  "material_cost": {"core:plank": 30},
+	  "work_minutes": 15,
+	  "blocks_movement": true,
+	  "room_role": "table"
+	},
+	{
+	  "id": "core:bed",
+	  "label_key": "building.core.bed.name",
+	  "category_id": "core:furniture",
+	  "footprint": {"width": 2, "height": 1},
+	  "texture_path": "res://assets/sprites/structures/bed.png",
+	  "material_cost": {"core:plank": 50},
+	  "work_minutes": 20,
+	  "blocks_movement": true,
+	  "room_role": "bed"
+	},
+	{
+	  "id": "core:torch",
+	  "label_key": "building.core.torch.name",
+	  "category_id": "core:furniture",
+	  "footprint": {"width": 1, "height": 1},
+	  "texture_path": "res://assets/sprites/structures/torch_off.png",
+	  "material_cost": {"core:plank": 10},
+	  "work_minutes": 5,
+	  "blocks_movement": true,
+	  "room_role": "lighting"
 	},
 	{
 	  "id": "core:workbench",
 	  "label_key": "building.core.workbench.name",
-	  "material_cost": {
-		"core:wood": 2
-	  },
+	  "category_id": "core:station",
+	  "footprint": {"width": 2, "height": 1},
+	  "material_cost": {"core:wood": 2},
 	  "work_minutes": 18,
 	  "blocks_movement": true,
 	  "station_type": "core:workbench"

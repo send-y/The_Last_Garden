@@ -1,0 +1,28 @@
+Godot Engine v4.7.stable.mono.official.5b4e0cb0f - https://godotengine.org
+
+NPC_NAVIGATION: 5 failures
+ERROR: Resident must pass through another resident in a one-cell corridor
+   at: push_error (core/variant/variant_utility.cpp:1023)
+   GDScript backtrace (most recent call first):
+       [0] check (res://tests/npc_nonblocking_navigation_test.gd:12)
+       [1] _initialize (res://tests/npc_nonblocking_navigation_test.gd:25)
+ERROR: Player in corridor must not block resident passage
+   at: push_error (core/variant/variant_utility.cpp:1023)
+   GDScript backtrace (most recent call first):
+       [0] check (res://tests/npc_nonblocking_navigation_test.gd:12)
+       [1] _initialize (res://tests/npc_nonblocking_navigation_test.gd:28)
+ERROR: Player occupying the destination must not block arrival
+   at: push_error (core/variant/variant_utility.cpp:1023)
+   GDScript backtrace (most recent call first):
+       [0] check (res://tests/npc_nonblocking_navigation_test.gd:12)
+       [1] _initialize (res://tests/npc_nonblocking_navigation_test.gd:30)
+ERROR: Player must not make temporary rest unreachable
+   at: push_error (core/variant/variant_utility.cpp:1023)
+   GDScript backtrace (most recent call first):
+       [0] check (res://tests/npc_nonblocking_navigation_test.gd:12)
+       [1] _initialize (res://tests/npc_nonblocking_navigation_test.gd:32)
+ERROR: Player must not prevent selection of a reachable work position
+   at: push_error (core/variant/variant_utility.cpp:1023)
+   GDScript backtrace (most recent call first):
+       [0] check (res://tests/npc_nonblocking_navigation_test.gd:12)
+       [1] _initialize (res://tests/npc_nonblocking_navigation_test.gd:33)

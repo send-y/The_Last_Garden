@@ -8,6 +8,15 @@ var _appearance: Dictionary = {}
 var _facing: Vector2 = Vector2.DOWN
 var _walk_frame: int = 0
 var _is_moving: bool = false
+var _held_item_id: String = ""
+var _held_texture: Texture2D
+var _equipment_controls_hand: bool = false
+var _sitting := false
+
+func set_sitting(sitting: bool) -> void:
+	if sitting != _sitting:
+		_sitting = sitting
+		queue_redraw()
 
 
 func _ready() -> void:
@@ -36,15 +45,47 @@ func set_pose(facing: Vector2, walk_frame: int, is_moving: bool) -> void:
 		queue_redraw()
 
 
+func set_held_item(item_id: String, texture: Texture2D) -> void:
+	_equipment_controls_hand = true
+	if item_id == _held_item_id and texture == _held_texture:
+		return
+	_held_item_id = item_id
+	_held_texture = texture
+	queue_redraw()
+
+
+func _draw_equipped_item() -> void:
+	if _held_texture == null:
+		return
+	var side := -1.0 if _direction_name() == "left" else 1.0
+	var tool := _held_item_id in ["core:axe", "core:pickaxe", "core:hoe"]
+	var extent := _held_texture.get_size()
+	var icon_size := extent * ((27.0 if tool else 15.0) / maxf(extent.x, extent.y))
+	# Tools are gripped along the shaft; products sit beside the palm.
+	var center := Vector2(11.0 * side, -3.0 if tool else 1.0)
+	var icon_rect := Rect2(center - icon_size * 0.5, icon_size)
+	if side < 0.0:
+		icon_rect.size.x = -icon_size.x
+	draw_texture_rect(_held_texture, icon_rect, false)
+	if _direction_name() != "up":
+		draw_rect(Rect2(Vector2(8.0 * side - 1.0, -1.0), Vector2(3, 3)), Color("d3a17b"))
+
+
 func _draw() -> void:
 	if _appearance.is_empty():
 		return
 
 	_draw_shadow()
 	var bob: float = -1.0 if _is_moving and _walk_frame % 2 == 1 else 0.0
-	draw_set_transform(Vector2(0.0, bob))
+	draw_set_transform(Vector2(0.0,4.0 if _sitting else bob),0.0,Vector2(1,0.75) if _sitting else Vector2.ONE)
+	if _equipment_controls_hand and _direction_name() == "up":
+		_draw_equipped_item()
 	for part: Dictionary in _catalog.get_layered_parts(_appearance):
+		if _equipment_controls_hand and String(part.get("slot", "")) == "held_item":
+			continue
 		_draw_part(part)
+	if _equipment_controls_hand and _direction_name() != "up":
+		_draw_equipped_item()
 	draw_set_transform(Vector2.ZERO)
 
 

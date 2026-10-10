@@ -1,0 +1,86 @@
+[
+  {
+    "name": "housing",
+    "exit_code": 0,
+    "errors": false,
+    "passed": true,
+    "seconds": 13.74
+  },
+  {
+    "name": "farming",
+    "exit_code": 0,
+    "errors": false,
+    "passed": true,
+    "seconds": 16.08
+  },
+  {
+    "name": "geometry-cache",
+    "exit_code": 0,
+    "errors": false,
+    "passed": true,
+    "seconds": 7.35
+  },
+  {
+    "name": "furniture",
+    "exit_code": 0,
+    "errors": false,
+    "passed": true,
+    "seconds": 12.0
+  },
+  {
+    "name": "home-projects",
+    "exit_code": 0,
+    "errors": false,
+    "passed": true,
+    "seconds": 21.57
+  },
+  {
+    "name": "persistent-world",
+    "exit_code": 0,
+    "errors": false,
+    "passed": true,
+    "seconds": 55.16
+  },
+  {
+    "name": "rules",
+    "exit_code": 0,
+    "errors": false,
+    "passed": true,
+    "seconds": 8.84
+  },
+  {
+    "name": "editing-graphical",
+    "exit_code": 0,
+    "errors": false,
+    "passed": true,
+    "seconds": 9.75
+  },
+  {
+    "name": "storage-ui",
+    "exit_code": 0,
+    "errors": false,
+    "passed": true,
+    "seconds": 17.13
+  },
+  {
+    "name": "editing-ui",
+    "exit_code": 0,
+    "errors": false,
+    "passed": true,
+    "seconds": 17.46
+  },
+  {
+    "name": "structure-refresh",
+    "exit_code": 0,
+    "errors": false,
+    "passed": true,
+    "seconds": 13.78
+  },
+  {
+    "name": "full",
+    "exit_code": 0,
+    "errors": false,
+    "passed": true,
+    "seconds": 126.34
+  }
+]

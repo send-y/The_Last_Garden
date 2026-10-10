@@ -1,0 +1,4 @@
+Godot Engine v4.7.stable.official.5b4e0cb0f - https://godotengine.org
+OpenGL API 3.3.0 NVIDIA 617.14 - Compatibility - Using Device: NVIDIA - NVIDIA GeForce RTX 4060
+
+PASS: real MainScene farming UI, inventory extraction/table gate, world hoe/bucket, crop drops, raw food, modal pause, 640/wide layout, and isolated save/load

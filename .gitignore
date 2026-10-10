@@ -3,6 +3,16 @@
 
 # Project-local copies of Codex/agent skills
 .agents/
+.superpowers/
+skills-lock.json
+
+# Unrelated local Deadlock configuration stored beside source art
+/sprites/ase/gameinfo1.gi
+
+# Historical temporary source snapshot (the real source is versioned under game/)
+/artifacts/world-refactor-2026-10-08/first_night_simulation.before.gd
+/artifacts/checkpoint-2026-10-10/import-original.log
+/artifacts/checkpoint-2026-10-10/clean-checkout/
 
 # Operating-system metadata
 .DS_Store

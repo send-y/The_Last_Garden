@@ -2,6 +2,7 @@ class_name PlayerController
 extends CharacterBody2D
 
 const CharacterVisualScene := preload("res://src/characters/character_visual.gd")
+const PlaceholderIcon := preload("res://src/items/item_placeholder_icon.gd")
 const FirstNightContentScript := preload(
 	"res://src/content/first_night_content.gd"
 )
@@ -17,6 +18,8 @@ var _facing: Vector2 = Vector2.DOWN
 var _walk_time: float = 0.0
 var _walk_frame: int = 0
 var _visual
+var _content := FirstNightContentScript.new()
+var _held_icon_cache: Dictionary = {}
 
 
 func _ready() -> void:
@@ -27,12 +30,44 @@ func _ready() -> void:
 	_visual = CharacterVisualScene.new()
 	add_child(_visual)
 	_visual.set_pose(_facing, _walk_frame, false)
+	Session.state_changed.connect(_refresh_held_item)
+	Session.state_reloaded.connect(_refresh_held_item)
+	_refresh_held_item()
+
+
+func _refresh_held_item() -> void:
+	var item := Session.get_held_item()
+	var item_id := String(item.get("item_id", ""))
+	var texture: Texture2D = null
+	if not item_id.is_empty():
+		var path := _content.item_icon_path(item_id, item.get("state", {}) as Dictionary)
+		if not path.is_empty() and ResourceLoader.exists(path):
+			if not _held_icon_cache.has(path):
+				_held_icon_cache[path] = load(path)
+			texture = _held_icon_cache[path] as Texture2D
+		else:
+			texture = PlaceholderIcon.texture_for(item_id)
+	_visual.set_held_item(item_id, texture)
+	var was_seated: bool = _visual._sitting
+	var seated: bool = not Session.simulation.furniture.comfort(Session.simulation,"core:player").is_empty()
+	_visual.set_sitting(seated)
+	if seated or was_seated:
+		position = Session.get_player_position()
 
 
 func _physics_process(delta: float) -> void:
 	var input_vector := Vector2.ZERO
 	if not Session.is_paused():
 		input_vector = Input.get_vector(&"move_left", &"move_right", &"move_up", &"move_down")
+	if not Session.simulation.state.get("player_furniture_use",{}).is_empty():
+		if input_vector == Vector2.ZERO:
+			velocity = Vector2.ZERO
+			return
+		if not Session.simulation.leave_player_seat():
+			velocity = Vector2.ZERO
+			return
+		apply_loaded_position()
+		_visual.set_sitting(false)
 
 	velocity = input_vector * MOVE_SPEED
 	if input_vector != Vector2.ZERO:

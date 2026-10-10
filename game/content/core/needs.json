@@ -1,0 +1,14 @@
+{
+  "awake_satiety_cost": 0.06,
+  "sleep_satiety_cost": 0.025,
+  "awake_restedness_cost": 0.06,
+  "sleep_restedness_gain": 0.35,
+  "sleep_energy_gain": 0.25,
+  "rest_energy_gain": 0.4,
+  "poor_sleep_cap": 60,
+  "work_energy_cost": 1,
+  "mood_change_per_minute": 0.1,
+  "wellbeing_response_minutes": 10080,
+  "bed_sleep_speed": 1.35,
+  "chair_rest_speed": 1.2
+}

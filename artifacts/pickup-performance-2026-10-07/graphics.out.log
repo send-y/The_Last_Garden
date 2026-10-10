@@ -1,0 +1,12 @@
+Godot Engine v4.7.stable.official.5b4e0cb0f - https://godotengine.org
+OpenGL API 3.3.0 NVIDIA 617.14 - Compatibility - Using Device: NVIDIA - NVIDIA GeForce RTX 4060
+
+PICKUP synchronous usec: [5709, 2012, 2200, 1721, 2543, 2071, 2446, 2159, 2268, 2062, 2525, 2750]; batch usec: 30483
+CALLBACK BlueprintLayer.queue_redraw usec: [5, 3, 3, 2, 3, 2, 4, 4, 3, 3, 3, 5]
+CALLBACK StructureLayer._refresh usec: [4, 2, 1, 2, 2, 2, 3, 3, 3, 2, 2, 2]
+CALLBACK World._on_state_changed usec: [1559, 756, 742, 624, 1039, 650, 662, 681, 660, 665, 692, 774]
+CALLBACK HudRoot.refresh usec: [495, 423, 387, 358, 391, 545, 454, 548, 443, 483, 810, 589]
+WORLD refresh interactables usec: 944
+WORLD sync drops usec: 24
+DEFERRED next process usec: 11931
+PROFILE complete; 12 wood, 205 trees, 93 boulders

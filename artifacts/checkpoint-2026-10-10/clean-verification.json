@@ -1,0 +1,42 @@
+[
+  {
+    "name": "bootstrap-import",
+    "exit": 0,
+    "passed": true,
+    "errors": [],
+    "expected_bootstrap_diagnostics": [
+      "ERROR: Cannot open file 'res://localization/core.ru.translation'.\r",
+      "ERROR: Failed loading resource: res://localization/core.ru.translation.\r",
+      "ERROR: Cannot open file 'res://localization/core.ru.translation'.\r",
+      "ERROR: Failed loading resource: res://localization/core.ru.translation.\r"
+    ]
+  },
+  {
+    "name": "import",
+    "exit": 0,
+    "passed": true,
+    "errors": [],
+    "expected_bootstrap_diagnostics": []
+  },
+  {
+    "name": "full",
+    "exit": 0,
+    "passed": true,
+    "errors": [],
+    "expected_bootstrap_diagnostics": []
+  },
+  {
+    "name": "npc-home-production-ui",
+    "exit": 0,
+    "passed": true,
+    "errors": [],
+    "expected_bootstrap_diagnostics": []
+  },
+  {
+    "name": "main-startup",
+    "exit": 0,
+    "passed": true,
+    "errors": [],
+    "expected_bootstrap_diagnostics": []
+  }
+]

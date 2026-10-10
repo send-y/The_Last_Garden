@@ -2,19 +2,21 @@ class_name InventoryGrid
 extends Control
 
 signal selection_changed(placement: Dictionary)
+signal equip_requested(placement: Dictionary)
+signal context_requested(placement: Dictionary, pointer: Vector2)
 signal layout_changed(layout: Array[Dictionary])
+signal drop_requested(placement: Dictionary)
+signal cross_grid_drop_requested(placement: Dictionary, target_cell: Vector2i)
+signal quick_transfer_requested(placement: Dictionary)
+signal hotbar_drop_requested(placement: Dictionary, slot_index: int)
 
-const GRID_COLUMNS: int = 4
-const GRID_ROWS: int = 4
 const CELL_SIZE: float = 42.0
-const CELL_GAP: float = 2.0
+const CELL_GAP: float = 0.0
 const FirstNightContent := preload("res://src/content/first_night_content.gd")
 const PlacementRules := preload("res://src/inventory/inventory_placement_rules.gd")
-
-const GRID_PIXEL_SIZE := Vector2(
-	GRID_COLUMNS * CELL_SIZE + (GRID_COLUMNS - 1) * CELL_GAP,
-	GRID_ROWS * CELL_SIZE + (GRID_ROWS - 1) * CELL_GAP
-)
+const PlaceholderIcon := preload("res://src/items/item_placeholder_icon.gd")
+const IconPresentation := preload("res://src/items/inventory_icon_presentation.gd")
+const CursorVisual := preload("res://src/ui/inventory_cursor_visual.gd")
 
 const AMOUNT_BADGE_COLOR := Color8(35, 27, 31, 235)
 const AMOUNT_TEXT_COLOR := Color8(239, 226, 207)
@@ -57,20 +59,56 @@ var _drag_rotation: int = 0
 var _drag_mouse_position := Vector2.ZERO
 var _drag_start_origin := Vector2i.ZERO
 var _drag_start_rotation: int = 0
+var _drag_grab_fraction := Vector2.ZERO
+var _cursor_pointer_global := Vector2.ZERO
+var _cursor_visual: Control
+var _content := FirstNightContent.new()
+var grid_columns: int = 4
+var grid_rows: int = 4
+var external_drop_boundary: Control
+var external_transfer_target: Control
+var external_hotbar_target: Control
 
 
 func _ready() -> void:
-	custom_minimum_size = GRID_PIXEL_SIZE
+	_update_grid_minimum_size()
 	mouse_filter = Control.MOUSE_FILTER_STOP
 	focus_mode = Control.FOCUS_ALL
 	mouse_exited.connect(_on_mouse_exited)
+	var cursor_layer := CanvasLayer.new()
+	cursor_layer.layer = 40
+	add_child(cursor_layer)
+	_cursor_visual = CursorVisual.new()
+	cursor_layer.add_child(_cursor_visual)
+	visibility_changed.connect(func() -> void:
+		if not is_visible_in_tree():
+			_cancel_hand()
+	)
 	queue_redraw()
+
+
+func configure_grid(columns: int, rows: int) -> void:
+	grid_columns = maxi(1, columns)
+	grid_rows = maxi(1, rows)
+	_update_grid_minimum_size()
+	queue_redraw()
+
+
+func _update_grid_minimum_size() -> void:
+	custom_minimum_size = Vector2(
+		grid_columns * CELL_SIZE + (grid_columns - 1) * CELL_GAP,
+		grid_rows * CELL_SIZE + (grid_rows - 1) * CELL_GAP
+	)
+	set_process_input(true)
 
 
 func present(placements: Array[Dictionary]) -> void:
 	_placements.clear()
 	_cell_to_placement.clear()
 	_selected_placement_index = -1
+	_dragged_placement_index = -1
+	if is_instance_valid(_cursor_visual):
+		_cursor_visual.hide()
 
 	for placement: Dictionary in placements:
 		var placement_copy := placement.duplicate(true)
@@ -98,8 +136,8 @@ func get_selected_placement() -> Dictionary:
 
 
 func _draw() -> void:
-	for row: int in range(GRID_ROWS):
-		for column: int in range(GRID_COLUMNS):
+	for row: int in range(grid_rows):
+		for column: int in range(grid_columns):
 			var cell := Vector2i(column, row)
 			var placement_index := int(
 				_cell_to_placement.get(cell, -1)
@@ -137,7 +175,8 @@ func _gui_input(event: InputEvent) -> void:
 			and _dragged_placement_index >= 0
 		):
 			_drag_rotation = posmod(_drag_rotation + 1, 4)
-			_drag_mouse_position = get_local_mouse_position()
+			_drag_grab_fraction = Vector2(1.0 - _drag_grab_fraction.y, _drag_grab_fraction.x)
+			_update_cursor_visual()
 			queue_redraw()
 			accept_event()
 		return
@@ -156,34 +195,106 @@ func _gui_input(event: InputEvent) -> void:
 		return
 
 	var mouse_button := event as InputEventMouseButton
-	if mouse_button.button_index != MOUSE_BUTTON_LEFT:
-		return
 	if not mouse_button.pressed:
+		return
+	if mouse_button.button_index == MOUSE_BUTTON_RIGHT:
 		if _dragged_placement_index >= 0:
-			_finish_drag(_cell_at_position(mouse_button.position))
-			accept_event()
+			_cancel_hand()
+		else:
+			_select_placement(int(_cell_to_placement.get(_cell_at_position(mouse_button.position), -1)))
+			context_requested.emit(get_selected_placement(), get_global_transform() * mouse_button.position)
+		accept_event()
+		return
+	if mouse_button.button_index != MOUSE_BUTTON_LEFT:
 		return
 
 	var cell := _cell_at_position(mouse_button.position)
-	var placement_index := int(_cell_to_placement.get(cell, -1))
-	_select_placement(placement_index)
-	if placement_index >= 0:
-		_dragged_placement_index = placement_index
-		_drag_rotation = int(_placements[placement_index].get("rotation", 0))
-		_drag_start_rotation = _drag_rotation
-		_drag_start_origin = _placements[placement_index].get("origin", Vector2i.ZERO)
-		_drag_mouse_position = mouse_button.position
+	if _dragged_placement_index < 0:
+		var placement_index := int(_cell_to_placement.get(cell, -1))
+		_select_placement(placement_index)
+		if placement_index >= 0:
+			if mouse_button.shift_pressed:
+				quick_transfer_requested.emit(_placements[placement_index].duplicate(true))
+				accept_event()
+				return
+		equip_requested.emit(get_selected_placement())
+		if _selected_placement_index >= 0:
+			_begin_hand(_selected_placement_index, mouse_button.position)
 		grab_focus()
-		queue_redraw()
+		accept_event()
+		return
+
+	if cell.x < 0:
+		return
+	_finish_drag(cell)
 	accept_event()
+
+
+func _input(event: InputEvent) -> void:
+	if not is_visible_in_tree() or _dragged_placement_index < 0:
+		return
+	if event is InputEventMouseMotion:
+		update_hand_position((event as InputEventMouseMotion).global_position)
+		return
+	if event is not InputEventMouseButton:
+		return
+	var mouse_button := event as InputEventMouseButton
+	var pointer := mouse_button.global_position
+	if mouse_button.button_index == MOUSE_BUTTON_RIGHT and mouse_button.pressed:
+		_cancel_hand()
+		get_viewport().set_input_as_handled()
+	elif mouse_button.button_index == MOUSE_BUTTON_LEFT and mouse_button.pressed:
+		update_hand_position(pointer)
+		if external_hotbar_target != null and external_hotbar_target.get_global_rect().has_point(pointer):
+			var hotbar_slot := _hotbar_slot_at_global_position(pointer)
+			if hotbar_slot >= 0:
+				var placement := _placements[_dragged_placement_index].duplicate(true)
+				placement["rotation"] = _drag_rotation
+				placement["footprint"] = _dragged_footprint()
+				if not String(placement.get("instance_id", "")).is_empty():
+					hotbar_drop_requested.emit(placement, hotbar_slot)
+			_cancel_hand()
+			get_viewport().set_input_as_handled()
+			return
+		if external_transfer_target != null and external_transfer_target.get_global_rect().has_point(pointer):
+			var target_pointer := external_transfer_target.get_global_transform_with_canvas().affine_inverse() * pointer
+			var extent := Vector2(_footprint_bounds(_dragged_footprint()).size) * CELL_SIZE
+			var target_origin := target_pointer - _drag_grab_fraction * extent
+			var target_cell := Vector2i(floori(target_origin.x / CELL_SIZE), floori(target_origin.y / CELL_SIZE))
+			if target_cell.x >= 0:
+				var placement := _placements[_dragged_placement_index].duplicate(true)
+				placement["rotation"] = _drag_rotation
+				placement["footprint"] = _dragged_footprint()
+				cross_grid_drop_requested.emit(placement, target_cell)
+				_cancel_hand()
+				get_viewport().set_input_as_handled()
+				return
+		if get_global_rect().has_point(pointer):
+			if _is_drag_target_valid(_cursor_target_cell()):
+				_finish_drag(_cursor_target_cell())
+				_cancel_hand()
+			get_viewport().set_input_as_handled()
+			return
+		if external_drop_boundary != null and external_drop_boundary.get_global_rect().has_point(pointer):
+			return
+		var placement := _placements[_dragged_placement_index].duplicate(true)
+		drop_requested.emit(placement)
+		_cancel_hand()
+		get_viewport().set_input_as_handled()
+
+
+func _hotbar_slot_at_global_position(global_position: Vector2) -> int:
+	if external_hotbar_target == null:
+		return -1
+	for slot_index: int in range(5):
+		var slot := external_hotbar_target.get_node_or_null("Slot%d" % (slot_index + 1)) as Control
+		if slot != null and slot.get_global_rect().has_point(global_position):
+			return slot_index
+	return -1
 
 
 func _finish_drag(target_cell: Vector2i) -> void:
 	var dragged := _placements[_dragged_placement_index]
-	if target_cell == _drag_start_origin and _drag_rotation == _drag_start_rotation:
-		_dragged_placement_index = -1
-		queue_redraw()
-		return
 	var candidate_layout: Array[Dictionary] = []
 	for index: int in range(_placements.size()):
 		if index == _dragged_placement_index:
@@ -197,7 +308,16 @@ func _finish_drag(target_cell: Vector2i) -> void:
 		moved["footprint"] = _dragged_footprint()
 		candidate_layout.append(_layout_entry(moved))
 		layout_changed.emit(candidate_layout)
+	queue_redraw()
+
+
+func _cancel_hand() -> void:
+	if is_instance_valid(_cursor_visual):
+		_cursor_visual.hide()
+	if _dragged_placement_index < 0:
+		return
 	_dragged_placement_index = -1
+	_drag_rotation = 0
 	queue_redraw()
 
 
@@ -217,14 +337,54 @@ func _is_drag_target_valid(target_cell: Vector2i) -> bool:
 			occupied[origin + local_cell] = true
 	return PlacementRules.can_place(
 		_dragged_footprint(), target_cell, occupied,
-		GRID_COLUMNS, GRID_ROWS
+		grid_columns, grid_rows
 	)
 
 
 func _dragged_footprint() -> Array[Vector2i]:
 	var dragged: Dictionary = _placements[_dragged_placement_index]
-	var content := FirstNightContent.new()
-	return content.item_footprint(String(dragged.get("item_id", "")), _drag_rotation)
+	return _content.item_footprint(String(dragged.get("item_id", "")), _drag_rotation)
+
+
+func _begin_hand(placement_index: int, mouse_position: Vector2) -> void:
+	_dragged_placement_index = placement_index
+	var placement := _placements[placement_index]
+	_drag_rotation = int(placement.get("rotation", 0))
+	_drag_start_rotation = _drag_rotation
+	_drag_start_origin = placement.get("origin", Vector2i.ZERO)
+	_drag_mouse_position = mouse_position
+	_cursor_pointer_global = get_global_transform_with_canvas() * mouse_position
+	var extent := Vector2(_footprint_bounds(_dragged_footprint()).size) * CELL_SIZE
+	_drag_grab_fraction = ((mouse_position - Vector2(_drag_start_origin) * CELL_SIZE) / extent).clamp(Vector2.ZERO, Vector2.ONE)
+	_update_cursor_visual()
+	queue_redraw()
+
+
+func _cursor_target_cell() -> Vector2i:
+	var extent := Vector2(_footprint_bounds(_dragged_footprint()).size) * CELL_SIZE
+	var origin := _drag_mouse_position - _drag_grab_fraction * extent
+	return Vector2i(floori(origin.x / CELL_SIZE), floori(origin.y / CELL_SIZE))
+
+
+func _process(_delta: float) -> void:
+	if _dragged_placement_index >= 0:
+		_update_cursor_visual()
+
+
+func _update_cursor_visual() -> void:
+	if not is_instance_valid(_cursor_visual) or _dragged_placement_index < 0:
+		return
+	var screen_scale := get_global_transform_with_canvas().get_scale().abs()
+	_drag_mouse_position = get_global_transform_with_canvas().affine_inverse() * _cursor_pointer_global
+	var extent := Vector2(_footprint_bounds(_dragged_footprint()).size) * CELL_SIZE * screen_scale
+	_cursor_visual.size = extent
+	_cursor_visual.position = get_global_transform_with_canvas() * _drag_mouse_position - _drag_grab_fraction * extent
+	_cursor_visual.set("texture", _placement_icon(_placements[_dragged_placement_index]))
+	_cursor_visual.set("rotation_steps", _drag_rotation)
+	_cursor_visual.set("inset", 5.0 * screen_scale.x)
+	_cursor_visual.set("amount", int(_placements[_dragged_placement_index].get("amount", 1)))
+	_cursor_visual.show()
+	_cursor_visual.queue_redraw()
 
 
 func _layout_entry(placement: Dictionary) -> Dictionary:
@@ -238,9 +398,7 @@ func _layout_entry(placement: Dictionary) -> Dictionary:
 
 
 func _draw_dragged_placement() -> void:
-	var cell := _cell_at_position(_drag_mouse_position)
-	if cell.x < 0:
-		return
+	var cell := _cursor_target_cell()
 	var preview_color := (
 		Color(0.85, 0.95, 0.65, 0.34)
 		if _is_drag_target_valid(cell)
@@ -248,20 +406,38 @@ func _draw_dragged_placement() -> void:
 	)
 	for local_cell: Vector2i in _dragged_footprint():
 		var target_cell := cell + local_cell
-		if target_cell.x >= GRID_COLUMNS or target_cell.y >= GRID_ROWS:
+		if target_cell.x < 0 or target_cell.y < 0 or target_cell.x >= grid_columns or target_cell.y >= grid_rows:
 			continue
 		var rect := _cell_rect(target_cell)
 		draw_rect(rect, preview_color, true)
-	var placement: Dictionary = _placements[_dragged_placement_index]
-	var texture := _icon_cache.get(String(placement.get("icon_path", ""))) as Texture2D
-	if texture != null:
-		var origin_rect := _cell_rect(cell)
-		draw_texture_rect(
-			texture,
-			Rect2(origin_rect.position + Vector2(5.0, 5.0), Vector2(CELL_SIZE - 10.0, CELL_SIZE - 10.0)),
-			false,
-			Color(1.0, 1.0, 1.0, 0.75)
-		)
+	if cell == _drag_start_origin and _drag_rotation == _drag_start_rotation:
+		return
+
+
+func return_held_item() -> void:
+	_cancel_hand()
+
+
+func is_holding_item() -> bool:
+	return _dragged_placement_index >= 0
+
+
+func cell_at_global_position(global_position: Vector2) -> Vector2i:
+	return _control_cell_at_global_position(self, global_position)
+
+
+func _control_cell_at_global_position(control: Control, global_position: Vector2) -> Vector2i:
+	var local_position := control.get_global_transform_with_canvas().affine_inverse() * global_position
+	return (control as InventoryGrid)._cell_at_position(local_position)
+
+
+func update_hand_position(global_position: Vector2) -> void:
+	if _dragged_placement_index < 0:
+		return
+	_cursor_pointer_global = global_position
+	_drag_mouse_position = get_global_transform_with_canvas().affine_inverse() * global_position
+	_update_cursor_visual()
+	queue_redraw()
 
 
 func _draw_slot(
@@ -331,9 +507,13 @@ func _draw_placement_amount(placement: Dictionary) -> void:
 		return
 
 	var origin: Vector2i = placement.get("origin", Vector2i.ZERO)
-	var origin_rect := _cell_rect(origin)
+	var bounds := _footprint_bounds(placement.get("footprint", []) as Array)
+	var footprint_rect := Rect2(
+		_cell_rect(origin + bounds.position).position,
+		Vector2(bounds.size) * CELL_SIZE + (Vector2(bounds.size) - Vector2.ONE) * CELL_GAP
+	)
 	var badge_rect := Rect2(
-		origin_rect.end - Vector2(20.0, 16.0),
+		footprint_rect.end - Vector2(20.0, 16.0),
 		Vector2(18.0, 14.0)
 	)
 	draw_rect(badge_rect, AMOUNT_BADGE_COLOR, true)
@@ -349,20 +529,40 @@ func _draw_placement_amount(placement: Dictionary) -> void:
 
 
 func _draw_placement_icon(placement: Dictionary) -> void:
-	var icon_path := String(placement.get("icon_path", ""))
-	if icon_path.is_empty() or not _icon_cache.has(icon_path):
-		return
-
-	var texture := _icon_cache[icon_path] as Texture2D
+	var texture := _placement_icon(placement)
 	if texture == null:
 		return
 
 	var origin: Vector2i = placement.get("origin", Vector2i.ZERO)
-	var icon_rect := Rect2(
-		_cell_rect(origin).position + Vector2(5.0, 5.0),
-		Vector2(CELL_SIZE - 10.0, CELL_SIZE - 10.0)
+	var bounds := _footprint_bounds(placement.get("footprint", []) as Array)
+	var footprint_rect := Rect2(
+		_cell_rect(origin + bounds.position).position,
+		Vector2(bounds.size) * CELL_SIZE + (Vector2(bounds.size) - Vector2.ONE) * CELL_GAP
 	)
-	draw_texture_rect(texture, icon_rect, false)
+	_draw_rotated_icon(texture, footprint_rect, int(placement.get("rotation", 0)))
+
+
+func _draw_rotated_icon(
+	texture: Texture2D,
+	footprint_rect: Rect2,
+	quarter_turns: int,
+	modulate: Color = Color.WHITE
+) -> void:
+	IconPresentation.draw_icon(self, texture, footprint_rect, quarter_turns, 5.0, modulate)
+
+
+func _footprint_bounds(footprint: Array) -> Rect2i:
+	if footprint.is_empty():
+		return Rect2i(Vector2i.ZERO, Vector2i.ONE)
+	var min_cell := Vector2i(9999, 9999)
+	var max_cell := Vector2i(-9999, -9999)
+	for cell_variant: Variant in footprint:
+		if not cell_variant is Vector2i:
+			continue
+		var cell: Vector2i = cell_variant
+		min_cell = min_cell.min(cell)
+		max_cell = max_cell.max(cell)
+	return Rect2i(min_cell, max_cell - min_cell + Vector2i.ONE)
 
 
 func _cache_placement_icon(placement: Dictionary) -> void:
@@ -375,6 +575,13 @@ func _cache_placement_icon(placement: Dictionary) -> void:
 	var texture := load(icon_path) as Texture2D
 	if texture != null:
 		_icon_cache[icon_path] = texture
+
+
+func _placement_icon(placement: Dictionary) -> Texture2D:
+	var icon_path := String(placement.get("icon_path", ""))
+	if not icon_path.is_empty() and _icon_cache.has(icon_path):
+		return _icon_cache[icon_path] as Texture2D
+	return PlaceholderIcon.texture_for(String(placement.get("item_id", "")))
 
 
 func _index_placement_cells(
@@ -431,12 +638,12 @@ func _cell_at_position(local_position: Vector2) -> Vector2i:
 		int(floor(local_position.x / stride)),
 		int(floor(local_position.y / stride))
 	)
-	if cell.x < 0 or cell.x >= GRID_COLUMNS:
+	if cell.x < 0 or cell.x >= grid_columns:
 		return Vector2i(-1, -1)
-	if cell.y < 0 or cell.y >= GRID_ROWS:
+	if cell.y < 0 or cell.y >= grid_rows:
 		return Vector2i(-1, -1)
 	var within_cell := local_position - Vector2(cell) * stride
-	if within_cell.x > CELL_SIZE or within_cell.y > CELL_SIZE:
+	if within_cell.x >= CELL_SIZE or within_cell.y >= CELL_SIZE:
 		return Vector2i(-1, -1)
 	return cell
 

@@ -27,14 +27,13 @@
   },
   "stage_label_keys": {
     "tools": ["object.core.old_tools.state.available"],
-    "repair": ["object.core.repair_room.name", "object.core.repair_room.state.cleared", "object.core.repair_room.state.roof_damaged", "object.core.repair_room.state.sheltered"],
+    "repair": ["object.core.repair_room.name", "object.core.repair_room.state.cleared", "object.core.repair_room.state.roof_covered", "object.core.repair_room.state.sheltered"],
     "campfire": ["object.core.campfire_site.name", "object.core.campfire_site.state.built", "object.core.campfire_site.state.lit"],
     "bed": ["object.core.bed_site.name", "object.core.bed_site.state.ready"]
   },
   "costs": {
     "repair_stage_1": {
-      "core:wood": 3,
-      "core:stone": 2
+      "core:plank": 10
     },
     "repair_stage_2": {
       "core:wood": 2
@@ -43,9 +42,7 @@
       "core:wood": 2,
       "core:stone": 2
     },
-    "bed": {
-      "core:wood": 1
-    },
+    "bed": {},
     "boil_water": {
       "core:raw_water": 1
     },

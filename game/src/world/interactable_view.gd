@@ -33,10 +33,10 @@ var _base_color: Color = Color.WHITE
 var _draw_size: Vector2 = Vector2(24.0, 20.0)
 var _is_selected: bool = false
 var _character_visual
+var _held_icon_cache: Dictionary = {}
 var _target_position: Vector2
 var _walk_time: float = 0.0
 var _walk_frame: int = 0
-var _physical_body: AnimatableBody2D
 var _selection_collision: CollisionShape2D
 var _blocking_body: StaticBody2D
 
@@ -53,35 +53,24 @@ func configure(definition: Dictionary) -> void:
 	texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 	collision_layer = 4
 	collision_mask = 0
-	monitoring = false
-	monitorable = true
+	set_deferred("monitoring", false)
+	set_deferred("monitorable", true)
 	if presentation_id == "surface_stump" and _blocking_body != null:
 		_blocking_body.collision_layer = 0
 
 	if _selection_collision == null:
 		_selection_collision = CollisionShape2D.new()
 		add_child(_selection_collision)
-	var selection_shape := CircleShape2D.new()
-	selection_shape.radius = selection_radius
-	_selection_collision.shape = selection_shape
+	var current_shape := _selection_collision.shape as CircleShape2D
+	if current_shape == null or not is_equal_approx(current_shape.radius, selection_radius):
+		var selection_shape := CircleShape2D.new()
+		selection_shape.radius = selection_radius
+		_selection_collision.set_deferred("shape", selection_shape)
 	if kind == "npc":
 		if _character_visual == null:
 			_character_visual = CharacterVisualScene.new()
 			add_child(_character_visual)
-		if _physical_body == null:
-			_physical_body = AnimatableBody2D.new()
-			_physical_body.collision_layer = 0
-			_physical_body.collision_mask = 0
-			var body_shape := CapsuleShape2D.new()
-			body_shape.radius = 6.0
-			body_shape.height = 20.0
-			var body_collision := CollisionShape2D.new()
-			body_collision.position = Vector2(0.0, 2.0)
-			body_collision.shape = body_shape
-			_physical_body.add_child(body_collision)
-			add_child(_physical_body)
-			_physical_body.top_level = true
-		_sync_physical_body()
+		# Residents retain their selection area but do not block other characters.
 		set_physics_process(true)
 	elif presentation_id == "surface_boulder":
 		z_as_relative = false
@@ -121,9 +110,10 @@ func _physics_process(delta: float) -> void:
 	if kind != "npc" or not visible or Session.is_paused():
 		return
 	var distance: float = position.distance_to(_target_position)
+	if _character_visual != null:
+		_character_visual.set_sitting(distance <= 0.25 and not Session.simulation.furniture.comfort(Session.simulation,object_id).is_empty())
 	if distance <= 0.25:
 		position = _target_position
-		_sync_physical_body()
 		_walk_time = 0.0
 		_walk_frame = 0
 		if _character_visual != null:
@@ -132,7 +122,6 @@ func _physics_process(delta: float) -> void:
 
 	var direction: Vector2 = position.direction_to(_target_position)
 	position = position.move_toward(_target_position, NPC_PRESENTATION_SPEED * delta)
-	_sync_physical_body()
 	_walk_time += delta
 	if _walk_time >= 0.16:
 		_walk_time -= 0.16
@@ -144,14 +133,25 @@ func _physics_process(delta: float) -> void:
 func refresh_from_state(snap: bool = false) -> void:
 	if kind == "npc":
 		visible = Session.is_npc_visible(object_id)
-		if _physical_body != null:
-			_physical_body.collision_layer = 2 if visible else 0
 		_target_position = Session.get_npc_position(object_id, position)
 		if snap or position.distance_to(_target_position) > NPC_SNAP_DISTANCE:
 			position = _target_position
-		_sync_physical_body()
 		if _character_visual != null:
 			_character_visual.set_appearance(Session.get_npc_appearance(object_id))
+			var tool: Dictionary = Session.simulation.get_actor_tool(object_id)
+			var tool_id := String(tool.get("item_id", ""))
+			var trip: Dictionary = Session.simulation.state.npcs.get(object_id,{}).get("meal_trip",{})
+			if not trip.is_empty():
+				tool_id = String(trip.item_id)
+			var texture: Texture2D = null
+			if not tool_id.is_empty():
+				var path: String = Session.simulation.content.item_icon_path(tool_id, tool.get("state", {}))
+				if not path.is_empty() and ResourceLoader.exists(path):
+					if not _held_icon_cache.has(path):
+						_held_icon_cache[path] = load(path)
+					texture = _held_icon_cache[path] as Texture2D
+			_character_visual.set_held_item(tool_id, texture)
+			_character_visual.set_sitting(position.distance_to(_target_position) <= 0.25 and not Session.simulation.furniture.comfort(Session.simulation,object_id).is_empty())
 			_character_visual.set_pose(
 				Session.get_npc_facing(object_id),
 				_walk_frame,
@@ -170,12 +170,6 @@ func refresh_from_state(snap: bool = false) -> void:
 	queue_redraw()
 
 
-func _sync_physical_body() -> void:
-	if _physical_body == null:
-		return
-	_physical_body.global_position = global_position
-
-
 func get_display_label() -> String:
 	return Session.get_object_label(kind, base_label_key, object_id)
 
@@ -183,6 +177,19 @@ func get_display_label() -> String:
 func get_status_text() -> String:
 	if kind == "npc":
 		return Session.get_npc_activity(object_id)
+	if kind == "repair" or kind == "bed":
+		var place: Dictionary = Session.simulation.housing.preview_status(Session.simulation, "core:starter_bedroll")
+		if kind == "bed" and not bool(place.valid):
+			return Localized.resolve(String(place.reason_key))
+		if kind == "bed" and Session.simulation.get_minute_of_day() >= Session.simulation.MORNING_MINUTE and Session.simulation.get_minute_of_day() < Session.simulation.EVENING_MINUTE:
+			return Localized.resolve("housing.day_rest")
+		return Localized.resolve(
+			"sleep.preview.full" if bool(place.covered) else "sleep.preview.partial",
+			{
+				"energy": int(round(Session.get_sleep_energy_preview("core:starter_bedroll"))),
+				"energy_max": int(round(Session.get_player_energy_max())),
+			}
+		)
 
 	var required: int = (
 		Session.get_resource_work_required(object_id)
@@ -287,12 +294,40 @@ func _draw() -> void:
 			if Session.get_object_stage(kind) >= 2:
 				draw_circle(Vector2(0.0, -4.0), 7.0, Color("f2b84b"))
 		"repair":
-			draw_line(Vector2(-8.0, 6.0), Vector2(8.0, -6.0), Color("ead6b8"), 2.0)
+			_draw_repair_roof(rect)
 		"bed":
-			draw_line(Vector2(-9.0, 0.0), Vector2(9.0, 0.0), Color("d1c3d9"), 3.0)
+			draw_rect(rect.grow(-2), Color("867b64"))
+			draw_rect(Rect2(rect.position + Vector2(4,4), Vector2(7,10)), Color("c2b290"))
+			draw_line(rect.position + Vector2(14,3), rect.position + Vector2(14,15), Color("554a3a"), 2)
 
 	if _is_selected:
 		draw_rect(rect.grow(4.0), Color("f1d66b"), false, 2.0)
+
+
+func _draw_repair_roof(rect: Rect2) -> void:
+	var roof_rect := rect.grow(-3.0)
+	draw_rect(roof_rect, Color("372f29"))
+	if Session.is_roof_covered():
+		for plank_index: int in range(4):
+			var plank_height: float = roof_rect.size.y / 4.0
+			var plank_rect := Rect2(
+				roof_rect.position + Vector2(0.0, plank_index * plank_height),
+				Vector2(roof_rect.size.x, plank_height - 1.0)
+			)
+			draw_rect(plank_rect, Color("bb945f"))
+	else:
+		draw_line(
+			roof_rect.position + Vector2(1.0, 1.0),
+			roof_rect.end - Vector2(1.0, 1.0),
+			Color("bb945f"),
+			2.0
+		)
+		draw_line(
+			roof_rect.position + Vector2(1.0, roof_rect.size.y - 1.0),
+			roof_rect.position + Vector2(roof_rect.size.x - 1.0, 1.0),
+			Color("bb945f"),
+			2.0
+		)
 
 
 func _draw_surface_boulder() -> void:

@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://tests/resource_guidance_integration_test.gd" id="1"]
+
+[node name="ResourceGuidanceIntegrationTest" type="Node"]
+script = ExtResource("1")

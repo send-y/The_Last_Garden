@@ -16,6 +16,8 @@ var _request_help_button: Button
 var _scenario_select: OptionButton
 var _description_label: Label
 var _status_label: Label
+var _lab_panel: Control
+var _lab_toggle_button: Button
 var _active_scenario_id: StringName = Scenarios.FRESH_START
 var _last_message: String = ""
 var _selected_cell: Vector2i = Vector2i(-1, -1)
@@ -37,6 +39,9 @@ func _ready() -> void:
 	Session.pause_changed.connect(_on_pause_changed)
 	Session.message_emitted.connect(_on_session_message)
 	_world.selection_changed.connect(_on_world_selection_changed)
+	var hud: FirstNightHud = $Game/Hud/HudRoot as FirstNightHud
+	hud.npc_conversation_opened.connect(_on_npc_conversation_opened)
+	get_viewport().size_changed.connect(_layout_lab_ui)
 	_load_scenario(_scenario_from_command_line())
 
 
@@ -47,16 +52,26 @@ func _exit_tree() -> void:
 
 func _build_ui() -> void:
 	var root := Control.new()
+	root.name = "MechanicsLabUi"
 	root.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	root.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_dev_ui.add_child(root)
 
 	var panel := ColorRect.new()
-	panel.position = Vector2(394.0, 68.0)
+	panel.name = "MechanicsPanel"
 	panel.size = Vector2(238.0, 288.0)
 	panel.color = Color(0.055, 0.065, 0.06, 0.94)
 	panel.mouse_filter = Control.MOUSE_FILTER_STOP
 	root.add_child(panel)
+	_lab_panel = panel
+	panel.hide()
+	_lab_toggle_button = _make_button(
+		root, "Механики [F2]", Vector2.ZERO, Vector2(104.0, 24.0)
+	)
+	_lab_toggle_button.name = "MechanicsToggle"
+	_lab_toggle_button.toggle_mode = true
+	_lab_toggle_button.toggled.connect(_set_lab_panel_open)
+	_layout_lab_ui()
 
 	var title := _make_label(panel, Vector2(8.0, 4.0), Vector2(222.0, 18.0), 13)
 	title.text = "ЛАБОРАТОРИЯ МЕХАНИК"
@@ -114,6 +129,33 @@ func _build_ui() -> void:
 		9
 	)
 	_status_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+
+
+func _layout_lab_ui() -> void:
+	var dimensions := get_viewport().get_visible_rect().size
+	_lab_toggle_button.position = Vector2(
+		maxf(8.0, (dimensions.x - _lab_toggle_button.size.x) * 0.5), 8.0
+	)
+	_lab_panel.position = Vector2(
+		maxf(8.0, dimensions.x - _lab_panel.size.x - 8.0),
+		maxf(8.0, minf(40.0, dimensions.y - _lab_panel.size.y - 8.0))
+	)
+
+
+func _set_lab_panel_open(open: bool) -> void:
+	_lab_panel.visible = open
+	_lab_toggle_button.set_pressed_no_signal(open)
+	_lab_toggle_button.text = "Закрыть [F2]" if open else "Механики [F2]"
+
+
+func _on_npc_conversation_opened(_npc_id: String) -> void:
+	_set_lab_panel_open(false)
+
+
+func _input(event: InputEvent) -> void:
+	if event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_F2:
+		_set_lab_panel_open(not _lab_panel.visible)
+		get_viewport().set_input_as_handled()
 
 
 func _on_build_mode_toggled(active: bool) -> void:

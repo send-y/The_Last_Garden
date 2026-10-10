@@ -10,10 +10,15 @@ const Navigation := preload(
 const BuildingCatalogScript := preload(
 	"res://src/construction/building_catalog.gd"
 )
+const WaterMapScript := preload("res://src/world/water_map.gd")
 
 
-static func validate_place_blueprint(command: Dictionary) -> Dictionary:
-	if String(command.get("actor_id", "")) != Command.PLAYER_ACTOR_ID:
+static func validate_place_blueprint(
+	command: Dictionary,
+	water_cells: Array[Vector2i] = [],
+	authorized_actor_id: String = Command.PLAYER_ACTOR_ID
+) -> Dictionary:
+	if String(command.get("actor_id", "")) != authorized_actor_id:
 		return _failure("core:unknown_actor")
 
 	if String(command.get("action_id", "")) != Command.ACTION_PLACE_BLUEPRINT:
@@ -46,12 +51,13 @@ static func validate_place_blueprint(command: Dictionary) -> Dictionary:
 		Vector2i.ZERO,
 		Navigation.MAP_SIZE
 	)
-
-	if not map_rect.has_point(cell):
-		return _failure("core:outside_map")
-
-	if Navigation.blocked_cells().has(cell):
-		return _failure("core:blocked_cell")
+	for footprint_cell: Vector2i in building_catalog.get_footprint_cells(
+		building_id, cell
+	):
+		if not map_rect.has_point(footprint_cell):
+			return _failure("core:outside_map")
+		if Navigation.blocked_cells(water_cells).has(footprint_cell):
+			return _failure("core:blocked_cell")
 
 	return {
 		"success": true,

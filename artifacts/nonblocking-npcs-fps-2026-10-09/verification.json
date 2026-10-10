@@ -1,0 +1,37 @@
+[
+  {
+    "name": "collision",
+    "exit": 0,
+    "passed": true
+  },
+  {
+    "name": "navigation",
+    "exit": 0,
+    "passed": true
+  },
+  {
+    "name": "doors",
+    "exit": 0,
+    "passed": true
+  },
+  {
+    "name": "drops",
+    "exit": 0,
+    "passed": true
+  },
+  {
+    "name": "full",
+    "exit": 0,
+    "passed": true
+  },
+  {
+    "name": "fps",
+    "exit": 0,
+    "passed": true
+  },
+  {
+    "name": "generated",
+    "exit": 0,
+    "passed": true
+  }
+]

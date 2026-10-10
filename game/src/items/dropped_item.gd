@@ -1,6 +1,8 @@
 class_name DroppedItem
 extends Area2D
 
+const PlaceholderIcon := preload("res://src/items/item_placeholder_icon.gd")
+
 signal pickup_requested(drop: DroppedItem)
 
 var drop_id: String = ""
@@ -39,7 +41,7 @@ func configure(
 
 
 func _refresh_visual() -> void:
-	_icon.texture = icon
+	_icon.texture = icon if icon != null else PlaceholderIcon.texture_for(item_id)
 	_icon.scale = Vector2.ONE * visual_scale
 
 

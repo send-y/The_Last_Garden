@@ -1,0 +1,39 @@
+Godot Engine v4.7.stable.mono.official.5b4e0cb0f - https://godotengine.org
+
+WORLD_DROP_SCENE: 6 failures
+ERROR: An empty authoritative drop list must not render a phantom item at (25, 28)
+   at: push_error (core/variant/variant_utility.cpp:1023)
+   GDScript backtrace (most recent call first):
+       [0] check (res://tests/world_drop_scene_test.gd:11)
+       [1] _ready (res://tests/world_drop_scene_test.gd:30)
+       [2] settle (res://tests/world_drop_scene_test.gd:16)
+ERROR: State refresh must keep the scene free of unregistered drops
+   at: push_error (core/variant/variant_utility.cpp:1023)
+   GDScript backtrace (most recent call first):
+       [0] check (res://tests/world_drop_scene_test.gd:11)
+       [1] _ready (res://tests/world_drop_scene_test.gd:33)
+       [2] settle (res://tests/world_drop_scene_test.gd:16)
+ERROR: A real drop must have exactly one scene view: core:wood
+   at: push_error (core/variant/variant_utility.cpp:1023)
+   GDScript backtrace (most recent call first):
+       [0] check (res://tests/world_drop_scene_test.gd:11)
+       [1] _ready (res://tests/world_drop_scene_test.gd:48)
+       [2] settle (res://tests/world_drop_scene_test.gd:16)
+ERROR: Collected drop must disappear from scene: core:wood
+   at: push_error (core/variant/variant_utility.cpp:1023)
+   GDScript backtrace (most recent call first):
+       [0] check (res://tests/world_drop_scene_test.gd:11)
+       [1] _ready (res://tests/world_drop_scene_test.gd:56)
+       [2] settle (res://tests/world_drop_scene_test.gd:16)
+ERROR: A real drop must have exactly one scene view: core:firewood
+   at: push_error (core/variant/variant_utility.cpp:1023)
+   GDScript backtrace (most recent call first):
+       [0] check (res://tests/world_drop_scene_test.gd:11)
+       [1] _ready (res://tests/world_drop_scene_test.gd:48)
+       [2] settle (res://tests/world_drop_scene_test.gd:16)
+ERROR: Collected drop must disappear from scene: core:firewood
+   at: push_error (core/variant/variant_utility.cpp:1023)
+   GDScript backtrace (most recent call first):
+       [0] check (res://tests/world_drop_scene_test.gd:11)
+       [1] _ready (res://tests/world_drop_scene_test.gd:56)
+       [2] settle (res://tests/world_drop_scene_test.gd:16)

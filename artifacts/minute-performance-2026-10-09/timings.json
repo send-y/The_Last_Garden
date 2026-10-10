@@ -1,0 +1,26 @@
+{
+  "simulation_before": {
+    "initial_ms": 206.546,
+    "ordinary_median_ms": 23.79,
+    "ordinary_max_ms": 40.665,
+    "samples": 15
+  },
+  "simulation_after": {
+    "initial_ms": 38.896,
+    "ordinary_median_ms": 3.6535,
+    "ordinary_max_ms": 5.296,
+    "samples": 15
+  },
+  "scene_before": {
+    "initial_ms": 241.1,
+    "ordinary_median_ms": 28.5025,
+    "ordinary_max_ms": 42.902,
+    "samples": 15
+  },
+  "scene_after": {
+    "initial_ms": 56.004,
+    "ordinary_median_ms": 7.0315,
+    "ordinary_max_ms": 10.897,
+    "samples": 15
+  }
+}

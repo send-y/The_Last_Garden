@@ -4,17 +4,44 @@ extends RefCounted
 const FirstNightContent := preload(
 	"res://src/content/first_night_content.gd"
 )
+const WaterMapScript := preload("res://src/world/water_map.gd")
 
-const BOULDER_COUNT_MIN: int = 30
-const BOULDER_COUNT_MAX: int = 35
-const TREE_COUNT_MIN: int = 40
-const TREE_COUNT_MAX: int = 45
+const LEGACY_LAYOUT_VERSION: int = 1
+const STARTER_LAYOUT_VERSION: int = 2
+const CURRENT_LAYOUT_VERSION: int = 3
+const PREVIOUS_STARTER_TREE_COUNT: int = 4
+const PREVIOUS_STARTER_BOULDER_COUNT: int = 2
+const PREVIOUS_STARTER_TREE_REGION := Rect2i(32, 31, 9, 8)
+const PREVIOUS_STARTER_BOULDER_REGION := Rect2i(32, 24, 7, 5)
+const STARTER_TREE_COUNT: int = 16
+const STARTER_BOULDER_COUNT: int = 8
+const STARTER_TREE_REGION := Rect2i(32, 31, 13, 12)
+const STARTER_BOULDER_REGION := Rect2i(32, 21, 12, 9)
+const FIRST_TREE_REGION := Rect2i(32, 31, 3, 3)
+const FIRST_BOULDER_REGION := Rect2i(32, 26, 3, 3)
+
+const PREVIOUS_BOULDER_COUNT_MIN: int = 30
+const PREVIOUS_BOULDER_COUNT_MAX: int = 35
+const PREVIOUS_TREE_COUNT_MIN: int = 40
+const PREVIOUS_TREE_COUNT_MAX: int = 45
+const BOULDER_COUNT_MIN: int = 90
+const BOULDER_COUNT_MAX: int = 110
+const TREE_COUNT_MIN: int = 180
+const TREE_COUNT_MAX: int = 220
 const BERRY_BUSH_COUNT_MIN: int = 18
 const BERRY_BUSH_COUNT_MAX: int = 24
 const BOULDER_GROUP_MIN: int = 1
 const BOULDER_GROUP_MAX: int = 3
 const TREE_GROUP_MIN: int = 3
 const TREE_GROUP_MAX: int = 6
+const PREVIOUS_BOULDER_GROUP_MIN: int = 3
+const PREVIOUS_BOULDER_GROUP_MAX: int = 5
+const PREVIOUS_TREE_GROUP_MIN: int = 8
+const PREVIOUS_TREE_GROUP_MAX: int = 12
+const CURRENT_BOULDER_GROUP_MIN: int = 6
+const CURRENT_BOULDER_GROUP_MAX: int = 10
+const CURRENT_TREE_GROUP_MIN: int = 12
+const CURRENT_TREE_GROUP_MAX: int = 18
 const FIRST_CELL: int = 2
 const STATIC_OBJECT_CLEARANCE: float = 96.0
 const MAX_PLACEMENT_ATTEMPTS: int = 8192
@@ -22,49 +49,55 @@ const CLUSTER_SPREAD_CELLS: int = 3
 const CLUSTER_SEPARATION_CELLS: int = 7
 
 
-static func generate_surface_boulders(world_seed: int) -> Array[Dictionary]:
+static func generate_surface_boulders(
+	world_seed: int,
+	layout_version: int = CURRENT_LAYOUT_VERSION
+) -> Array[Dictionary]:
 	var rng := RandomNumberGenerator.new()
 	rng.seed = world_seed ^ 0x5EEDB0
-	var target_count := rng.randi_range(
-		BOULDER_COUNT_MIN,
-		BOULDER_COUNT_MAX
-	)
+	var count_range := boulder_count_range(layout_version)
+	var target_count := rng.randi_range(count_range.x, count_range.y)
 	return _generate_clustered_nodes(
 		rng,
 		target_count,
-		BOULDER_GROUP_MIN,
-		BOULDER_GROUP_MAX,
+		CURRENT_BOULDER_GROUP_MIN if layout_version >= CURRENT_LAYOUT_VERSION else PREVIOUS_BOULDER_GROUP_MIN if layout_version >= STARTER_LAYOUT_VERSION else BOULDER_GROUP_MIN,
+		CURRENT_BOULDER_GROUP_MAX if layout_version >= CURRENT_LAYOUT_VERSION else PREVIOUS_BOULDER_GROUP_MAX if layout_version >= STARTER_LAYOUT_VERSION else BOULDER_GROUP_MAX,
 		"boulder",
 		FirstNightContent.new().interactables(),
-		[]
+		[],
+		layout_version
 	)
 
 
 static func generate_surface_trees(
 	world_seed: int,
-	boulders: Array[Dictionary]
+	boulders: Array[Dictionary],
+	layout_version: int = CURRENT_LAYOUT_VERSION
 ) -> Array[Dictionary]:
 	var rng := RandomNumberGenerator.new()
 	rng.seed = world_seed ^ 0x7EE5
-	var target_count := rng.randi_range(TREE_COUNT_MIN, TREE_COUNT_MAX)
+	var count_range := tree_count_range(layout_version)
+	var target_count := rng.randi_range(count_range.x, count_range.y)
 	var occupied: Array[Vector2] = []
 	for boulder: Dictionary in boulders:
 		occupied.append(_position_from_node(boulder))
 	return _generate_clustered_nodes(
 		rng,
 		target_count,
-		TREE_GROUP_MIN,
-		TREE_GROUP_MAX,
+		CURRENT_TREE_GROUP_MIN if layout_version >= CURRENT_LAYOUT_VERSION else PREVIOUS_TREE_GROUP_MIN if layout_version >= STARTER_LAYOUT_VERSION else TREE_GROUP_MIN,
+		CURRENT_TREE_GROUP_MAX if layout_version >= CURRENT_LAYOUT_VERSION else PREVIOUS_TREE_GROUP_MAX if layout_version >= STARTER_LAYOUT_VERSION else TREE_GROUP_MAX,
 		"tree",
 		FirstNightContent.new().interactables(),
-		occupied
+		occupied,
+		layout_version
 	)
 
 
 static func generate_berry_bushes(
 	world_seed: int,
 	boulders: Array = [],
-	trees: Array = []
+	trees: Array = [],
+	layout_version: int = CURRENT_LAYOUT_VERSION
 ) -> Array[Dictionary]:
 	var rng := RandomNumberGenerator.new()
 	rng.seed = world_seed ^ 0xBE221E5
@@ -84,8 +117,21 @@ static func generate_berry_bushes(
 		4,
 		"food",
 		FirstNightContent.new().interactables(),
-		occupied
+		occupied,
+		layout_version
 	)
+
+
+static func boulder_count_range(layout_version: int) -> Vector2i:
+	if layout_version >= CURRENT_LAYOUT_VERSION:
+		return Vector2i(BOULDER_COUNT_MIN, BOULDER_COUNT_MAX)
+	return Vector2i(PREVIOUS_BOULDER_COUNT_MIN, PREVIOUS_BOULDER_COUNT_MAX)
+
+
+static func tree_count_range(layout_version: int) -> Vector2i:
+	if layout_version >= CURRENT_LAYOUT_VERSION:
+		return Vector2i(TREE_COUNT_MIN, TREE_COUNT_MAX)
+	return Vector2i(PREVIOUS_TREE_COUNT_MIN, PREVIOUS_TREE_COUNT_MAX)
 
 
 static func _generate_clustered_nodes(
@@ -95,12 +141,23 @@ static func _generate_clustered_nodes(
 	group_max: int,
 	kind: String,
 	static_objects: Array[Dictionary],
-	initial_occupied_positions: Array[Vector2]
+	initial_occupied_positions: Array[Vector2],
+	layout_version: int
 ) -> Array[Dictionary]:
 	var result: Array[Dictionary] = []
 	var occupied_positions := initial_occupied_positions.duplicate()
 	var occupied_cells: Dictionary = {}
 	var cluster_centers: Array[Vector2i] = []
+	var water_cells: Array[Vector2i] = []
+	if layout_version >= STARTER_LAYOUT_VERSION:
+		water_cells = WaterMapScript.surface_cells()
+		_place_starter_nodes(
+			rng, kind, static_objects, occupied_positions, occupied_cells, result, water_cells,
+			layout_version
+		)
+		if not result.is_empty():
+			var first_cell: Array = result[0].get("cell", []) as Array
+			cluster_centers.append(Vector2i(int(first_cell[0]), int(first_cell[1])))
 	var target_cell_max: int = mini(
 		FirstNightContent.MAP_SIZE.x,
 		FirstNightContent.MAP_SIZE.y
@@ -112,7 +169,7 @@ static func _generate_clustered_nodes(
 			rng.randi_range(FIRST_CELL, target_cell_max),
 			rng.randi_range(FIRST_CELL, target_cell_max)
 		)
-		if is_reserved_cell(center):
+		if is_reserved_cell(center) or water_cells.has(center):
 			continue
 		if _is_near_cluster(center, cluster_centers):
 			continue
@@ -138,6 +195,7 @@ static func _generate_clustered_nodes(
 				or cell.x > target_cell_max
 				or cell.y > target_cell_max
 				or is_reserved_cell(cell)
+				or water_cells.has(cell)
 			):
 				continue
 			var cell_key := "%d,%d" % [cell.x, cell.y]
@@ -161,6 +219,53 @@ static func _generate_clustered_nodes(
 				result.append(make_surface_tree(index, cell, rng.randi_range(12, 13)))
 			placed_in_cluster += 1
 	return result
+
+
+static func _place_starter_nodes(
+	rng: RandomNumberGenerator,
+	kind: String,
+	static_objects: Array[Dictionary],
+	occupied_positions: Array[Vector2],
+	occupied_cells: Dictionary,
+	result: Array[Dictionary],
+	water_cells: Array[Vector2i],
+	layout_version: int
+) -> void:
+	if kind != "wood" and kind != "tree" and kind != "boulder":
+		return
+	var is_tree := kind == "tree" or kind == "wood"
+	var region := STARTER_TREE_REGION if is_tree else STARTER_BOULDER_REGION
+	var first_region := FIRST_TREE_REGION if is_tree else FIRST_BOULDER_REGION
+	var count := STARTER_TREE_COUNT if is_tree else STARTER_BOULDER_COUNT
+	if layout_version < CURRENT_LAYOUT_VERSION:
+		region = PREVIOUS_STARTER_TREE_REGION if is_tree else PREVIOUS_STARTER_BOULDER_REGION
+		count = PREVIOUS_STARTER_TREE_COUNT if is_tree else PREVIOUS_STARTER_BOULDER_COUNT
+	for node_index: int in range(count):
+		var candidate_region := first_region if node_index == 0 else region
+		var candidates: Array[Vector2i] = []
+		for y: int in range(candidate_region.position.y, candidate_region.end.y):
+			for x: int in range(candidate_region.position.x, candidate_region.end.x):
+				candidates.append(Vector2i(x, y))
+		while not candidates.is_empty():
+			var candidate_index := rng.randi_range(0, candidates.size() - 1)
+			var cell := candidates[candidate_index]
+			candidates.remove_at(candidate_index)
+			var key := "%d,%d" % [cell.x, cell.y]
+			var position := FirstNightContent.cell_center(cell.x, cell.y)
+			if (
+				is_reserved_cell(cell) or water_cells.has(cell) or occupied_cells.has(key)
+				or _is_near_static_object(position, static_objects)
+				or _is_near_position(position, occupied_positions, 64.0)
+			):
+				continue
+			occupied_cells[key] = true
+			occupied_positions.append(position)
+			var index := result.size() + 1
+			if is_tree:
+				result.append(make_surface_tree(index, cell, rng.randi_range(12, 13)))
+			else:
+				result.append(make_surface_boulder(index, cell, rng.randi_range(9, 12)))
+			break
 
 
 static func make_surface_boulder(

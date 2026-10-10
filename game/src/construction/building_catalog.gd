@@ -18,6 +18,45 @@ func get_definition(building_id: String) -> Dictionary:
 	return (_definitions[building_id] as Dictionary).duplicate(true)
 
 
+func all_definitions() -> Array[Dictionary]:
+	var result: Array[Dictionary] = []
+	for building_id: String in _definitions.keys():
+		result.append((_definitions[building_id] as Dictionary).duplicate(true))
+	return result
+
+
+func get_layer_id(building_id: String) -> String:
+	return String(get_definition(building_id).get("layer_id", "structure"))
+
+
+func is_floor(building_id: String) -> bool:
+	return get_layer_id(building_id) == "floor"
+
+
+func get_footprint_size(building_id: String) -> Vector2i:
+	var raw_size: Variant = get_definition(building_id).get("footprint", {})
+	if typeof(raw_size) != TYPE_DICTIONARY:
+		return Vector2i.ONE
+	var footprint: Dictionary = raw_size as Dictionary
+	return Vector2i(
+		maxi(1, int(footprint.get("width", 1))),
+		maxi(1, int(footprint.get("height", 1)))
+	)
+
+
+func get_footprint_cells(building_id: String, origin: Vector2i) -> Array[Vector2i]:
+	var result: Array[Vector2i] = []
+	var footprint_size := get_footprint_size(building_id)
+	for y: int in range(footprint_size.y):
+		for x: int in range(footprint_size.x):
+			result.append(origin + Vector2i(x, y))
+	return result
+
+
+func get_texture_path(building_id: String) -> String:
+	return String(get_definition(building_id).get("texture_path", ""))
+
+
 func get_material_cost(building_id: String) -> Dictionary:
 	var definition: Dictionary = get_definition(building_id)
 	var cost_value: Variant = definition.get("material_cost", {})

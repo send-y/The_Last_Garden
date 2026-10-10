@@ -1,0 +1,13 @@
+Godot Engine v4.7.stable.mono.official.5b4e0cb0f - https://godotengine.org
+
+NPC_HOME_PRODUCTION: 2 failures
+ERROR: Resident must make planks from real wood and finish its home project without player crafting
+   at: push_error (core/variant/variant_utility.cpp:1023)
+   GDScript backtrace (most recent call first):
+       [0] check (res://tests/npc_home_production_test.gd:13)
+       [1] run (res://tests/npc_home_production_test.gd:30)
+ERROR: One five-wood batch must preserve protected wood
+   at: push_error (core/variant/variant_utility.cpp:1023)
+   GDScript backtrace (most recent call first):
+       [0] check (res://tests/npc_home_production_test.gd:13)
+       [1] run (res://tests/npc_home_production_test.gd:31)

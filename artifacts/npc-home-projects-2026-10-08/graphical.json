@@ -1,0 +1,7 @@
+{
+  "exit": 0,
+  "errors": [],
+  "passes": [
+    "PASS: NPC project card, permissions, intent, shortages, decline, resume, disk reload and compact layout"
+  ]
+}

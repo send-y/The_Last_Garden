@@ -1,0 +1,74 @@
+[
+  {
+    "test": "npc_discovery_test.gd",
+    "graphical": false,
+    "exit": 0,
+    "passed": true
+  },
+  {
+    "test": "npc_conversation_state_test.gd",
+    "graphical": false,
+    "exit": 0,
+    "passed": true
+  },
+  {
+    "test": "npc_generation_test.gd",
+    "graphical": false,
+    "exit": 0,
+    "passed": true
+  },
+  {
+    "test": "npc_roster_test.gd",
+    "graphical": false,
+    "exit": 0,
+    "passed": true
+  },
+  {
+    "test": "generated_npcs_ui_test.tscn",
+    "graphical": false,
+    "exit": 0,
+    "passed": true
+  },
+  {
+    "test": "generated_npcs_integration_test.tscn",
+    "graphical": false,
+    "exit": 0,
+    "passed": true
+  },
+  {
+    "test": "mechanics_lab_dialogue_ui_test.tscn",
+    "graphical": false,
+    "exit": 0,
+    "passed": true
+  },
+  {
+    "test": "resident_homes_ui_test.tscn",
+    "graphical": false,
+    "exit": 0,
+    "passed": true
+  },
+  {
+    "test": "resident_home_projects_test.gd",
+    "graphical": false,
+    "exit": 0,
+    "passed": true
+  },
+  {
+    "test": "persistent_world_test.gd",
+    "graphical": false,
+    "exit": 0,
+    "passed": true
+  },
+  {
+    "test": "run_tests.gd",
+    "graphical": false,
+    "exit": 0,
+    "passed": true
+  },
+  {
+    "test": "mechanics_lab_dialogue_ui_test.tscn",
+    "graphical": true,
+    "exit": 0,
+    "passed": true
+  }
+]

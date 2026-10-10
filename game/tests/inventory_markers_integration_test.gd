@@ -2,6 +2,7 @@ extends Node
 
 const MainScene := preload("res://src/main/main.tscn")
 const Simulation := preload("res://src/simulation/first_night_simulation.gd")
+const Content := preload("res://src/content/first_night_content.gd")
 
 
 func _ready() -> void:
@@ -11,6 +12,13 @@ func _ready() -> void:
 	inventory["core:wood"] = 1
 	inventory["core:raw_water"] = 1
 	inventory["core:food"] = 1
+	state["item_instances"] = [{
+		"instance_id": "core:item_instance_000001",
+		"item_id": "core:bucket",
+		"state": {"charges": 1},
+		"location": {"kind": "inventory", "id": ""},
+	}]
+	state["next_item_instance_serial"] = 2
 	Session.apply_debug_state(state, "inventory and marker integration", false)
 	var main := MainScene.instantiate()
 	add_child(main)
@@ -19,38 +27,98 @@ func _ready() -> void:
 
 	var hud := main.get_node("Hud/HudRoot") as FirstNightHud
 	var inventory_panel := hud.get_node("InventoryPanel") as InventoryPanel
+	var hotbar := hud.get_node("Hotbar") as Control
 	var grid := inventory_panel.get_node(
 		"ContentMargin/ContentColumn/GridCenter/InventoryGrid"
 	) as InventoryGrid
 	hud.toggle_inventory()
 	await get_tree().process_frame
+	var panel_rect := inventory_panel.get_global_rect()
+	var hotbar_rect := hotbar.get_global_rect()
+	if panel_rect.size.x > hotbar_rect.size.x or not is_equal_approx(panel_rect.get_center().x, hotbar_rect.get_center().x):
+		_fail("Compact inventory panel is not centered above the hotbar. panel=%s hotbar=%s" % [panel_rect, hotbar_rect])
+		return
+	if panel_rect.end.y > hotbar_rect.position.y or hotbar_rect.position.y - panel_rect.end.y > 12.0:
+		_fail("Inventory panel is not positioned just above the hotbar. panel=%s hotbar=%s" % [panel_rect, hotbar_rect])
+		return
+	var bucket_cell := _placement_cell(grid, "core:bucket")
+	if bucket_cell == Vector2i(-1, -1):
+		_fail("The individual bucket instance is missing from the backpack UI.")
+		return
+	_send_mouse_button(_cell_center(grid, bucket_cell), true)
+	_send_mouse_button(_cell_center(grid, bucket_cell), false)
+	_send_key(KEY_1)
+	await get_tree().process_frame
+	var assigned_bucket_id := Session.get_hotbar_slots()[0]
+	if assigned_bucket_id != "core:item_instance_000001":
+		_fail("Number 1 did not assign the selected bucket instance to the hotbar.")
+		return
+	_send_mouse_button(_cell_center(grid, bucket_cell), true)
+	var slot_two := hud.get_node("Hotbar/Slot2") as Button
+	var slot_two_position := slot_two.get_global_rect().get_center()
+	_send_mouse_motion(slot_two_position)
+	_send_mouse_button(slot_two_position, true)
+	_send_mouse_button(slot_two_position, false)
+	await get_tree().process_frame
+	var hotbar_slots := Session.get_hotbar_slots()
+	if hotbar_slots[0] != "" or hotbar_slots[1] != assigned_bucket_id:
+		_fail("Dragging onto hotbar slot 2 did not move the bucket assignment.")
+		return
+	hud.toggle_inventory()
+	await get_tree().process_frame
+	var hotbar_slot := hud.get_node("Hotbar/Slot2") as Button
+	hotbar_slot.pressed.emit()
+	await get_tree().process_frame
+	if Session.get_active_hotbar_slot() != 1:
+		_fail("Clicking hotbar slot 2 did not select it.")
+		return
+	var shoreline_position := Content.cell_center(7, 27)
+	Session.set_player_position(shoreline_position)
+	(main.get_node("Player") as PlayerController).global_position = shoreline_position
+	var raw_water_before := int(Session.get_inventory().get("core:raw_water", 0))
+	var world := main.get_node("World") as FirstNightWorld
+	world.select_at_world_position(shoreline_position)
+	world.interact_with_selection(false)
+	await get_tree().process_frame
+	var filled_bucket := Session.get_item_instance(assigned_bucket_id)
+	if int((filled_bucket.get("state", {}) as Dictionary).get("charges", 0)) != 2:
+		_fail("Interacting with the shore while the bucket is selected did not fill it.")
+		return
+	if int(Session.get_inventory().get("core:raw_water", 0)) != raw_water_before:
+		_fail("Bucket filling also granted legacy raw water, duplicating the interaction reward.")
+		return
+	hud.toggle_inventory()
+	await get_tree().process_frame
 	var wood_cell := _placement_cell(grid, "core:wood")
 	var water_cell := _placement_cell(grid, "core:raw_water")
 	_send_mouse_button(_cell_center(grid, wood_cell), true)
+	_send_mouse_button(_cell_center(grid, wood_cell), false)
 	_send_mouse_motion(_cell_center(grid, Vector2i(3, 3)))
+	_send_mouse_button(_cell_center(grid, Vector2i(3, 3)), true)
 	_send_mouse_button(_cell_center(grid, Vector2i(3, 3)), false)
 	await get_tree().process_frame
 	if not _layout_has("core:wood", Vector2i(3, 3), 0):
-		_fail("Dragging an item did not preserve its new inventory position.")
+		_fail("Drag-and-release did not preserve the new inventory position.")
 		return
 
 	_send_mouse_button(_cell_center(grid, water_cell), true)
+	_send_mouse_button(_cell_center(grid, water_cell), false)
 	var rotated_target := Vector2i(0, 2)
-	_send_mouse_motion(_cell_center(grid, rotated_target))
 	_send_key(KEY_R)
-	_send_mouse_button(_cell_center(grid, rotated_target), false)
+	var rotated_point := grid.get_global_transform_with_canvas() * (Vector2(rotated_target) * 42 + grid._drag_grab_fraction * Vector2(84, 42))
+	_send_mouse_motion(rotated_point)
+	_send_mouse_button(rotated_point, true)
+	_send_mouse_button(rotated_point, false)
 	await get_tree().process_frame
 	if not _layout_has("core:raw_water", rotated_target, 1):
 		_fail("R did not rotate and place the two-cell water item.")
 		return
 
 	var food_cell := _placement_cell(grid, "core:food")
-	_send_mouse_button(_cell_center(grid, food_cell), true)
-	_send_mouse_button(_cell_center(grid, food_cell), false)
+	_send_mouse_button(_cell_center(grid, food_cell), true, MOUSE_BUTTON_RIGHT)
+	_send_mouse_button(_cell_center(grid, food_cell), false, MOUSE_BUTTON_RIGHT)
 	await get_tree().process_frame
-	var eat_button := inventory_panel.get_node(
-		"ContentMargin/ContentColumn/DetailsPanel/DetailsMargin/DetailsRow/EatButton"
-	) as Button
+	var eat_button := inventory_panel._eat_button
 	if not eat_button.visible:
 		_fail("Food selection did not reveal the eat button.")
 		return
@@ -59,6 +127,23 @@ func _ready() -> void:
 	await get_tree().process_frame
 	if Session.get_inventory().get("core:food", 0) != 0:
 		_fail("Eating berries did not consume one serving.")
+		return
+
+	wood_cell = _placement_cell(grid, "core:wood")
+	_send_mouse_button(_cell_center(grid, wood_cell), true)
+	_send_mouse_button(_cell_center(grid, wood_cell), false)
+	var inventory_rect := inventory_panel.get_global_rect()
+	var outside_inventory := inventory_rect.position + Vector2(-6.0, inventory_rect.size.y * 0.5)
+	_send_mouse_motion(outside_inventory)
+	_send_mouse_button(outside_inventory, true)
+	_send_mouse_button(outside_inventory, false)
+	await get_tree().process_frame
+	if Session.get_inventory().get("core:wood", 0) != 0:
+		_fail("Clicking outside the open inventory did not drop the held item.")
+		return
+	var world_drops := Session.get_world_drops()
+	if world_drops.is_empty() or int((world_drops.back() as Dictionary).get("amount", 0)) != 1:
+		_fail("The dropped inventory item did not become one world-loot stack.")
 		return
 
 	var close_button := inventory_panel.get_node(
@@ -143,7 +228,7 @@ func _ready() -> void:
 	if not Session.get_markers().is_empty():
 		_fail("Delete from marker list did not remove the marker.")
 		return
-	print("PASS: inventory move, R rotation, berry consumption, and marker shortcuts work")
+	print("PASS: inventory move, bucket hotbar drag assignment, R rotation, berry consumption, and marker shortcuts work")
 	get_tree().quit(0)
 
 
@@ -157,7 +242,8 @@ func _placement_cell(grid: InventoryGrid, item_id: String) -> Vector2i:
 
 
 func _cell_center(grid: InventoryGrid, cell: Vector2i) -> Vector2:
-	return grid.get_global_rect().position + Vector2(cell) * 44.0 + Vector2(21.0, 21.0)
+	var stride := InventoryGrid.CELL_SIZE + InventoryGrid.CELL_GAP
+	return grid.get_global_transform_with_canvas() * (Vector2(cell) * stride + Vector2.ONE * InventoryGrid.CELL_SIZE * 0.5)
 
 
 func _layout_has(item_id: String, origin: Vector2i, rotation: int) -> bool:
@@ -173,9 +259,9 @@ func _layout_has(item_id: String, origin: Vector2i, rotation: int) -> bool:
 	return false
 
 
-func _send_mouse_button(position: Vector2, pressed: bool) -> void:
+func _send_mouse_button(position: Vector2, pressed: bool, button: MouseButton = MOUSE_BUTTON_LEFT) -> void:
 	var event := InputEventMouseButton.new()
-	event.button_index = MOUSE_BUTTON_LEFT
+	event.button_index = button
 	event.pressed = pressed
 	event.position = position
 	event.global_position = position

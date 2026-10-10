@@ -1,0 +1,24 @@
+{
+  "schema_version": 1,
+  "topics": [
+    {"id":"greeting","label_key":"conversation.topic.greeting","min_talks":0,"wait_minutes":0,"pages":[
+      {"text_key":"conversation.introduction","args":{"name":"name"},"facts":["name"]},
+      {"text_key":"conversation.experience","args":{"experience":"experience_id"},"facts":["experience_id"]}]},
+    {"id":"chat","label_key":"conversation.topic.chat","min_talks":1,"wait_minutes":0,"pages":[
+      {"text_key":"npc.generated.repeat","args":{},"facts":[]}]},
+    {"id":"work","label_key":"conversation.topic.work","min_talks":1,"wait_minutes":0,"pages":[
+      {"text_key":"conversation.aspiration","args":{"aspiration":"aspiration_id"},"facts":["aspiration_id"]}]},
+    {"id":"home","label_key":"conversation.topic.home","min_talks":1,"wait_minutes":0,"pages":[
+      {"text_key":"conversation.home","args":{},"facts":[]}]},
+    {"id":"stay","label_key":"conversation.topic.stay","min_talks":1,"wait_minutes":0,"pages":[
+      {"text_key":"conversation.stay","args":{},"facts":[]}]},
+    {"id":"past","label_key":"conversation.topic.past","min_talks":2,"wait_minutes":60,"pages":[
+      {"text_key":"conversation.community","args":{"community":"community_id"},"facts":["community_id"]},
+      {"text_key":"conversation.childhood","args":{"childhood":"childhood_id"},"facts":["childhood_id"]}]},
+    {"id":"values","label_key":"conversation.topic.values","min_talks":3,"wait_minutes":180,"pages":[
+      {"text_key":"conversation.values","args":{"values":"value_ids"},"facts":["value_ids"]},
+      {"text_key":"conversation.habits","args":{"habits":"habit_ids"},"facts":["habit_ids"]}]},
+    {"id":"heritage","label_key":"conversation.topic.heritage","min_talks":4,"wait_minutes":360,"pages":[
+      {"text_key":"conversation.heritage","args":{"heritage":"heritage_ids"},"facts":["heritage_ids"]}]}
+  ]
+}
