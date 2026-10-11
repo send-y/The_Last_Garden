@@ -376,6 +376,9 @@ func get_resource_work_required(object_id: String) -> int:
 	return simulation.get_resource_work_required(object_id)
 
 
+func get_resource_required_tool_action(target_id: String) -> String:
+	return simulation.get_resource_required_tool_action(target_id)
+
 func get_resource_required_tool_item_id(target_id: String) -> String:
 	return simulation.get_resource_required_tool_item_id(target_id)
 

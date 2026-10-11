@@ -62,7 +62,7 @@ var _drag_start_rotation: int = 0
 var _drag_grab_fraction := Vector2.ZERO
 var _cursor_pointer_global := Vector2.ZERO
 var _cursor_visual: Control
-var _content := FirstNightContent.new()
+var _content: FirstNightContent
 var grid_columns: int = 4
 var grid_rows: int = 4
 var external_drop_boundary: Control
@@ -102,7 +102,12 @@ func _update_grid_minimum_size() -> void:
 	set_process_input(true)
 
 
-func present(placements: Array[Dictionary]) -> void:
+func present(placements: Array[Dictionary], item_content: FirstNightContent = null) -> void:
+	if item_content != null:
+		_content = item_content
+	elif _content == null:
+		_content = FirstNightContent.new()
+	var held: Dictionary = _placements[_dragged_placement_index].duplicate(true) if _dragged_placement_index >= 0 else {}
 	_placements.clear()
 	_cell_to_placement.clear()
 	_selected_placement_index = -1
@@ -117,12 +122,16 @@ func present(placements: Array[Dictionary]) -> void:
 		_cache_placement_icon(placement_copy)
 		_index_placement_cells(placement_copy, placement_index)
 
+		if not held.is_empty() and _placement_key(placement_copy) == _placement_key(held) and String(placement_copy.get("instance_id", "")) == String(held.get("instance_id", "")) and placement_copy.get("origin") == held.get("origin") and placement_copy.get("rotation", 0) == held.get("rotation", 0) and placement_copy.get("footprint") == held.get("footprint"):
+			_dragged_placement_index = placement_index
 		if _placement_key(placement_copy) == _selected_key:
 			_selected_placement_index = placement_index
 
 	if _selected_placement_index < 0:
 		_selected_key = ""
 
+	if _dragged_placement_index >= 0:
+		_update_cursor_visual()
 	selection_changed.emit(get_selected_placement())
 	queue_redraw()
 

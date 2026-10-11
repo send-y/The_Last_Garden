@@ -105,7 +105,7 @@ static func fill_bucket_for_actor(sim, actor_id: String, water_cell: Vector2i) -
 	if not WaterMapScript.contains_cell(water_cell):
 		return sim._emit_result(false, "ui.bucket.failure.not_water")
 	var active: Dictionary = sim.get_actor_tool(actor_id)
-	if String(active.get("item_id", "")) != "core:bucket":
+	if not sim.actor_tool_supports(actor_id, "water"):
 		return sim._emit_result(false, "ui.bucket.failure.not_equipped")
 	var target_position := FirstNightContent.cell_center(water_cell.x, water_cell.y)
 	var actor: Dictionary = sim._get_resource_actor_position(actor_id)
@@ -115,11 +115,12 @@ static func fill_bucket_for_actor(sim, actor_id: String, water_cell: Vector2i) -
 		return sim._emit_result(false, "ui.bucket.failure.blocked")
 	var instance_id := String(active.get("instance_id", ""))
 	var instance_state: Dictionary = active.get("state", {}) as Dictionary
-	if int(instance_state.get("charges", 0)) >= 2:
+	var capacity: int = sim.content.item_tool_capacity(String(active.item_id))
+	if int(instance_state.get("charges", 0)) >= capacity:
 		return sim._emit_result(true, "ui.bucket.full", false)
-	instance_state["charges"] = 2
+	instance_state["charges"] = capacity
 	sim._update_instance_state(instance_id, instance_state)
-	return sim._emit_result(true, "ui.bucket.filled", true, true, {"charges": 2})
+	return sim._emit_result(true, "ui.bucket.filled", true, true, {"charges": capacity})
 
 
 static func _has_water_line_of_sight(sim, target_cell: Vector2i) -> bool:

@@ -61,6 +61,37 @@ static func _find_stock(sim, npc: Dictionary, id: String) -> Dictionary:
 			return {"record": record, "target_cell": [target.x, target.y]}
 	return {}
 
+static func find_tool_stock(sim, npc: Dictionary, action_id: String) -> Dictionary:
+	for record: Dictionary in sim.state.storage_items:
+		if int(record.get("amount", 0)) != 1 or not sim.content.item_tool_supports(String(record.get("item_id", "")), action_id):
+			continue
+		var instance: Dictionary = sim.get_item_instance(String(record.get("instance_id", "")))
+		var location: Dictionary = instance.get("location", {})
+		if instance.is_empty() or String(instance.item_id) != String(record.item_id) or String(location.get("kind", "")) != "storage" or String(location.get("id", "")) != String(record.get("placement_id", "")):
+			continue
+		var cell := Vector2i(int(record.cell[0]), int(record.cell[1]))
+		if sim._storage_zone_index_at_cell(cell) < 0 or not sim._storage_cell_has_floor(cell) or sim._storage_cell_has_blocking_structure(cell): continue
+		var target := work_cell(sim, npc, cell)
+		if target != Vector2i(-1, -1):
+			return {"record": record.duplicate(true), "target_cell": [target.x, target.y]}
+	return {}
+
+static func borrow_tool(sim, npc: Dictionary, source: Dictionary, action_id: String) -> bool:
+	if not String(npc.carried_instance_id).is_empty() or source.is_empty(): return false
+	var record: Dictionary = source.get("record", {})
+	if not sim.state.storage_items.has(record) or int(record.get("amount", 0)) != 1: return false
+	var id := String(record.get("item_id", ""))
+	if not sim.content.item_tool_supports(id, action_id): return false
+	var instance: Dictionary = sim.get_item_instance(String(record.get("instance_id", "")))
+	var location: Dictionary = instance.get("location", {})
+	if instance.is_empty() or String(instance.item_id) != id or String(location.get("kind", "")) != "storage" or String(location.get("id", "")) != String(record.get("placement_id", "")): return false
+	var cell := Vector2i(int(record.cell[0]), int(record.cell[1]))
+	if sim._storage_zone_index_at_cell(cell) < 0 or not sim._storage_cell_has_floor(cell) or sim._storage_cell_has_blocking_structure(cell) or not nearby(sim, npc, cell): return false
+	npc.carried_instance_id = String(instance.instance_id)
+	sim.state.storage_items.erase(record)
+	sim._set_instance_location(npc.carried_instance_id, "npc", String(npc.id))
+	return true
+
 static func borrow(sim, npc: Dictionary, source: Dictionary) -> bool:
 	if not String(npc.carried_instance_id).is_empty() or source.is_empty():
 		return false

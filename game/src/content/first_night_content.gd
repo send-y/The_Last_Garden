@@ -44,6 +44,11 @@ const LEGACY_OBJECT_IDS: Dictionary = {
 
 var _item_defs: Dictionary = {}
 var _item_order: Array[String] = []
+const ToolProperties := preload("res://src/content/item_tool_properties.gd")
+var _item_tool_profiles: Dictionary = {}
+var reference_errors: Array[String] = []
+var _item_food_profiles: Dictionary = {}
+var _items_path: String = ITEMS_PATH
 var _object_defs: Dictionary = {}
 var _object_order: Array[String] = []
 var _collect_rules: Dictionary = {}
@@ -53,7 +58,8 @@ var _stage_label_keys: Dictionary = {}
 var _costs: Dictionary = {}
 
 
-func _init() -> void:
+func _init(items_path: String = ITEMS_PATH) -> void:
+	_items_path = items_path
 	_load_items()
 	_load_objects()
 	_load_progression()
@@ -107,6 +113,96 @@ func item_max_stack(item_id: String) -> int:
 	)
 	return maxi(1, int(definition.get("max_stack", 1)))
 
+
+func item_food_profile(item_id: String) -> Dictionary:
+	return (_item_food_profiles.get(normalize_item_id(item_id), {}) as Dictionary).duplicate()
+
+
+static func validate_item_food(item: Dictionary) -> Array[String]:
+	var errors: Array[String] = []
+	if not item.has("food"):
+		return errors
+	var prefix := "Item %s food" % String(item.get("id", "<missing>"))
+	var food: Variant = item.food
+	if not food is Dictionary:
+		errors.append(prefix + ": expected an object")
+		return errors
+	for key: Variant in food:
+		if key not in ["satiety", "energy"]:
+			errors.append(prefix + "." + str(key) + ": unknown field")
+	for field: String in ["satiety", "energy"]:
+		if not food.has(field):
+			errors.append(prefix + "." + field + ": required field")
+		elif not _is_finite_integer(food[field]) or float(food[field]) < 0 or float(food[field]) > 100:
+			errors.append(prefix + "." + field + ": expected an integer in 0..100")
+	if errors.is_empty() and int(food.satiety) == 0 and int(food.energy) == 0:
+		errors.append(prefix + ": at least one value must be positive")
+	return errors
+
+
+static func validate_item_schema(data: Dictionary) -> Array[String]:
+	var errors: Array[String] = []
+	var version: Variant = data.get("schema_version", 0)
+	if not _is_finite_integer(version) or int(version) not in [3, 4, 5]:
+		errors.append("schema_version: supported item versions are 3, 4 and 5")
+		return errors
+	var items: Variant = data.get("items", [])
+	if not items is Array:
+		errors.append("items: expected an array")
+		return errors
+	if int(version) >= 4:
+		var food_version: Variant = data.get("food_schema_version", 0)
+		if not _is_finite_integer(food_version) or int(food_version) != 1:
+			errors.append("food_schema_version: supported food version is 1")
+	if int(version) == 5 and (not _is_finite_integer(data.get("tool_schema_version")) or data.get("tool_schema_version") != 1):
+		errors.append("tool_schema_version: supported tool version is 1")
+	var seen_ids: Dictionary = {}
+	for item: Variant in items:
+		if not item is Dictionary:
+			errors.append("items: expected item objects")
+			continue
+		var item_id: String = String(item.get("id", ""))
+		if not item_id.is_empty():
+			if seen_ids.has(item_id):
+				errors.append("Item %s id: duplicate id" % item_id)
+			seen_ids[item_id] = true
+		if int(version) < 5 and (item.has("tool") or item.has("deprecated")):
+			errors.append("Item %s tool/deprecated: requires item schema_version 5" % item_id)
+		if int(version) == 3 and item.has("food"):
+			errors.append("Item %s food: requires item schema_version 4" % item_id)
+	return errors
+
+
+static func validate_item_tool(item: Dictionary) -> Array[String]:
+	return ToolProperties.validate(item)
+
+func item_tool_profile(item_id: String) -> Dictionary:
+	return (_item_tool_profiles.get(normalize_item_id(item_id), {}) as Dictionary).duplicate(true)
+
+func item_tool_supports(item_id: String, action: String) -> bool:
+	return action in (_item_tool_profiles.get(normalize_item_id(item_id), {}) as Dictionary).get("actions", [])
+
+func item_tool_capacity(item_id: String) -> int:
+	return int((_item_tool_profiles.get(normalize_item_id(item_id), {}) as Dictionary).get("water_capacity", 0))
+
+func item_tool_grip(item_id: String) -> String:
+	return String((_item_tool_profiles.get(normalize_item_id(item_id), {}) as Dictionary).get("grip", "carry"))
+
+func item_is_deprecated(item_id: String) -> bool:
+	return (_item_defs.get(normalize_item_id(item_id), {}) as Dictionary).get("deprecated", false) == true
+
+func validate_item_references(refs: Array[Dictionary]) -> Array[String]:
+	var errors: Array[String] = []
+	for ref: Dictionary in refs:
+		var id := normalize_item_id(String(ref.get("item_id", "")))
+		if not has_item(id) or item_is_deprecated(id):
+			errors.append("%s: %s %s: %s item %s" % [ref.get("source_path", "<missing>"), ref.get("owner_id", "<missing>"), ref.get("field", "<missing>"), "deprecated" if has_item(id) else "unknown", id])
+	return errors
+
+func report_reference_errors(errors: Array[String]) -> void:
+	reference_errors.append_array(errors)
+	for error: String in errors:
+		push_warning(error)
 
 func item_is_instance_based(item_id: String) -> bool:
 	var definition: Dictionary = _item_defs.get(
@@ -231,16 +327,31 @@ func _build_interactable(object_id: String, definition: Dictionary) -> Dictionar
 
 
 func _load_items() -> void:
-	var data: Dictionary = _read_json(ITEMS_PATH)
+	var data: Dictionary = _read_json(_items_path)
+	var schema_errors := validate_item_schema(data)
+	if not schema_errors.is_empty():
+		for error: String in schema_errors:
+			push_error("%s: %s" % [_items_path, error])
+		return
 	var items: Array = data.get("items", []) as Array
 	for item_variant: Variant in items:
 		var item: Dictionary = item_variant as Dictionary
 		var item_id: String = String(item.get("id", ""))
 		if item_id.is_empty():
-			push_error("Item content entry without id in %s." % ITEMS_PATH)
+			push_error("Item content entry without id in %s." % _items_path)
 			continue
 		_item_defs[item_id] = item.duplicate(true)
 		_item_order.append(item_id)
+		var tool_errors := validate_item_tool(item)
+		for error: String in tool_errors:
+			push_error("%s: %s" % [_items_path, error])
+		if tool_errors.is_empty() and item.has("tool"):
+			_item_tool_profiles[item_id] = item.tool.duplicate(true)
+		var food_errors := validate_item_food(item)
+		for error: String in food_errors:
+			push_error("%s: %s" % [_items_path, error])
+		if food_errors.is_empty() and item.has("food"):
+			_item_food_profiles[item_id] = {"satiety": int(item.food.satiety), "energy": int(item.food.energy)}
 
 
 func _load_objects() -> void:
@@ -260,7 +371,10 @@ func _load_objects() -> void:
 		var kind: String = String(kind_variant)
 		var rule: Dictionary = (rules[kind_variant] as Dictionary).duplicate(true)
 		rule["item_id"] = normalize_item_id(String(rule.get("item_id", "")))
-		_collect_rules[kind] = rule
+		var errors := validate_item_references([{ "source_path": OBJECTS_PATH, "owner_id": kind, "field": "collect_rules.item_id", "item_id": rule.item_id }])
+		report_reference_errors(errors)
+		if errors.is_empty():
+			_collect_rules[kind] = rule
 
 	var map: Dictionary = data.get("map", {}) as Dictionary
 	if int(map.get("cell_size", CELL_SIZE)) != CELL_SIZE:
@@ -292,7 +406,7 @@ func _normalize_cost(raw_cost: Dictionary) -> Dictionary:
 	return cost
 
 
-func _is_finite_integer(value: Variant) -> bool:
+static func _is_finite_integer(value: Variant) -> bool:
 	if typeof(value) == TYPE_INT:
 		return true
 	if typeof(value) != TYPE_FLOAT:

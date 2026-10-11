@@ -58,28 +58,34 @@ var crafting_catalog: CraftingCatalog
 var _minute_accumulator: float = 0.0
 var _berry_bush_nodes: Array[Dictionary] = []
 var _food_object_ids: Dictionary = {}
-var farming := FarmingScript.new()
+var farming: FarmingSystem
+var item_load_diagnostics: Array[Dictionary] = []
+var builtin_pinecone_enabled := true
 var _inventory_layout_content: FirstNightContent
 var _inventory_layout_counts: Dictionary = {}
 var _inventory_layout_snapshot: Array = []
 var _inventory_layout_synced := false
 
 
-func _init(initial_state: Dictionary = {}) -> void:
+func _init(initial_state: Dictionary = {}, item_content: FirstNightContent = null) -> void:
 	building_catalog = BuildingCatalogScript.new()
-	crafting_catalog = CraftingCatalogScript.new()
-	content = Content.new()
+	content = item_content if item_content != null else Content.new()
+	crafting_catalog = CraftingCatalogScript.new(content)
+	farming = FarmingScript.new(content)
 	npc_catalog = Npcs.new()
 	npc_autonomy = NpcAutonomyScript.new(npc_catalog)
 	if initial_state.is_empty():
-		state = create_new_state()
+		state = create_new_state(DEFAULT_SEED, ResourceNodeCatalogScript.CURRENT_LAYOUT_VERSION, content)
 	else:
 		var header_result: Dictionary = validate_save_header(initial_state)
 		if bool(header_result.get("success", false)):
 			state = initial_state.duplicate(true)
 		else:
 			push_error("Save state rejected: %s." % String(header_result.get("code", "unknown")))
-			state = create_new_state()
+			state = create_new_state(DEFAULT_SEED, ResourceNodeCatalogScript.CURRENT_LAYOUT_VERSION, content)
+	var drop_errors := content.validate_item_references([{ "source_path": "res://src/simulation/systems/resource_system.gd", "owner_id": "pinecone_drop", "field": "item_id", "item_id": ResourceSystem.PINECONE_DROP_ITEM_ID }])
+	content.report_reference_errors(drop_errors)
+	builtin_pinecone_enabled = drop_errors.is_empty()
 	var legacy_farm_missing := not state.has("farming")
 	for roster_error: String in npc_catalog.restore(state.get("npc_profiles", {})):
 		push_warning(roster_error)
@@ -96,6 +102,9 @@ func _init(initial_state: Dictionary = {}) -> void:
 	StockReserves.normalize(self)
 	furniture.normalize(self)
 
+
+func get_item_load_diagnostics() -> Array[Dictionary]:
+	return item_load_diagnostics.duplicate(true)
 
 func tick(real_delta: float) -> bool:
 	return WorldCalendarSystem.tick(self, real_delta)
@@ -492,6 +501,13 @@ func try_pickup_world_drop(drop_id: String) -> Dictionary:
 func get_resource_work_progress(object_id: String) -> int:
 	return ResourceSystem.get_resource_work_progress(self, object_id)
 
+
+func actor_tool_supports(actor_id: String, action_id: String) -> bool:
+	var tool := get_actor_tool(actor_id)
+	return not String(tool.get("instance_id", "")).is_empty() and content.item_tool_supports(String(tool.get("item_id", "")), action_id)
+
+func get_resource_required_tool_action(target_id: String) -> String:
+	return ResourceSystem.get_resource_required_tool_action(self, target_id)
 
 func get_resource_required_tool_item_id(target_id: String) -> String:
 	return ResourceSystem.get_resource_required_tool_item_id(self, target_id)

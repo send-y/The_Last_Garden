@@ -148,7 +148,7 @@ func _run() -> void:
 	if not await _check_layouts(_hud._inventory_panel, "inventory") or not await _screenshot("--inventory-screenshot-path="):
 		return
 	_hud._inventory_panel._eat_button.pressed.emit()
-	if not _check(is_equal_approx(Session.get_player_energy(), float(crop.energy)), "selected raw product restores its configured energy"):
+	if not _check(is_equal_approx(Session.get_player_energy(), float(Session.simulation.content.item_food_profile(String(crop.product_id)).energy)), "selected raw product restores its configured energy"):
 		return
 	_hud.toggle_inventory()
 	_move(Content.cell_center(bed.x, bed.y))
@@ -196,10 +196,20 @@ func _move(position: Vector2) -> void:
 
 
 func _check_layouts(panel: Control, label: String) -> bool:
+	var context_item := ""
+	if panel is InventoryPanel:
+		context_item = String(panel._context_placement.get("item_id", ""))
 	for size: Vector2i in [Vector2i(640, 360), Vector2i(1270, 640)]:
 		get_window().size = size
 		await get_tree().process_frame
 		await get_tree().process_frame
+		if panel is InventoryPanel:
+			# Resizing refreshes the backpack and closes its popup. Reopen the
+			# actual selected item before checking the visible menu's bounds.
+			if not _select_inventory(context_item):
+				return false
+			await get_tree().process_frame
+			await get_tree().process_frame
 		if not _check(Rect2(_hud.global_position, _hud.size).encloses(panel.get_global_rect()), label + " panel must fit actual viewport %s rect=%s hud=%s" % [size, panel.get_global_rect(), _hud.size]):
 			return false
 		if panel is FarmingPanel:
@@ -207,7 +217,9 @@ func _check_layouts(panel: Control, label: String) -> bool:
 				if not _check(panel.get_global_rect().encloses(child.get_global_rect()) and (not child is Button or child.get_minimum_size().x <= child.size.x), "farming controls fit panel"):
 					return false
 		else:
-			if not _check(Rect2(_hud.global_position, _hud.size).encloses(_hud._inventory_panel._context_menu.get_global_rect()), "inventory context actions fit viewport"):
+			if not _check(_hud._inventory_panel._context_menu.visible, "context menu is actually open for its bounds check"):
+				return false
+			if not _check(Rect2(_hud.global_position, _hud.size).encloses(_hud._inventory_panel._context_menu.get_global_rect()), "inventory context actions fit viewport size=%s menu=%s hud=%s visible=%s" % [size, _hud._inventory_panel._context_menu.get_global_rect(), Rect2(_hud.global_position, _hud.size), _hud._inventory_panel._context_menu.visible]):
 				return false
 		if size == Vector2i(640, 360) and label == "ripe":
 			if not await _screenshot("--base-screenshot-path="):

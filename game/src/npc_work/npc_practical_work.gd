@@ -95,8 +95,8 @@ static func _context_for(sim, npc: Dictionary) -> Dictionary:
 	var target := INVALID
 	match phase:
 		"borrow":
-			context = Supply.find_stock(sim, npc, String(job.tool_id))
-			if context.is_empty():
+			context = Supply.find_tool_stock(sim, npc, Planner.tool_action(job))
+			if context.is_empty() or String(context.record.item_id) != String(job.tool_id):
 				cancel(npc)
 				return {}
 		"refill":
@@ -205,7 +205,7 @@ static func fulfil(sim, effect: Dictionary) -> bool:
 		return true
 	match phase:
 		"borrow":
-			if Supply.borrow(sim, npc, context):
+			if String(context.get("record", {}).get("item_id", "")) == String(job.tool_id) and Supply.borrow_tool(sim, npc, context, Planner.tool_action(job)):
 				job.phase = "refill" if String(job.kind) == "water" and int(Supply.tool(sim, npc).get("state", {}).get("charges", 0)) == 0 else "work"
 				if String(job.phase) == "refill" and job.get("water_cell", []).is_empty():
 					job.water_cell = Supply.find_water(sim, npc)

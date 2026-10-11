@@ -18,7 +18,8 @@ var _facing: Vector2 = Vector2.DOWN
 var _walk_time: float = 0.0
 var _walk_frame: int = 0
 var _visual
-var _content := FirstNightContentScript.new()
+var _content: FirstNightContent:
+	get: return Session.simulation.content
 var _held_icon_cache: Dictionary = {}
 
 
@@ -47,7 +48,7 @@ func _refresh_held_item() -> void:
 			texture = _held_icon_cache[path] as Texture2D
 		else:
 			texture = PlaceholderIcon.texture_for(item_id)
-	_visual.set_held_item(item_id, texture)
+	_visual.set_held_item(item_id, texture, _content.item_tool_grip(item_id))
 	var was_seated: bool = _visual._sitting
 	var seated: bool = not Session.simulation.furniture.comfort(Session.simulation,"core:player").is_empty()
 	_visual.set_sitting(seated)

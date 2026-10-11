@@ -7,7 +7,7 @@ const STOCK_TARGETS := {"core:wood": 20, "core:stone": 15}
 
 static func choose(sim, npc: Dictionary) -> Dictionary:
 	var choices: Array[Dictionary] = []
-	var bucket_source: Dictionary = Supply.find_stock(sim, npc, "core:bucket") if bool(npc.work_options.water) else {}
+	var bucket_source: Dictionary = Supply.find_tool_stock(sim, npc, "water") if bool(npc.work_options.water) else {}
 	var refill: Array = []
 	var bucket_ready := false
 	if not bucket_source.is_empty():
@@ -21,14 +21,15 @@ static func choose(sim, npc: Dictionary) -> Dictionary:
 				continue
 			var cell := Vector2i(int(bed.cell[0]), int(bed.cell[1]))
 			if Supply.work_cell(sim, npc, cell) != Vector2i(-1, -1):
-				choices.append({"kind": "water", "phase": "borrow", "tool_id": "core:bucket", "cell": bed.cell.duplicate(), "water_cell": refill, "drops": []})
+				choices.append({"kind": "water", "phase": "borrow", "tool_id": String(bucket_source.record.item_id), "cell": bed.cell.duplicate(), "water_cell": refill, "drops": []})
 				break
 	if bool(npc.work_options.gather):
 		for item_id: String in STOCK_TARGETS:
 			if stock(sim, item_id) >= int(STOCK_TARGETS[item_id]):
 				continue
-			var tool_id := "core:axe" if item_id == "core:wood" else "core:pickaxe"
-			if Supply.find_stock(sim, npc, tool_id).is_empty():
+			var action_id := "chop" if item_id == "core:wood" else "mine"
+			var tool_source := Supply.find_tool_stock(sim, npc, action_id)
+			if tool_source.is_empty():
 				continue
 			var targets: Array = sim.get_surface_trees() if item_id == "core:wood" else sim.get_surface_boulders()
 			var position: Vector2 = sim.get_npc_position(String(npc.id), Vector2.ZERO)
@@ -42,7 +43,7 @@ static func choose(sim, npc: Dictionary) -> Dictionary:
 					break
 				var cell: Vector2i = sim._world_position_to_cell(target.position)
 				if Supply.work_cell(sim, npc, cell) != Vector2i(-1, -1):
-					choices.append({"kind": "gather", "phase": "borrow", "tool_id": tool_id,
+					choices.append({"kind": "gather", "phase": "borrow", "tool_id": String(tool_source.record.item_id),
 						"resource_item": item_id, "target_id": String(target.id), "cell": [cell.x, cell.y], "drops": []})
 					break
 	if bool(npc.work_options.build):
@@ -104,3 +105,8 @@ static func material_source(sim, npc: Dictionary, blueprint: Dictionary) -> Dict
 				source.missing = missing
 				return source
 	return {}
+
+static func tool_action(job: Dictionary) -> String:
+	if String(job.get("kind", "")) == "water": return "water"
+	if String(job.get("kind", "")) == "gather": return "chop" if String(job.get("resource_item", "")) == "core:wood" else "mine"
+	return ""

@@ -1,0 +1,86 @@
+{
+  "items": [
+    {
+      "id": "test:axe_variant",
+      "label_key": "item.core.axe.name",
+      "icon_path": "res://assets/sprites/items/axe_n.png",
+      "max_stack": 1,
+      "instance_based": true,
+      "footprint": [[0, 0], [1, 0], [0, 1], [1, 1], [0, 2]],
+      "tool": {
+        "actions": [
+          "chop",
+          "clear_bush"
+        ],
+        "grip": "shaft"
+      }
+    },
+    {
+      "id": "test:pickaxe_variant",
+      "label_key": "item.core.pickaxe.name",
+      "icon_path": "res://assets/sprites/items/pickaxe_n.png",
+      "max_stack": 1,
+      "instance_based": true,
+      "footprint": [[0, 0], [1, 0], [2, 0], [1, 1], [1, 2]],
+      "tool": {
+        "actions": [
+          "mine"
+        ],
+        "grip": "shaft"
+      }
+    },
+    {
+      "id": "test:hoe_variant",
+      "label_key": "item.core.hoe.name",
+      "icon_path": "res://assets/sprites/items/hoe_n.png",
+      "max_stack": 1,
+      "instance_based": true,
+      "footprint": [[0, 0], [0, 1], [0, 2], [1, 2]],
+      "tool": {
+        "actions": [
+          "till"
+        ],
+        "grip": "shaft"
+      }
+    },
+    {
+      "id": "test:bucket_variant",
+      "label_key": "item.core.bucket.name",
+      "icon_path": "res://assets/sprites/items/bucket_not_full.png",
+      "icon_state_property": "charges",
+      "icon_state_paths": {
+        "0": "res://assets/sprites/items/bucket_not_full.png",
+        "1": "res://assets/sprites/items/bucket_full.png",
+        "2": "res://assets/sprites/items/bucket_full.png",
+        "3": "res://assets/sprites/items/bucket_full.png",
+        "4": "res://assets/sprites/items/bucket_full.png"
+      },
+      "max_stack": 1,
+      "instance_based": true,
+      "footprint": [[0, 0], [0, 1]],
+      "tool": {
+        "actions": [
+          "water"
+        ],
+        "grip": "carry",
+        "water_capacity": 4
+      }
+    },
+    {
+      "id": "test:deprecated_axe",
+      "label_key": "item.core.axe.name",
+      "icon_path": "res://assets/sprites/items/axe_n.png",
+      "max_stack": 1,
+      "instance_based": true,
+      "footprint": [[0, 0], [1, 0], [0, 1], [1, 1], [0, 2]],
+      "tool": {
+        "actions": [
+          "chop",
+          "clear_bush"
+        ],
+        "grip": "shaft"
+      },
+      "deprecated": true
+    }
+  ]
+}

@@ -26,7 +26,7 @@ func normalize(sim) -> void:
 		npc.meal_trip = {}
 		if raw is Dictionary:
 			var item := String(raw.get("item_id",""))
-			if int(npc.personal_inventory.get(item,0)) > 0 and not sim.needs.food_profile(item,sim.farming.catalog).is_empty():
+			if int(npc.personal_inventory.get(item,0)) > 0 and not sim.needs.food_profile(item,sim.content).is_empty():
 				npc.meal_trip = {"item_id":item}
 		if not npc.furniture_target.is_empty() and seat_at(sim,npc.furniture_target).is_empty():
 			npc.furniture_target = []
@@ -263,7 +263,7 @@ func options(sim, cell: Vector2i) -> Dictionary:
 				break
 	var foods: Array[String] = []
 	for item: String in sim.get_inventory():
-		if sim.get_item_count(item) > 0 and not sim.needs.food_profile(item,sim.farming.catalog).is_empty():
+		if sim.get_item_count(item) > 0 and not sim.needs.food_profile(item,sim.content).is_empty():
 			foods.append(item)
 	var rest := find_seat(sim,"core:player",false,cell)
 	var light_cell := cell if rest.is_empty() else Vector2i(int(rest.chair_cell[0]),int(rest.chair_cell[1]))
@@ -296,7 +296,7 @@ func execute(sim, cell: Vector2i, action: String, item: String = "") -> Dictiona
 	sim.set_player_position(Content.cell_center(int(seat.chair_cell[0]),int(seat.chair_cell[1])))
 	if action == "eat":
 		var physical: Dictionary = sim.get_player_needs()
-		sim.needs.feed(physical,sim.needs.food_profile(item,sim.farming.catalog))
+		sim.needs.feed(physical,sim.needs.food_profile(item,sim.content))
 		sim.state.player_energy = physical.energy
 		sim.state.player_needs.hunger = physical.hunger
 		sim.WorldCalendarSystem._advance_clock(sim,5,true,"resting_on_chair")

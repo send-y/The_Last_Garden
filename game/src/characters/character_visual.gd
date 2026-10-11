@@ -8,6 +8,7 @@ var _appearance: Dictionary = {}
 var _facing: Vector2 = Vector2.DOWN
 var _walk_frame: int = 0
 var _is_moving: bool = false
+var _held_grip := "carry"
 var _held_item_id: String = ""
 var _held_texture: Texture2D
 var _equipment_controls_hand: bool = false
@@ -45,10 +46,11 @@ func set_pose(facing: Vector2, walk_frame: int, is_moving: bool) -> void:
 		queue_redraw()
 
 
-func set_held_item(item_id: String, texture: Texture2D) -> void:
+func set_held_item(item_id: String, texture: Texture2D, grip: String = "carry") -> void:
 	_equipment_controls_hand = true
-	if item_id == _held_item_id and texture == _held_texture:
+	if item_id == _held_item_id and texture == _held_texture and grip == _held_grip:
 		return
+	_held_grip = grip
 	_held_item_id = item_id
 	_held_texture = texture
 	queue_redraw()
@@ -58,7 +60,7 @@ func _draw_equipped_item() -> void:
 	if _held_texture == null:
 		return
 	var side := -1.0 if _direction_name() == "left" else 1.0
-	var tool := _held_item_id in ["core:axe", "core:pickaxe", "core:hoe"]
+	var tool := _held_grip == "shaft"
 	var extent := _held_texture.get_size()
 	var icon_size := extent * ((27.0 if tool else 15.0) / maxf(extent.x, extent.y))
 	# Tools are gripped along the shaft; products sit beside the palm.

@@ -9,13 +9,13 @@ static func find_meal(sim, npc: Dictionary) -> Dictionary:
 	if not trip.is_empty() and int(npc.personal_inventory.get(String(trip.item_id),0)) > 0:
 		return _personal_meal(sim,npc,String(trip.item_id))
 	for id: String in npc.personal_inventory:
-		if int(npc.personal_inventory[id]) > 0 and not sim.needs.food_profile(id, sim.farming.catalog).is_empty():
+		if int(npc.personal_inventory[id]) > 0 and not sim.needs.food_profile(id, sim.content).is_empty():
 			return _personal_meal(sim,npc,id)
 	var npc_cell: Vector2i = sim._world_position_to_cell(sim.get_npc_position(String(npc.id), Vector2.ZERO))
 	var player_cell: Vector2i = sim._world_position_to_cell(sim.get_player_position())
 	for stored: Dictionary in sim.state.storage_items:
 		var id := String(stored.item_id)
-		if int(stored.amount) <= 0 or sim.needs.food_profile(id, sim.farming.catalog).is_empty():
+		if int(stored.amount) <= 0 or sim.needs.food_profile(id, sim.content).is_empty():
 			continue
 		var cell := Vector2i(int(stored.cell[0]), int(stored.cell[1]))
 		var target: Vector2i = sim.npc_autonomy.find_construction_work_cell(cell, npc_cell, player_cell)
@@ -54,7 +54,7 @@ static func fulfil(sim, effect: Dictionary) -> bool:
 	if current_cell != Vector2i(int(target[0]), int(target[1])):
 		return false
 	var id := String(meal.get("item_id", ""))
-	var profile: Dictionary = sim.needs.food_profile(id, sim.farming.catalog)
+	var profile: Dictionary = sim.needs.food_profile(id, sim.content)
 	if profile.is_empty():
 		return false
 	if String(meal.get("source", "")) == "personal":

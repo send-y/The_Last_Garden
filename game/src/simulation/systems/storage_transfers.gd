@@ -134,7 +134,7 @@ static func transfer_storage_stack_to_inventory(sim,
 		state["inventory_layout"] = candidate_layout
 		if not item_instance_id.is_empty():
 			sim._set_instance_location(item_instance_id, "inventory")
-		if ["core:bucket", "core:axe", "core:pickaxe", "core:hoe"].has(item_id):
+		if not content.item_tool_profile(item_id).is_empty():
 			sim._flags_mutable()["tools_found"] = true
 		storage_items.remove_at(index)
 		return sim._emit_result(true, "ui.storage.transfer.taken", true, true, {"amount": amount, "item": Localized.resolve(content.item_label_key(item_id))})

@@ -6,7 +6,10 @@ const Content := preload("res://src/content/first_night_content.gd")
 const Navigation := preload("res://src/simulation/first_night_navigation.gd")
 const Packer := preload("res://src/inventory/inventory_auto_packer.gd")
 const Localized := preload("res://src/localization/localized_text.gd")
-var catalog := Catalog.new()
+var catalog: CropCatalog
+
+func _init(item_content: FirstNightContent = null) -> void:
+	catalog = Catalog.new(item_content)
 
 
 static func empty_state() -> Dictionary:
@@ -111,6 +114,16 @@ func execute(sim, command: Dictionary) -> Dictionary:
 	var cell := Vector2i(int(cell_value[0]), int(cell_value[1]))
 	if sim.get_player_position().distance_to(Content.cell_center(cell.x, cell.y)) > Content.INTERACTION_RANGE:
 		return _result(sim, false, "interaction.failure.too_far")
+	# Refusals must not interrupt a seated/resting actor or consume a charge.
+	if action == "till" and not sim.actor_tool_supports("core:player", "till"):
+		return _result(sim, false, "farming.failure.hoe")
+	if action == "water":
+		var selected: Dictionary = sim.get_actor_tool("core:player")
+		var selected_bed := bed_at(sim, cell)
+		if selected_bed.is_empty() or not sim.actor_tool_supports("core:player", "water") or int(selected.get("state", {}).get("charges", 0)) <= 0:
+			return _result(sim, false, "farming.failure.water")
+		if int(selected_bed.wet_until) > sim.get_elapsed_game_minutes():
+			return _result(sim, false, "farming.failure.wet")
 	if action in ["till","plant","water","harvest","remove"]:
 		if not sim.prepare_player_work():
 			return _result(sim,false,"furniture.failure.approach")
@@ -119,7 +132,7 @@ func execute(sim, command: Dictionary) -> Dictionary:
 	var bed := bed_at(sim, cell)
 	match action:
 		"till":
-			if String(sim.get_active_item_instance().get("item_id", "")) != "core:hoe":
+			if not sim.actor_tool_supports("core:player", "till"):
 				return _result(sim, false, "farming.failure.hoe")
 			if not bed.is_empty() or not _soil_allowed(sim, cell):
 				return _result(sim, false, "farming.failure.soil")
@@ -161,14 +174,23 @@ func execute(sim, command: Dictionary) -> Dictionary:
 	return _result(sim, false, "farming.failure.action")
 
 
+func can_extract_seeds(item_id: String) -> bool:
+	if item_id == Content.FOOD_ID:
+		return true
+	var crop := catalog.find(item_id)
+	return not crop.is_empty() and item_id == String(crop.product_id)
+
+
 func _extract(sim, item_id: String) -> Dictionary:
 	var special := item_id == Content.FOOD_ID
 	var crop := catalog.find(item_id)
-	if not special and (crop.is_empty() or item_id != String(crop.product_id)):
+	if not can_extract_seeds(item_id):
 		return _result(sim, false, "farming.failure.product")
 	if not special and not extraction_unlocked(sim):
 		return _result(sim, false, "farming.failure.study")
 	if sim.get_item_count(item_id) < 1:
+		return _result(sim, false, "farming.failure.product")
+	if special and catalog.crops.is_empty():
 		return _result(sim, false, "farming.failure.product")
 	var rng := RandomNumberGenerator.new()
 	var serial: int = int(sim.state.farming.roll_index)
@@ -196,18 +218,16 @@ func _extract(sim, item_id: String) -> Dictionary:
 
 
 func _eat(sim, item_id: String) -> Dictionary:
-	var crop := catalog.find(item_id)
-	var energy := int(catalog.settings.special_berry_energy) if item_id == Content.FOOD_ID else int(crop.get("energy", 0))
-	if energy <= 0 or (item_id != Content.FOOD_ID and item_id != String(crop.get("product_id", ""))):
+	var profile: Dictionary = sim.needs.food_profile(item_id, sim.content)
+	if profile.is_empty():
 		return _result(sim, false, "farming.failure.product")
 	if not sim._consume_items({item_id: 1}):
 		return _result(sim, false, "ui.inventory.food.none")
-	var profile: Dictionary = sim.needs.food_profile(item_id, catalog)
 	var physical: Dictionary = sim.get_player_needs()
 	sim.needs.feed(physical, profile)
 	sim.state.player_energy = physical.energy
 	sim.state.player_needs.hunger = physical.hunger
-	return _result(sim, true, "farming.eaten", {"energy": energy, "satiety": profile.satiety})
+	return _result(sim, true, "farming.eaten", {"energy": profile.energy, "satiety": profile.satiety})
 
 
 func _soil_allowed(sim, cell: Vector2i) -> bool:
@@ -309,7 +329,7 @@ func water_for_actor(sim, actor_id: String, cell: Vector2i) -> Dictionary:
 		return _result(sim, false, "farming.failure.actor")
 	var bed: Dictionary = sim.get_farm_bed(cell)
 	var bucket: Dictionary = sim.get_actor_tool(actor_id)
-	if bed.is_empty() or String(bucket.get("item_id", "")) != "core:bucket":
+	if bed.is_empty() or not sim.actor_tool_supports(actor_id, "water"):
 		return _result(sim, false, "farming.failure.water")
 	var bucket_state: Dictionary = bucket.get("state", {})
 	if int(bucket_state.get("charges", 0)) <= 0:

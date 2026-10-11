@@ -7,7 +7,8 @@ const Crops := preload("res://src/farming/crop_catalog.gd")
 const UiSkin := preload("res://src/ui/pixel_ui_skin.gd")
 var cell := Vector2i(-1, -1)
 var _column: VBoxContainer
-var _crops := Crops.new()
+var _crops: CropCatalog:
+	get: return Session.simulation.farming.catalog
 var _confirm_remove := false
 
 
@@ -64,12 +65,13 @@ func refresh() -> void:
 	else:
 		var info := Label.new()
 		info.add_theme_font_size_override("font_size", 11)
-		info.text = Localized.resolve("farming.crop_info", {"yield": int(crop["yield"]), "energy": int(crop.energy)})
+		var food: Dictionary = Session.simulation.content.item_food_profile(String(crop.product_id))
+		info.text = Localized.resolve("farming.crop_info", {"yield": int(crop["yield"]), "energy": int(food.get("energy", 0))})
 		_column.add_child(info)
 		_button("HarvestButton", Localized.resolve("farming.harvest_button"), "harvest", "",
 			int(bed.growth) < Session.simulation.farming._required_growth(bed, crop))
 	var bucket: Dictionary = Session.get_active_item_instance()
-	var has_water := String(bucket.get("item_id", "")) == "core:bucket" and int((bucket.get("state", {}) as Dictionary).get("charges", 0)) > 0
+	var has_water := Session.simulation.actor_tool_supports("core:player", "water") and int((bucket.get("state", {}) as Dictionary).get("charges", 0)) > 0
 	var wet := int(bed.wet_until) > Session.simulation.get_elapsed_game_minutes()
 	_button("WaterButton", Localized.resolve("farming.water_button" if has_water else "farming.equip_bucket"), "water", "", wet or not has_water)
 	_button("RemoveButton", Localized.resolve("farming.remove_button"), "remove")

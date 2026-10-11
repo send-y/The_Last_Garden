@@ -1,5 +1,8 @@
 extends "res://src/simulation/world_rules.gd"
 
+const ToolState := preload("res://src/items/tool_instance_state.gd")
+const LoadDiagnostics := preload("res://src/items/item_load_diagnostics.gd")
+
 # Operates on the authoritative WorldSimulation state; owns no copy.
 
 static func get_item_instance(sim, instance_id: String) -> Dictionary:
@@ -36,8 +39,8 @@ static func _create_item_instances(sim,
 			instance_id = "core:item_instance_%06d" % serial
 		state["next_item_instance_serial"] = serial + 1
 		var item_state := initial_state.duplicate(true)
-		if item_id == "core:bucket":
-			item_state["charges"] = clampi(_safe_int(item_state.get("charges", 0), 0), 0, 2)
+		if sim.content.item_tool_supports(item_id, "water"):
+			item_state = ToolState.normalize_water_state(item_state, sim.content.item_tool_capacity(item_id))
 		instances.append({
 			"instance_id": instance_id,
 			"item_id": item_id,
@@ -111,6 +114,7 @@ static func _inventory_counts_without_instances(sim, inventory: Dictionary) -> D
 
 
 static func _normalize_item_instances(sim, value: Variant, legacy_inventory: Dictionary) -> Array[Dictionary]:
+	sim.item_load_diagnostics.clear()
 	var state: Dictionary = sim.state
 	var content: FirstNightContent = sim.content
 	var result: Array[Dictionary] = []
@@ -122,6 +126,14 @@ static func _normalize_item_instances(sim, value: Variant, legacy_inventory: Dic
 			var raw := instance_value as Dictionary
 			var item_id := content.normalize_item_id(String(raw.get("item_id", "")))
 			if not content.item_is_instance_based(item_id):
+				var reason := "not_instance_based" if content.has_item(item_id) else "unknown_item_definition"
+				var found := false
+				for row: Dictionary in sim.item_load_diagnostics:
+					if row.id == item_id and row.reason == reason:
+						row.count += 1
+						found = true
+						break
+				if not found: sim.item_load_diagnostics.append({"id": item_id, "count": 1, "reason": reason})
 				continue
 			var instance_id := String(raw.get("instance_id", "")).strip_edges()
 			if not instance_id.begins_with("core:item_instance_") or seen_ids.has(instance_id):
@@ -134,8 +146,8 @@ static func _normalize_item_instances(sim, value: Variant, legacy_inventory: Dic
 				location_kind = "inventory"
 			var item_state_value: Variant = raw.get("state", {})
 			var item_state: Dictionary = item_state_value.duplicate(true) if typeof(item_state_value) == TYPE_DICTIONARY else {}
-			if item_id == "core:bucket":
-				item_state["charges"] = clampi(_safe_int(item_state.get("charges", 0), 0), 0, 2)
+			if content.item_tool_supports(item_id, "water"):
+				item_state = ToolState.normalize_water_state(item_state, content.item_tool_capacity(item_id))
 			result.append({
 				"instance_id": instance_id,
 				"item_id": item_id,
@@ -145,6 +157,8 @@ static func _normalize_item_instances(sim, value: Variant, legacy_inventory: Dic
 					"id": String(location.get("id", "")),
 				},
 			})
+	for row: Dictionary in sim.item_load_diagnostics:
+		push_warning(LoadDiagnostics.warning_text(row))
 	state["item_instances"] = result
 	for item_id: String in content.item_ids():
 		if not content.item_is_instance_based(item_id):

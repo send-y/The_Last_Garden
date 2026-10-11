@@ -12,8 +12,6 @@ signal equip_requested(placement: Dictionary)
 const Localized := preload(
 	"res://src/localization/localized_text.gd"
 )
-const Crops := preload("res://src/farming/crop_catalog.gd")
-var _crops := Crops.new()
 var _extract_button: Button
 var _eat_button: Button
 var _drop_button: Button
@@ -200,11 +198,12 @@ func _fit_to_viewport() -> void:
 
 func present(
 	title_text: String,
-	placements: Array[Dictionary]
+	placements: Array[Dictionary],
+	item_content: FirstNightContent = null
 ) -> void:
 	_title_label.text = title_text
 	_close_context_menu()
-	_inventory_grid.present(placements)
+	_inventory_grid.present(placements, item_content)
 
 
 func set_external_hotbar_target(target: Control) -> void:
@@ -302,19 +301,18 @@ func _on_inventory_selection_changed(
 			"amount": int(placement.get("amount", 1)),
 		}
 	)
-	if String(placement.get("item_id", "")) == "core:bucket":
+	if Session.simulation.content.item_tool_supports(String(placement.get("item_id", "")), "water"):
 		var item_state: Dictionary = placement.get("instance_state", {}) as Dictionary
-		_details_label.text += "  %d/2" % int(item_state.get("charges", 0))
+		_details_label.text += "  %d/%d" % [int(item_state.get("charges", 0)), Session.simulation.content.item_tool_capacity(String(placement.item_id))]
 	var item_id := String(placement.get("item_id", ""))
-	var crop := _crops.find(item_id)
-	var is_product := not crop.is_empty() and item_id == String(crop.product_id)
-	_eat_button.visible = item_id == "core:food" or is_product
-	_extract_button.visible = _eat_button.visible
-	_extract_button.disabled = is_product and not Session.simulation.farming.extraction_unlocked(Session.simulation)
+	var profile: Dictionary = Session.simulation.content.item_food_profile(item_id)
+	_eat_button.visible = not profile.is_empty()
+	_extract_button.visible = Session.simulation.farming.can_extract_seeds(item_id)
+	_extract_button.disabled = item_id != "core:food" and not Session.simulation.farming.extraction_unlocked(Session.simulation)
 	_extract_button.tooltip_text = Localized.resolve("farming.failure.study") if _extract_button.disabled else Localized.resolve("farming.extract_hint")
 	if _eat_button.visible:
-		var energy := int(_crops.settings.special_berry_energy) if item_id == "core:food" else int(crop.energy)
-		var satiety := int(_crops.settings.special_berry_satiety) if item_id == "core:food" else int(crop.satiety)
+		var energy := int(profile.energy)
+		var satiety := int(profile.satiety)
 		_details_label.text += Localized.resolve("farming.energy_hint", {"energy": energy, "satiety": satiety})
 		_eat_button.tooltip_text = Localized.resolve("farming.energy_hint", {"energy": energy, "satiety": satiety})
 

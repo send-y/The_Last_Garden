@@ -110,9 +110,10 @@ const LEGACY_V3_OUTCOME_IDS: Dictionary = {
 
 static func create_new_state(
 	seed_value: int = DEFAULT_SEED,
-	resource_generation_version: int = ResourceNodeCatalogScript.CURRENT_LAYOUT_VERSION
+	resource_generation_version: int = ResourceNodeCatalogScript.CURRENT_LAYOUT_VERSION,
+	item_content: FirstNightContent = null
 ) -> Dictionary:
-	var content_data: FirstNightContent = Content.new()
+	var content_data: FirstNightContent = item_content if item_content != null else Content.new()
 	var npc_data := Npcs.new()
 	var boulders: Array[Dictionary] = (
 		ResourceNodeCatalogScript.generate_surface_boulders(seed_value, resource_generation_version)
@@ -177,8 +178,9 @@ static func create_new_state(
 		"crafting_projects": [],
 	}
 
-static func create_new_game_state(seed_value: int = DEFAULT_SEED) -> Dictionary:
-	var new_state := create_new_state(seed_value)
+static func create_new_game_state(seed_value: int = DEFAULT_SEED, item_content: FirstNightContent = null) -> Dictionary:
+	var content_data: FirstNightContent = item_content if item_content != null else Content.new()
+	var new_state := create_new_state(seed_value, ResourceNodeCatalogScript.CURRENT_LAYOUT_VERSION, content_data)
 	var floors: Array[Dictionary] = []
 	var storage_cells: Array = []
 	for cell: Vector2i in STARTER_PANTRY_CELLS:
@@ -244,6 +246,15 @@ static func create_new_game_state(seed_value: int = DEFAULT_SEED) -> Dictionary:
 			"placement_id": "core:hoe:0", "instance_id": "core:item_instance_000004",
 		},
 	]
+	# Validate the declarations used above, never saved instances.
+	var rejected: Dictionary = {}
+	for record: Dictionary in new_state.item_instances:
+		var id := String(record.item_id)
+		var errors := content_data.validate_item_references([{"source_path": "res://src/simulation/world_rules.gd", "owner_id": "starter_pantry", "field": "item_id", "item_id": id}])
+		content_data.report_reference_errors(errors)
+		if not errors.is_empty(): rejected[id] = true
+	new_state.item_instances = new_state.item_instances.filter(func(record): return not rejected.has(record.item_id))
+	new_state.storage_items = new_state.storage_items.filter(func(record): return not rejected.has(record.item_id))
 	return new_state
 
 static func validate_save_header(raw_state: Dictionary) -> Dictionary:

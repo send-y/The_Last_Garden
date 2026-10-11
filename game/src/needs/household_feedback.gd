@@ -63,13 +63,13 @@ static func _room_problem(sim, home: Dictionary) -> Dictionary:
 
 static func _food(sim, npc: Dictionary) -> Dictionary:
 	for item: String in npc.personal_inventory:
-		if int(npc.personal_inventory[item]) > 0 and not sim.needs.food_profile(item,sim.farming.catalog).is_empty():
+		if int(npc.personal_inventory[item]) > 0 and not sim.needs.food_profile(item,sim.content).is_empty():
 			return _row("food","carrying" if not npc.get("meal_trip",{}).is_empty() else "personal","good")
 	var source: Vector2i = sim._world_position_to_cell(sim.get_npc_position(String(npc.id),Vector2.ZERO))
 	var blocker: Vector2i = sim._world_position_to_cell(sim.get_player_position())
 	var has_food := false
 	for stored: Dictionary in sim.state.storage_items:
-		if int(stored.amount) <= 0 or sim.needs.food_profile(String(stored.item_id),sim.farming.catalog).is_empty():
+		if int(stored.amount) <= 0 or sim.needs.food_profile(String(stored.item_id),sim.content).is_empty():
 			continue
 		has_food = true
 		var cell := Vector2i(int(stored.cell[0]),int(stored.cell[1]))

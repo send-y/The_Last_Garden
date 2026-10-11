@@ -316,16 +316,14 @@ func _start_player_resource_work(
 ) -> void:
 	if _active_resource_id == target_id:
 		return
-	var required_tool_item_id := Session.get_resource_required_tool_item_id(
-		target_id
-	)
+	var required_action := Session.get_resource_required_tool_action(target_id)
 	var active_tool := Session.get_active_item_instance()
 	if (
-		not required_tool_item_id.is_empty()
-		and String(active_tool.get("item_id", "")) != required_tool_item_id
+		not required_action.is_empty()
+		and not Session.simulation.actor_tool_supports(PLAYER_ACTOR_ID, required_action)
 	):
 		Session.notify_player_key(
-			_resource_tool_requirement_message(required_tool_item_id)
+			_resource_tool_requirement_message(required_action)
 		)
 		return
 
@@ -341,10 +339,8 @@ func _start_player_resource_work(
 
 
 func _process_player_resource_work(delta: float) -> void:
-	var required_tool_item_id := Session.get_resource_required_tool_item_id(
-		_active_resource_id
-	)
-	if not required_tool_item_id.is_empty():
+	var required_action := Session.get_resource_required_tool_action(_active_resource_id)
+	if not required_action.is_empty():
 		var active_tool := Session.get_active_item_instance()
 		if (
 			_active_resource_tool_instance_id.is_empty()
@@ -582,7 +578,7 @@ func _show_resource_work_result(
 	match reason_id:
 		"core:resource_tool_not_selected":
 			message_key = _resource_tool_requirement_message(
-				String(result.get("required_tool_item_id", ""))
+				String(result.get("required_tool_action", ""))
 			)
 		"core:resource_work_tool_changed":
 			message_key = "resource.feedback.tool_changed"
@@ -613,11 +609,11 @@ func _show_resource_work_result(
 	)
 
 
-func _resource_tool_requirement_message(item_id: String) -> String:
-	match item_id:
-		"core:axe":
+func _resource_tool_requirement_message(action_id: String) -> String:
+	match action_id:
+		"chop":
 			return "resource.feedback.axe_required"
-		"core:pickaxe":
+		"mine":
 			return "resource.feedback.pickaxe_required"
 	return "resource.feedback.invalid"
 

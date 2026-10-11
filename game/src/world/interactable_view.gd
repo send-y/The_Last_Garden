@@ -150,7 +150,7 @@ func refresh_from_state(snap: bool = false) -> void:
 					if not _held_icon_cache.has(path):
 						_held_icon_cache[path] = load(path)
 					texture = _held_icon_cache[path] as Texture2D
-			_character_visual.set_held_item(tool_id, texture)
+			_character_visual.set_held_item(tool_id, texture, Session.simulation.content.item_tool_grip(tool_id))
 			_character_visual.set_sitting(position.distance_to(_target_position) <= 0.25 and not Session.simulation.furniture.comfort(Session.simulation,object_id).is_empty())
 			_character_visual.set_pose(
 				Session.get_npc_facing(object_id),

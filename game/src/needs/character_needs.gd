@@ -67,13 +67,8 @@ func advance(needs: Dictionary, activity: String, covered: bool, sleep_profile: 
 func spend_work(needs: Dictionary) -> void:
 	needs.energy = maxf(0, float(needs.energy) - float(config.work_energy_cost))
 
-func food_profile(item_id: String, crops) -> Dictionary:
-	if item_id == "core:food":
-		return {"energy": int(crops.settings.special_berry_energy), "satiety": int(crops.settings.special_berry_satiety)}
-	var crop: Dictionary = crops.find(item_id)
-	if crop.is_empty() or item_id != String(crop.get("product_id", "")):
-		return {}
-	return {"energy": int(crop.energy), "satiety": int(crop.satiety)}
+func food_profile(item_id: String, items: FirstNightContent) -> Dictionary:
+	return items.item_food_profile(item_id)
 
 func feed(needs: Dictionary, profile: Dictionary) -> void:
 	needs.hunger = minf(100, float(needs.hunger) + float(profile.satiety))

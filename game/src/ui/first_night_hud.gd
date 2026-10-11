@@ -21,7 +21,8 @@ const MarkerOverlayScript := preload("res://src/ui/marker_overlay.gd")
 const PlaceholderIcon := preload("res://src/items/item_placeholder_icon.gd")
 const CompactLayout := preload("res://src/ui/compact_panel_layout.gd")
 
-var _content_data: FirstNightContent = Content.new()
+var _content_data: FirstNightContent:
+	get: return Session.simulation.content
 var _refresh_queued := false
 var _time_label: Label
 var _inventory_label: Label
@@ -335,7 +336,8 @@ func _refresh_inventory_panel() -> void:
 
 	_inventory_panel.present(
 		Localized.resolve("ui.inventory.title"),
-		placements
+		placements,
+		_content_data
 	)
 
 
@@ -618,7 +620,7 @@ func _refresh_hotbar() -> void:
 			else null
 		)
 		var charges := int(instance_state.get("charges", 0))
-		_hotbar_charges[index].text = "%d/2" % charges if item_id == "core:bucket" else ""
+		_hotbar_charges[index].text = "%d/%d" % [charges, _content_data.item_tool_capacity(item_id)] if _content_data.item_tool_supports(item_id, "water") else ""
 		_hotbar_buttons[index].tooltip_text = Localized.resolve(_content_data.item_label_key(item_id)) if not item_id.is_empty() else "%d" % (index + 1)
 		_hotbar_buttons[index].modulate = Color("ffe59c") if index == active else Color.WHITE
 

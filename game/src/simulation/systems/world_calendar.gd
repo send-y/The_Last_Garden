@@ -168,7 +168,7 @@ static func get_sleep_energy_preview(sim, place_id: String = "") -> float:
 	var physical: Dictionary = sim.get_player_needs()
 	# Preserve the opening's automatic light supper, and include it in preview.
 	if sim.get_item_count(FirstNightContent.FOOD_ID) > 0:
-		physical.energy = minf(PLAYER_ENERGY_MAX, float(physical.energy) + float(sim.farming.catalog.settings.special_berry_energy))
+		physical.energy = minf(PLAYER_ENERGY_MAX, float(physical.energy) + float(sim.content.item_food_profile(FirstNightContent.FOOD_ID).get("energy", 0)))
 	# Match the simulation's per-minute precision, including partial late-night sleep.
 	for _minute: int in range(minutes):
 		sim.needs.advance(physical, "sleeping", bool(home.covered), home)

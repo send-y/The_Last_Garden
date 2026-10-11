@@ -51,7 +51,8 @@ var _drop_views: Dictionary = {}
 var _resource_view_snapshot: Dictionary = {}
 var _selected: InteractableView
 var _selected_cell: Vector2i = Vector2i(-1, -1)
-var _content := Content.new()
+var _content: FirstNightContent:
+	get: return Session.simulation.content
 var _building_catalog := BuildingCatalogScript.new()
 var _crafting_catalog := CraftingCatalogScript.new()
 
@@ -212,7 +213,7 @@ func select_at_world_position(world_position: Vector2) -> void:
 			nearest = candidate
 			nearest_distance = candidate_distance
 
-	if nearest != null and String(Session.get_active_item_instance().get("item_id", "")) == "core:hoe" and Session.simulation.farming._soil_allowed(Session.simulation, clicked_cell):
+	if nearest != null and Session.simulation.actor_tool_supports("core:player", "till") and Session.simulation.farming._soil_allowed(Session.simulation, clicked_cell):
 		nearest = null
 	if nearest == null:
 		_selected_cell = Vector2i(floori(world_position.x / Catalog.CELL_SIZE), floori(world_position.y / Catalog.CELL_SIZE))
@@ -240,14 +241,14 @@ func interact_with_selection(continuous_work: bool = false) -> void:
 		farming_interaction_requested.emit(_selected_cell)
 		return
 	if _selected == null and WaterMapScript.contains_cell(_selected_cell):
-		if String(Session.get_active_item_instance().get("item_id", "")) == "core:bucket":
+		if Session.simulation.actor_tool_supports("core:player", "water"):
 			water_interaction_requested.emit(_selected_cell)
 		else:
 			Session.notify_player_key("ui.bucket.failure.not_equipped")
 		return
 	if _selected != null and is_instance_valid(_selected) and _selected.visible:
 		var selected_definition := _content.get_interactable(_selected.object_id)
-		if String(selected_definition.get("kind", "")) == "water" and String(Session.get_active_item_instance().get("item_id", "")) == "core:bucket":
+		if String(selected_definition.get("kind", "")) == "water" and Session.simulation.actor_tool_supports("core:player", "water"):
 			var nearest_water := _nearest_water_cell(_selected.global_position)
 			if nearest_water != Vector2i(-1, -1):
 				water_interaction_requested.emit(nearest_water)
@@ -292,7 +293,7 @@ func interact_with_selection(continuous_work: bool = false) -> void:
 		return
 
 	if _selected == null or not is_instance_valid(_selected) or not _selected.visible:
-		if _selected_cell.x >= 0 and String(Session.get_active_item_instance().get("item_id", "")) == "core:hoe":
+		if _selected_cell.x >= 0 and Session.simulation.actor_tool_supports("core:player", "till"):
 			farming_interaction_requested.emit(_selected_cell)
 			return
 		Session.notify_player_key("interaction.prompt.select_object")
@@ -514,6 +515,7 @@ func _selection_payload(interactable: InteractableView, in_range: bool) -> Dicti
 		and not Session.is_collected(interactable.object_id)
 	):
 		result["required_tool_item_id"] = required_tool_item_id
+		result["required_tool_action"] = Session.get_resource_required_tool_action(interactable.object_id)
 		result["action_hint_key"] = "resource.selection.hold_to_work"
 	return result
 

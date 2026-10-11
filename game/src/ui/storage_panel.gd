@@ -105,6 +105,7 @@ func refresh(cell: Vector2i) -> void:
 	_cell = cell
 	if _content == null or not is_node_ready():
 		return
+	_content = Session.simulation.content
 	_configure_storage_grid(cell)
 	var storage_size := Session.get_storage_grid_size(cell)
 	_storage_title.text = Localized.resolve("ui.storage.panel.cell", {
@@ -122,8 +123,8 @@ func refresh(cell: Vector2i) -> void:
 		)
 		placement["label"] = Localized.resolve(_content.item_label_key(item_id))
 		backpack_placements.append(placement)
-	_inventory_grid.present(backpack_placements)
-	_storage_grid.present(Session.get_storage_layout(_cell))
+	_inventory_grid.present(backpack_placements, _content)
+	_storage_grid.present(Session.get_storage_layout(_cell), _content)
 	if _reserves_open: _reserve_editor.refresh()
 
 func _select_tab(reserves: bool) -> void:

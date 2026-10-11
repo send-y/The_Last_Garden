@@ -3,7 +3,7 @@ extends Node
 const Visual := preload("res://src/characters/character_visual.gd")
 const Content := preload("res://src/content/first_night_content.gd")
 const Placeholder := preload("res://src/items/item_placeholder_icon.gd")
-const OUTPUT_DIR := "res://../artifacts/held-items-2026-10-08"
+const OUTPUT_DIR := "res://../artifacts/item-tools-2026-10-11/held-items-baseline"
 
 func _ready() -> void:
 	call_deferred("_run")
@@ -31,7 +31,7 @@ func _run() -> void:
 			visual.set_pose(poses[column], 1, true)
 			var path := content.item_icon_path(ids[row], {"charges": 2}) if not ids[row].is_empty() else ""
 			var texture: Texture2D = load(path) if not path.is_empty() else (Placeholder.texture_for(ids[row]) if not ids[row].is_empty() else null)
-			visual.set_held_item(ids[row], texture)
+			visual.set_held_item(ids[row], texture, content.item_tool_grip(ids[row]))
 			visuals.append(visual)
 	await get_tree().process_frame
 	await RenderingServer.frame_post_draw

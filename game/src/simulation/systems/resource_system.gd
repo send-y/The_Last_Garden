@@ -1,5 +1,7 @@
 extends "res://src/simulation/world_rules.gd"
 
+const PINECONE_DROP_ITEM_ID := "core:pinecone"
+
 # Operates on the authoritative WorldSimulation state; owns no copy.
 
 static func execute_resource_work(sim,
@@ -78,7 +80,7 @@ static func execute_resource_work(sim,
 	var required_tool_item_id: String = sim.get_resource_required_tool_item_id(normalized_id
 	)
 	var active_tool: Dictionary = sim.get_actor_tool(actor_id)
-	var active_tool_item_id := String(active_tool.get("item_id", ""))
+	var required_action: String = sim.get_resource_required_tool_action(normalized_id)
 	var active_tool_instance_id := String(active_tool.get("instance_id", ""))
 	var resource_work := (
 		state["resource_work"] as Dictionary
@@ -92,8 +94,8 @@ static func execute_resource_work(sim,
 		required_work
 	)
 	if (
-		not required_tool_item_id.is_empty()
-		and active_tool_item_id != required_tool_item_id
+		not required_action.is_empty()
+		and not sim.actor_tool_supports(actor_id, required_action)
 	):
 		if current_work > 0 and work_tool_instances.has(normalized_id):
 			resource_work.erase(normalized_id)
@@ -104,15 +106,17 @@ static func execute_resource_work(sim,
 				"changed": true,
 				"reason_id": "core:resource_work_tool_changed",
 				"required_tool_item_id": required_tool_item_id,
+			"required_tool_action": required_action,
 			}
 		return {
 			"success": false,
 			"changed": false,
 			"reason_id": "core:resource_tool_not_selected",
 			"required_tool_item_id": required_tool_item_id,
+			"required_tool_action": required_action,
 		}
 
-	if not required_tool_item_id.is_empty():
+	if not required_action.is_empty():
 		var work_tool_instance_id := String(
 			work_tool_instances.get(normalized_id, "")
 		)
@@ -128,6 +132,7 @@ static func execute_resource_work(sim,
 				"changed": true,
 				"reason_id": "core:resource_work_tool_changed",
 				"required_tool_item_id": required_tool_item_id,
+			"required_tool_action": required_action,
 			}
 		work_tool_instances[normalized_id] = active_tool_instance_id
 
@@ -218,6 +223,7 @@ static func _maybe_drop_pinecone(sim,
 	work_step: int,
 	origin: Vector2
 ) -> Array[String]:
+	if not sim.builtin_pinecone_enabled: return []
 	var state: Dictionary = sim.state
 	var rng := RandomNumberGenerator.new()
 	rng.seed = (
@@ -228,7 +234,7 @@ static func _maybe_drop_pinecone(sim,
 	if rng.randf() >= 0.15:
 		return []
 	return sim._create_resource_drops(tree_id,
-		"core:pinecone",
+		PINECONE_DROP_ITEM_ID,
 		1,
 		origin
 	)
@@ -343,6 +349,13 @@ static func get_resource_work_progress(sim, object_id: String) -> int:
 	)
 	return int(progress.get(normalized_id, 0))
 
+
+static func get_resource_required_tool_action(sim, target_id: String) -> String:
+	var target: Dictionary = sim._resolve_interaction_target(sim.content.normalize_object_id(target_id))
+	match String(target.get("kind", "")):
+		"wood": return "chop"
+		"stone": return "mine"
+	return ""
 
 static func get_resource_required_tool_item_id(sim, target_id: String) -> String:
 	var content: FirstNightContent = sim.content

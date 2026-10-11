@@ -54,7 +54,7 @@ static func _clear_bush(sim, target_id: String) -> Dictionary:
 	if sim.get_player_position().distance_to(target.position) > Content.INTERACTION_RANGE:
 		return _result(false,"interaction.failure.too_far")
 	var tool: Dictionary = sim.get_actor_tool("core:player")
-	if String(tool.get("item_id","")) != "core:axe" or String(tool.get("instance_id","")).is_empty():
+	if not sim.actor_tool_supports("core:player", "clear_bush"):
 		return _result(false,"world_edit.failure.axe")
 	if not sim.prepare_player_work(): return _result(false,"furniture.failure.approach")
 	if sim.get_player_position().distance_to(target.position) > Content.INTERACTION_RANGE:

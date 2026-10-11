@@ -8,7 +8,11 @@ var _definitions: Dictionary = {}
 var _order: Array[String] = []
 
 
-func _init() -> void:
+var content: FirstNightContent
+var reference_errors: Array[String] = []
+
+func _init(item_content: FirstNightContent = null) -> void:
+	content = item_content if item_content != null else FirstNightContent.new()
 	_load_definitions()
 
 
@@ -69,6 +73,15 @@ func _load_definitions() -> void:
 		var recipe_id := String(definition.get("id", ""))
 		if recipe_id.is_empty() or not recipe_id.contains(":") or _definitions.has(recipe_id):
 			push_error("Crafting catalog contains invalid or duplicate id %s." % recipe_id)
+			continue
+		var refs: Array[Dictionary] = []
+		for field: String in ["inputs", "outputs"]:
+			for id: String in definition.get(field, {}):
+				refs.append({"source_path": RECIPES_PATH, "owner_id": recipe_id, "field": field, "item_id": id})
+		var errors := content.validate_item_references(refs)
+		reference_errors.append_array(errors)
+		content.report_reference_errors(errors)
+		if not errors.is_empty():
 			continue
 		_definitions[recipe_id] = definition.duplicate(true)
 		_order.append(recipe_id)

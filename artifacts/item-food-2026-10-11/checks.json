@@ -1,0 +1,131 @@
+[
+  {
+    "name": "item_food_properties_test",
+    "exit": 0,
+    "errors": [],
+    "passed": true,
+    "summary": [
+      "ITEM_FOOD_PROPERTIES: 0 failures"
+    ]
+  },
+  {
+    "name": "character_needs_test",
+    "exit": 0,
+    "errors": [],
+    "passed": true,
+    "summary": [
+      "PASS: physical needs, food, rest, sleep, NPC psychology and migration"
+    ]
+  },
+  {
+    "name": "farming_rules_test",
+    "exit": 0,
+    "errors": [],
+    "passed": true,
+    "summary": [
+      "PASS: farming seed transactions, 72-hour bushes, physical tools/water, three harvest modes, dry growth, sleep, and save migration"
+    ]
+  },
+  {
+    "name": "furniture_rules_test",
+    "exit": 0,
+    "errors": [],
+    "passed": true,
+    "summary": [
+      "PASS: furniture meals, real food transport, chair recovery, light, ownership, fallback and persistence"
+    ]
+  },
+  {
+    "name": "household_feedback_test",
+    "exit": 0,
+    "errors": [],
+    "passed": true,
+    "summary": [
+      "PASS: household location, availability, actual food, occupied furniture, evening lighting and read-only feedback"
+    ]
+  },
+  {
+    "name": "inventory_layout_sync_cost_test",
+    "exit": 0,
+    "errors": [],
+    "passed": true,
+    "summary": [
+      "INVENTORY_LAYOUT_SYNC_COST: 0 failures"
+    ]
+  },
+  {
+    "name": "inventory_count_cost_test",
+    "exit": 0,
+    "errors": [],
+    "passed": true,
+    "summary": [
+      "INVENTORY_COUNT_COST: 0 failures"
+    ]
+  },
+  {
+    "name": "run_tests",
+    "exit": 0,
+    "errors": [],
+    "passed": true,
+    "summary": [
+      "PASS: ordinary pantry -> actual wood/planks/study table -> wild berry seeds -> watered crop -> own seeds -> replanted second harvest",
+      "PASS: 50-structure open-map room search (9.82 ms)",
+      "PASS: room enclosure, size limits, requirements, designation, and persistence",
+      "PASS: prototype simulation and mechanics lab tests"
+    ]
+  },
+  {
+    "name": "item_food_actions_test",
+    "exit": 0,
+    "errors": [],
+    "passed": true,
+    "summary": [
+      "ITEM_FOOD_ACTIONS: 0 failures"
+    ]
+  },
+  {
+    "name": "farming_integration_test",
+    "exit": 0,
+    "errors": [],
+    "passed": true,
+    "summary": [
+      "PASS: real MainScene farming UI, inventory extraction/table gate, world hoe/bucket, crop drops, raw food, modal pause, 640/wide layout, and isolated save/load"
+    ]
+  },
+  {
+    "name": "inventory_context_integration_test",
+    "exit": 0,
+    "errors": [],
+    "passed": true,
+    "summary": [
+      "PASS: inventory context mouse actions, food, seeds, study gate, drop, cancellation, stale targets, modal pause and viewport edges"
+    ]
+  },
+  {
+    "name": "character_needs_ui_test",
+    "exit": 0,
+    "errors": [],
+    "passed": true,
+    "summary": [
+      "PASS: physical HUD input, player/NPC details, rest, pause, reload and bounds"
+    ]
+  },
+  {
+    "name": "furniture_ui_test",
+    "exit": 0,
+    "errors": [],
+    "passed": true,
+    "summary": [
+      "PASS: furniture UI clicks, real meal, chair movement, pause, bounds, disk persistence and rendered lighting"
+    ]
+  },
+  {
+    "name": "household_feedback_ui_test",
+    "exit": 0,
+    "errors": [],
+    "passed": true,
+    "summary": [
+      "PASS: NPC household tabs, real housing clicks, live remedies, read-only UI, compact layout and save reload"
+    ]
+  }
+]

@@ -1,0 +1,23 @@
+{
+  "schema_version": 5,
+  "food_schema_version": 1,
+  "items": [
+    {
+      "id": "test:ration",
+      "label_key": "item.core.food.name",
+      "icon_path": "res://assets/sprites/items/berry.png",
+      "max_stack": 5,
+      "footprint": [
+        [
+          0,
+          0
+        ]
+      ],
+      "food": {
+        "satiety": 17,
+        "energy": 0
+      }
+    }
+  ],
+  "tool_schema_version": 1
+}
