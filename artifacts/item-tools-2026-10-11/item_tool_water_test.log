@@ -1,0 +1,4 @@
+Godot Engine v4.7.stable.mono.official.5b4e0cb0f - https://godotengine.org
+
+FAIL: Actual reload normalizes invalid charges: { "instance_id": "core:item_instance_000001", "item_id": "test:bucket_variant", "state": { "charges": 0, "other": 9.0 }, "location": { "kind": "inventory", "id": "" } }
+ITEM_TOOL_WATER: 1 failures

@@ -68,11 +68,15 @@ func _run() -> void:
 			break
 	var held: Dictionary = Session.simulation.get_actor_tool("core:first_neighbor")
 	check(not held.is_empty(), "NPC borrows its physical tool after UI permission")
+	# Batched world refresh occurs after the synchronous minute loop.
+	await get_tree().process_frame
+	await get_tree().process_frame
 	var found_visual := false
 	for view: InteractableView in main.get_node("World")._interactables:
 		if String(view.object_id) == "core:first_neighbor":
 			found_visual = true
 			check(view._character_visual._held_item_id == String(held.get("item_id", "")), "NPC displays the same tool it physically borrowed")
+			check(view._character_visual._held_grip == Session.simulation.content.item_tool_grip(String(held.get("item_id", ""))), "NPC receives catalog grip")
 	check(found_visual, "Live scene contains the working resident")
 	Session.simulation.state.npcs["core:first_neighbor"].known = false
 	panel.refresh()

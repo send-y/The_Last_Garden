@@ -1,0 +1,17 @@
+Godot Engine v4.7.stable.mono.official.5b4e0cb0f - https://godotengine.org
+
+WARNING: Save version 34 migrated into prototype version 36.
+   at: push_warning (core/variant/variant_utility.cpp:1033)
+   GDScript backtrace (most recent call first):
+       [0] _normalize_state (res://src/simulation/systems/save_migrations.gd:196)
+       [1] _normalize_state (res://src/simulation/world_simulation.gd:975)
+       [2] _init (res://src/simulation/world_simulation.gd:93)
+       [3] _run (res://tests/world_editing_test.gd:56)
+WARNING: Save version 34 migrated into prototype version 36.
+   at: push_warning (core/variant/variant_utility.cpp:1033)
+   GDScript backtrace (most recent call first):
+       [0] _normalize_state (res://src/simulation/systems/save_migrations.gd:196)
+       [1] _normalize_state (res://src/simulation/world_simulation.gd:975)
+       [2] _init (res://src/simulation/world_simulation.gd:93)
+       [3] _run (res://tests/world_editing_test.gd:59)
+WORLD_EDITING: 0 failures

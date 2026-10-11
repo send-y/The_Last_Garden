@@ -128,10 +128,20 @@ func _run() -> void:
 	Session.set_player_position(boulder.global_position)
 	for _minute: int in range(Session.get_resource_work_required(boulder.object_id)):
 		Session.execute_resource_work("core:player", boulder.object_id)
+	if not Session.is_collected(boulder.object_id):
+		_fail("resource work did not deplete the physical boulder")
+		return
+	# Scene refresh was coalesced before this package; observe after deferred flush.
+	await get_tree().process_frame
+	await get_tree().process_frame
+	await get_tree().physics_frame
 	if boulder.visible or blocking_body.collision_layer != 0:
 		_fail("depleted invisible boulder must not keep blocking the player")
 		return
 
+	if not main.get_world_2d().direct_space_state.intersect_point(point_parameters).is_empty():
+		_fail("depleted boulder still participates in actual physics")
+		return
 	print("PASS: boulder lower collision and player depth sorting")
 	get_tree().quit(0)
 

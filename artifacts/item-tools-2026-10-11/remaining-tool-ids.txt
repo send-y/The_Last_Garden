@@ -1,0 +1,23 @@
+game/src\items\item_placeholder_icon.gd:19:		"core:bucket":
+game/src\dev\settlement_stress_scenario.gd:16:const TOOLS := ["core:axe", "core:pickaxe", "core:hoe", "core:bucket"]
+game/src\dev\settlement_stress_scenario.gd:108:			var ids: Array[String] = sim._create_item_instances(tool_id, 1, "inventory", "", {"charges": 2} if tool_id == "core:bucket" else {})
+game/src\dev\mechanics_lab_scenarios.gd:114:				"item_id": "core:bucket",
+game/src\dev\mechanics_lab_scenarios.gd:120:				"item_id": "core:bucket",
+game/src\simulation\world_rules.gd:203:			"item_id": "core:bucket",
+game/src\simulation\world_rules.gd:205:			"location": {"kind": "storage", "id": "core:bucket:0"},
+game/src\simulation\world_rules.gd:209:			"item_id": "core:axe",
+game/src\simulation\world_rules.gd:211:			"location": {"kind": "storage", "id": "core:axe:0"},
+game/src\simulation\world_rules.gd:215:			"item_id": "core:pickaxe",
+game/src\simulation\world_rules.gd:217:			"location": {"kind": "storage", "id": "core:pickaxe:0"},
+game/src\simulation\world_rules.gd:221:			"item_id": "core:hoe",
+game/src\simulation\world_rules.gd:223:			"location": {"kind": "storage", "id": "core:hoe:0"},
+game/src\simulation\world_rules.gd:229:			"cell": [22, 22], "item_id": "core:axe", "amount": 1,
+game/src\simulation\world_rules.gd:231:			"placement_id": "core:axe:0", "instance_id": "core:item_instance_000002",
+game/src\simulation\world_rules.gd:234:			"cell": [22, 22], "item_id": "core:bucket", "amount": 1,
+game/src\simulation\world_rules.gd:236:			"placement_id": "core:bucket:0", "instance_id": "core:item_instance_000001",
+game/src\simulation\world_rules.gd:239:			"cell": [23, 22], "item_id": "core:pickaxe", "amount": 1,
+game/src\simulation\world_rules.gd:241:			"placement_id": "core:pickaxe:0", "instance_id": "core:item_instance_000003",
+game/src\simulation\world_rules.gd:244:			"cell": [22, 23], "item_id": "core:hoe", "amount": 1,
+game/src\simulation\world_rules.gd:246:			"placement_id": "core:hoe:0", "instance_id": "core:item_instance_000004",
+game/src\simulation\systems\resource_system.gd:367:			return "core:axe"
+game/src\simulation\systems\resource_system.gd:369:			return "core:pickaxe"
