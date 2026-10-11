@@ -66,6 +66,7 @@ const ACTIVITY_KEYS: Dictionary = {
 }
 
 var _catalog
+var navigation_revision := 0
 var _pathfinder := Pathfinder.new(
 	NavigationData.MAP_SIZE,
 	NavigationData.CELL_SIZE,
@@ -78,6 +79,7 @@ func _init(catalog) -> void:
 
 
 func set_structure_cells(structure_cells: Array[Vector2i]) -> void:
+	navigation_revision += 1
 	var blocked_cells: Array[Vector2i] = NavigationData.blocked_cells()
 
 	for cell: Vector2i in structure_cells:

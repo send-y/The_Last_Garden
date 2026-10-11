@@ -1,0 +1,6 @@
+Godot Engine v4.7.stable.mono.official.5b4e0cb0f - https://godotengine.org
+OpenGL API 3.3.0 NVIDIA 617.14 - Compatibility - Using Device: NVIDIA - NVIDIA GeForce RTX 4060
+
+LAB_READY scenario=settlement_stress day=2 time=09:00
+STRESS_SETUP milliseconds=32230.729
+SETTLEMENT_PROFILE {"activities":{"core:outdoors":22,"core:work_travel":8},"average_fps":0.154231050665932,"clock":"one minute per 1.333s after previous tick; no catch-up batches","crafting_projects":0,"display":"Windows","frame_ms":{"max":31682.649,"mean":6483.77869230769,"p50":138.427,"p95":26011.87,"p99":26011.87,"p999":26011.87},"frames":13,"game_minutes":3,"gathering_changed_resources":false,"home_goals_completed":0,"houses":30,"logical_viewport":[640.0,360.0],"minute_cpu_ms":{"max":28472.374,"mean":25505.1713333333,"p50":25233.039,"p95":25233.039,"p99":25233.039,"p999":25233.039},"over_10_ms":13,"over_33_ms":13,"phase":"work","renderer":"NVIDIA GeForce RTX 4060","residents":30,"scenario":"settlement_stress","seconds":84.289123,"setup_ms":32230.729,"storage_stacks":245,"structures":2155,"tool_instances":120,"view":"player","vsync":"disabled for probe","wet_beds_added":0,"window":[1280,720]}

@@ -3,6 +3,7 @@ extends RefCounted
 const Supply := preload("res://src/npc_work/npc_work_supplies.gd")
 const Planner := preload("res://src/npc_work/npc_work_planner.gd")
 const Water := preload("res://src/world/water_map.gd")
+const Diagnostic := preload("res://src/dev/diagnostic_trace.gd")
 const INVALID := Vector2i(-1, -1)
 
 static func set_enabled(sim, npc_id: String, kind: String, enabled: bool) -> Dictionary:
@@ -31,12 +32,15 @@ static func cancel(npc: Dictionary) -> void:
 
 static func prepare(sim) -> Dictionary:
 	var contexts: Dictionary = {}
+	sim.work_queries.prune_inactive(sim)
 	sim.NpcHomeProjects.Production.release_invalid_projects(sim)
-	for definition: Dictionary in sim.npc_catalog.get_definitions():
-		var npc: Dictionary = sim.state.npcs.get(String(definition.id), {})
+	for id: String in sim.npc_catalog.definition_ids():
+		var npc: Dictionary = sim.state.npcs.get(id, {})
 		if npc.is_empty() or not bool(npc.active) or not bool(npc.known):
 			continue
+		var span := Diagnostic.begin("npc_work.authority") if Diagnostic.enabled else 0
 		sim.NpcHomeProjects.refresh_authority(sim,npc)
+		Diagnostic.end(span)
 		var job: Dictionary = npc.initiative_job
 		var urgent_need: bool = float(npc.needs.hunger) <= 55 or float(npc.needs.energy) <= 18 or sim.get_minute_of_day() >= 21 * 60 or sim.get_minute_of_day() < 7 * 60
 		if urgent_need and (not job.is_empty() or not String(npc.carried_instance_id).is_empty() or not npc.work_cargo.is_empty()):
@@ -57,8 +61,10 @@ static func prepare(sim) -> Dictionary:
 			var minute: int = sim.get_minute_of_day()
 			if sim.get_elapsed_game_minutes() < int(npc.next_initiative_minute) or minute < 9 * 60 or minute >= 19 * 60 or float(npc.needs.hunger) <= 55 or float(npc.needs.energy) < 30 or float(npc.needs.restedness) < 25 or not npc.work_commitment.is_empty():
 				continue
+			span = Diagnostic.begin("npc_work.choose") if Diagnostic.enabled else 0
 			npc.initiative_job = sim.NpcHomeProjects.prepare(sim,npc) if bool(npc.work_options.build) else {}
 			if npc.initiative_job.is_empty(): npc.initiative_job = Planner.choose(sim, npc)
+			Diagnostic.end(span)
 			npc.next_initiative_minute = sim.get_elapsed_game_minutes() + 30
 			job = npc.initiative_job
 		if job.is_empty():
@@ -69,6 +75,12 @@ static func prepare(sim) -> Dictionary:
 	return contexts
 
 static func context_for(sim, npc: Dictionary) -> Dictionary:
+	var span := Diagnostic.begin("npc_work.context") if Diagnostic.enabled else 0
+	var result := _context_for(sim,npc)
+	Diagnostic.end(span)
+	return result
+
+static func _context_for(sim, npc: Dictionary) -> Dictionary:
 	var job: Dictionary = npc.initiative_job
 	if String(job.get("kind", "")) == "build" and not Supply.HomeStock.can_work(sim,job.get("cell",[])):
 		cancel(npc)
@@ -260,7 +272,7 @@ static func fulfil(sim, effect: Dictionary) -> bool:
 			var goal: Dictionary = npc.home_goal
 			var structure: Dictionary = sim.NpcHomeProjects.matching_structure(sim,goal) if not goal.is_empty() else {}
 			if not goal.is_empty() and goal.cell == job.cell and String(goal.status) == "pending" and String(structure.get("building_id","")) == "core:torch" and Supply.nearby(sim,npc,cell):
-				structure.lit = true
+				sim.set_structure_state(structure,"lit",true)
 			cancel(npc)
 		"return":
 			# One arrival permits only cells within real interaction range.

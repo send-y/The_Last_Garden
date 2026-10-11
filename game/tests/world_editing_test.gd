@@ -14,7 +14,7 @@ func _run() -> void:
 		quit(1)
 		return
 	var at := Vector2i(43,36)
-	sim.state.structures.append({"building_id":"core:wood_wall","cell":[43,36]})
+	sim.add_structure({"building_id":"core:wood_wall","cell":[43,36]})
 	sim._sync_structure_navigation()
 	check(not sim.is_navigation_cell_walkable(at),"Wall blocks navigation before dismantling")
 	check(not sim.edit_world("dismantle",at).success,"Distant dismantling rejected")
@@ -25,7 +25,7 @@ func _run() -> void:
 	check(sim.is_navigation_cell_walkable(at),"Dismantling updates navigation")
 	check(int(sim.get_item_count("core:plank")) == 15,"Half of wall materials returned")
 	check(not sim.edit_world("dismantle",at).success and sim.get_item_count("core:plank") == 15,"Repeated command cannot duplicate refunds")
-	sim.state.structures.append({"building_id":"core:wood_door","cell":[43,36],"open":false})
+	sim.add_structure({"building_id":"core:wood_door","cell":[43,36],"open":false})
 	check(sim.edit_world("toggle_door",at).success and sim._find_structure([43,36]).open,"Door opens")
 	var loaded = World.new(JSON.parse_string(JSON.stringify(sim.export_state())))
 	check(loaded._find_structure([43,36]).open,"Open door survives JSON save")
@@ -60,25 +60,25 @@ func _run() -> void:
 	check(loaded.state.removed_bushes.is_empty(),"Malformed removal data safely ignored")
 	var crowded = World.new()
 	crowded.state.inventory["core:wood"] = 80
-	crowded.state.structures.append({"building_id":"core:wood_wall","cell":[43,36]})
+	crowded.add_structure({"building_id":"core:wood_wall","cell":[43,36]})
 	crowded.set_player_position(Content.cell_center(43,37))
 	var refund: Dictionary = crowded.edit_world("dismantle",at)
 	var planks := crowded.get_item_count("core:plank")
 	for drop: Dictionary in crowded.state.world_drops:
 		if drop.item_id == "core:plank": planks += int(drop.amount)
 	check(refund.success and planks == 15 and not refund.dropped.is_empty(),"Full backpack preserves refund as physical drops")
-	crowded.state.structures.append({"building_id":"core:bedroll","cell":[43,36]})
+	crowded.add_structure({"building_id":"core:bedroll","cell":[43,36]})
 	crowded.state.sleep_assignments["core:first_neighbor"] = "core:bedroll@43,36"
 	check(crowded.edit_world("dismantle",at).success and crowded.state.sleep_assignments["core:first_neighbor"].is_empty(),"Removed sleeping place releases assignment")
-	crowded.state.structures.append({"building_id":"core:workbench","cell":[43,36]})
+	crowded.add_structure({"building_id":"core:workbench","cell":[43,36]})
 	crowded.state.crafting_projects.append({"cell":[43,36],"reserved_inputs":{"core:wood":2}})
 	check(not crowded.edit_world("dismantle",at).success,"Workbench with reserved project inputs cannot be destroyed")
 	var npc_world = preload("res://tests/fixtures/resident_home_fixture.gd").create()
 	var door: Dictionary = npc_world._find_structure([39,32])
-	door.open = false
+	npc_world.set_structure_state(door,"open",false)
 	npc_world.state.npcs["core:first_neighbor"].position = [Content.cell_center(40,32).x,Content.cell_center(40,32).y]
 	npc_world.advance_minutes(1)
-	check(door.open,"Resident opens an approachable closed door during simulation")
+	check(npc_world._find_structure([39,32]).open,"Resident opens an approachable closed door during simulation")
 	var storage_world = preload("res://tests/fixtures/resident_home_fixture.gd").create()
 	preload("res://tests/fixtures/resident_home_fixture.gd").stock(storage_world,10)
 	storage_world.set_player_position(Content.cell_center(37,32))

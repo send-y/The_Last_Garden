@@ -6,58 +6,58 @@
   "fatigue_full_speed_energy": 20,
   "fatigue_minimum_work_speed": 0.5,
   "crops": [
-    {
-      "id": "carrot",
-      "name_key": "crop.carrot",
-      "seed_id": "core:carrot_seed",
-      "product_id": "core:carrot",
-      "harvest_mode": "single",
-      "growth_minutes": 1440,
-      "yield": 1,
-      "energy": 12,
-      "regrow_minutes": 1440,
-      "color": "d88b39",
-      "satiety": 28
-    },
-    {
-      "id": "cabbage",
-      "name_key": "crop.cabbage",
-      "seed_id": "core:cabbage_seed",
-      "product_id": "core:cabbage",
-      "harvest_mode": "single",
-      "growth_minutes": 2880,
-      "yield": 1,
-      "energy": 25,
-      "regrow_minutes": 1440,
-      "color": "82ab62",
-      "satiety": 45
-    },
-    {
-      "id": "potato",
-      "name_key": "crop.potato",
-      "seed_id": "core:potato_seed",
-      "product_id": "core:potato",
-      "harvest_mode": "multiple",
-      "growth_minutes": 4320,
-      "yield": 3,
-      "energy": 10,
-      "regrow_minutes": 1440,
-      "color": "bb986a",
-      "satiety": 30
-    },
-    {
-      "id": "strawberry",
-      "name_key": "crop.strawberry",
-      "seed_id": "core:strawberry_seed",
-      "product_id": "core:strawberry",
-      "harvest_mode": "perennial",
-      "growth_minutes": 2880,
-      "yield": 1,
-      "energy": 8,
-      "regrow_minutes": 1440,
-      "color": "c85465",
-      "satiety": 20
-    }
+	{
+	  "id": "carrot",
+	  "name_key": "crop.carrot",
+	  "seed_id": "core:carrot_seed",
+	  "product_id": "core:carrot",
+	  "harvest_mode": "single",
+	  "growth_minutes": 1440,
+	  "yield": 1,
+	  "energy": 12,
+	  "regrow_minutes": 1440,
+	  "color": "d88b39",
+	  "satiety": 28
+	},
+	{
+	  "id": "cabbage",
+	  "name_key": "crop.cabbage",
+	  "seed_id": "core:cabbage_seed",
+	  "product_id": "core:cabbage",
+	  "harvest_mode": "single",
+	  "growth_minutes": 2880,
+	  "yield": 1,
+	  "energy": 25,
+	  "regrow_minutes": 1440,
+	  "color": "82ab62",
+	  "satiety": 45
+	},
+	{
+	  "id": "potato",
+	  "name_key": "crop.potato",
+	  "seed_id": "core:potato_seed",
+	  "product_id": "core:potato",
+	  "harvest_mode": "multiple",
+	  "growth_minutes": 4320,
+	  "yield": 3,
+	  "energy": 10,
+	  "regrow_minutes": 1440,
+	  "color": "bb986a",
+	  "satiety": 30
+	},
+	{
+	  "id": "strawberry",
+	  "name_key": "crop.strawberry",
+	  "seed_id": "core:strawberry_seed",
+	  "product_id": "core:strawberry",
+	  "harvest_mode": "perennial",
+	  "growth_minutes": 2880,
+	  "yield": 1,
+	  "energy": 8,
+	  "regrow_minutes": 1440,
+	  "color": "c85465",
+	  "satiety": 20
+	}
   ],
   "special_berry_satiety": 14
 }

@@ -4,6 +4,7 @@ const Topology := preload("res://src/construction/room_topology.gd")
 const Content := preload("res://src/content/first_night_content.gd")
 const BASE_ROOM := "core:base_house"
 const MODES := ["settlement", "personal", "shared"]
+const Diagnostic := preload("res://src/dev/diagnostic_trace.gd")
 
 static func normalize(sim) -> void:
 	var raw: Variant = sim.state.get("home_policies", {})
@@ -17,26 +18,67 @@ static func normalize(sim) -> void:
 		# Preserve valid legacy assignments, including an inconsistent saved single-person mode.
 		if mode == "personal" and room.members.size() > 1: mode = "shared"
 		normalized[id] = mode
+	var changed: bool = not (raw is Dictionary) or raw != normalized
 	sim.state.home_policies = normalized
+	if changed: sim.notify_housing_changed()
 
 static func rooms(sim) -> Array[Dictionary]:
-	var result: Array[Dictionary] = [{"room_id":BASE_ROOM, "mode":"settlement", "members":_members(sim, BASE_ROOM), "valid":true}]
+	_refresh(sim)
+	return sim._home_policy_rooms.duplicate(true)
+
+static func _refresh(sim) -> void:
+	if sim._home_policy_revision == sim.housing_revision: return
+	var span := Diagnostic.begin("housing.policy_rebuild") if Diagnostic.enabled else 0
+	sim.housing.refresh(sim)
+	var members_by_room: Dictionary = {}
+	sim._home_policy_room_by_character.clear()
+	for value: Variant in sim.state.sleep_assignments:
+		var character := String(value)
+		var assigned_room: String = sim.housing.assignment_room(sim,String(sim.state.sleep_assignments[character]))
+		sim._home_policy_room_by_character[character] = assigned_room
+		var npc: Dictionary = sim.state.npcs.get(character,{})
+		if character != "core:player" and (npc.is_empty() or not bool(npc.get("active",false))): continue
+		if not members_by_room.has(assigned_room): members_by_room[assigned_room] = []
+		members_by_room[assigned_room].append(character)
+	for members: Array in members_by_room.values(): members.sort()
+	var result: Array[Dictionary] = [{"room_id":BASE_ROOM, "mode":"settlement", "members":members_by_room.get(BASE_ROOM,[]), "valid":true}]
 	var policies: Variant = sim.state.get("home_policies", {})
 	for room: Dictionary in sim.state.room_assignments:
 		if String(room.room_type_id) != Topology.LIVING_ROOM_ID: continue
 		var id := String(room.id)
-		var members := _members(sim, id)
+		var members: Array = members_by_room.get(id,[])
 		var value: Variant = policies.get(id, "") if policies is Dictionary else ""
 		var mode := String(value) if value is String else ""
 		if not MODES.has(mode): mode = "shared" if members.size() > 1 else "personal"
 		var valid: bool = sim.housing.room_valid(sim,id)
 		result.append({"room_id":id, "mode":mode, "members":members, "valid":valid})
-	return result
+	sim._home_policy_rooms = result
+	sim._home_policy_inputs = _inputs(sim)
+	sim._home_policy_revision = sim.housing_revision
+	Diagnostic.end(span)
+
+static func _inputs(sim) -> Dictionary:
+	var active: Array[String] = []
+	for id: String in sim.state.npcs:
+		if bool(sim.state.npcs[id].get("active",false)): active.append(id)
+	active.sort()
+	# Clone the enclosing dictionary: legacy policy values can be null or scalar.
+	return {"rooms":sim.state.room_assignments,
+		"assignments":sim.state.sleep_assignments,
+		"modes":sim.state.get("home_policies",{}),"active":active}.duplicate(true)
+
+static func debug_validate(sim) -> Array[String]:
+	var errors: Array[String] = []
+	# A dirty cache is legitimate; validate only facts claimed to be current.
+	if sim._home_policy_revision == sim.housing_revision and sim._home_policy_inputs != _inputs(sim):
+		errors.append("Housing inputs changed outside revision API")
+	return errors
 
 static func for_character(sim, id: String) -> Dictionary:
+	_refresh(sim)
 	var room_id := _assigned_room(sim, id)
 	var result := {"room_id":room_id, "mode":"", "members":[], "may_furnish":false}
-	for room: Dictionary in rooms(sim):
+	for room: Dictionary in sim._home_policy_rooms:
 		if String(room.room_id) != room_id: continue
 		result.mode = room.mode
 		result.members = room.members.duplicate()
@@ -55,7 +97,9 @@ static func set_mode(sim, room_id: String, mode: String) -> Dictionary:
 	for room: Dictionary in rooms(sim):
 		if String(room.room_id) != room_id: continue
 		if mode == "personal" and room.members.size() > 1: return sim._emit_result(false,"housing.failure.personal")
-		sim.state.home_policies[room_id] = mode
+		if String(sim.state.home_policies.get(room_id,"")) != mode:
+			sim.state.home_policies[room_id] = mode
+			sim.notify_housing_changed()
 		return sim._emit_result(true,"housing.mode.changed",true,false,{"mode":mode})
 	return sim._emit_result(false,"housing.failure.room")
 
@@ -81,14 +125,5 @@ static func _members(sim, room_id: String) -> Array[String]:
 	return result
 
 static func _assigned_room(sim, id: String) -> String:
-	var place_id := String(sim.state.sleep_assignments.get(id,""))
-	if place_id.is_empty(): return ""
-	if place_id == "core:starter_bedroll": return BASE_ROOM
-	var place: Dictionary = sim.housing.place(sim,place_id)
-	if not place.is_empty():
-		if not String(place.room_id).is_empty(): return String(place.room_id)
-		# Invalid geometry keeps its occupant identities for repair and policy enforcement.
-		var cell := Vector2i(int(place.cell[0]), int(place.cell[1]))
-		for room: Dictionary in sim.state.room_assignments:
-			if String(room.room_type_id) == Topology.LIVING_ROOM_ID and sim._room_cells_set(room.cells).has(cell): return String(room.id)
-	return ""
+	_refresh(sim)
+	return String(sim._home_policy_room_by_character.get(id,""))

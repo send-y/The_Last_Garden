@@ -1,11 +1,14 @@
 extends RefCounted
 
+const Diagnostic := preload("res://src/dev/diagnostic_trace.gd")
+
 const Content := preload("res://src/content/first_night_content.gd")
 const Lighting := preload("res://src/furniture/lighting_field.gd")
 const INVALID := Vector2i(-1,-1)
 const MAX_SEAT_DISTANCE := 12 * Content.CELL_SIZE
 var lighting := Lighting.new()
-var _key := ""
+var _index: RefCounted
+var _geometry_revision := -1
 var _seats: Array[Dictionary] = []
 
 func normalize(sim) -> void:
@@ -51,20 +54,17 @@ func _use(raw: Variant) -> Dictionary:
 		"approach":_cell_array(raw.get("approach",[]))}
 
 func refresh(sim) -> void:
-	var key := JSON.stringify(sim.state.structures)
-	if key == _key:
-		return
-	_key = key
+	if _index == sim.structure_index and _geometry_revision == sim.structure_index.geometry_revision: return
+	var span := Diagnostic.begin("furniture.rebuild") if Diagnostic.enabled else 0
+	_index = sim.structure_index
+	_geometry_revision = _index.geometry_revision
 	_seats.clear()
 	var tables: Dictionary = {}
-	for structure: Dictionary in sim.state.structures:
-		if String(structure.building_id) == "core:table":
-			var origin := Vector2i(int(structure.cell[0]),int(structure.cell[1]))
-			for cell: Vector2i in sim.building_catalog.get_footprint_cells("core:table",origin):
-				tables[cell] = structure.cell.duplicate()
-	for structure: Dictionary in sim.state.structures:
-		if String(structure.building_id) != "core:chair":
-			continue
+	for structure: Dictionary in _index.of_type("core:table"):
+		var origin := Vector2i(int(structure.cell[0]),int(structure.cell[1]))
+		for cell: Vector2i in sim.building_catalog.get_footprint_cells("core:table",origin):
+			tables[cell] = structure.cell.duplicate()
+	for structure: Dictionary in _index.of_type("core:chair"):
 		var chair := Vector2i(int(structure.cell[0]),int(structure.cell[1]))
 		var table: Array = []
 		for direction: Vector2i in [Vector2i.UP,Vector2i.DOWN,Vector2i.LEFT,Vector2i.RIGHT]:
@@ -72,6 +72,7 @@ func refresh(sim) -> void:
 				table = tables[chair + direction]
 				break
 		_seats.append({"chair_cell":structure.cell.duplicate(),"table_cell":table.duplicate()})
+	Diagnostic.end(span)
 
 func seat_at(sim, cell: Array) -> Dictionary:
 	refresh(sim)
@@ -96,24 +97,30 @@ func owner(sim, cell: Array) -> String:
 	return ""
 
 func approach(sim, id: String, seat: Dictionary) -> Vector2i:
-	var chair := Vector2i(int(seat.chair_cell[0]),int(seat.chair_cell[1]))
 	var source: Vector2 = sim.get_player_position() if id == "core:player" else sim.get_npc_position(id,Vector2.ZERO)
 	var from: Vector2i = sim._world_position_to_cell(source)
-	if from == chair and owner(sim,seat.chair_cell) == id:
-		return chair
 	var blocker: Vector2i = INVALID if id == "core:player" else sim._world_position_to_cell(sim.get_player_position())
+	return _approach_in_context(sim,id,seat,_approach_context(sim,id,from,blocker))
+
+func _approach_context(sim, id: String, from: Vector2i, blocker: Vector2i) -> Dictionary:
+	var occupied: Dictionary = {}
+	for other: String in sim.state.npcs:
+		if other != id and bool(sim.state.npcs[other].get("active",false)):
+			occupied[sim._world_position_to_cell(sim.get_npc_position(other,Vector2.ZERO))] = true
+	return {"from":from,"blocker":blocker,"occupied":occupied}
+
+func _approach_in_context(sim, id: String, seat: Dictionary, context: Dictionary) -> Vector2i:
+	var chair := Vector2i(int(seat.chair_cell[0]),int(seat.chair_cell[1]))
+	var from: Vector2i = context.from
+	var blocker: Vector2i = context.blocker
+	if from == chair and owner(sim,seat.chair_cell) == id: return chair
 	var best := INVALID
 	var distance := 1000000
 	for direction: Vector2i in [Vector2i.DOWN,Vector2i.UP,Vector2i.LEFT,Vector2i.RIGHT]:
 		var target := chair + direction
 		if target == blocker or not sim.npc_autonomy.can_reach(from,target,blocker):
 			continue
-		var occupied := false
-		for other: String in sim.state.npcs:
-			if other != id and bool(sim.state.npcs[other].get("active",false)) and sim._world_position_to_cell(sim.get_npc_position(other,Vector2.ZERO)) == target:
-				occupied = true
-		if occupied:
-			continue
+		if context.occupied.has(target): continue
 		var cost := absi(from.x-target.x) + absi(from.y-target.y)
 		if cost < distance:
 			best = target
@@ -125,15 +132,25 @@ func find_seat(sim, id: String, meal: bool, at: Vector2i = INVALID, evening: boo
 	var source: Vector2 = sim.get_player_position() if id == "core:player" else sim.get_npc_position(id,Vector2.ZERO)
 	var best: Dictionary = {}
 	var score := INF
+	var context: Dictionary = {}
 	for seat: Dictionary in _seats:
 		if meal and seat.table_cell.is_empty():
 			continue
 		if at != INVALID and seat.chair_cell != [at.x,at.y] and seat.table_cell != [at.x,at.y]:
 			continue
+		# Every approach is at most one cell from the chair. Outside this
+		# conservative radius no reachable approach could pass the limit below.
+		var chair_position := Content.cell_center(int(seat.chair_cell[0]),int(seat.chair_cell[1]))
+		if id != "core:player" and source.distance_to(chair_position) > MAX_SEAT_DISTANCE + Content.CELL_SIZE:
+			continue
 		var occupied := owner(sim,seat.chair_cell)
 		if not occupied.is_empty() and occupied != id:
 			continue
-		var target := approach(sim,id,seat)
+		# This synchronous query cannot move residents. Read occupancy once for
+		# all candidate chairs, while every new query sees current positions.
+		if context.is_empty():
+			context = _approach_context(sim,id,sim._world_position_to_cell(source),INVALID if id == "core:player" else sim._world_position_to_cell(sim.get_player_position()))
+		var target := _approach_in_context(sim,id,seat,context)
 		if target == INVALID:
 			continue
 		var distance := source.distance_to(Content.cell_center(target.x,target.y))
@@ -259,8 +276,9 @@ func execute(sim, cell: Vector2i, action: String, item: String = "") -> Dictiona
 	if action == "toggle_light" and String(data.building_id) == "core:torch":
 		for structure: Dictionary in sim.state.structures:
 			if structure.cell == [cell.x,cell.y] and String(structure.building_id) == "core:torch":
-				structure.lit = not bool(structure.get("lit",true))
-				return sim._emit_result(true,"furniture.light.on" if bool(structure.lit) else "furniture.light.off",true,true)
+				var lit := not bool(structure.get("lit",true))
+				sim.set_structure_state(structure,"lit",lit)
+				return sim._emit_result(true,"furniture.light.on" if lit else "furniture.light.off",true,true)
 	if not ["eat","rest"].has(action) or not ["core:chair","core:table"].has(String(data.building_id)):
 		return sim._emit_result(false,"interaction.failure.unsupported_target")
 	var seat: Dictionary = data.meal if action == "eat" else data.rest

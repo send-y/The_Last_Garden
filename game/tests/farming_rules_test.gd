@@ -98,7 +98,7 @@ func _test_extraction_and_capacity() -> void:
 	var product := Sim.new()
 	product.try_pickup_item("core:carrot", 1)
 	_check(not bool(_command(product, "extract", Vector2i(-1, -1), "core:carrot").success), "ordinary product is gated by a built table")
-	product.state.structures.append({"building_id": "core:study_table", "cell": [22, 20], "stage_id": "core:complete"})
+	product.add_structure({"building_id": "core:study_table", "cell": [22, 20], "stage_id": "core:complete"})
 	var result := _command(product, "extract", Vector2i(-1, -1), "core:carrot")
 	_check(bool(result.success) and product.get_item_count("core:carrot") == 0, "ordinary extraction consumes one product")
 	_check(product.get_item_count("core:carrot_seed") >= 1 and product.get_item_count("core:carrot_seed") <= 5, "ordinary crop returns its own 1-5 seeds")

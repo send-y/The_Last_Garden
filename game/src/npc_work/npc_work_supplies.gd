@@ -4,13 +4,14 @@ const Content := preload("res://src/content/first_night_content.gd")
 const Placement := preload("res://src/inventory/inventory_placement_rules.gd")
 const Water := preload("res://src/world/water_map.gd")
 const HomeStock := preload("res://src/npc_work/home_project_stock.gd")
+const Diagnostic := preload("res://src/dev/diagnostic_trace.gd")
 const CARRY_LIMIT := 20
 
 static func cell_of(sim, npc: Dictionary) -> Vector2i:
 	return sim._world_position_to_cell(sim.get_npc_position(String(npc.id), Vector2.ZERO))
 
 static func work_cell(sim, npc: Dictionary, target: Vector2i) -> Vector2i:
-	return sim.npc_autonomy.find_construction_work_cell(target, cell_of(sim, npc), sim._world_position_to_cell(sim.get_player_position()))
+	return sim.work_queries.work_cell(sim,npc,target)
 
 # One bounded flood search finds an accessible bank, including enclosed gardens.
 # Avoid running an A* search for each of the river's many water cells.
@@ -45,6 +46,12 @@ static func tool(sim, npc: Dictionary) -> Dictionary:
 	return instance if String(location.get("kind", "")) == "npc" and String(location.get("id", "")) == String(npc.id) else {}
 
 static func find_stock(sim, npc: Dictionary, id: String) -> Dictionary:
+	var span := Diagnostic.begin("npc_work.find_stock") if Diagnostic.enabled else 0
+	var result := _find_stock(sim,npc,id)
+	Diagnostic.end(span)
+	return result
+
+static func _find_stock(sim, npc: Dictionary, id: String) -> Dictionary:
 	for record: Dictionary in sim.state.storage_items:
 		if String(record.item_id) != id or int(record.amount) <= 0:
 			continue

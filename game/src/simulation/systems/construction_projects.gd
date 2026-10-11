@@ -402,7 +402,7 @@ static func _complete_blueprint_at_cell(sim, cell_data: Array) -> Dictionary:
 
 		if building_id == "core:wood_door": structure["open"] = false
 		blueprints.remove_at(index)
-		structures.append(structure)
+		sim.add_structure(structure)
 		sim._sync_structure_navigation()
 
 		return {
@@ -447,10 +447,9 @@ static func is_navigation_cell_walkable(sim, cell: Vector2i) -> bool:
 
 
 static func _find_structure(sim, cell_data: Array) -> Dictionary:
-	var state: Dictionary = sim.state
 	var building_catalog: BuildingCatalog = sim.building_catalog
 	var fallback: Dictionary = {}
-	for structure_value: Variant in state["structures"] as Array:
+	for structure_value: Variant in sim.structure_index.at(Vector2i(int(cell_data[0]),int(cell_data[1]))):
 		if typeof(structure_value) == TYPE_DICTIONARY:
 			var structure := structure_value as Dictionary
 			if not sim._entity_occupies_cell(structure, cell_data):

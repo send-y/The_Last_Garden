@@ -1,0 +1,202 @@
+[
+	{
+		"elapsed_game_minutes": 2700,
+		"frames": {
+			"frames": 253,
+			"max_frame_ms": 19.186
+		},
+		"label": "idle_before",
+		"structure_validation_enabled": false,
+		"trace": {
+			"counters": {},
+			"slow_paths": [],
+			"spans": {
+				"scene.update_light_field": {
+					"calls": 253,
+					"inclusive_us": 7059,
+					"maximum_us": 47,
+					"self_us": 7059
+				},
+				"scene.world_depth": {
+					"calls": 253,
+					"inclusive_us": 86127,
+					"maximum_us": 521,
+					"self_us": 86127
+				}
+			}
+		},
+		"trace_enabled": true,
+		"wall_ms": 3004.103
+	},
+	{
+		"elapsed_game_minutes": 2701,
+		"frames": {},
+		"label": "minute_1",
+		"structure_validation_enabled": false,
+		"trace": {
+			"counters": {
+				"astar_calls": 364,
+				"astar_route_found": 364
+			},
+			"slow_paths": [],
+			"spans": {
+				"clock.apply_effects": {
+					"calls": 1,
+					"inclusive_us": 8,
+					"maximum_us": 8,
+					"self_us": 8
+				},
+				"clock.autonomy": {
+					"calls": 1,
+					"inclusive_us": 563,
+					"maximum_us": 563,
+					"self_us": 563
+				},
+				"clock.doors_after": {
+					"calls": 1,
+					"inclusive_us": 93,
+					"maximum_us": 93,
+					"self_us": 93
+				},
+				"clock.doors_before": {
+					"calls": 1,
+					"inclusive_us": 104,
+					"maximum_us": 104,
+					"self_us": 104
+				},
+				"clock.farming_and_drops": {
+					"calls": 1,
+					"inclusive_us": 498,
+					"maximum_us": 498,
+					"self_us": 498
+				},
+				"clock.furniture_contexts": {
+					"calls": 1,
+					"inclusive_us": 479,
+					"maximum_us": 479,
+					"self_us": 479
+				},
+				"clock.housing_contexts": {
+					"calls": 1,
+					"inclusive_us": 3282,
+					"maximum_us": 3282,
+					"self_us": 2973
+				},
+				"clock.npc_needs_and_meals": {
+					"calls": 1,
+					"inclusive_us": 4462,
+					"maximum_us": 4462,
+					"self_us": 4132
+				},
+				"clock.observe_home_projects": {
+					"calls": 1,
+					"inclusive_us": 226,
+					"maximum_us": 226,
+					"self_us": 226
+				},
+				"clock.player_needs": {
+					"calls": 1,
+					"inclusive_us": 299,
+					"maximum_us": 299,
+					"self_us": 146
+				},
+				"clock.prepare_work": {
+					"calls": 1,
+					"inclusive_us": 4138,
+					"maximum_us": 4138,
+					"self_us": 3811
+				},
+				"clock.signals_ui_and_supply": {
+					"calls": 1,
+					"inclusive_us": 12690,
+					"maximum_us": 12690,
+					"self_us": 4786
+				},
+				"clock.total": {
+					"calls": 1,
+					"inclusive_us": 26943,
+					"maximum_us": 26943,
+					"self_us": 101
+				},
+				"navigation.astar": {
+					"calls": 364,
+					"inclusive_us": 1119,
+					"maximum_us": 53,
+					"self_us": 1119
+				},
+				"scene.hud_refresh": {
+					"calls": 3,
+					"inclusive_us": 5005,
+					"maximum_us": 1839,
+					"self_us": 5005
+				},
+				"scene.world_state_refresh": {
+					"calls": 1,
+					"inclusive_us": 4738,
+					"maximum_us": 4738,
+					"self_us": 4738
+				}
+			}
+		},
+		"trace_enabled": true,
+		"wall_ms": 28.907
+	},
+	{
+		"elapsed_game_minutes": 2701,
+		"frames": {
+			"frames": 148,
+			"max_frame_ms": 30.284
+		},
+		"label": "render_after_1",
+		"structure_validation_enabled": false,
+		"trace": {
+			"counters": {},
+			"slow_paths": [],
+			"spans": {
+				"scene.update_light_field": {
+					"calls": 148,
+					"inclusive_us": 3926,
+					"maximum_us": 42,
+					"self_us": 3926
+				},
+				"scene.world_depth": {
+					"calls": 148,
+					"inclusive_us": 49842,
+					"maximum_us": 503,
+					"self_us": 49842
+				}
+			}
+		},
+		"trace_enabled": true,
+		"wall_ms": 2011.388
+	},
+	{
+		"elapsed_game_minutes": 2701,
+		"frames": {
+			"frames": 260,
+			"max_frame_ms": 17.558
+		},
+		"label": "idle_after",
+		"structure_validation_enabled": false,
+		"trace": {
+			"counters": {},
+			"slow_paths": [],
+			"spans": {
+				"scene.update_light_field": {
+					"calls": 260,
+					"inclusive_us": 7081,
+					"maximum_us": 74,
+					"self_us": 7081
+				},
+				"scene.world_depth": {
+					"calls": 260,
+					"inclusive_us": 87161,
+					"maximum_us": 978,
+					"self_us": 87161
+				}
+			}
+		},
+		"trace_enabled": true,
+		"wall_ms": 3001.26
+	}
+]

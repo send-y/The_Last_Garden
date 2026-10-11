@@ -1,0 +1,8 @@
+Godot Engine v4.7.stable.mono.official.5b4e0cb0f - https://godotengine.org
+OpenGL API 3.3.0 NVIDIA 617.14 - Compatibility - Using Device: NVIDIA - NVIDIA GeForce RTX 4060
+
+LAB_READY scenario=settlement_stress day=2 time=09:00
+DIAG_STAGE {"label":"idle_before","wall_ms":3003.215}
+DIAG_STAGE {"label":"natural_minutes","wall_ms":90013.019}
+DIAG_STAGE {"label":"idle_after","wall_ms":3002.459}
+CPU_DIAGNOSTIC_COMPLETE natural minutes

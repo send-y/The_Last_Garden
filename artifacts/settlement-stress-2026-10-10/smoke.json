@@ -1,0 +1,68 @@
+{
+	"activities": {
+		"core:outdoors": 3
+	},
+	"average_fps": 57.51089262297,
+	"clock": "one minute per 1.333s after previous tick; no catch-up batches",
+	"crafting_projects": 0,
+	"display": "headless",
+	"frame_ms": {
+		"max": 1621.232,
+		"mean": 17.38753125,
+		"p50": 8.422,
+		"p95": 16.091,
+		"p99": 59.495,
+		"p999": 536.684
+	},
+	"frames": 288,
+	"game_minutes": 2,
+	"gathering_changed_resources": false,
+	"home_goals_completed": 0,
+	"houses": 30,
+	"logical_viewport": [
+		640.0,
+		640.0
+	],
+	"minute_cpu_ms": {
+		"max": 1601.348,
+		"mean": 1059.637,
+		"p50": 517.926,
+		"p95": 517.926,
+		"p99": 517.926,
+		"p999": 517.926
+	},
+	"minute_samples": [
+		{
+			"activities": {
+				"core:outdoors": 3
+			},
+			"minute": 1981,
+			"ms": 1601.348
+		},
+		{
+			"activities": {
+				"core:outdoors": 3
+			},
+			"minute": 1982,
+			"ms": 517.926
+		}
+	],
+	"over_10_ms": 78,
+	"over_33_ms": 6,
+	"phase": "work",
+	"renderer": "",
+	"residents": 3,
+	"scenario": "settlement_stress",
+	"seconds": 5.007747,
+	"setup_ms": 13463.225,
+	"storage_stacks": 125,
+	"structures": 2155,
+	"tool_instances": 120,
+	"view": "player",
+	"vsync": "disabled for probe",
+	"wet_beds_added": 0,
+	"window": [
+		0,
+		0
+	]
+}

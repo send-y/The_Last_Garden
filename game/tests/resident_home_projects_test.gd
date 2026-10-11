@@ -156,7 +156,7 @@ func _test_expansion_and_recovery() -> void:
 	npc.position = [Content.cell_center(42,31).x,Content.cell_center(42,31).y]
 	# Occupy the available room while leaving the assigned bed reachable.
 	for cell: Array in [[42,30],[40,31]]:
-		sim.state.structures.append({"building_id":"core:torch","cell":cell,"lit":true})
+		sim.add_structure({"building_id":"core:torch","cell":cell,"lit":true})
 	sim._sync_structure_navigation()
 	sim.set_npc_work_enabled(NPC, "build", true)
 	sim.advance_minutes(1)
@@ -169,7 +169,7 @@ func _test_expansion_and_recovery() -> void:
 	# Keep the same resident, request, bed and simulation while rebuilding the enclosure.
 	var enlarged = Fixture.create()
 	check(sim.remove_room_at(Vector2i(40,31)).success, "Player can remove the old designation before expanding the foundation")
-	sim.state.structures = enlarged.state.structures.duplicate(true)
+	sim.replace_structures(enlarged.state.structures.duplicate(true))
 	sim._sync_structure_navigation()
 	check(sim.assign_room_type("core:living_room",Vector2i(40,31)).success, "Enlarged foundation can be designated again without prebuilding comfort furniture")
 	sim.advance_minutes(35)

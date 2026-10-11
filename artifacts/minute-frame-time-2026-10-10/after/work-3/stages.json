@@ -1,0 +1,226 @@
+[
+	{
+		"elapsed_game_minutes": 1980,
+		"frames": {
+			"frames": 251,
+			"max_frame_ms": 18.506
+		},
+		"label": "idle_before",
+		"structure_validation_enabled": false,
+		"trace": {
+			"counters": {},
+			"slow_paths": [],
+			"spans": {
+				"scene.update_light_field": {
+					"calls": 251,
+					"inclusive_us": 7149,
+					"maximum_us": 80,
+					"self_us": 7149
+				},
+				"scene.world_depth": {
+					"calls": 251,
+					"inclusive_us": 86377,
+					"maximum_us": 680,
+					"self_us": 86377
+				}
+			}
+		},
+		"trace_enabled": true,
+		"wall_ms": 3001.288
+	},
+	{
+		"elapsed_game_minutes": 1981,
+		"frames": {},
+		"label": "minute_1",
+		"structure_validation_enabled": false,
+		"trace": {
+			"counters": {
+				"astar_calls": 723,
+				"astar_route_found": 723
+			},
+			"slow_paths": [],
+			"spans": {
+				"clock.apply_effects": {
+					"calls": 1,
+					"inclusive_us": 11,
+					"maximum_us": 11,
+					"self_us": 11
+				},
+				"clock.autonomy": {
+					"calls": 1,
+					"inclusive_us": 227,
+					"maximum_us": 227,
+					"self_us": 171
+				},
+				"clock.doors_after": {
+					"calls": 1,
+					"inclusive_us": 139,
+					"maximum_us": 139,
+					"self_us": 139
+				},
+				"clock.doors_before": {
+					"calls": 1,
+					"inclusive_us": 198,
+					"maximum_us": 198,
+					"self_us": 198
+				},
+				"clock.farming_and_drops": {
+					"calls": 1,
+					"inclusive_us": 615,
+					"maximum_us": 615,
+					"self_us": 615
+				},
+				"clock.furniture_contexts": {
+					"calls": 1,
+					"inclusive_us": 68,
+					"maximum_us": 68,
+					"self_us": 68
+				},
+				"clock.housing_contexts": {
+					"calls": 1,
+					"inclusive_us": 383,
+					"maximum_us": 383,
+					"self_us": 332
+				},
+				"clock.npc_needs_and_meals": {
+					"calls": 1,
+					"inclusive_us": 731,
+					"maximum_us": 731,
+					"self_us": 657
+				},
+				"clock.observe_home_projects": {
+					"calls": 1,
+					"inclusive_us": 1333,
+					"maximum_us": 1333,
+					"self_us": 1333
+				},
+				"clock.player_needs": {
+					"calls": 1,
+					"inclusive_us": 302,
+					"maximum_us": 302,
+					"self_us": 157
+				},
+				"clock.prepare_work": {
+					"calls": 1,
+					"inclusive_us": 74168,
+					"maximum_us": 74168,
+					"self_us": 38549
+				},
+				"clock.signals_ui_and_supply": {
+					"calls": 1,
+					"inclusive_us": 9969,
+					"maximum_us": 9969,
+					"self_us": 5298
+				},
+				"clock.total": {
+					"calls": 1,
+					"inclusive_us": 88275,
+					"maximum_us": 88275,
+					"self_us": 131
+				},
+				"home_layout.can_place": {
+					"calls": 3,
+					"inclusive_us": 11111,
+					"maximum_us": 3864,
+					"self_us": 7415
+				},
+				"home_layout.furnishings": {
+					"calls": 11,
+					"inclusive_us": 5695,
+					"maximum_us": 935,
+					"self_us": 5695
+				},
+				"home_project.stock_report": {
+					"calls": 1,
+					"inclusive_us": 10121,
+					"maximum_us": 10121,
+					"self_us": 6055
+				},
+				"navigation.astar": {
+					"calls": 723,
+					"inclusive_us": 5421,
+					"maximum_us": 124,
+					"self_us": 5421
+				},
+				"scene.hud_refresh": {
+					"calls": 6,
+					"inclusive_us": 10910,
+					"maximum_us": 2265,
+					"self_us": 10910
+				},
+				"scene.world_state_refresh": {
+					"calls": 3,
+					"inclusive_us": 6123,
+					"maximum_us": 2551,
+					"self_us": 6123
+				},
+				"simulation.command_result": {
+					"calls": 1,
+					"inclusive_us": 7813,
+					"maximum_us": 7813,
+					"self_us": 1262
+				}
+			}
+		},
+		"trace_enabled": true,
+		"wall_ms": 90.613
+	},
+	{
+		"elapsed_game_minutes": 1981,
+		"frames": {
+			"frames": 170,
+			"max_frame_ms": 14.998
+		},
+		"label": "render_after_1",
+		"structure_validation_enabled": false,
+		"trace": {
+			"counters": {},
+			"slow_paths": [],
+			"spans": {
+				"scene.update_light_field": {
+					"calls": 170,
+					"inclusive_us": 4536,
+					"maximum_us": 78,
+					"self_us": 4536
+				},
+				"scene.world_depth": {
+					"calls": 170,
+					"inclusive_us": 54912,
+					"maximum_us": 498,
+					"self_us": 54912
+				}
+			}
+		},
+		"trace_enabled": true,
+		"wall_ms": 2004.436
+	},
+	{
+		"elapsed_game_minutes": 1981,
+		"frames": {
+			"frames": 261,
+			"max_frame_ms": 15.091
+		},
+		"label": "idle_after",
+		"structure_validation_enabled": false,
+		"trace": {
+			"counters": {},
+			"slow_paths": [],
+			"spans": {
+				"scene.update_light_field": {
+					"calls": 261,
+					"inclusive_us": 7032,
+					"maximum_us": 54,
+					"self_us": 7032
+				},
+				"scene.world_depth": {
+					"calls": 261,
+					"inclusive_us": 86196,
+					"maximum_us": 643,
+					"self_us": 86196
+				}
+			}
+		},
+		"trace_enabled": true,
+		"wall_ms": 3006.795
+	}
+]

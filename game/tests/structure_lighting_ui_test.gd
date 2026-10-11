@@ -1,0 +1,125 @@
+extends Node
+
+const Main := preload("res://src/main/main.tscn")
+const Fixture := preload("res://tests/fixtures/resident_home_fixture.gd")
+const SaveStore := preload("res://src/save/first_night_save_store.gd")
+const Content := preload("res://src/content/first_night_content.gd")
+const Trace := preload("res://src/dev/diagnostic_trace.gd")
+const TORCH := {"building_id":"core:torch","cell":[42,31]}
+const OTHER := {"building_id":"core:torch","cell":[44,33]}
+const DOOR := {"building_id":"core:wood_door","cell":[39,32]}
+var failures := 0
+
+func _ready() -> void: call_deferred("run")
+func check(value: bool, message: String) -> void:
+	if not value:
+		failures += 1
+		push_error(message)
+func frames() -> void:
+	for _frame: int in range(5): await get_tree().process_frame
+func calls(label: String) -> int:
+	return int(Trace.snapshot().spans.get(label,{}).get("calls",0))
+func ids(nodes: Array) -> Array:
+	return nodes.map(func(node): return node.get_instance_id())
+func sprite_at(layer, cell: Vector2i) -> Sprite2D:
+	for sprite: Sprite2D in layer._structure_sprites:
+		if sprite.get_meta("cell",Vector2i(-1,-1)) == cell: return sprite
+	return null
+
+func run() -> void:
+	Session._save_store = SaveStore.new("user://structure_lighting_ui_test.json")
+	Session.set_process(false)
+	var fixture = Fixture.create()
+	fixture.add_structure({"building_id":"core:torch","cell":[42,31],"lit":false})
+	fixture.add_structure({"building_id":"core:torch","cell":[44,33],"lit":false})
+	fixture.state.minute_of_day = 22 * 60
+	Session._replace_simulation(fixture.export_state())
+	Session._publish_reloaded_state(true)
+	var game := Main.instantiate()
+	add_child(game)
+	await frames()
+	var layer = game.get_node("World/StructureLayer")
+	var geometry_ids := ids(layer._collision_bodies)
+	var sprite_ids := ids(layer._structure_sprites)
+	check(not geometry_ids.is_empty(),"Fixture has actual wall collision bodies")
+	var original: Sprite2D = sprite_at(layer,Vector2i(42,31))
+	check(original != null and original.texture.resource_path.ends_with("torch_off.png"),"Fixture starts with an actual unlit torch sprite")
+	Trace.enabled = true
+	Trace.reset()
+	check(Session.simulation.set_structure_state(TORCH,"lit",true),"Torch lighting changes authoritative state")
+	var expected: Dictionary = Session.simulation.export_state()
+	Session.state_changed.emit()
+	await frames()
+	check(Session.simulation.export_state() == expected,"Light presentation does not mutate simulation state")
+	check(ids(layer._collision_bodies) == geometry_ids,"Turning on a torch preserves all existing wall collision bodies")
+	check(ids(layer._structure_sprites) == sprite_ids,"Turning on a torch preserves all existing sprites")
+	var lit_sprite: Sprite2D = sprite_at(layer,Vector2i(42,31))
+	check(lit_sprite != null and lit_sprite.texture.resource_path.ends_with("torch_on.png"),"Existing torch displays its lit texture")
+	check(Session.simulation.is_cell_lit(Vector2i(42,31)),"Actual nighttime light mask includes the enabled source")
+	var bound_mask: Texture2D = game._lighting_material.get_shader_parameter("light_mask")
+	check(bound_mask.get_image().get_pixel(42,31).r > 0.9,"Night shader receives a mask containing the enabled source")
+	check(float(game._lighting_material.get_shader_parameter("night_alpha")) > 0.4,"Light mask is applied under active nighttime shading")
+	check(calls("scene.structure_refresh") == 0 and calls("scene.structure_draw") == 0,"A light change never rebuilds or redraws the structure layer")
+	Trace.reset()
+	Session.simulation.set_structure_state(TORCH,"lit",false)
+	Session.state_changed.emit()
+	await frames()
+	check(ids(layer._collision_bodies) == geometry_ids and ids(layer._structure_sprites) == sprite_ids,"Turning off light also retains all scene objects")
+	check(not Session.simulation.is_cell_lit(Vector2i(42,31)),"Disabling the final source updates actual darkness")
+	bound_mask = game._lighting_material.get_shader_parameter("light_mask")
+	check(bound_mask.get_image().get_pixel(42,31).r == 0.0,"Night shader receives the updated dark mask after disabling light")
+	check(sprite_at(layer,Vector2i(42,31)).texture.resource_path.ends_with("torch_off.png"),"Disabled source updates its existing texture")
+	Trace.reset()
+	check(not Session.simulation.set_structure_state(TORCH,"lit",false),"Repeated same light value does not change the world")
+	Session.state_changed.emit()
+	await frames()
+	check(calls("scene.structure_refresh") == 0 and calls("scene.structure_lights") == 0,"An unchanged light requires no structure presentation update")
+	Trace.reset()
+	Session.simulation.set_structure_state(TORCH,"lit",true)
+	Session.state_changed.emit()
+	Session.simulation.set_structure_state(OTHER,"lit",true)
+	Session.state_changed.emit()
+	await frames()
+	check(calls("scene.structure_lights") == 1,"Multiple light changes before a frame share one local presentation update")
+	check(ids(layer._collision_bodies) == geometry_ids and ids(layer._structure_sprites) == sprite_ids,"Batched lights preserve geometry and sprite identity")
+	check(sprite_at(layer,Vector2i(44,33)).texture.resource_path.ends_with("torch_on.png"),"Batched update includes every changed torch")
+	Trace.reset()
+	Session.simulation.set_structure_state(DOOR,"open",false)
+	Session.simulation.set_structure_state(TORCH,"lit",false)
+	Session.state_changed.emit()
+	await frames()
+	check(calls("scene.structure_refresh") == 1,"Door and light edits together still update physical geometry")
+	check(sprite_at(layer,Vector2i(39,32)).visible,"Closed door is visible after a mixed edit")
+	check(layer._collision_bodies.any(func(body): return body.position == Content.cell_center(39,32)),"Closed door still has its actual collision body")
+	check(sprite_at(layer,Vector2i(42,31)).texture.resource_path.ends_with("torch_off.png"),"Full refresh also reflects the latest light state")
+	Session.simulation.set_structure_state(DOOR,"open",true)
+	Session.state_changed.emit()
+	await frames()
+	check(not sprite_at(layer,Vector2i(39,32)).visible,"Reopened door is hidden")
+	check(not layer._collision_bodies.any(func(body): return body.position == Content.cell_center(39,32)),"Reopened doorway removes its collision")
+	Trace.reset()
+	Session.simulation.remove_structure(OTHER)
+	Session.simulation.add_structure({"building_id":"core:wood_wall","cell":[44,33]})
+	Session.simulation.set_structure_state(TORCH,"lit",true)
+	Session.state_changed.emit()
+	await frames()
+	check(calls("scene.structure_refresh") == 1,"Simultaneous structural edit and light change rebuild actual geometry")
+	check(layer._collision_bodies.any(func(body): return body.position == Content.cell_center(44,33)),"Replacing a torch with a wall creates its actual collision")
+	check(sprite_at(layer,Vector2i(42,31)).texture.resource_path.ends_with("torch_on.png"),"Geometry rebuild retains the latest other light state")
+	# Equal counters in another world cannot retain an old torch/node map.
+	Session.simulation.set_structure_state(TORCH,"lit",false)
+	var saved: Dictionary = Session.simulation.export_state()
+	Trace.reset()
+	Session._replace_simulation(saved)
+	Session._publish_reloaded_state(true)
+	await frames()
+	check(calls("scene.structure_refresh") == 1,"Reload rebuilds presentation for the new index identity")
+	check(sprite_at(layer,Vector2i(42,31)).texture.resource_path.ends_with("torch_off.png"),"Reload uses incoming light state")
+	geometry_ids = ids(layer._collision_bodies)
+	Session.simulation.set_structure_state(TORCH,"lit",true)
+	Session.state_changed.emit()
+	await frames()
+	check(ids(layer._collision_bodies) == geometry_ids,"Local light updates work on the new world after reload")
+	Trace.enabled = false
+	print("STRUCTURE_LIGHTING_UI: %d failures" % failures)
+	get_tree().quit(0 if failures == 0 else 1)

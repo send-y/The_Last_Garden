@@ -2,6 +2,7 @@ class_name WorldSimulation
 extends "res://src/simulation/world_rules.gd"
 
 signal event_emitted(event: Dictionary)
+const Diagnostic := preload("res://src/dev/diagnostic_trace.gd")
 
 # Stable command/query facade. State and dependencies live only here.
 const ConstructionCommandsSystem := preload("res://src/simulation/systems/construction_commands.gd")
@@ -24,6 +25,8 @@ const WorldCalendarSystem := preload("res://src/simulation/systems/world_calenda
 const WorldDropsSystem := preload("res://src/simulation/systems/world_drops.gd")
 
 const NpcPracticalWork := preload("res://src/npc_work/npc_practical_work.gd")
+const NpcWorkQueries := preload("res://src/npc_work/npc_work_queries.gd")
+var work_queries := NpcWorkQueries.new()
 const NpcHomeProjects := preload("res://src/npc_work/npc_home_projects.gd")
 
 const Housing := preload("res://src/housing/housing_system.gd")
@@ -43,11 +46,23 @@ const HouseholdFeedback := preload("res://src/needs/household_feedback.gd")
 var needs := CharacterNeedsScript.new()
 var npc_autonomy
 var building_catalog: BuildingCatalog
+const StructureIndex := preload("res://src/construction/structure_index.gd")
+var structure_index
+var room_revision := 0
+var housing_revision := 0
+var _home_policy_revision := -1
+var _home_policy_rooms: Array[Dictionary] = []
+var _home_policy_room_by_character: Dictionary = {}
+var _home_policy_inputs: Dictionary = {}
 var crafting_catalog: CraftingCatalog
 var _minute_accumulator: float = 0.0
 var _berry_bush_nodes: Array[Dictionary] = []
 var _food_object_ids: Dictionary = {}
 var farming := FarmingScript.new()
+var _inventory_layout_content: FirstNightContent
+var _inventory_layout_counts: Dictionary = {}
+var _inventory_layout_snapshot: Array = []
+var _inventory_layout_synced := false
 
 
 func _init(initial_state: Dictionary = {}) -> void:
@@ -69,6 +84,7 @@ func _init(initial_state: Dictionary = {}) -> void:
 	for roster_error: String in npc_catalog.restore(state.get("npc_profiles", {})):
 		push_warning(roster_error)
 	_normalize_state()
+	structure_index = StructureIndex.new(state.structures,building_catalog)
 	farming.normalize(self)
 	if legacy_farm_missing:
 		for object_id: String in state.collected:
@@ -83,6 +99,46 @@ func _init(initial_state: Dictionary = {}) -> void:
 
 func tick(real_delta: float) -> bool:
 	return WorldCalendarSystem.tick(self, real_delta)
+
+
+func notify_housing_changed(geometry: bool = false) -> void:
+	housing_revision += 1
+	if geometry: room_revision += 1
+
+
+func set_npc_active(npc_id: String, active: bool) -> bool:
+	var npc: Dictionary = state.npcs.get(npc_id,{})
+	if npc.is_empty() or bool(npc.get("active",false)) == active: return false
+	npc.active = active
+	notify_housing_changed()
+	return true
+
+
+func add_structure(record: Dictionary) -> bool:
+	if not structure_index.add(record): return false
+	notify_housing_changed()
+	return true
+
+
+func remove_structure(record: Dictionary) -> bool:
+	if not structure_index.remove(record): return false
+	notify_housing_changed()
+	return true
+
+
+func set_structure_state(record: Dictionary, field: String, value: bool) -> bool:
+	return structure_index.set_state(record,field,value)
+
+
+func replace_structures(records: Array) -> void:
+	structure_index.replace(records)
+	notify_housing_changed()
+
+
+func debug_validate_structures() -> Array[String]:
+	var errors: Array[String] = structure_index.validate(state.structures)
+	errors.append_array(HomePolicy.debug_validate(self))
+	return errors
 
 
 func create_generated_npc(seed_value: int, arrival_cell: Vector2i) -> Dictionary:
@@ -849,14 +905,15 @@ func _emit_result(
 	message_key: String,
 	changed: bool = false,
 	auto_save: bool = false,
-	message_args: Dictionary = {}
+	message_args: Dictionary = {},
+	inventory_changed: bool = true
 ) -> Dictionary:
+	var span := Diagnostic.begin("simulation.command_result") if Diagnostic.enabled else 0
 	if changed:
 		if not (state.get("selected_inventory_item", {}) as Dictionary).is_empty() and get_held_item().is_empty():
 			state["selected_inventory_item"] = {}
-		state["inventory_layout"] = InventoryPackerScript.pack_with_layout(
-			get_inventory(), content, state.get("inventory_layout", []) as Array, 4, 4
-		).get("layout", [])
+		# Pure household notices change goals, not player item locations/counts.
+		if inventory_changed: _sync_inventory_layout()
 	var event: Dictionary = {
 		"type": "command_result",
 		"success": success,
@@ -866,7 +923,24 @@ func _emit_result(
 		"auto_save": auto_save,
 	}
 	event_emitted.emit(event)
+	Diagnostic.end(span)
 	return event
+
+
+func _sync_inventory_layout() -> void:
+	var inventory := get_inventory()
+	var layout: Array = state.get("inventory_layout", [])
+	# NPC goals and home events do not change the backpack. Compare small,
+	# isolated inputs before invoking its full placement algorithm again.
+	if _inventory_layout_synced and _inventory_layout_content == content and _inventory_layout_counts == inventory and _inventory_layout_snapshot == layout:
+		return
+	var span := Diagnostic.begin("inventory.layout_sync") if Diagnostic.enabled else 0
+	state.inventory_layout = InventoryPackerScript.pack_with_layout(inventory,content,layout,4,4).get("layout", [])
+	_inventory_layout_content = content
+	_inventory_layout_counts = inventory.duplicate(true)
+	_inventory_layout_snapshot = state.inventory_layout.duplicate(true)
+	_inventory_layout_synced = true
+	Diagnostic.end(span)
 
 
 func _normalize_state() -> void:

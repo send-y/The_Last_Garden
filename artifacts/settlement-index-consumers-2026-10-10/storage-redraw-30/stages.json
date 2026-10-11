@@ -1,0 +1,90 @@
+[
+	{
+		"elapsed_game_minutes": 1980,
+		"frames": {
+			"frames": 146,
+			"max_frame_ms": 27.287
+		},
+		"label": "idle_before",
+		"structure_validation_enabled": false,
+		"trace": {
+			"counters": {},
+			"slow_paths": [],
+			"spans": {
+				"lighting.serialize_structures": {
+					"calls": 146,
+					"inclusive_us": 1078508,
+					"maximum_us": 10293,
+					"self_us": 1078508
+				},
+				"scene.update_light_field": {
+					"calls": 146,
+					"inclusive_us": 1095766,
+					"maximum_us": 10431,
+					"self_us": 17258
+				},
+				"scene.world_depth": {
+					"calls": 146,
+					"inclusive_us": 51522,
+					"maximum_us": 576,
+					"self_us": 51522
+				}
+			}
+		},
+		"trace_enabled": true,
+		"wall_ms": 3012.408
+	},
+	{
+		"elapsed_game_minutes": 1980,
+		"frames": {
+			"frames": 12,
+			"max_frame_ms": 34.337
+		},
+		"label": "forced_world_redraw",
+		"structure_validation_enabled": false,
+		"trace": {
+			"counters": {},
+			"slow_paths": [],
+			"spans": {
+				"lighting.serialize_structures": {
+					"calls": 12,
+					"inclusive_us": 90115,
+					"maximum_us": 8465,
+					"self_us": 90115
+				},
+				"scene.update_light_field": {
+					"calls": 12,
+					"inclusive_us": 91527,
+					"maximum_us": 8585,
+					"self_us": 1412
+				},
+				"scene.world_depth": {
+					"calls": 12,
+					"inclusive_us": 4283,
+					"maximum_us": 488,
+					"self_us": 4283
+				},
+				"scene.world_draw": {
+					"calls": 1,
+					"inclusive_us": 11290,
+					"maximum_us": 11290,
+					"self_us": 9712
+				},
+				"scene.world_storage_draw": {
+					"calls": 1,
+					"inclusive_us": 1578,
+					"maximum_us": 1578,
+					"self_us": 745
+				},
+				"storage.layout_query": {
+					"calls": 152,
+					"inclusive_us": 833,
+					"maximum_us": 20,
+					"self_us": 833
+				}
+			}
+		},
+		"trace_enabled": true,
+		"wall_ms": 266.012
+	}
+]

@@ -1,16 +1,19 @@
 extends RefCounted
 
+const Diagnostic := preload("res://src/dev/diagnostic_trace.gd")
+
 const Content := preload("res://src/content/first_night_content.gd")
 const RADIUS := 4
-var _key := ""
+var _index: RefCounted
+var _lighting_revision := -1
 var _values: Dictionary = {}
 var _texture: ImageTexture
 
 func refresh(sim) -> void:
-	var key := JSON.stringify(sim.state.structures)
-	if _texture != null and key == _key:
-		return
-	_key = key
+	if _texture != null and _index == sim.structure_index and _lighting_revision == sim.structure_index.lighting_revision: return
+	var span := Diagnostic.begin("lighting.rebuild") if Diagnostic.enabled else 0
+	_index = sim.structure_index
+	_lighting_revision = _index.lighting_revision
 	_values.clear()
 	var walls: Dictionary = {}
 	# Static house walls and constructed walls stop light; furniture does not.
@@ -23,12 +26,13 @@ func refresh(sim) -> void:
 		if x != 24:
 			walls[Vector2i(x,25)] = true
 	var sources: Array[Vector2i] = []
-	for structure: Dictionary in sim.state.structures:
-		var id := String(structure.building_id)
-		var cell := Vector2i(int(structure.cell[0]), int(structure.cell[1]))
-		if id == "core:torch" and bool(structure.get("lit", true)):
-			sources.append(cell)
-		elif bool(sim.building_catalog.get_definition(id).get("room_boundary", false)) and id != "core:wood_door":
+	for structure: Dictionary in _index.of_type("core:torch"):
+		if bool(structure.get("lit",true)): sources.append(Vector2i(int(structure.cell[0]),int(structure.cell[1])))
+	for definition: Dictionary in sim.building_catalog.all_definitions():
+		var id := String(definition.id)
+		if not bool(definition.get("room_boundary",false)) or id == "core:wood_door": continue
+		for structure: Dictionary in _index.of_type(id):
+			var cell := Vector2i(int(structure.cell[0]),int(structure.cell[1]))
 			for part: Vector2i in sim.building_catalog.get_footprint_cells(id,cell):
 				walls[part] = true
 	for source: Vector2i in sources:
@@ -51,6 +55,7 @@ func refresh(sim) -> void:
 	for cell: Vector2i in _values:
 		mask.set_pixel(cell.x,cell.y,Color(float(_values[cell]),0,0,1))
 	_texture = ImageTexture.create_from_image(mask)
+	Diagnostic.end(span)
 
 func is_lit(sim, cell: Vector2i) -> bool:
 	if sim.get_minute_of_day() >= 7 * 60 and sim.get_minute_of_day() < 18 * 60:

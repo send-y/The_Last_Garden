@@ -76,7 +76,8 @@ static func execute_construction_command(sim, command: Dictionary) -> Dictionary
 				"reason_id": "core:occupied_cell",
 			}
 
-	for structure_value: Variant in (state["structures"] as Array):
+	var footprint: Array[Vector2i] = building_catalog.get_footprint_cells(building_id,Vector2i(int(cell_data[0]),int(cell_data[1])))
+	for structure_value: Variant in sim.structure_index.in_cells(footprint):
 		if typeof(structure_value) != TYPE_DICTIONARY:
 			continue
 

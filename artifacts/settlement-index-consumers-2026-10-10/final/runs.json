@@ -1,0 +1,37 @@
+[
+  {
+    "case": "work-30",
+    "exit": 0,
+    "errors": [],
+    "sampler_error": null,
+    "passed": true
+  },
+  {
+    "case": "sleep-30",
+    "exit": 0,
+    "errors": [],
+    "sampler_error": null,
+    "passed": true
+  },
+  {
+    "case": "evening-lights-30",
+    "exit": 0,
+    "errors": [],
+    "sampler_error": null,
+    "passed": true
+  },
+  {
+    "case": "storage-redraw-30",
+    "exit": 0,
+    "errors": [],
+    "sampler_error": null,
+    "passed": true
+  },
+  {
+    "case": "frames-30",
+    "exit": 0,
+    "errors": [],
+    "sampler_error": null,
+    "passed": true
+  }
+]

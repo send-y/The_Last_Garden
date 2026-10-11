@@ -1,0 +1,16 @@
+[
+  {
+    "case": "work-30",
+    "exit": 0,
+    "errors": [],
+    "sampler_error": null,
+    "passed": true
+  },
+  {
+    "case": "sleep-30",
+    "exit": 0,
+    "errors": [],
+    "sampler_error": null,
+    "passed": true
+  }
+]

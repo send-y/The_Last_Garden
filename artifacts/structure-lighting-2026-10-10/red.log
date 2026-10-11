@@ -1,0 +1,45 @@
+Godot Engine v4.7.stable.mono.official.5b4e0cb0f - https://godotengine.org
+
+STRUCTURE_LIGHTING_UI: 7 failures
+ERROR: Turning on a torch preserves all existing wall collision bodies
+   at: push_error (core/variant/variant_utility.cpp:1023)
+   GDScript backtrace (most recent call first):
+       [0] check (res://tests/structure_lighting_ui_test.gd:17)
+       [1] run (res://tests/structure_lighting_ui_test.gd:54)
+       [2] frames (res://tests/structure_lighting_ui_test.gd:19)
+ERROR: Turning on a torch preserves all existing sprites
+   at: push_error (core/variant/variant_utility.cpp:1023)
+   GDScript backtrace (most recent call first):
+       [0] check (res://tests/structure_lighting_ui_test.gd:17)
+       [1] run (res://tests/structure_lighting_ui_test.gd:55)
+       [2] frames (res://tests/structure_lighting_ui_test.gd:19)
+ERROR: A light change never rebuilds or redraws the structure layer
+   at: push_error (core/variant/variant_utility.cpp:1023)
+   GDScript backtrace (most recent call first):
+       [0] check (res://tests/structure_lighting_ui_test.gd:17)
+       [1] run (res://tests/structure_lighting_ui_test.gd:59)
+       [2] frames (res://tests/structure_lighting_ui_test.gd:19)
+ERROR: Turning off light also retains all scene objects
+   at: push_error (core/variant/variant_utility.cpp:1023)
+   GDScript backtrace (most recent call first):
+       [0] check (res://tests/structure_lighting_ui_test.gd:17)
+       [1] run (res://tests/structure_lighting_ui_test.gd:64)
+       [2] frames (res://tests/structure_lighting_ui_test.gd:19)
+ERROR: Multiple light changes before a frame share one local presentation update
+   at: push_error (core/variant/variant_utility.cpp:1023)
+   GDScript backtrace (most recent call first):
+       [0] check (res://tests/structure_lighting_ui_test.gd:17)
+       [1] run (res://tests/structure_lighting_ui_test.gd:78)
+       [2] frames (res://tests/structure_lighting_ui_test.gd:19)
+ERROR: Batched lights preserve geometry and sprite identity
+   at: push_error (core/variant/variant_utility.cpp:1023)
+   GDScript backtrace (most recent call first):
+       [0] check (res://tests/structure_lighting_ui_test.gd:17)
+       [1] run (res://tests/structure_lighting_ui_test.gd:79)
+       [2] frames (res://tests/structure_lighting_ui_test.gd:19)
+ERROR: Local light updates work on the new world after reload
+   at: push_error (core/variant/variant_utility.cpp:1023)
+   GDScript backtrace (most recent call first):
+       [0] check (res://tests/structure_lighting_ui_test.gd:17)
+       [1] run (res://tests/structure_lighting_ui_test.gd:117)
+       [2] frames (res://tests/structure_lighting_ui_test.gd:19)

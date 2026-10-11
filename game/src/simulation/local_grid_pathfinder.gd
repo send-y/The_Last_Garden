@@ -1,6 +1,8 @@
 class_name LocalGridPathfinder
 extends RefCounted
 
+const Diagnostic := preload("res://src/dev/diagnostic_trace.gd")
+
 var _grid := AStarGrid2D.new()
 var _map_size: Vector2i
 var _cell_size: int
@@ -63,7 +65,12 @@ func next_cell(
 			_grid.set_point_solid(cell)
 			applied.append(cell)
 
+	var span := Diagnostic.begin("navigation.astar") if Diagnostic.enabled else 0
+	var started := Time.get_ticks_usec() if Diagnostic.enabled else 0
 	var path: Array[Vector2i] = _grid.get_id_path(from_cell, to_cell)
+	if Diagnostic.enabled:
+		Diagnostic.end(span)
+		Diagnostic.path_sample(from_cell, to_cell, path.size(), Time.get_ticks_usec() - started)
 	for cell: Vector2i in applied: _grid.set_point_solid(cell,false)
 	if blocker_applied:
 		_grid.set_point_solid(temporary_blocker, false)

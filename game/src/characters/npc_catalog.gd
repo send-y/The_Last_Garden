@@ -27,8 +27,20 @@ func get_definitions() -> Array[Dictionary]:
 	return result
 
 
+func definition_ids() -> Array[String]:
+	return _definition_order.duplicate()
+
+
+func definition_count() -> int:
+	return _definition_order.size()
+
+
 func get_definition(npc_id: String) -> Dictionary:
 	return (_definitions_by_id.get(npc_id, {}) as Dictionary).duplicate(true)
+
+
+func has_definition(npc_id: String) -> bool:
+	return not (_definitions_by_id.get(npc_id,{}) as Dictionary).is_empty()
 
 
 func create_initial_states(world_seed: int) -> Dictionary:
@@ -234,7 +246,7 @@ func is_visible(npcs: Dictionary, npc_id: String) -> bool:
 
 
 func get_label_key(npcs: Dictionary, npc_id: String, fallback_key: String) -> String:
-	var definition: Dictionary = get_definition(npc_id)
+	var definition: Dictionary = _definitions_by_id.get(npc_id,{})
 	if definition.is_empty() or not npcs.has(npc_id):
 		return fallback_key
 	var npc_state: Dictionary = npcs[npc_id] as Dictionary

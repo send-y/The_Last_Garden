@@ -1,0 +1,35 @@
+[
+	{
+		"active_residents": 3,
+		"elapsed_game_minutes": 1980,
+		"frames": {
+			"frames": 1222,
+			"frames_over_100_ms": 0,
+			"max_frame_ms": 4.595,
+			"p99_frame_ms": 3.996
+		},
+		"label": "idle_before",
+		"structure_validation_enabled": false,
+		"structures": 81,
+		"trace": {
+			"counters": {},
+			"slow_paths": [],
+			"spans": {
+				"scene.update_light_field": {
+					"calls": 1222,
+					"inclusive_us": 33518,
+					"maximum_us": 261,
+					"self_us": 33518
+				},
+				"scene.world_depth": {
+					"calls": 1222,
+					"inclusive_us": 412949,
+					"maximum_us": 701,
+					"self_us": 412949
+				}
+			}
+		},
+		"trace_enabled": true,
+		"wall_ms": 3001.829
+	}
+]

@@ -21,6 +21,19 @@ var _lab_toggle_button: Button
 var _active_scenario_id: StringName = Scenarios.FRESH_START
 var _last_message: String = ""
 var _selected_cell: Vector2i = Vector2i(-1, -1)
+var _stress_participants: Array[String] = []
+var _stress_overview := false
+var _stress_advancing := false
+var _loading_scenario := false
+var _verify_structure_index := false
+var _structure_verify_elapsed := 0.0
+
+func _process(delta: float) -> void:
+	if not _verify_structure_index: return
+	_structure_verify_elapsed += delta
+	if _structure_verify_elapsed < 1.0: return
+	_structure_verify_elapsed = 0.0
+	for error: String in Session.simulation.debug_validate_structures(): push_error(error)
 
 
 func _ready() -> void:
@@ -32,10 +45,11 @@ func _ready() -> void:
 		get_tree().quit(1)
 		return
 
+	_verify_structure_index = "--verify-structure-index" in OS.get_cmdline_user_args()
 	_build_ui()
 	Session.state_changed.connect(_refresh_status)
 	Session.state_reloaded.connect(_refresh_status)
-	Session.time_changed.connect(_refresh_status)
+	Session.time_changed.connect(_on_lab_time_changed)
 	Session.pause_changed.connect(_on_pause_changed)
 	Session.message_emitted.connect(_on_session_message)
 	_world.selection_changed.connect(_on_world_selection_changed)
@@ -146,6 +160,7 @@ func _set_lab_panel_open(open: bool) -> void:
 	_lab_panel.visible = open
 	_lab_toggle_button.set_pressed_no_signal(open)
 	_lab_toggle_button.text = "Закрыть [F2]" if open else "Механики [F2]"
+	if open: _refresh_status()
 
 
 func _on_npc_conversation_opened(_npc_id: String) -> void:
@@ -179,6 +194,9 @@ func _on_world_selection_changed(selection: Dictionary) -> void:
 
 
 func _request_mira_construction_help() -> void:
+	if not _stress_participants.is_empty():
+		_set_stress_overview(not _stress_overview)
+		return
 	if _selected_cell.x < 0 or _selected_cell.y < 0:
 		Session.notify_player_key("npc.work_request.prompt.select_blueprint")
 		return
@@ -195,7 +213,11 @@ func _request_mira_construction_help() -> void:
 
 
 func _load_scenario(scenario_id: StringName) -> void:
-	var result: Dictionary = Scenarios.build(scenario_id)
+	var stress_count := 30
+	for argument: String in OS.get_cmdline_user_args():
+		if argument.begins_with("--stress-residents="):
+			stress_count = argument.trim_prefix("--stress-residents=").to_int()
+	var result: Dictionary = Scenarios.build(scenario_id, stress_count)
 	if not bool(result.get("success", false)):
 		Session.notify_player(String(result.get("message", "Сценарий не загружен.")))
 		return
@@ -203,9 +225,17 @@ func _load_scenario(scenario_id: StringName) -> void:
 	var definition: Dictionary = result.get("definition", {}) as Dictionary
 	var label: String = String(definition.get("label", scenario_id))
 	var state: Dictionary = result.get("state", {}) as Dictionary
-	if not Session.apply_debug_state(state, label, true):
+	# Reload emits time_changed before this lab adopts the incoming scenario.
+	# Do not apply the previous population/warehouse rules to the new world.
+	_loading_scenario = true
+	var loaded := Session.apply_debug_state(state, label, true)
+	_loading_scenario = false
+	if not loaded:
 		return
 	_active_scenario_id = scenario_id
+	_stress_participants.assign(result.get("participants", []))
+	_set_stress_overview(false)
+	_request_help_button.text = "Обзор поселения / игрок" if not _stress_participants.is_empty() else "Попросить Миру строить"
 	_description_label.text = String(definition.get("description", ""))
 	_select_scenario(scenario_id)
 	_refresh_status()
@@ -243,7 +273,51 @@ func _reset_scenario() -> void:
 	_load_scenario(_active_scenario_id)
 
 
+func _on_lab_time_changed() -> void:
+	if _loading_scenario: return
+	if not _stress_participants.is_empty():
+		var changed := false
+		# Keep the debug population fixed even when the normal visitor system fires.
+		for npc: Dictionary in Session.simulation.state.npcs.values():
+			if bool(npc.active) and not _stress_participants.has(String(npc.id)):
+				Session.simulation.set_npc_active(String(npc.id),false)
+				changed = true
+		var mode := "production" if _active_scenario_id == Scenarios.STRESS_PRODUCTION else ("gather" if _active_scenario_id == Scenarios.STRESS_GATHER else "full")
+		if Scenarios.SettlementStress.replenish(Session.simulation, mode) or changed:
+			Session.state_changed.emit()
+	_refresh_status()
+
+
+func _set_stress_overview(enabled: bool) -> void:
+	_stress_overview = enabled
+	var camera: Camera2D = $Game/Player/Camera2D
+	camera.top_level = enabled
+	camera.position = Scenarios.FirstNightContent.cell_center(61, 74) if enabled else Vector2.ZERO
+	var factor := minf(get_viewport().get_visible_rect().size.x / 3300.0, (get_viewport().get_visible_rect().size.y - 80.0) / 2800.0)
+	camera.zoom = Vector2.ONE * maxf(0.07, factor) if enabled else Vector2.ONE
+	camera.reset_smoothing()
+
+
 func _advance_time(amount: int) -> void:
+	if not _stress_participants.is_empty():
+		if _stress_advancing:
+			return
+		_stress_advancing = true
+		var advancing_simulation = Session.simulation
+		var was_paused := Session.is_paused()
+		Session.set_paused(true, false)
+		for _minute: int in range(amount):
+			if Session.simulation != advancing_simulation:
+				break
+			# Emit the ordinary minute signal each step, so the warehouse
+			# replenishes during debug fast-forward as well as natural time.
+			if not Session.advance_debug_minutes(1):
+				break
+			await get_tree().process_frame
+		if Session.simulation == advancing_simulation:
+			Session.set_paused(was_paused, false)
+		_stress_advancing = false
+		return
 	if not Session.advance_debug_minutes(amount):
 		Session.notify_player("Время уже достигло предела текущего среза.")
 
@@ -267,11 +341,11 @@ func _on_session_message(message: String, _success: bool) -> void:
 
 
 func _refresh_status() -> void:
-	if _status_label == null:
+	if _status_label == null or _lab_panel == null or not _lab_panel.visible:
 		return
-	var state: Dictionary = Session.get_state()
-	var npcs: Dictionary = state.get("npcs", {}) as Dictionary
-	var mira: Dictionary = npcs.get(FIRST_NEIGHBOR_ID, {}) as Dictionary
+	# The debug label only reads this resident; exporting the complete world
+	# on every command/time event dominates the minute when many NPCs act.
+	var mira: Dictionary = Session.simulation.state.npcs.get(FIRST_NEIGHBOR_ID, {})
 	var mira_status: String = "скрыта"
 	if bool(mira.get("active", false)):
 		mira_status = "знакома" if bool(mira.get("known", false)) else "неизвестна"

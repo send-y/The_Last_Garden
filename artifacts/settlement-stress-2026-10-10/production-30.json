@@ -1,0 +1,63 @@
+{
+	"activities": {
+		"core:outdoors": 26,
+		"core:work_travel": 4
+	},
+	"average_fps": 0.418675837182709,
+	"clock": "one minute per 1.333s after previous tick; no catch-up batches",
+	"crafting_projects": 0,
+	"display": "Windows",
+	"frame_ms": {
+		"max": 32022.431,
+		"mean": 2388.48271428571,
+		"p50": 111.078,
+		"p95": 120.318,
+		"p99": 120.318,
+		"p999": 120.318
+	},
+	"frames": 14,
+	"game_minutes": 1,
+	"gathering_changed_resources": false,
+	"home_goals_completed": 0,
+	"houses": 30,
+	"logical_viewport": [
+		640.0,
+		360.0
+	],
+	"minute_cpu_ms": {
+		"max": 32021.585,
+		"mean": 32021.585,
+		"p50": 32021.585,
+		"p95": 32021.585,
+		"p99": 32021.585,
+		"p999": 32021.585
+	},
+	"minute_samples": [
+		{
+			"activities": {
+				"core:outdoors": 26,
+				"core:work_travel": 4
+			},
+			"minute": 1981,
+			"ms": 32021.585
+		}
+	],
+	"over_10_ms": 14,
+	"over_33_ms": 14,
+	"phase": "work",
+	"renderer": "NVIDIA GeForce RTX 4060",
+	"residents": 30,
+	"scenario": "stress_production",
+	"seconds": 33.438758,
+	"setup_ms": 31150.054,
+	"storage_stacks": 241,
+	"structures": 2155,
+	"tool_instances": 120,
+	"view": "player",
+	"vsync": "disabled for probe",
+	"wet_beds_added": 0,
+	"window": [
+		1280,
+		720
+	]
+}

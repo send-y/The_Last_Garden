@@ -1,5 +1,7 @@
 extends RefCounted
 
+const Diagnostic := preload("res://src/dev/diagnostic_trace.gd")
+
 # Shared-project stock rules apply to every worker, including one helping a neighbour.
 static func owner(sim, cell: Array) -> Dictionary:
 	for npc: Dictionary in sim.state.npcs.values():
@@ -24,22 +26,32 @@ static func report(sim, npc: Dictionary, goal: Dictionary) -> Dictionary:
 	var protected: Dictionary = {}
 	if goal.is_empty() or String(goal.action) == "light":
 		return {"missing":missing, "protected":protected}
+	var span := Diagnostic.begin("home_project.stock_report") if Diagnostic.enabled else 0
 	var blueprint: Dictionary = sim._find_blueprint(goal.cell)
 	if String(blueprint.get("building_id", "")) != String(goal.building_id): blueprint = {}
+	var needed_items: Dictionary = {}
+	for item_id: String in sim.building_catalog.get_material_cost(String(goal.building_id)):
+		var needed := int(sim.building_catalog.get_material_cost(String(goal.building_id))[item_id]) - int(blueprint.get("delivered_materials",{}).get(item_id,0)) - int(npc.work_cargo.get(item_id,0))
+		if needed > 0: needed_items[item_id] = needed
+	if needed_items.is_empty():
+		Diagnostic.end(span)
+		return {"missing":missing,"protected":protected}
 	var accessible: Dictionary = {}
 	var reachable_cells: Dictionary = {}
 	for record: Dictionary in sim.state.storage_items:
+		if not needed_items.has(String(record.item_id)): continue
 		var key := str(record.cell)
 		if not reachable_cells.has(key):
 			reachable_cells[key] = sim.NpcPracticalWork.Supply.work_cell(sim,npc,Vector2i(int(record.cell[0]),int(record.cell[1]))) != Vector2i(-1,-1)
 		if bool(reachable_cells[key]):
 			accessible[record.item_id] = int(accessible.get(record.item_id,0)) + int(record.amount)
-	for item_id: String in sim.building_catalog.get_material_cost(String(goal.building_id)):
-		var needed := int(sim.building_catalog.get_material_cost(String(goal.building_id))[item_id]) - int(blueprint.get("delivered_materials",{}).get(item_id,0)) - int(npc.work_cargo.get(item_id,0))
+	for item_id: String in needed_items:
+		var needed := int(needed_items[item_id])
 		var reachable := int(accessible.get(item_id,0))
 		var usable := mini(reachable,sim.StockReserves.available(sim,item_id))
 		if needed > usable:
 			missing[item_id] = needed - usable
 			var blocked := mini(needed - usable,reachable - usable)
 			if blocked > 0: protected[item_id] = blocked
+	Diagnostic.end(span)
 	return {"missing":missing, "protected":protected}

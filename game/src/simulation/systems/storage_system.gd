@@ -1,5 +1,7 @@
 extends "res://src/simulation/world_rules.gd"
 
+const Diagnostic := preload("res://src/dev/diagnostic_trace.gd")
+
 # Operates on the authoritative WorldSimulation state; owns no copy.
 
 static func get_storage_zones(sim) -> Array[Dictionary]:
@@ -37,56 +39,57 @@ static func get_storage_contents(sim, cell: Vector2i) -> Dictionary:
 
 
 static func get_storage_layout(sim, cell: Vector2i) -> Array[Dictionary]:
+	var span := Diagnostic.begin("storage.layout_query") if Diagnostic.enabled else 0
 	var state: Dictionary = sim.state
-	var content: FirstNightContent = sim.content
 	var result: Array[Dictionary] = []
 	var key: String = sim._storage_cell_key([cell.x, cell.y])
 	for item: Dictionary in state.get("storage_items", []):
 		if sim._storage_cell_key(item.get("cell", [])) != key:
 			continue
-		var item_id := String(item.get("item_id", ""))
-		var rotation := posmod(int(item.get("rotation", 0)), 4)
-		var raw_origin: Variant = item.get("origin", [0, 0])
-		var origin := Vector2i.ZERO
-		if typeof(raw_origin) == TYPE_ARRAY and (raw_origin as Array).size() == 2:
-			origin = Vector2i(int(raw_origin[0]), int(raw_origin[1]))
-		var placement := {
-			"placement_id": String(item.get("placement_id", item_id)),
-			"item_id": item_id,
-			"amount": int(item.get("amount", 1)),
-			"origin": origin,
-			"rotation": rotation,
-			"footprint": content.item_footprint(item_id, rotation),
-			"stack_index": int(item.get("stack_index", 0)),
-			"label": Localized.resolve(content.item_label_key(item_id)),
-		}
-		var instance_id := String(item.get("instance_id", ""))
-		var instance_state: Dictionary = {}
-		if not instance_id.is_empty():
-			placement["instance_id"] = instance_id
-			instance_state = (sim.get_item_instance(instance_id).get("state", {}) as Dictionary).duplicate(true)
-			placement["instance_state"] = instance_state
-		placement["icon_path"] = content.item_icon_path(item_id, instance_state)
-		result.append(placement)
+		result.append(_describe_storage_item(sim,item))
+	Diagnostic.end(span)
 	return result
 
 
+static func build_storage_view_layouts(sim) -> Dictionary:
+	# Presentation-only grouping, refreshed on visual changes, never saved.
+	var span := Diagnostic.begin("storage.view_layout_build") if Diagnostic.enabled else 0
+	var result := {}
+	for item: Dictionary in sim.state.storage_items:
+		var cell := Vector2i(int(item.cell[0]),int(item.cell[1]))
+		if not result.has(cell): result[cell] = []
+		result[cell].append(_describe_storage_item(sim,item))
+	Diagnostic.end(span)
+	return result
+
+
+static func _describe_storage_item(sim, item: Dictionary) -> Dictionary:
+	var content: FirstNightContent = sim.content
+	var id := String(item.get("item_id",""))
+	var rotation := posmod(int(item.get("rotation",0)),4)
+	var raw: Variant = item.get("origin",[0,0])
+	var origin := Vector2i.ZERO
+	if raw is Array and raw.size() == 2: origin = Vector2i(int(raw[0]),int(raw[1]))
+	var placement := {"placement_id":String(item.get("placement_id",id)),"item_id":id,
+		"amount":int(item.get("amount",1)),"origin":origin,"rotation":rotation,
+		"footprint":content.item_footprint(id,rotation),"stack_index":int(item.get("stack_index",0)),
+		"label":Localized.resolve(content.item_label_key(id))}
+	var instance := String(item.get("instance_id",""))
+	var instance_state := {}
+	if not instance.is_empty():
+		placement.instance_id = instance
+		instance_state = (sim.get_item_instance(instance).get("state",{}) as Dictionary).duplicate(true)
+		placement.instance_state = instance_state
+	placement.icon_path = content.item_icon_path(id,instance_state)
+	return placement
+
+
 static func get_storage_grid_size(sim, cell: Vector2i) -> Vector2i:
-	var state: Dictionary = sim.state
-	var building_catalog: BuildingCatalog = sim.building_catalog
-	for structure_value: Variant in state.get("structures", []):
-		if typeof(structure_value) != TYPE_DICTIONARY:
-			continue
-		var structure := structure_value as Dictionary
-		var building_id := String(structure.get("building_id", ""))
-		if not building_catalog.is_floor(building_id):
-			continue
-		var origin_value: Variant = structure.get("cell", [])
-		if typeof(origin_value) != TYPE_ARRAY or (origin_value as Array).size() != 2:
-			continue
-		var origin := Vector2i(int(origin_value[0]), int(origin_value[1]))
-		if building_catalog.get_footprint_cells(building_id, origin).has(cell):
-			return Vector2i(FLOORED_STORAGE_COLUMNS, FLOORED_STORAGE_ROWS)
+	var span := Diagnostic.begin("storage.grid_size_query") if Diagnostic.enabled else 0
+	if _storage_cell_has_floor(sim, cell):
+		Diagnostic.end(span)
+		return Vector2i(FLOORED_STORAGE_COLUMNS, FLOORED_STORAGE_ROWS)
+	Diagnostic.end(span)
 	return Vector2i(STORAGE_COLUMNS, STORAGE_ROWS)
 
 
@@ -291,19 +294,17 @@ static func _world_cell_blocks_storage(sim, cell: Vector2i, for_farming: bool = 
 
 
 static func _storage_cell_has_floor(sim, cell: Vector2i) -> bool:
-	var state: Dictionary = sim.state
-	var building_catalog: BuildingCatalog = sim.building_catalog
-	for structure_value: Variant in state.get("structures", []):
-		if typeof(structure_value) != TYPE_DICTIONARY:
-			continue
-		var structure := structure_value as Dictionary
-		var building_id := String(structure.get("building_id", ""))
-		if not building_catalog.is_floor(building_id):
-			continue
-		var raw_origin: Variant = structure.get("cell", [])
-		if typeof(raw_origin) != TYPE_ARRAY or (raw_origin as Array).size() != 2:
-			continue
-		var origin := Vector2i(int(raw_origin[0]), int(raw_origin[1]))
-		if building_catalog.get_footprint_cells(building_id, origin).has(cell):
-			return true
+	# Save normalization reads raw structures before the runtime index exists.
+	if sim.structure_index == null: return _bootstrap_cell_has_floor(sim,cell)
+	return sim.structure_index.has_floor(cell)
+
+
+static func _bootstrap_cell_has_floor(sim, cell: Vector2i) -> bool:
+	for value: Variant in sim.state.get("structures",[]):
+		if not value is Dictionary: continue
+		var id := String(value.get("building_id",""))
+		if not sim.building_catalog.is_floor(id): continue
+		var raw: Variant = value.get("cell",[])
+		if not raw is Array or raw.size() != 2: continue
+		if sim.building_catalog.get_footprint_cells(id,Vector2i(int(raw[0]),int(raw[1]))).has(cell): return true
 	return false

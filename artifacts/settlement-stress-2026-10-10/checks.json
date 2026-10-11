@@ -1,0 +1,55 @@
+[
+  {
+    "name": "rules",
+    "exit": 0,
+    "seconds": 89.94,
+    "errors": [],
+    "passed": true,
+    "summary": [
+      "SETTLEMENT_STRESS: 0 failures"
+    ]
+  },
+  {
+    "name": "stress-ui",
+    "exit": 0,
+    "seconds": 46.22,
+    "errors": [],
+    "passed": true,
+    "summary": [
+      "SETTLEMENT_STRESS_UI: 0 failures"
+    ]
+  },
+  {
+    "name": "core",
+    "exit": 0,
+    "seconds": 171.64,
+    "errors": [],
+    "passed": true,
+    "summary": [
+      "PASS: ordinary pantry -> actual wood/planks/study table -> wild berry seeds -> watered crop -> own seeds -> replanted second harvest",
+      "PASS: 50-structure open-map room search (10.23 ms)",
+      "PASS: room enclosure, size limits, requirements, designation, and persistence",
+      "PASS: prototype simulation and mechanics lab tests"
+    ]
+  },
+  {
+    "name": "lab-dialogue",
+    "exit": 0,
+    "seconds": 5.2,
+    "errors": [],
+    "passed": true,
+    "summary": [
+      "PASS: MechanicsLab dialogue clicks, compact button, default collapse, automatic hiding and F2"
+    ]
+  },
+  {
+    "name": "home-production",
+    "exit": 0,
+    "seconds": 3.89,
+    "errors": [],
+    "passed": true,
+    "summary": [
+      "NPC_HOME_PRODUCTION_UI: 0 failures"
+    ]
+  }
+]

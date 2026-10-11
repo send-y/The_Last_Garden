@@ -25,7 +25,7 @@ func _ready() -> void:
 		check(sim.is_npc_visible(id), "Generated resident active")
 		sim.state.npcs[id].known = true
 	for index: int in range(3):
-		sim.state.structures.append({"building_id":"core:bedroll", "cell":[20 + index * 2, 19], "stage_id":"core:complete"})
+		sim.add_structure({"building_id":"core:bedroll", "cell":[20 + index * 2, 19], "stage_id":"core:complete"})
 	sim._sync_structure_navigation()
 	for index: int in range(3):
 		check(sim.housing.assign(sim, ids[index], "core:bedroll@%d,19" % (20 + index * 2)).success, "Separate bed assignment")

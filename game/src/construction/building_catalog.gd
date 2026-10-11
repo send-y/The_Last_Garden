@@ -26,7 +26,7 @@ func all_definitions() -> Array[Dictionary]:
 
 
 func get_layer_id(building_id: String) -> String:
-	return String(get_definition(building_id).get("layer_id", "structure"))
+	return String((_definitions.get(building_id,{}) as Dictionary).get("layer_id", "structure"))
 
 
 func is_floor(building_id: String) -> bool:
@@ -34,7 +34,7 @@ func is_floor(building_id: String) -> bool:
 
 
 func get_footprint_size(building_id: String) -> Vector2i:
-	var raw_size: Variant = get_definition(building_id).get("footprint", {})
+	var raw_size: Variant = (_definitions.get(building_id,{}) as Dictionary).get("footprint", {})
 	if typeof(raw_size) != TYPE_DICTIONARY:
 		return Vector2i.ONE
 	var footprint: Dictionary = raw_size as Dictionary
@@ -54,11 +54,11 @@ func get_footprint_cells(building_id: String, origin: Vector2i) -> Array[Vector2
 
 
 func get_texture_path(building_id: String) -> String:
-	return String(get_definition(building_id).get("texture_path", ""))
+	return String((_definitions.get(building_id,{}) as Dictionary).get("texture_path", ""))
 
 
 func get_material_cost(building_id: String) -> Dictionary:
-	var definition: Dictionary = get_definition(building_id)
+	var definition: Dictionary = _definitions.get(building_id,{})
 	var cost_value: Variant = definition.get("material_cost", {})
 
 	if typeof(cost_value) != TYPE_DICTIONARY:
@@ -90,7 +90,7 @@ func get_material_cost(building_id: String) -> Dictionary:
 
 
 func get_work_minutes(building_id: String) -> int:
-	var definition: Dictionary = get_definition(building_id)
+	var definition: Dictionary = _definitions.get(building_id,{})
 	var value: Variant = definition.get("work_minutes", 0)
 
 	if typeof(value) != TYPE_INT and typeof(value) != TYPE_FLOAT:

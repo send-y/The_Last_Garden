@@ -1,0 +1,1375 @@
+[
+  {
+    "case": "work-30",
+    "label": "idle_before",
+    "wall_ms": 3011.393,
+    "native_window_ms": 3087.613899995631,
+    "main_cpu_ms": 2984.375,
+    "process_cpu_ms": 2984.375,
+    "main_thread_cpu_wall_percent": 96.65635330907867,
+    "process_percent_normalized_12_cpus": 8.054696109089889,
+    "geometry_calls": 0,
+    "geometry_ms": 0.0,
+    "astar_ms": 0.0,
+    "astar_calls": 0,
+    "frames": 128,
+    "maximum_frame_ms": 66.373,
+    "interval_rate": 42.50524591111157,
+    "top_spans": [
+      {
+        "name": "scene.update_light_field",
+        "calls": 128,
+        "inclusive_ms": 999.782,
+        "self_ms": 15.259
+      },
+      {
+        "name": "lighting.serialize_structures",
+        "calls": 128,
+        "inclusive_ms": 963.076,
+        "self_ms": 963.076
+      },
+      {
+        "name": "lighting.rebuild",
+        "calls": 1,
+        "inclusive_ms": 21.447,
+        "self_ms": 21.447
+      }
+    ]
+  },
+  {
+    "case": "work-30",
+    "label": "minute_1",
+    "wall_ms": 28487.584,
+    "native_window_ms": 28561.924499997986,
+    "main_cpu_ms": 28312.5,
+    "process_cpu_ms": 28500.0,
+    "main_thread_cpu_wall_percent": 99.12672376121573,
+    "process_percent_normalized_12_cpus": 8.315266010874609,
+    "geometry_calls": 54925,
+    "geometry_ms": 26203.991,
+    "astar_ms": 14.621,
+    "astar_calls": 1846,
+    "frames": null,
+    "maximum_frame_ms": null,
+    "interval_rate": null,
+    "top_spans": [
+      {
+        "name": "clock.total",
+        "calls": 1,
+        "inclusive_ms": 28473.646,
+        "self_ms": 0.136
+      },
+      {
+        "name": "clock.prepare_work",
+        "calls": 1,
+        "inclusive_ms": 28074.53,
+        "self_ms": 1732.19
+      },
+      {
+        "name": "housing.geometry_compare",
+        "calls": 54925,
+        "inclusive_ms": 26203.991,
+        "self_ms": 26203.991
+      },
+      {
+        "name": "furniture.serialize_structures",
+        "calls": 34,
+        "inclusive_ms": 224.066,
+        "self_ms": 224.066
+      },
+      {
+        "name": "clock.furniture_contexts",
+        "calls": 1,
+        "inclusive_ms": 199.603,
+        "self_ms": 3.177
+      },
+      {
+        "name": "home_project.stock_report",
+        "calls": 2,
+        "inclusive_ms": 143.883,
+        "self_ms": 134.086
+      },
+      {
+        "name": "clock.signals_ui_and_supply",
+        "calls": 1,
+        "inclusive_ms": 102.787,
+        "self_ms": 102.787
+      },
+      {
+        "name": "clock.npc_needs_and_meals",
+        "calls": 1,
+        "inclusive_ms": 54.467,
+        "self_ms": 34.383
+      },
+      {
+        "name": "clock.housing_contexts",
+        "calls": 1,
+        "inclusive_ms": 35.522,
+        "self_ms": 19.306
+      },
+      {
+        "name": "navigation.astar",
+        "calls": 1846,
+        "inclusive_ms": 14.621,
+        "self_ms": 14.621
+      },
+      {
+        "name": "clock.observe_home_projects",
+        "calls": 1,
+        "inclusive_ms": 1.853,
+        "self_ms": 1.853
+      },
+      {
+        "name": "clock.autonomy",
+        "calls": 1,
+        "inclusive_ms": 1.421,
+        "self_ms": 0.877
+      }
+    ]
+  },
+  {
+    "case": "work-30",
+    "label": "render_after_1",
+    "wall_ms": 3090.801,
+    "native_window_ms": 3155.973400003859,
+    "main_cpu_ms": 3046.875,
+    "process_cpu_ms": 3046.875,
+    "main_thread_cpu_wall_percent": 96.54311408316289,
+    "process_percent_normalized_12_cpus": 8.04525950693024,
+    "geometry_calls": 0,
+    "geometry_ms": 0.0,
+    "astar_ms": 0.0,
+    "astar_calls": 0,
+    "frames": 1,
+    "maximum_frame_ms": 3090.788,
+    "interval_rate": 0.32354072617421825,
+    "top_spans": [
+      {
+        "name": "scene.update_light_field",
+        "calls": 1,
+        "inclusive_ms": 6.899,
+        "self_ms": 0.103
+      },
+      {
+        "name": "lighting.serialize_structures",
+        "calls": 1,
+        "inclusive_ms": 6.796,
+        "self_ms": 6.796
+      },
+      {
+        "name": "scene.structure_refresh",
+        "calls": 1,
+        "inclusive_ms": 4.408,
+        "self_ms": 4.408
+      }
+    ]
+  },
+  {
+    "case": "work-30",
+    "label": "minute_2",
+    "wall_ms": 23101.711,
+    "native_window_ms": 23161.95219999645,
+    "main_cpu_ms": 22984.375,
+    "process_cpu_ms": 23140.625,
+    "main_thread_cpu_wall_percent": 99.23332369196204,
+    "process_percent_normalized_12_cpus": 8.325660117142295,
+    "geometry_calls": 44327,
+    "geometry_ms": 21479.532,
+    "astar_ms": 11.863,
+    "astar_calls": 1195,
+    "frames": null,
+    "maximum_frame_ms": null,
+    "interval_rate": null,
+    "top_spans": [
+      {
+        "name": "clock.total",
+        "calls": 1,
+        "inclusive_ms": 23101.626,
+        "self_ms": 0.197
+      },
+      {
+        "name": "clock.prepare_work",
+        "calls": 1,
+        "inclusive_ms": 22704.181,
+        "self_ms": 1168.503
+      },
+      {
+        "name": "housing.geometry_compare",
+        "calls": 44327,
+        "inclusive_ms": 21479.532,
+        "self_ms": 21479.532
+      },
+      {
+        "name": "furniture.serialize_structures",
+        "calls": 32,
+        "inclusive_ms": 211.94,
+        "self_ms": 211.94
+      },
+      {
+        "name": "clock.furniture_contexts",
+        "calls": 1,
+        "inclusive_ms": 201.597,
+        "self_ms": 2.988
+      },
+      {
+        "name": "clock.signals_ui_and_supply",
+        "calls": 1,
+        "inclusive_ms": 100.513,
+        "self_ms": 100.513
+      },
+      {
+        "name": "home_project.stock_report",
+        "calls": 1,
+        "inclusive_ms": 73.453,
+        "self_ms": 65.729
+      },
+      {
+        "name": "clock.npc_needs_and_meals",
+        "calls": 1,
+        "inclusive_ms": 53.184,
+        "self_ms": 35.099
+      },
+      {
+        "name": "clock.housing_contexts",
+        "calls": 1,
+        "inclusive_ms": 33.801,
+        "self_ms": 18.728
+      },
+      {
+        "name": "navigation.astar",
+        "calls": 1195,
+        "inclusive_ms": 11.863,
+        "self_ms": 11.863
+      },
+      {
+        "name": "clock.observe_home_projects",
+        "calls": 1,
+        "inclusive_ms": 3.038,
+        "self_ms": 3.038
+      },
+      {
+        "name": "clock.autonomy",
+        "calls": 1,
+        "inclusive_ms": 1.428,
+        "self_ms": 0.901
+      }
+    ]
+  },
+  {
+    "case": "work-30",
+    "label": "render_after_2",
+    "wall_ms": 3109.51,
+    "native_window_ms": 3187.9900000058115,
+    "main_cpu_ms": 3078.125,
+    "process_cpu_ms": 3093.75,
+    "main_thread_cpu_wall_percent": 96.55378467292522,
+    "process_percent_normalized_12_cpus": 8.086992117275463,
+    "geometry_calls": 0,
+    "geometry_ms": 0.0,
+    "astar_ms": 0.0,
+    "astar_calls": 0,
+    "frames": 1,
+    "maximum_frame_ms": 3109.501,
+    "interval_rate": 0.3215940775234683,
+    "top_spans": [
+      {
+        "name": "scene.update_light_field",
+        "calls": 1,
+        "inclusive_ms": 7.209,
+        "self_ms": 0.11
+      },
+      {
+        "name": "lighting.serialize_structures",
+        "calls": 1,
+        "inclusive_ms": 7.099,
+        "self_ms": 7.099
+      },
+      {
+        "name": "scene.structure_refresh",
+        "calls": 1,
+        "inclusive_ms": 3.097,
+        "self_ms": 3.097
+      }
+    ]
+  },
+  {
+    "case": "work-30",
+    "label": "idle_after",
+    "wall_ms": 3012.164,
+    "native_window_ms": 3071.4609999995446,
+    "main_cpu_ms": 3000.0,
+    "process_cpu_ms": 3015.625,
+    "main_thread_cpu_wall_percent": 97.6733873554131,
+    "process_percent_normalized_12_cpus": 8.181841909546323,
+    "geometry_calls": 0,
+    "geometry_ms": 0.0,
+    "astar_ms": 0.0,
+    "astar_calls": 0,
+    "frames": 137,
+    "maximum_frame_ms": 29.49,
+    "interval_rate": 45.482251298402076,
+    "top_spans": [
+      {
+        "name": "scene.update_light_field",
+        "calls": 137,
+        "inclusive_ms": 1027.448,
+        "self_ms": 14.763
+      },
+      {
+        "name": "lighting.serialize_structures",
+        "calls": 137,
+        "inclusive_ms": 1012.685,
+        "self_ms": 1012.685
+      }
+    ]
+  },
+  {
+    "case": "sleep-30",
+    "label": "idle_before",
+    "wall_ms": 3001.332,
+    "native_window_ms": 3077.6896000024863,
+    "main_cpu_ms": 2953.125,
+    "process_cpu_ms": 2984.375,
+    "main_thread_cpu_wall_percent": 95.9526587735688,
+    "process_percent_normalized_12_cpus": 8.08066923534023,
+    "geometry_calls": 0,
+    "geometry_ms": 0.0,
+    "astar_ms": 0.0,
+    "astar_calls": 0,
+    "frames": 108,
+    "maximum_frame_ms": 70.182,
+    "interval_rate": 35.98402309374638,
+    "top_spans": [
+      {
+        "name": "scene.update_light_field",
+        "calls": 108,
+        "inclusive_ms": 993.983,
+        "self_ms": 16.352
+      },
+      {
+        "name": "lighting.serialize_structures",
+        "calls": 108,
+        "inclusive_ms": 957.806,
+        "self_ms": 957.806
+      },
+      {
+        "name": "lighting.rebuild",
+        "calls": 1,
+        "inclusive_ms": 19.825,
+        "self_ms": 19.825
+      }
+    ]
+  },
+  {
+    "case": "sleep-30",
+    "label": "minute_1",
+    "wall_ms": 15089.772,
+    "native_window_ms": 15165.972900002089,
+    "main_cpu_ms": 15000.0,
+    "process_cpu_ms": 15156.25,
+    "main_thread_cpu_wall_percent": 98.9056231268746,
+    "process_percent_normalized_12_cpus": 8.32799083620385,
+    "geometry_calls": 28921,
+    "geometry_ms": 14214.219,
+    "astar_ms": 1.691,
+    "astar_calls": 364,
+    "frames": null,
+    "maximum_frame_ms": null,
+    "interval_rate": null,
+    "top_spans": [
+      {
+        "name": "clock.total",
+        "calls": 1,
+        "inclusive_ms": 15075.171,
+        "self_ms": 0.138
+      },
+      {
+        "name": "clock.prepare_work",
+        "calls": 1,
+        "inclusive_ms": 14667.822,
+        "self_ms": 488.778
+      },
+      {
+        "name": "housing.geometry_compare",
+        "calls": 28921,
+        "inclusive_ms": 14214.219,
+        "self_ms": 14214.219
+      },
+      {
+        "name": "clock.furniture_contexts",
+        "calls": 1,
+        "inclusive_ms": 215.002,
+        "self_ms": 3.816
+      },
+      {
+        "name": "furniture.serialize_structures",
+        "calls": 30,
+        "inclusive_ms": 211.186,
+        "self_ms": 211.186
+      },
+      {
+        "name": "clock.signals_ui_and_supply",
+        "calls": 1,
+        "inclusive_ms": 100.482,
+        "self_ms": 100.482
+      },
+      {
+        "name": "clock.npc_needs_and_meals",
+        "calls": 1,
+        "inclusive_ms": 52.433,
+        "self_ms": 33.026
+      },
+      {
+        "name": "clock.housing_contexts",
+        "calls": 1,
+        "inclusive_ms": 34.708,
+        "self_ms": 18.723
+      },
+      {
+        "name": "navigation.astar",
+        "calls": 364,
+        "inclusive_ms": 1.691,
+        "self_ms": 1.691
+      },
+      {
+        "name": "clock.player_needs",
+        "calls": 1,
+        "inclusive_ms": 1.665,
+        "self_ms": 0.191
+      },
+      {
+        "name": "clock.doors_before",
+        "calls": 1,
+        "inclusive_ms": 0.812,
+        "self_ms": 0.812
+      },
+      {
+        "name": "clock.doors_after",
+        "calls": 1,
+        "inclusive_ms": 0.75,
+        "self_ms": 0.75
+      }
+    ]
+  },
+  {
+    "case": "sleep-30",
+    "label": "render_after_1",
+    "wall_ms": 3197.43,
+    "native_window_ms": 3291.7758999974467,
+    "main_cpu_ms": 3156.25,
+    "process_cpu_ms": 3203.125,
+    "main_thread_cpu_wall_percent": 95.88289409380657,
+    "process_percent_normalized_12_cpus": 8.10890812261978,
+    "geometry_calls": 0,
+    "geometry_ms": 0.0,
+    "astar_ms": 0.0,
+    "astar_calls": 0,
+    "frames": 1,
+    "maximum_frame_ms": 3197.418,
+    "interval_rate": 0.3127511782900642,
+    "top_spans": [
+      {
+        "name": "scene.update_light_field",
+        "calls": 1,
+        "inclusive_ms": 7.277,
+        "self_ms": 0.115
+      },
+      {
+        "name": "lighting.serialize_structures",
+        "calls": 1,
+        "inclusive_ms": 7.162,
+        "self_ms": 7.162
+      },
+      {
+        "name": "scene.structure_refresh",
+        "calls": 1,
+        "inclusive_ms": 3.649,
+        "self_ms": 3.649
+      }
+    ]
+  },
+  {
+    "case": "sleep-30",
+    "label": "idle_after",
+    "wall_ms": 3018.483,
+    "native_window_ms": 3077.06280000275,
+    "main_cpu_ms": 3015.625,
+    "process_cpu_ms": 3015.625,
+    "main_thread_cpu_wall_percent": 98.00336216723639,
+    "process_percent_normalized_12_cpus": 8.166946847269699,
+    "geometry_calls": 0,
+    "geometry_ms": 0.0,
+    "astar_ms": 0.0,
+    "astar_calls": 0,
+    "frames": 134,
+    "maximum_frame_ms": 28.825,
+    "interval_rate": 44.39316040540894,
+    "top_spans": [
+      {
+        "name": "scene.update_light_field",
+        "calls": 134,
+        "inclusive_ms": 1015.644,
+        "self_ms": 15.673
+      },
+      {
+        "name": "lighting.serialize_structures",
+        "calls": 134,
+        "inclusive_ms": 999.971,
+        "self_ms": 999.971
+      }
+    ]
+  },
+  {
+    "case": "work-3",
+    "label": "idle_before",
+    "wall_ms": 3001.244,
+    "native_window_ms": 3088.7968000024557,
+    "main_cpu_ms": 3015.625,
+    "process_cpu_ms": 3046.875,
+    "main_thread_cpu_wall_percent": 97.63105815175678,
+    "process_percent_normalized_12_cpus": 8.220231580134962,
+    "geometry_calls": 0,
+    "geometry_ms": 0.0,
+    "astar_ms": 0.0,
+    "astar_calls": 0,
+    "frames": 134,
+    "maximum_frame_ms": 62.345,
+    "interval_rate": 44.648152566069264,
+    "top_spans": [
+      {
+        "name": "scene.update_light_field",
+        "calls": 134,
+        "inclusive_ms": 1012.05,
+        "self_ms": 15.392
+      },
+      {
+        "name": "lighting.serialize_structures",
+        "calls": 134,
+        "inclusive_ms": 979.123,
+        "self_ms": 979.123
+      },
+      {
+        "name": "lighting.rebuild",
+        "calls": 1,
+        "inclusive_ms": 17.535,
+        "self_ms": 17.535
+      }
+    ]
+  },
+  {
+    "case": "work-3",
+    "label": "minute_1",
+    "wall_ms": 1288.087,
+    "native_window_ms": 1349.1881000009016,
+    "main_cpu_ms": 1281.25,
+    "process_cpu_ms": 1281.25,
+    "main_thread_cpu_wall_percent": 94.96451977297635,
+    "process_percent_normalized_12_cpus": 7.913709981081362,
+    "geometry_calls": 1896,
+    "geometry_ms": 886.175,
+    "astar_ms": 5.212,
+    "astar_calls": 723,
+    "frames": null,
+    "maximum_frame_ms": null,
+    "interval_rate": null,
+    "top_spans": [
+      {
+        "name": "clock.total",
+        "calls": 1,
+        "inclusive_ms": 1279.805,
+        "self_ms": 0.101
+      },
+      {
+        "name": "clock.prepare_work",
+        "calls": 1,
+        "inclusive_ms": 1227.223,
+        "self_ms": 310.244
+      },
+      {
+        "name": "housing.geometry_compare",
+        "calls": 1896,
+        "inclusive_ms": 886.175,
+        "self_ms": 886.175
+      },
+      {
+        "name": "furniture.serialize_structures",
+        "calls": 5,
+        "inclusive_ms": 36.667,
+        "self_ms": 36.667
+      },
+      {
+        "name": "clock.signals_ui_and_supply",
+        "calls": 1,
+        "inclusive_ms": 21.967,
+        "self_ms": 21.967
+      },
+      {
+        "name": "clock.furniture_contexts",
+        "calls": 1,
+        "inclusive_ms": 21.321,
+        "self_ms": 0.404
+      },
+      {
+        "name": "home_project.stock_report",
+        "calls": 1,
+        "inclusive_ms": 17.876,
+        "self_ms": 13.805
+      },
+      {
+        "name": "navigation.astar",
+        "calls": 723,
+        "inclusive_ms": 5.212,
+        "self_ms": 5.212
+      },
+      {
+        "name": "clock.npc_needs_and_meals",
+        "calls": 1,
+        "inclusive_ms": 2.474,
+        "self_ms": 0.859
+      },
+      {
+        "name": "clock.housing_contexts",
+        "calls": 1,
+        "inclusive_ms": 1.935,
+        "self_ms": 0.595
+      },
+      {
+        "name": "clock.observe_home_projects",
+        "calls": 1,
+        "inclusive_ms": 1.145,
+        "self_ms": 1.145
+      },
+      {
+        "name": "clock.player_needs",
+        "calls": 1,
+        "inclusive_ms": 1.106,
+        "self_ms": 0.15
+      }
+    ]
+  },
+  {
+    "case": "work-3",
+    "label": "render_after_1",
+    "wall_ms": 3173.252,
+    "native_window_ms": 3249.342399998568,
+    "main_cpu_ms": 3156.25,
+    "process_cpu_ms": 3171.875,
+    "main_thread_cpu_wall_percent": 97.13503876973355,
+    "process_percent_normalized_12_cpus": 8.13465877485805,
+    "geometry_calls": 0,
+    "geometry_ms": 0.0,
+    "astar_ms": 0.0,
+    "astar_calls": 0,
+    "frames": 1,
+    "maximum_frame_ms": 3173.237,
+    "interval_rate": 0.3151341273872986,
+    "top_spans": [
+      {
+        "name": "scene.update_light_field",
+        "calls": 1,
+        "inclusive_ms": 9.28,
+        "self_ms": 0.126
+      },
+      {
+        "name": "lighting.serialize_structures",
+        "calls": 1,
+        "inclusive_ms": 9.154,
+        "self_ms": 9.154
+      },
+      {
+        "name": "scene.structure_refresh",
+        "calls": 1,
+        "inclusive_ms": 3.149,
+        "self_ms": 3.149
+      }
+    ]
+  },
+  {
+    "case": "work-3",
+    "label": "idle_after",
+    "wall_ms": 3017.376,
+    "native_window_ms": 3082.8696000025957,
+    "main_cpu_ms": 3000.0,
+    "process_cpu_ms": 3000.0,
+    "main_thread_cpu_wall_percent": 97.31193301194037,
+    "process_percent_normalized_12_cpus": 8.10932775099503,
+    "geometry_calls": 0,
+    "geometry_ms": 0.0,
+    "astar_ms": 0.0,
+    "astar_calls": 0,
+    "frames": 135,
+    "maximum_frame_ms": 27.172,
+    "interval_rate": 44.74086093347332,
+    "top_spans": [
+      {
+        "name": "scene.update_light_field",
+        "calls": 135,
+        "inclusive_ms": 1002.744,
+        "self_ms": 15.727
+      },
+      {
+        "name": "lighting.serialize_structures",
+        "calls": 135,
+        "inclusive_ms": 987.017,
+        "self_ms": 987.017
+      }
+    ]
+  },
+  {
+    "case": "work-30-no-trace",
+    "label": "idle_before",
+    "wall_ms": 3002.055,
+    "native_window_ms": 3112.308399999165,
+    "main_cpu_ms": 3000.0,
+    "process_cpu_ms": 3031.25,
+    "main_thread_cpu_wall_percent": 96.39147585762403,
+    "process_percent_normalized_12_cpus": 8.116296144261746,
+    "geometry_calls": 0,
+    "geometry_ms": 0.0,
+    "astar_ms": 0.0,
+    "astar_calls": 0,
+    "frames": 132,
+    "maximum_frame_ms": 62.297,
+    "interval_rate": 43.96988063176724,
+    "top_spans": []
+  },
+  {
+    "case": "work-30-no-trace",
+    "label": "minute_1",
+    "wall_ms": 28106.8,
+    "native_window_ms": 28161.56800000317,
+    "main_cpu_ms": 28015.625,
+    "process_cpu_ms": 28156.25,
+    "main_thread_cpu_wall_percent": 99.48176536191751,
+    "process_percent_normalized_12_cpus": 8.331759675691362,
+    "geometry_calls": 0,
+    "geometry_ms": 0.0,
+    "astar_ms": 0.0,
+    "astar_calls": 0,
+    "frames": null,
+    "maximum_frame_ms": null,
+    "interval_rate": null,
+    "top_spans": []
+  },
+  {
+    "case": "work-30-no-trace",
+    "label": "render_after_1",
+    "wall_ms": 3177.917,
+    "native_window_ms": 3229.3342999982997,
+    "main_cpu_ms": 3140.625,
+    "process_cpu_ms": 3140.625,
+    "main_thread_cpu_wall_percent": 97.25301589252167,
+    "process_percent_normalized_12_cpus": 8.104417991043473,
+    "geometry_calls": 0,
+    "geometry_ms": 0.0,
+    "astar_ms": 0.0,
+    "astar_calls": 0,
+    "frames": 1,
+    "maximum_frame_ms": 3177.904,
+    "interval_rate": 0.31467152855156383,
+    "top_spans": []
+  },
+  {
+    "case": "work-30-no-trace",
+    "label": "idle_after",
+    "wall_ms": 3023.373,
+    "native_window_ms": 3096.2115000002086,
+    "main_cpu_ms": 3015.625,
+    "process_cpu_ms": 3031.25,
+    "main_thread_cpu_wall_percent": 97.39725467720137,
+    "process_percent_normalized_12_cpus": 8.15849197209718,
+    "geometry_calls": 0,
+    "geometry_ms": 0.0,
+    "astar_ms": 0.0,
+    "astar_calls": 0,
+    "frames": 137,
+    "maximum_frame_ms": 27.406,
+    "interval_rate": 45.31362818944272,
+    "top_spans": []
+  },
+  {
+    "case": "frames-30",
+    "label": "idle_before",
+    "wall_ms": 3006.107,
+    "native_window_ms": 3070.3456999981427,
+    "main_cpu_ms": 2937.5,
+    "process_cpu_ms": 2968.75,
+    "main_thread_cpu_wall_percent": 95.67326571733525,
+    "process_percent_normalized_12_cpus": 8.057588868037987,
+    "geometry_calls": 0,
+    "geometry_ms": 0.0,
+    "astar_ms": 0.0,
+    "astar_calls": 0,
+    "frames": 135,
+    "maximum_frame_ms": 65.366,
+    "interval_rate": 44.908581098410664,
+    "top_spans": [
+      {
+        "name": "scene.update_light_field",
+        "calls": 135,
+        "inclusive_ms": 1015.554,
+        "self_ms": 15.36
+      },
+      {
+        "name": "lighting.serialize_structures",
+        "calls": 135,
+        "inclusive_ms": 981.997,
+        "self_ms": 981.997
+      },
+      {
+        "name": "scene.world_depth",
+        "calls": 135,
+        "inclusive_ms": 45.557,
+        "self_ms": 45.557
+      },
+      {
+        "name": "lighting.rebuild",
+        "calls": 1,
+        "inclusive_ms": 18.197,
+        "self_ms": 18.197
+      }
+    ]
+  },
+  {
+    "case": "frames-30",
+    "label": "forced_world_redraw",
+    "wall_ms": 3177.625,
+    "native_window_ms": 3263.7584999974933,
+    "main_cpu_ms": 3156.25,
+    "process_cpu_ms": 3171.875,
+    "main_thread_cpu_wall_percent": 96.70599096110892,
+    "process_percent_normalized_12_cpus": 8.098727790884947,
+    "geometry_calls": 0,
+    "geometry_ms": 0.0,
+    "astar_ms": 0.0,
+    "astar_calls": 0,
+    "frames": 1,
+    "maximum_frame_ms": 3177.613,
+    "interval_rate": 0.3147004445143779,
+    "top_spans": [
+      {
+        "name": "scene.world_draw",
+        "calls": 1,
+        "inclusive_ms": 3148.542,
+        "self_ms": 3148.542
+      },
+      {
+        "name": "scene.update_light_field",
+        "calls": 1,
+        "inclusive_ms": 7.614,
+        "self_ms": 0.11
+      },
+      {
+        "name": "lighting.serialize_structures",
+        "calls": 1,
+        "inclusive_ms": 7.504,
+        "self_ms": 7.504
+      },
+      {
+        "name": "scene.world_depth",
+        "calls": 1,
+        "inclusive_ms": 0.346,
+        "self_ms": 0.346
+      }
+    ]
+  },
+  {
+    "case": "frames-30",
+    "label": "idle_no_light_update",
+    "wall_ms": 3002.063,
+    "native_window_ms": 3068.741700000828,
+    "main_cpu_ms": 3000.0,
+    "process_cpu_ms": 3000.0,
+    "main_thread_cpu_wall_percent": 97.75993854416585,
+    "process_percent_normalized_12_cpus": 8.146661545347154,
+    "geometry_calls": 0,
+    "geometry_ms": 0.0,
+    "astar_ms": 0.0,
+    "astar_calls": 0,
+    "frames": 205,
+    "maximum_frame_ms": 19.181,
+    "interval_rate": 68.2863750694106,
+    "top_spans": [
+      {
+        "name": "scene.world_depth",
+        "calls": 205,
+        "inclusive_ms": 72.599,
+        "self_ms": 72.599
+      }
+    ]
+  },
+  {
+    "case": "frames-30",
+    "label": "idle_no_depth_updates",
+    "wall_ms": 3013.925,
+    "native_window_ms": 3077.3677000033786,
+    "main_cpu_ms": 2984.375,
+    "process_cpu_ms": 3000.0,
+    "main_thread_cpu_wall_percent": 96.9781739113179,
+    "process_percent_normalized_12_cpus": 8.12382608681197,
+    "geometry_calls": 0,
+    "geometry_ms": 0.0,
+    "astar_ms": 0.0,
+    "astar_calls": 0,
+    "frames": 136,
+    "maximum_frame_ms": 34.142,
+    "interval_rate": 45.12388330831059,
+    "top_spans": [
+      {
+        "name": "scene.update_light_field",
+        "calls": 136,
+        "inclusive_ms": 1035.466,
+        "self_ms": 15.803
+      },
+      {
+        "name": "lighting.serialize_structures",
+        "calls": 136,
+        "inclusive_ms": 1019.663,
+        "self_ms": 1019.663
+      }
+    ]
+  },
+  {
+    "case": "frames-30",
+    "label": "idle_no_structure_render",
+    "wall_ms": 3011.38,
+    "native_window_ms": 3070.0628999984474,
+    "main_cpu_ms": 2968.75,
+    "process_cpu_ms": 2984.375,
+    "main_thread_cpu_wall_percent": 96.69997315043615,
+    "process_percent_normalized_12_cpus": 8.100743364795308,
+    "geometry_calls": 0,
+    "geometry_ms": 0.0,
+    "astar_ms": 0.0,
+    "astar_calls": 0,
+    "frames": 141,
+    "maximum_frame_ms": 26.995,
+    "interval_rate": 46.822387078349465,
+    "top_spans": [
+      {
+        "name": "scene.update_light_field",
+        "calls": 141,
+        "inclusive_ms": 1060.814,
+        "self_ms": 16.137
+      },
+      {
+        "name": "lighting.serialize_structures",
+        "calls": 141,
+        "inclusive_ms": 1044.677,
+        "self_ms": 1044.677
+      },
+      {
+        "name": "scene.world_depth",
+        "calls": 141,
+        "inclusive_ms": 48.039,
+        "self_ms": 48.039
+      }
+    ]
+  },
+  {
+    "case": "frames-30",
+    "label": "idle_no_world_render",
+    "wall_ms": 3005.468,
+    "native_window_ms": 3081.493700003193,
+    "main_cpu_ms": 2968.75,
+    "process_cpu_ms": 3000.0,
+    "main_thread_cpu_wall_percent": 96.34126462750592,
+    "process_percent_normalized_12_cpus": 8.112948600211025,
+    "geometry_calls": 0,
+    "geometry_ms": 0.0,
+    "astar_ms": 0.0,
+    "astar_calls": 0,
+    "frames": 340,
+    "maximum_frame_ms": 12.634,
+    "interval_rate": 113.12714026567576,
+    "top_spans": [
+      {
+        "name": "scene.update_light_field",
+        "calls": 340,
+        "inclusive_ms": 2492.743,
+        "self_ms": 36.406
+      },
+      {
+        "name": "lighting.serialize_structures",
+        "calls": 340,
+        "inclusive_ms": 2456.337,
+        "self_ms": 2456.337
+      },
+      {
+        "name": "scene.world_depth",
+        "calls": 340,
+        "inclusive_ms": 113.24,
+        "self_ms": 113.24
+      }
+    ]
+  },
+  {
+    "case": "frames-30",
+    "label": "idle_no_light_depth_structure_render",
+    "wall_ms": 3154.844,
+    "native_window_ms": 3236.777099999017,
+    "main_cpu_ms": 3078.125,
+    "process_cpu_ms": 3093.75,
+    "main_thread_cpu_wall_percent": 95.09845457078076,
+    "process_percent_normalized_12_cpus": 7.965098986892804,
+    "geometry_calls": 0,
+    "geometry_ms": 0.0,
+    "astar_ms": 0.0,
+    "astar_calls": 0,
+    "frames": 1,
+    "maximum_frame_ms": 3154.83,
+    "interval_rate": 0.3169728836037534,
+    "top_spans": [
+      {
+        "name": "scene.world_draw",
+        "calls": 1,
+        "inclusive_ms": 3123.693,
+        "self_ms": 3123.693
+      }
+    ]
+  },
+  {
+    "case": "frames-30-settled",
+    "label": "idle_before",
+    "wall_ms": 3000.917,
+    "native_window_ms": 3062.155600004189,
+    "main_cpu_ms": 3000.0,
+    "process_cpu_ms": 3031.25,
+    "main_thread_cpu_wall_percent": 97.97020112223872,
+    "process_percent_normalized_12_cpus": 8.249227004216282,
+    "geometry_calls": 0,
+    "geometry_ms": 0.0,
+    "astar_ms": 0.0,
+    "astar_calls": 0,
+    "frames": 135,
+    "maximum_frame_ms": 64.679,
+    "interval_rate": 44.986249203160234,
+    "top_spans": [
+      {
+        "name": "scene.update_light_field",
+        "calls": 135,
+        "inclusive_ms": 1003.368,
+        "self_ms": 14.993
+      },
+      {
+        "name": "lighting.serialize_structures",
+        "calls": 135,
+        "inclusive_ms": 970.573,
+        "self_ms": 970.573
+      },
+      {
+        "name": "scene.world_depth",
+        "calls": 135,
+        "inclusive_ms": 45.18,
+        "self_ms": 45.18
+      },
+      {
+        "name": "lighting.rebuild",
+        "calls": 1,
+        "inclusive_ms": 17.802,
+        "self_ms": 17.802
+      }
+    ]
+  },
+  {
+    "case": "frames-30-settled",
+    "label": "forced_world_redraw",
+    "wall_ms": 3187.999,
+    "native_window_ms": 3246.802800000296,
+    "main_cpu_ms": 3171.875,
+    "process_cpu_ms": 3171.875,
+    "main_thread_cpu_wall_percent": 97.69225898165762,
+    "process_percent_normalized_12_cpus": 8.1410215818048,
+    "geometry_calls": 0,
+    "geometry_ms": 0.0,
+    "astar_ms": 0.0,
+    "astar_calls": 0,
+    "frames": 1,
+    "maximum_frame_ms": 3187.986,
+    "interval_rate": 0.31367638446561624,
+    "top_spans": [
+      {
+        "name": "scene.world_draw",
+        "calls": 1,
+        "inclusive_ms": 3162.92,
+        "self_ms": 9.422
+      },
+      {
+        "name": "scene.world_storage_draw",
+        "calls": 1,
+        "inclusive_ms": 3153.498,
+        "self_ms": 3153.498
+      },
+      {
+        "name": "scene.update_light_field",
+        "calls": 1,
+        "inclusive_ms": 6.756,
+        "self_ms": 0.096
+      },
+      {
+        "name": "lighting.serialize_structures",
+        "calls": 1,
+        "inclusive_ms": 6.66,
+        "self_ms": 6.66
+      },
+      {
+        "name": "scene.world_depth",
+        "calls": 1,
+        "inclusive_ms": 0.314,
+        "self_ms": 0.314
+      }
+    ]
+  },
+  {
+    "case": "frames-30-settled",
+    "label": "idle_no_light_update",
+    "wall_ms": 3006.79,
+    "native_window_ms": 3070.0664000032702,
+    "main_cpu_ms": 3015.625,
+    "process_cpu_ms": 3031.25,
+    "main_thread_cpu_wall_percent": 98.2267028490585,
+    "process_percent_normalized_12_cpus": 8.227970791328735,
+    "geometry_calls": 0,
+    "geometry_ms": 0.0,
+    "astar_ms": 0.0,
+    "astar_calls": 0,
+    "frames": 202,
+    "maximum_frame_ms": 21.043,
+    "interval_rate": 67.18127970360418,
+    "top_spans": [
+      {
+        "name": "scene.world_depth",
+        "calls": 202,
+        "inclusive_ms": 71.204,
+        "self_ms": 71.204
+      }
+    ]
+  },
+  {
+    "case": "frames-30-settled",
+    "label": "idle_no_depth_updates",
+    "wall_ms": 3009.559,
+    "native_window_ms": 3073.7350000053993,
+    "main_cpu_ms": 2984.375,
+    "process_cpu_ms": 3015.625,
+    "main_thread_cpu_wall_percent": 97.09278776455217,
+    "process_percent_normalized_12_cpus": 8.175788847538643,
+    "geometry_calls": 0,
+    "geometry_ms": 0.0,
+    "astar_ms": 0.0,
+    "astar_calls": 0,
+    "frames": 139,
+    "maximum_frame_ms": 26.568,
+    "interval_rate": 46.18616880413376,
+    "top_spans": [
+      {
+        "name": "scene.update_light_field",
+        "calls": 139,
+        "inclusive_ms": 1022.526,
+        "self_ms": 15.516
+      },
+      {
+        "name": "lighting.serialize_structures",
+        "calls": 139,
+        "inclusive_ms": 1007.01,
+        "self_ms": 1007.01
+      }
+    ]
+  },
+  {
+    "case": "frames-30-settled",
+    "label": "idle_no_structure_render",
+    "wall_ms": 3014.716,
+    "native_window_ms": 3074.3246999991243,
+    "main_cpu_ms": 3031.25,
+    "process_cpu_ms": 3031.25,
+    "main_thread_cpu_wall_percent": 98.59888905036165,
+    "process_percent_normalized_12_cpus": 8.216574087530137,
+    "geometry_calls": 0,
+    "geometry_ms": 0.0,
+    "astar_ms": 0.0,
+    "astar_calls": 0,
+    "frames": 145,
+    "maximum_frame_ms": 28.076,
+    "interval_rate": 48.097399556044415,
+    "top_spans": [
+      {
+        "name": "scene.update_light_field",
+        "calls": 145,
+        "inclusive_ms": 1047.001,
+        "self_ms": 15.961
+      },
+      {
+        "name": "lighting.serialize_structures",
+        "calls": 145,
+        "inclusive_ms": 1031.04,
+        "self_ms": 1031.04
+      },
+      {
+        "name": "scene.world_depth",
+        "calls": 145,
+        "inclusive_ms": 48.586,
+        "self_ms": 48.586
+      }
+    ]
+  },
+  {
+    "case": "frames-30-settled",
+    "label": "idle_no_world_render",
+    "wall_ms": 3000.375,
+    "native_window_ms": 3061.6583000009996,
+    "main_cpu_ms": 2968.75,
+    "process_cpu_ms": 3000.0,
+    "main_thread_cpu_wall_percent": 96.96542556689069,
+    "process_percent_normalized_12_cpus": 8.165509521422374,
+    "geometry_calls": 0,
+    "geometry_ms": 0.0,
+    "astar_ms": 0.0,
+    "astar_calls": 0,
+    "frames": 320,
+    "maximum_frame_ms": 16.187,
+    "interval_rate": 106.6533349997917,
+    "top_spans": [
+      {
+        "name": "scene.update_light_field",
+        "calls": 320,
+        "inclusive_ms": 2497.16,
+        "self_ms": 34.318
+      },
+      {
+        "name": "lighting.serialize_structures",
+        "calls": 320,
+        "inclusive_ms": 2462.842,
+        "self_ms": 2462.842
+      },
+      {
+        "name": "scene.world_depth",
+        "calls": 320,
+        "inclusive_ms": 112.391,
+        "self_ms": 112.391
+      }
+    ]
+  },
+  {
+    "case": "frames-30-settled",
+    "label": "idle_no_light_depth_structure_render",
+    "wall_ms": 3011.432,
+    "native_window_ms": 3073.833000002196,
+    "main_cpu_ms": 2984.375,
+    "process_cpu_ms": 3000.0,
+    "main_thread_cpu_wall_percent": 97.0896922506157,
+    "process_percent_normalized_12_cpus": 8.133167937224352,
+    "geometry_calls": 0,
+    "geometry_ms": 0.0,
+    "astar_ms": 0.0,
+    "astar_calls": 0,
+    "frames": 228,
+    "maximum_frame_ms": 18.304,
+    "interval_rate": 75.71148875352326,
+    "top_spans": []
+  },
+  {
+    "case": "storage-redraw-30",
+    "label": "idle_before",
+    "wall_ms": 3010.622,
+    "native_window_ms": 3078.563999995822,
+    "main_cpu_ms": 2984.375,
+    "process_cpu_ms": 3015.625,
+    "main_thread_cpu_wall_percent": 96.94048913727472,
+    "process_percent_normalized_12_cpus": 8.162964399430201,
+    "geometry_calls": 0,
+    "geometry_ms": 0.0,
+    "astar_ms": 0.0,
+    "astar_calls": 0,
+    "frames": 134,
+    "maximum_frame_ms": 65.743,
+    "interval_rate": 44.509074868914134,
+    "top_spans": [
+      {
+        "name": "scene.update_light_field",
+        "calls": 134,
+        "inclusive_ms": 1021.079,
+        "self_ms": 15.424
+      },
+      {
+        "name": "lighting.serialize_structures",
+        "calls": 134,
+        "inclusive_ms": 988.421,
+        "self_ms": 988.421
+      },
+      {
+        "name": "scene.world_depth",
+        "calls": 134,
+        "inclusive_ms": 46.647,
+        "self_ms": 46.647
+      },
+      {
+        "name": "lighting.rebuild",
+        "calls": 1,
+        "inclusive_ms": 17.234,
+        "self_ms": 17.234
+      }
+    ]
+  },
+  {
+    "case": "storage-redraw-30",
+    "label": "forced_world_redraw",
+    "wall_ms": 3138.846,
+    "native_window_ms": 3197.479900001781,
+    "main_cpu_ms": 3125.0,
+    "process_cpu_ms": 3140.625,
+    "main_thread_cpu_wall_percent": 97.73321796325473,
+    "process_percent_normalized_12_cpus": 8.185157004422583,
+    "geometry_calls": 0,
+    "geometry_ms": 0.0,
+    "astar_ms": 0.0,
+    "astar_calls": 0,
+    "frames": 1,
+    "maximum_frame_ms": 3138.833,
+    "interval_rate": 0.3185884238984646,
+    "top_spans": [
+      {
+        "name": "scene.world_draw",
+        "calls": 1,
+        "inclusive_ms": 3112.257,
+        "self_ms": 9.131
+      },
+      {
+        "name": "scene.world_storage_draw",
+        "calls": 1,
+        "inclusive_ms": 3103.126,
+        "self_ms": 190.194
+      },
+      {
+        "name": "storage.grid_size_query",
+        "calls": 137,
+        "inclusive_ms": 2763.737,
+        "self_ms": 2763.737
+      },
+      {
+        "name": "storage.layout_query",
+        "calls": 152,
+        "inclusive_ms": 149.195,
+        "self_ms": 149.195
+      },
+      {
+        "name": "scene.update_light_field",
+        "calls": 1,
+        "inclusive_ms": 7.36,
+        "self_ms": 0.106
+      },
+      {
+        "name": "lighting.serialize_structures",
+        "calls": 1,
+        "inclusive_ms": 7.254,
+        "self_ms": 7.254
+      },
+      {
+        "name": "scene.world_depth",
+        "calls": 1,
+        "inclusive_ms": 0.317,
+        "self_ms": 0.317
+      }
+    ]
+  }
+]

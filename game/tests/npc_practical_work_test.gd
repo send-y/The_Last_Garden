@@ -173,7 +173,7 @@ func _test_tools_and_material_limits() -> void:
 	npc.position = [Content.cell_center(int(cell[0]), int(cell[1]) + 1).x, Content.cell_center(int(cell[0]), int(cell[1]) + 1).y]
 	check(sim.NpcPracticalWork.Supply.borrow(sim, npc, source), "Tool borrowing removes actual warehouse record")
 	check(not sim.NpcPracticalWork.Supply.borrow(sim, npc, source), "The same tool cannot be borrowed twice")
-	npc.active = false
+	sim.set_npc_active(String(npc.id),false)
 	check(not sim.execute_resource_work(String(npc.id), String(target.id)).success, "Inactive residents cannot perform physical resource work")
 	var orphan := World.new(sim.export_state())
 	check(String(orphan.get_item_instance(String(npc.carried_instance_id)).location.kind) == "inventory", "Inactive owner recovery preserves the original tool")

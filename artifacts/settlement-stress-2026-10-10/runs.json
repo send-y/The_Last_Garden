@@ -1,0 +1,92 @@
+[
+  {
+    "name": "baseline-3",
+    "exit": 0,
+    "seconds_total": 65.45,
+    "errors": [],
+    "passed": true,
+    "fps": 2.29569947273686,
+    "maximum_frame_ms": 4396.146,
+    "maximum_minute_ms": 1272.135
+  },
+  {
+    "name": "full-30",
+    "exit": 0,
+    "seconds_total": 129.0,
+    "errors": [],
+    "passed": true,
+    "fps": 0.154231050665932,
+    "maximum_frame_ms": 31682.649,
+    "maximum_minute_ms": 28472.374
+  },
+  {
+    "name": "night-30",
+    "exit": 0,
+    "seconds_total": 97.69,
+    "errors": [],
+    "passed": true,
+    "fps": 0.269123047555542,
+    "maximum_frame_ms": 17974.017,
+    "maximum_minute_ms": 14821.406
+  },
+  {
+    "name": "original-3",
+    "exit": 0,
+    "seconds_total": 26.17,
+    "errors": [],
+    "passed": true,
+    "fps": 632.235837917231,
+    "maximum_frame_ms": 19.635,
+    "maximum_minute_ms": 7.824
+  },
+  {
+    "name": "quiet-30",
+    "exit": 0,
+    "seconds_total": 63.39,
+    "errors": [],
+    "passed": true,
+    "fps": 46.213020341123,
+    "maximum_frame_ms": 35.392,
+    "maximum_minute_ms": null
+  },
+  {
+    "name": "production-30",
+    "exit": 0,
+    "seconds_total": 76.86,
+    "errors": [],
+    "passed": true,
+    "fps": 0.418675837182709,
+    "maximum_frame_ms": 32022.431,
+    "maximum_minute_ms": 32021.585
+  },
+  {
+    "name": "gather-30",
+    "exit": 0,
+    "seconds_total": 68.2,
+    "errors": [],
+    "passed": true,
+    "fps": 0.482042302805477,
+    "maximum_frame_ms": 21457.621,
+    "maximum_minute_ms": 21457.022
+  },
+  {
+    "name": "sleep-30",
+    "exit": 0,
+    "seconds_total": 62.36,
+    "errors": [],
+    "passed": true,
+    "fps": 2.91574489837698,
+    "maximum_frame_ms": 14713.014,
+    "maximum_minute_ms": 14712.395
+  },
+  {
+    "name": "quiet-no-light-refresh-30",
+    "exit": 0,
+    "seconds_total": 65.02,
+    "errors": [],
+    "passed": true,
+    "fps": 63.4675141528808,
+    "maximum_frame_ms": 24.303,
+    "maximum_minute_ms": null
+  }
+]

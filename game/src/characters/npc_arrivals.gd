@@ -24,7 +24,7 @@ static func arrive(sim, npc_id: String, cell: Vector2i) -> Dictionary:
 	var position: Vector2 = sim.content.cell_center(actual.x,actual.y)
 	npc.position = [position.x,position.y]
 	npc.target_cell = [actual.x,actual.y]
-	npc.active = true
+	sim.set_npc_active(npc_id,true)
 	npc["residency"] = "visitor"
 	npc["arrival_minute"] = sim.get_elapsed_game_minutes()
 	sim.event_emitted.emit({"type":"state_changed"})

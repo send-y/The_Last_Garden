@@ -1,0 +1,77 @@
+[
+  {
+    "name": "trace-contract",
+    "exit": 0,
+    "errors": [],
+    "passed": true,
+    "summary": [
+      "DIAGNOSTIC_TRACE: 0 failures"
+    ]
+  },
+  {
+    "name": "core",
+    "exit": 0,
+    "errors": [],
+    "passed": true,
+    "summary": [
+      "PASS: ordinary pantry -> actual wood/planks/study table -> wild berry seeds -> watered crop -> own seeds -> replanted second harvest",
+      "PASS: 50-structure open-map room search (11.71 ms)",
+      "PASS: room enclosure, size limits, requirements, designation, and persistence",
+      "PASS: prototype simulation and mechanics lab tests"
+    ]
+  },
+  {
+    "name": "stress-ui",
+    "exit": 0,
+    "errors": [],
+    "passed": true,
+    "summary": [
+      "SETTLEMENT_STRESS_UI: 0 failures"
+    ]
+  },
+  {
+    "name": "storage-ui",
+    "exit": 0,
+    "errors": [],
+    "passed": true,
+    "summary": [
+      "PASS: storage selection, pause, and item transfers integrate with the HUD"
+    ]
+  },
+  {
+    "name": "furniture-ui",
+    "exit": 0,
+    "errors": [],
+    "passed": true,
+    "summary": [
+      "PASS: furniture UI clicks, real meal, chair movement, pause, bounds, disk persistence and rendered lighting"
+    ]
+  },
+  {
+    "name": "editing-ui",
+    "exit": 0,
+    "errors": [],
+    "passed": true,
+    "summary": [
+      "PASS: Door interaction, collision, wall connections, removal and bush visuals"
+    ]
+  },
+  {
+    "name": "housing-ui",
+    "exit": 0,
+    "errors": [],
+    "passed": true,
+    "summary": [
+      "PASS: housing UI clicks, shared ownership, physical interaction, save/load, pause and viewport bounds"
+    ]
+  },
+  {
+    "name": "fps-ui",
+    "exit": 0,
+    "errors": [],
+    "passed": true,
+    "summary": [
+      "FRAME_RATE_HUD: 0 failures"
+    ]
+  }
+]

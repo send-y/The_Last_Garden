@@ -53,8 +53,9 @@ static func create(shared: bool = false, interior_size: Vector2i = Vector2i(5, 5
 		sim.state.npcs[id].known = true
 		sim.set_npc_resident(id, true)
 		sim.state.npcs[id].needs = {"hunger":100.0,"energy":100.0,"restedness":100.0}
-		sim.state.structures.append({"building_id":"core:bedroll","cell":[43,33]})
+		sim.add_structure({"building_id":"core:bedroll","cell":[43,33]})
 		sim.state.sleep_assignments[id] = "core:bedroll@43,33"
+		sim.notify_housing_changed()
 		sim._sync_structure_navigation()
 		if sim.has_method("set_home_mode"):
 			sim.set_home_mode(ROOM, "shared")

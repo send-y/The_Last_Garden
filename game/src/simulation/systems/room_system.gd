@@ -55,6 +55,7 @@ static func assign_room_type(sim, room_type_id: String, target: Vector2i) -> Dic
 		"cells": encoded_cells.duplicate(true),
 	})
 	state["room_assignments"] = assignments
+	sim.notify_housing_changed(true)
 	var message_key := "ui.room.assigned.living"
 	if room_type_id == RoomTopologyScript.STORAGE_ROOM_ID:
 		var zone_serial := maxi(1, _safe_int(state.get("next_storage_zone_serial", 1), 1))
@@ -92,6 +93,7 @@ static func remove_room_at(sim, cell: Vector2i) -> Dictionary:
 				(state["storage_zones"] as Array).remove_at(zone_index)
 				break
 		assignments.remove_at(room_index)
+		sim.notify_housing_changed(true)
 		return sim._emit_result(true, "ui.room.removed", true, true)
 	return sim._emit_result(false, "ui.room.failure.not_assigned")
 

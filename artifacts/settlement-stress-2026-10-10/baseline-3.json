@@ -1,0 +1,118 @@
+{
+	"activities": {
+		"core:work_travel": 3
+	},
+	"average_fps": 2.29569947273686,
+	"clock": "one minute per 1.333s after previous tick; no catch-up batches",
+	"crafting_projects": 0,
+	"display": "Windows",
+	"frame_ms": {
+		"max": 4396.146,
+		"mean": 435.597085714286,
+		"p50": 22.097,
+		"p95": 3429.43,
+		"p99": 3662.106,
+		"p999": 3662.106
+	},
+	"frames": 70,
+	"game_minutes": 9,
+	"gathering_changed_resources": false,
+	"home_goals_completed": 0,
+	"houses": 30,
+	"logical_viewport": [
+		640.0,
+		360.0
+	],
+	"minute_cpu_ms": {
+		"max": 1272.135,
+		"mean": 440.945,
+		"p50": 317.219,
+		"p95": 552.534,
+		"p99": 552.534,
+		"p999": 552.534
+	},
+	"minute_samples": [
+		{
+			"activities": {
+				"core:outdoors": 1,
+				"core:work_travel": 2
+			},
+			"minute": 1981,
+			"ms": 1272.135
+		},
+		{
+			"activities": {
+				"core:work_travel": 3
+			},
+			"minute": 1982,
+			"ms": 552.534
+		},
+		{
+			"activities": {
+				"core:work_travel": 3
+			},
+			"minute": 1983,
+			"ms": 300.587
+		},
+		{
+			"activities": {
+				"core:work_travel": 3
+			},
+			"minute": 1984,
+			"ms": 323.747
+		},
+		{
+			"activities": {
+				"core:work_travel": 3
+			},
+			"minute": 1985,
+			"ms": 279.063
+		},
+		{
+			"activities": {
+				"core:work_travel": 3
+			},
+			"minute": 1986,
+			"ms": 301.777
+		},
+		{
+			"activities": {
+				"core:work_travel": 3
+			},
+			"minute": 1987,
+			"ms": 319.778
+		},
+		{
+			"activities": {
+				"core:work_travel": 3
+			},
+			"minute": 1988,
+			"ms": 317.219
+		},
+		{
+			"activities": {
+				"core:work_travel": 3
+			},
+			"minute": 1989,
+			"ms": 301.665
+		}
+	],
+	"over_10_ms": 70,
+	"over_33_ms": 9,
+	"phase": "work",
+	"renderer": "NVIDIA GeForce RTX 4060",
+	"residents": 3,
+	"scenario": "settlement_stress",
+	"seconds": 30.491796,
+	"setup_ms": 22602.756,
+	"storage_stacks": 245,
+	"structures": 2155,
+	"tool_instances": 120,
+	"view": "player",
+	"vsync": "disabled for probe",
+	"wet_beds_added": 0,
+	"window": [
+		1280,
+		720
+	]
+}

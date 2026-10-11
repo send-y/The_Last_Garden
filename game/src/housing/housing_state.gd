@@ -17,4 +17,6 @@ static func normalize(sim) -> void:
 		assignments[id] = place
 		if not place.is_empty():
 			taken[place] = true
+	var changed: bool = not (raw is Dictionary) or raw != assignments
 	sim.state.sleep_assignments = assignments
+	if changed: sim.notify_housing_changed()

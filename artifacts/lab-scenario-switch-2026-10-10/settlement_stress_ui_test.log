@@ -1,0 +1,8 @@
+Godot Engine v4.7.stable.mono.official.5b4e0cb0f - https://godotengine.org
+
+LAB_READY scenario=settlement_stress day=2 time=09:00
+LAB_READY scenario=resident_homes day=2 time=09:00
+LAB_READY scenario=settlement_stress day=2 time=09:00
+LAB_READY scenario=settlement_stress day=2 time=09:00
+LAB_READY scenario=fresh_start day=1 time=11:00
+SETTLEMENT_STRESS_UI: 0 failures

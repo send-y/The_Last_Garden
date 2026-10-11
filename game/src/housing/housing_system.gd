@@ -1,5 +1,7 @@
 extends RefCounted
 
+const Diagnostic := preload("res://src/dev/diagnostic_trace.gd")
+
 const Content := preload("res://src/content/first_night_content.gd")
 const Topology := preload("res://src/construction/room_topology.gd")
 const State := preload("res://src/housing/housing_state.gd")
@@ -9,9 +11,18 @@ const STARTER_CELL := Vector2i(26, 23)
 const BASE_ROOM := "core:base_house"
 const BASE_INTERIOR := Rect2i(20, 18, 8, 7)
 const INVALID := Vector2i(-1, -1)
-var _geometry_snapshot: Array = []
+var _geometry_revision := -1
+var _room_revision := -1
 var _places: Dictionary = {}
 var _room_validity: Dictionary = {}
+var _assignment_rooms: Dictionary = {}
+# Derived navigation only; needs, room validity and ownership remain live.
+var approach_cache_enabled := true
+var _approach_navigation: RefCounted
+var _approach_catalog: RefCounted
+var _approach_navigation_revision := -1
+var _approach_room_revision := -1
+var _approaches: Dictionary = {}
 
 func normalize(sim) -> void:
 	State.normalize(sim)
@@ -21,23 +32,38 @@ static func is_starter_cell(cell: Vector2i) -> bool:
 	return cell == STARTER_CELL
 
 func refresh(sim) -> void:
-	var geometry := [sim.state.structures, sim.state.room_assignments]
-	if geometry == _geometry_snapshot:
-		return
-	_geometry_snapshot = geometry.duplicate(true)
+	if _geometry_revision == sim.structure_index.geometry_revision and _room_revision == sim.room_revision: return
+	var span := Diagnostic.begin("housing.rebuild") if Diagnostic.enabled else 0
+	_geometry_revision = sim.structure_index.geometry_revision
+	_room_revision = sim.room_revision
 	_room_validity.clear()
+	# Build shared boundaries once per geometry revision, using only the types
+	# that define rooms. Each room then validates its local indexed contents.
+	var boundary_structures: Array[Dictionary] = []
+	for definition: Dictionary in sim.building_catalog.all_definitions():
+		if bool(definition.get("room_boundary",false)):
+			boundary_structures.append_array(sim.structure_index.of_type(String(definition.id)))
+	var boundaries := Topology.build_boundaries(boundary_structures,sim.building_catalog)
+	var rooms: Array[Dictionary] = []
 	for room: Dictionary in sim.state.room_assignments:
 		if String(room.room_type_id) == Topology.LIVING_ROOM_ID:
-			_room_validity[String(room.id)] = _validate_room(sim,room)
+			var inside: Dictionary = sim._room_cells_set(room.cells)
+			rooms.append({"room":room,"cells":inside})
+			_room_validity[String(room.id)] = _validate_room(sim,room,boundaries,inside)
 	_places = {STARTER: {"place_id": STARTER, "building_id": "core:bedroll", "cell": [26,23],
 		"room_id": BASE_ROOM, "valid": true, "reason_key": "housing.base_temporary"}}
-	for structure: Dictionary in sim.state.structures:
-		var id := String(structure.get("building_id", ""))
-		var raw_cell: Array = structure.cell
-		var origin := Vector2i(int(raw_cell[0]), int(raw_cell[1]))
-		if not sim.building_catalog.is_floor(id) and sim.building_catalog.get_footprint_cells(id, origin).has(STARTER_CELL):
+	_assignment_rooms = {STARTER: BASE_ROOM}
+	for structure: Dictionary in sim.structure_index.at(STARTER_CELL):
+		if not sim.building_catalog.is_floor(String(structure.building_id)):
 			_places[STARTER].valid = false
 			_places[STARTER].reason_key = "housing.failure.obstructed"
+	var beds: Array[Dictionary] = sim.structure_index.of_type("core:bed")
+	beds.append_array(sim.structure_index.of_type("core:bedroll"))
+	# Places order is observable; use the original array order across both types.
+	var bed_cells: Array[Vector2i] = []
+	for bed: Dictionary in beds: bed_cells.append(Vector2i(int(bed.cell[0]),int(bed.cell[1])))
+	for structure: Dictionary in sim.structure_index.in_cells(bed_cells):
+		var id := String(structure.get("building_id", ""))
 		if not ["core:bed", "core:bedroll"].has(id):
 			continue
 		var data: Array = structure.cell
@@ -48,10 +74,9 @@ func refresh(sim) -> void:
 			inside_base = inside_base and BASE_INTERIOR.has_point(occupied)
 		var room_id := BASE_ROOM if inside_base else ""
 		if not inside_base:
-			for room: Dictionary in sim.state.room_assignments:
-				if String(room.room_type_id) != Topology.LIVING_ROOM_ID:
-					continue
-				var inside: Dictionary = sim._room_cells_set(room.cells)
+			for entry: Dictionary in rooms:
+				var room: Dictionary = entry.room
+				var inside: Dictionary = entry.cells
 				var fully_inside := true
 				for occupied: Vector2i in footprint:
 					fully_inside = fully_inside and inside.has(occupied)
@@ -62,23 +87,35 @@ func refresh(sim) -> void:
 					room_id = candidate
 					break
 		var place_id := "%s@%d,%d" % [id, cell.x, cell.y]
+		var assigned_room := room_id
+		if assigned_room.is_empty():
+			for entry: Dictionary in rooms:
+				var room: Dictionary = entry.room
+				if entry.cells.has(cell):
+					assigned_room = String(room.id)
+					break
+		_assignment_rooms[place_id] = assigned_room
 		_places[place_id] = {"place_id": place_id, "building_id": id, "cell": data.duplicate(),
 			"room_id": room_id, "valid": not room_id.is_empty(),
 			"reason_key": "housing.base_temporary" if room_id == BASE_ROOM else ("housing.valid" if not room_id.is_empty() else "housing.failure.room")}
+	Diagnostic.end(span)
 
-func _validate_room(sim, room: Dictionary) -> bool:
+func _validate_room(sim, room: Dictionary, boundaries: Dictionary, inside: Dictionary) -> bool:
 	if room.cells.is_empty(): return false
 	var first: Array = room.cells[0]
-	var actual := Topology.find_room_at(Vector2i(int(first[0]),int(first[1])),sim.state.structures,sim.building_catalog,Content.MAP_SIZE)
-	var inside: Dictionary = sim._room_cells_set(room.cells)
+	var actual := Topology.find_room_in_boundaries(Vector2i(int(first[0]),int(first[1])),boundaries,Content.MAP_SIZE)
 	if actual.size() != inside.size(): return false
 	for cell: Vector2i in actual:
 		if not inside.has(cell): return false
-	return bool(Topology.validate(Topology.LIVING_ROOM_ID,actual,sim.state.structures,sim.building_catalog).success)
+	return bool(Topology.validate(Topology.LIVING_ROOM_ID,actual,sim.structure_index.in_cells(actual,false),sim.building_catalog).success)
 
 func room_valid(sim, room_id: String) -> bool:
 	refresh(sim)
 	return bool(_room_validity.get(room_id,false))
+
+func assignment_room(sim, place_id: String) -> String:
+	refresh(sim)
+	return String(_assignment_rooms.get(place_id,""))
 
 func place(sim, place_id: String) -> Dictionary:
 	refresh(sim)
@@ -105,7 +142,9 @@ func assign(sim, character_id: String, place_id: String) -> Dictionary:
 		if npc.is_empty() or not bool(npc.get("active", false)) or not bool(npc.get("known", false)):
 			return sim._emit_result(false, "housing.failure.character")
 	if place_id.is_empty():
+		var changed: bool = String(sim.state.sleep_assignments.get(character_id,"")) != ""
 		sim.state.sleep_assignments[character_id] = ""
+		if changed: sim.notify_housing_changed()
 		return sim._emit_result(true, "housing.released", true)
 	refresh(sim)
 	var place: Dictionary = _places.get(place_id, {})
@@ -118,10 +157,32 @@ func assign(sim, character_id: String, place_id: String) -> Dictionary:
 		return sim._emit_result(false, "housing.failure.personal")
 	if approach(sim, character_id, place) == INVALID:
 		return sim._emit_result(false, "housing.failure.path")
+	var changed: bool = String(sim.state.sleep_assignments.get(character_id,"")) != place_id
 	sim.state.sleep_assignments[character_id] = place_id
+	if changed: sim.notify_housing_changed()
 	return sim._emit_result(true, "housing.assigned", true)
 
 func approach(sim, character_id: String, place: Dictionary) -> Vector2i:
+	if not approach_cache_enabled: return _find_approach(sim,character_id,place)
+	if _approach_navigation != sim.npc_autonomy or _approach_catalog != sim.building_catalog or _approach_navigation_revision != sim.npc_autonomy.navigation_revision or _approach_room_revision != sim.room_revision:
+		_approach_navigation = sim.npc_autonomy
+		_approach_catalog = sim.building_catalog
+		_approach_navigation_revision = sim.npc_autonomy.navigation_revision
+		_approach_room_revision = sim.room_revision
+		_approaches.clear()
+	var source: Vector2 = sim.get_player_position() if character_id == "core:player" else sim.get_npc_position(character_id,Vector2.ZERO)
+	var from: Vector2i = sim._world_position_to_cell(source)
+	var blocker: Vector2i = INVALID if character_id == "core:player" else sim._world_position_to_cell(sim.get_player_position())
+	var inputs: Array = [from,blocker,String(place.room_id),String(place.place_id),String(place.building_id),Vector2i(int(place.cell[0]),int(place.cell[1]))]
+	var previous: Dictionary = _approaches.get(character_id,{})
+	if not previous.is_empty() and previous.inputs == inputs:
+		return previous.target
+	var target := _find_approach(sim,character_id,place)
+	# One latest query per character, never a history of travelled cells/places.
+	_approaches[character_id] = {"inputs":inputs,"target":target}
+	return target
+
+func _find_approach(sim, character_id: String, place: Dictionary) -> Vector2i:
 	var source: Vector2 = sim.get_player_position() if character_id == "core:player" else sim.get_npc_position(character_id, Vector2.ZERO)
 	var from: Vector2i = sim._world_position_to_cell(source)
 	var cell := Vector2i(int(place.cell[0]), int(place.cell[1]))
@@ -171,8 +232,7 @@ func profile(sim, character_id: String, id: String) -> Dictionary:
 
 func contexts(sim) -> Dictionary:
 	var result: Dictionary = {}
-	for definition: Dictionary in sim.npc_catalog.get_definitions():
-		var id := String(definition.id)
+	for id: String in sim.npc_catalog.definition_ids():
 		var npc: Dictionary = sim.state.npcs.get(id, {})
 		if not bool(npc.get("active", false)):
 			continue
@@ -212,6 +272,7 @@ func sleep_at(sim, place_id: String) -> Dictionary:
 		return assigned
 	if not sim.furniture.leave_player(sim):
 		sim.state.sleep_assignments["core:player"] = previous_assignment
+		sim.notify_housing_changed()
 		return sim._emit_result(false,"furniture.failure.approach")
 	if sim.get_minute_of_day() >= sim.EVENING_MINUTE or sim.get_minute_of_day() < sim.MORNING_MINUTE:
 		return sim._sleep_until_morning()

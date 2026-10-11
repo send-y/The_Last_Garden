@@ -125,23 +125,23 @@ func _test_removed_table_and_light_walls() -> void:
 	npc.needs.hunger = 30.0
 	sim.advance_minutes(1)
 	check(String(npc.activity_id) == "core:table_eating", "NPC sits for the table meal")
-	sim.state.structures = sim.state.structures.filter(func(s: Dictionary) -> bool: return String(s.building_id) != "core:table")
+	sim.replace_structures(sim.state.structures.filter(func(s: Dictionary) -> bool: return String(s.building_id) != "core:table"))
 	sim._sync_structure_navigation()
 	sim.advance_minutes(1)
 	check(String(npc.activity_id) != "core:table_eating" and npc.furniture_use.is_empty(), "Removed table releases an ongoing table use")
 	sim.state.minute_of_day = 20 * 60
-	sim.state.structures.append({"building_id":"core:torch","cell":[20,20]})
+	sim.add_structure({"building_id":"core:torch","cell":[20,20]})
 	check(sim.is_cell_lit(Vector2i(21,20)) and not sim.is_cell_lit(Vector2i(18,20)), "Static house wall blocks torch illumination on its other side")
 
 func _test_light_preference_and_safe_exit() -> void:
 	var sim = fixture()
-	sim.state.structures = [
+	sim.replace_structures([
 		{"building_id":"core:table","cell":[20,21]},
 		{"building_id":"core:chair","cell":[21,22]},
 		{"building_id":"core:table","cell":[26,21]},
 		{"building_id":"core:chair","cell":[27,22]},
 		{"building_id":"core:torch","cell":[20,22]},
-	]
+	])
 	sim._sync_structure_navigation()
 	sim.state.minute_of_day = 20 * 60
 	sim.set_player_position(Content.cell_center(24,24))
@@ -164,7 +164,7 @@ func _test_light_preference_and_safe_exit() -> void:
 
 func _test_direct_work_command() -> void:
 	var sim = fixture()
-	sim.state.structures.append({"building_id":"core:workbench","cell":[23,21]})
+	sim.add_structure({"building_id":"core:workbench","cell":[23,21]})
 	sim._sync_structure_navigation()
 	sim.set_player_position(Content.cell_center(22,22))
 	sim.execute_furniture_command(Vector2i(22,21),"rest")

@@ -1,0 +1,37 @@
+[
+  {
+    "case": "evening-natural-30",
+    "exit": 0,
+    "errors": [],
+    "sampler_error": null,
+    "passed": true
+  },
+  {
+    "case": "natural-long-30",
+    "exit": 0,
+    "errors": [],
+    "sampler_error": null,
+    "passed": true
+  },
+  {
+    "case": "ordinary-2",
+    "exit": 0,
+    "errors": [],
+    "sampler_error": null,
+    "passed": true
+  },
+  {
+    "case": "work-30",
+    "exit": 0,
+    "errors": [],
+    "sampler_error": null,
+    "passed": true
+  },
+  {
+    "case": "evening-lights-30",
+    "exit": 0,
+    "errors": [],
+    "sampler_error": null,
+    "passed": true
+  }
+]

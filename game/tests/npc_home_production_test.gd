@@ -13,7 +13,7 @@ func check(ok: bool, message: String) -> void:
 		push_error(message)
 func fixture(wood: int = 10, bench: bool = true, shared: bool = false):
 	var sim = Fixture.create(shared)
-	if bench: sim.state.structures.append({"building_id":"core:workbench","cell":[BENCH.x,BENCH.y],"stage_id":"core:complete"})
+	if bench: sim.add_structure({"building_id":"core:workbench","cell":[BENCH.x,BENCH.y],"stage_id":"core:complete"})
 	sim._sync_structure_navigation()
 	var npc: Dictionary = sim.state.npcs[NPC]
 	var old: Array = npc.position.duplicate()

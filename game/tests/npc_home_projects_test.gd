@@ -159,8 +159,9 @@ func _test_safety() -> void:
 	check(not sim.NpcHomeProjects.Layout.can_place(sim,sim.state.npcs[NPC],"core:torch",Vector2i(44,34)),"Autonomous furnishing protects a warehouse cell inside the home")
 	for x: int in range(40,45):
 		if x == 42: continue
-		sim.state.structures.append({"building_id":"core:wood_wall","cell":[x,32]})
+		sim.add_structure({"building_id":"core:wood_wall","cell":[x,32]})
 		sim.state.room_assignments[0].cells.erase([x,32])
+	sim.notify_housing_changed(true)
 	sim.state.npcs[NPC].position = [Content.cell_center(42,33).x,Content.cell_center(42,33).y]
 	sim._sync_structure_navigation()
 	check(sim.get_character_home(NPC).valid and sim.is_navigation_cell_walkable(Vector2i(42,32)),"Corridor fixture retains a valid external home and a free choke point")
@@ -200,20 +201,20 @@ func _test_existing_home_and_light() -> void:
 	var sim = fixture()
 	sim.state.npcs[NPC].position = [Content.cell_center(43,33).x,Content.cell_center(43,33).y]
 	for entity: Dictionary in [{"building_id":"core:table","cell":[42,31]},{"building_id":"core:chair","cell":[42,32]},{"building_id":"core:torch","cell":[44,30],"lit":true}]:
-		sim.state.structures.append(entity)
+		sim.add_structure(entity)
 	sim._sync_structure_navigation()
 	sim.set_npc_work_enabled(NPC,"build",true)
 	sim.advance_minutes(1)
 	check(sim.get_npc_personal_goal(NPC).goal.is_empty(),"Already furnished home does not spawn redundant furniture")
 	var torch: Dictionary = sim.state.structures.back()
-	torch.lit = false
+	sim.set_structure_state(torch,"lit",false)
 	# A floor must not hide the actual furniture during result lookup.
-	sim.state.structures.push_front({"building_id":"core:wood_floor","cell":[44,30]})
+	sim.replace_structures([{"building_id":"core:wood_floor","cell":[44,30]}] + sim.get_structures())
 	sim.advance_minutes(35)
 	var goal: Dictionary = sim.get_npc_personal_goal(NPC).goal
 	check(not goal.is_empty() and String(goal.action) == "light","An existing off torch becomes a switching goal, not a new build")
 	sim.advance_minutes(45)
-	check(bool(torch.lit) and not sim.get_npc_personal_goal(NPC).completed.is_empty(),"Resident walks to and switches on the real torch above its floor")
+	check(bool(sim.structure_index.of_type("core:torch")[0].lit) and not sim.get_npc_personal_goal(NPC).completed.is_empty(),"Resident walks to and switches on the real torch above its floor")
 	check(sim.state.blueprints.is_empty(),"Switching a light requires no invented materials or duplicate torch")
 
 func _test_shared_room() -> void:
@@ -270,8 +271,9 @@ func _test_player_does_not_block_home() -> void:
 	if goal.is_empty(): return
 	# Reduce the bed's reachable edges to one without changing its ownership.
 	for cell: Array in [[40,31],[41,31]]:
-		sim.state.structures.append({"building_id":"core:wood_wall","cell":cell})
+		sim.add_structure({"building_id":"core:wood_wall","cell":cell})
 		sim.state.room_assignments[0].cells.erase(cell)
+	sim.notify_housing_changed(true)
 	sim._sync_structure_navigation()
 	sim.set_player_position(Content.cell_center(42,30))
 	check(sim.get_character_home(NPC).valid,"Player does not block the only bed approach under nonblocking character movement")

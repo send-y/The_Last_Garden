@@ -58,16 +58,16 @@ func _run() -> void:
 	sim.state.npcs[NPC].personal_inventory = {}
 	sim.state.storage_items.append({"placement_id":"core:feedback_food","item_id":"core:carrot","amount":1,"cell":[22,24],"rotated":false})
 	check(row(sim.get_npc_household_status(NPC),"food").status == "storage", "Reachable shared food counts as available")
-	sim.state.structures.append({"building_id":"core:wood_wall","cell":[21,24]})
-	sim.state.structures.append({"building_id":"core:wood_wall","cell":[23,24]})
-	sim.state.structures.append({"building_id":"core:wood_wall","cell":[22,23]})
+	sim.add_structure({"building_id":"core:wood_wall","cell":[21,24]})
+	sim.add_structure({"building_id":"core:wood_wall","cell":[23,24]})
+	sim.add_structure({"building_id":"core:wood_wall","cell":[22,23]})
 	sim._sync_structure_navigation()
 	sim.state.npcs[NPC].position = [Content.cell_center(25,23).x,Content.cell_center(25,23).y]
 	check(row(sim.get_npc_household_status(NPC),"food").status == "blocked", "Food behind walls is reported as inaccessible, not usable stock")
 	sim = fixture()
 	sim.state.flags.repair_stage = 2
 	sim.assign_sleep_place(NPC,"core:bedroll@20,23")
-	sim.state.structures = sim.state.structures.filter(func(s: Dictionary) -> bool: return String(s.building_id) != "core:bedroll")
+	sim.replace_structures(sim.state.structures.filter(func(s: Dictionary) -> bool: return String(s.building_id) != "core:bedroll"))
 	sim._sync_structure_navigation()
 	check(row(sim.get_npc_household_status(NPC),"sleep").status == "missing", "Destroyed assigned sleeping place is distinct from an unassigned one")
 	sim = fixture()
@@ -91,38 +91,39 @@ func _test_room_diagnostics() -> void:
 	var sim = fixture()
 	for x: int in range(40,46):
 		for y: int in [40,45]:
-			sim.state.structures.append({"building_id":"core:wood_door" if Vector2i(x,y) == Vector2i(42,45) else "core:wood_wall","cell":[x,y]})
+			sim.add_structure({"building_id":"core:wood_door" if Vector2i(x,y) == Vector2i(42,45) else "core:wood_wall","cell":[x,y]})
 	for y: int in range(41,45):
 		for x: int in [40,45]:
-			sim.state.structures.append({"building_id":"core:wood_wall","cell":[x,y]})
+			sim.add_structure({"building_id":"core:wood_wall","cell":[x,y]})
 	var cells: Array = []
 	for x: int in range(41,45):
 		for y: int in range(41,45):
 			cells.append([x,y])
 	sim.state.room_assignments.append({"id":"core:feedback_room","room_type_id":"core:living_room","cells":cells})
-	sim.state.structures.append({"building_id":"core:bedroll","cell":[41,43]})
-	sim.state.structures.append({"building_id":"core:table","cell":[41,41]})
-	sim.state.structures.append({"building_id":"core:torch","cell":[44,41]})
+	sim.notify_housing_changed(true)
+	sim.add_structure({"building_id":"core:bedroll","cell":[41,43]})
+	sim.add_structure({"building_id":"core:table","cell":[41,41]})
+	sim.add_structure({"building_id":"core:torch","cell":[44,41]})
 	sim.state.npcs[NPC].position = [Content.cell_center(42,44).x,Content.cell_center(42,44).y]
 	sim._sync_structure_navigation()
 	check(sim.assign_sleep_place(NPC,"core:bedroll@41,43").success, "Constructed room has a real assigned sleep place")
-	sim.state.structures = sim.state.structures.filter(func(s: Dictionary) -> bool: return s.cell != [44,41])
+	sim.replace_structures(sim.state.structures.filter(func(s: Dictionary) -> bool: return s.cell != [44,41]))
 	sim._sync_structure_navigation()
 	var sleep: Dictionary = row(sim.get_npc_household_status(NPC),"sleep")
 	check(sleep.status == "ready", "Missing room light is a comfort improvement and preserves usable sleeping foundation")
-	sim.state.structures = sim.state.structures.filter(func(s: Dictionary) -> bool: return s.cell != [40,43])
+	sim.replace_structures(sim.state.structures.filter(func(s: Dictionary) -> bool: return s.cell != [40,43]))
 	sim._sync_structure_navigation()
 	check(row(sim.get_npc_household_status(NPC),"sleep").status == "room_open", "Broken room wall is explained separately from missing furniture")
 
 func _test_evening_choice() -> void:
 	var sim = fixture()
-	sim.state.structures = [
+	sim.replace_structures([
 		{"building_id":"core:table","cell":[20,21]},
 		{"building_id":"core:chair","cell":[21,22]},
 		{"building_id":"core:table","cell":[26,21]},
 		{"building_id":"core:chair","cell":[27,22]},
 		{"building_id":"core:torch","cell":[20,22]},
-	]
+	])
 	sim._sync_structure_navigation()
 	sim.state.npcs[NPC].position = [Content.cell_center(27,23).x,Content.cell_center(27,23).y]
 	check(sim.furniture.find_seat(sim,NPC,true).chair_cell == [27,22], "Daylight selection can use the nearest unlit seat")

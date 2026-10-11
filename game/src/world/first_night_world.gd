@@ -1,6 +1,11 @@
 class_name FirstNightWorld
 extends Node2D
 
+const PresentationLayer := preload("res://src/world/world_presentation_layer.gd")
+const StoragePresentation := preload("res://src/simulation/systems/storage_system.gd")
+
+const Diagnostic := preload("res://src/dev/diagnostic_trace.gd")
+
 signal selection_changed(selection: Dictionary)
 signal blueprint_interaction_requested(cell: Vector2i, continuous_work: bool)
 signal resource_interaction_requested(target_id: String, continuous_work: bool)
@@ -36,6 +41,11 @@ const ROAD_TILE: Texture2D = preload(
 	"res://assets/sprites/tiles/ai_road.png"
 )
 
+var _presentation_layers: Dictionary = {}
+var _storage_layouts: Dictionary = {}
+var _storage_icon_cache: Dictionary = {}
+var _state_refresh_queued := false
+
 var _interactables: Array[InteractableView] = []
 var _drop_views: Dictionary = {}
 var _resource_view_snapshot: Dictionary = {}
@@ -53,10 +63,13 @@ var _crafting_catalog := CraftingCatalogScript.new()
 
 func _ready() -> void:
 	_build_static_collision()
+	_build_presentation_layers()
 	_spawn_interactables()
 	_sync_dropped_items()
 	Session.state_changed.connect(_on_state_changed)
 	Session.state_reloaded.connect(_on_state_reloaded)
+	Session.time_changed.connect(_refresh_farm_presentation)
+	_refresh_presentation(true)
 	queue_redraw()
 
 
@@ -67,8 +80,10 @@ func _process(_delta: float) -> void:
 	if player_controller == null:
 		return
 	var player_foot_y: float = player_controller.get_depth_sort_y()
+	var span := Diagnostic.begin("scene.world_depth") if Diagnostic.enabled else 0
 	for interactable: InteractableView in _interactables:
 		interactable.update_boulder_depth_order(player_foot_y)
+	Diagnostic.end(span)
 
 
 func _sync_dropped_items() -> void:
@@ -185,7 +200,7 @@ func select_at_world_position(world_position: Vector2) -> void:
 	if not Session.get_farm_bed(clicked_cell).is_empty():
 		_selected_cell = clicked_cell
 		_set_selected(null)
-		queue_redraw()
+		_refresh_presentation()
 		return
 	var nearest: InteractableView
 	var nearest_distance: float = INF
@@ -204,7 +219,7 @@ func select_at_world_position(world_position: Vector2) -> void:
 	else:
 		_selected_cell = Vector2i(-1, -1)
 	_set_selected(nearest)
-	queue_redraw()
+	_refresh_presentation()
 
 
 func remove_selection() -> void:
@@ -427,17 +442,30 @@ func _refresh_interactables(snap: bool = false) -> void:
 			interactable.configure(tree_definitions[interactable.object_id])
 		else:
 			interactable.refresh_from_state(snap)
-	queue_redraw()
+	_refresh_presentation()
 
 
 func _on_state_changed() -> void:
+	if _state_refresh_queued: return
+	_state_refresh_queued = true
+	call_deferred("_flush_state_refresh")
+
+
+func _flush_state_refresh() -> void:
+	if not _state_refresh_queued: return
+	_state_refresh_queued = false
+	var span := Diagnostic.begin("scene.world_state_refresh") if Diagnostic.enabled else 0
+	_refresh_session_state()
+	Diagnostic.end(span)
+
+
+func _refresh_session_state() -> void:
 	var npc_view_count := 0
 	for interactable: InteractableView in _interactables:
 		if interactable.kind == "npc": npc_view_count += 1
-	if npc_view_count != Session.simulation.npc_catalog.get_definitions().size(): _spawn_interactables()
+	if npc_view_count != Session.simulation.npc_catalog.definition_count(): _spawn_interactables()
 	_refresh_interactables()
 	_sync_dropped_items()
-	queue_redraw()
 	if _selected == null or not is_instance_valid(_selected):
 		if _selected_cell.x >= 0 and _selected_cell.y >= 0:
 			_set_selected(null)
@@ -451,11 +479,14 @@ func _on_state_changed() -> void:
 
 
 func _on_state_reloaded() -> void:
+	_state_refresh_queued = false
 	_selected_cell = Vector2i(-1, -1)
 	_set_selected(null)
 	_spawn_interactables()
 	_refresh_interactables(true)
 	_sync_dropped_items()
+	_refresh_presentation(true)
+	queue_redraw()
 
 
 func _selection_payload(interactable: InteractableView, in_range: bool) -> Dictionary:
@@ -696,29 +727,54 @@ func _add_static_rect(rect: Rect2) -> void:
 	add_child(body)
 
 
-func _draw_farm_beds() -> void:
-	for bed: Dictionary in Session.get_farm_beds():
-		var origin := Vector2(int(bed.cell[0]), int(bed.cell[1])) * Content.CELL_SIZE
-		var wet := int(bed.wet_until) > Session.simulation.get_elapsed_game_minutes()
-		draw_rect(Rect2(origin + Vector2(2, 2), Vector2(28, 28)), Color("554634") if wet else Color("98744c"))
-		for row: int in range(3):
-			draw_line(origin + Vector2(4, 7 + row * 8), origin + Vector2(28, 7 + row * 8), Color("3b3228"), 1)
-		var crop := Session.simulation.farming.catalog.find(String(bed.crop_id))
-		if crop.is_empty():
-			continue
-		var ratio := float(bed.growth) / float(Session.simulation.farming._required_growth(bed, crop))
-		var center := origin + Vector2(16, 16)
-		if ratio < 0.25:
-			draw_circle(center, 2, Color("e4d29b"))
-		else:
-			draw_line(center + Vector2(0, 9), center - Vector2(0, 7), Color("547d41"), 2)
-			draw_circle(center + Vector2(-4, 0), 4, Color("729953"))
-			draw_circle(center + Vector2(4, -4), 4, Color("729953"))
-			if ratio >= 1.0:
-				draw_circle(center - Vector2(0, 8), 5, Color(String(crop.color)))
+func _build_presentation_layers() -> void:
+	# Insert before structures/interactables to preserve the original draw order.
+	var order := ["rooms","house","storage_zones","storage","farm","grid","selection"]
+	var methods := [_draw_rooms,_draw_house,_draw_storage_zones,_draw_storage_items,_draw_farm_beds,_draw_grid,_draw_selection]
+	for i: int in range(order.size()):
+		var layer := PresentationLayer.new()
+		layer.name = "Presentation_" + order[i]
+		layer.draw_callback = methods[i]
+		layer.trace_label = "scene.world_%s_draw" % order[i]
+		add_child(layer)
+		move_child(layer,i)
+		_presentation_layers[order[i]] = layer
+
+
+func _refresh_presentation(force: bool = false) -> void:
+	if _presentation_layers.is_empty(): return
+	var sim = Session.simulation
+	_presentation_layers.rooms.refresh(sim.state.room_assignments,force)
+	_presentation_layers.storage_zones.refresh(sim.state.storage_zones,force)
+	var stored_instances := {}
+	var stored_ids := {}
+	for item: Dictionary in sim.state.storage_items:
+		if item.has("instance_id"): stored_ids[String(item.instance_id)] = true
+	for instance: Dictionary in sim.state.item_instances:
+		if stored_ids.has(String(instance.instance_id)): stored_instances[String(instance.instance_id)] = instance.state
+	var storage_inputs := {"items":sim.state.storage_items,"instances":stored_instances,
+		"zones":sim.state.storage_zones,"geometry":sim.structure_index.geometry_revision}
+	if _presentation_layers.storage.refresh(storage_inputs,force):
+		_storage_layouts = StoragePresentation.build_storage_view_layouts(sim)
+	_refresh_farm_presentation(force)
+	_presentation_layers.selection.refresh(_selected_cell,force)
+	if force:
+		_presentation_layers.house.refresh(null,true)
+		_presentation_layers.grid.refresh(null,true)
+
+
+func _refresh_farm_presentation(force: bool = false) -> void:
+	if _presentation_layers.is_empty(): return
+	var sim = Session.simulation
+	var inputs: Array = []
+	for bed: Dictionary in sim.state.farming.beds:
+		inputs.append({"cell":bed.cell,"crop":bed.crop_id,"growth":bed.growth,"harvests":bed.harvests,
+			"wet":int(bed.wet_until) > sim.get_elapsed_game_minutes()})
+	_presentation_layers.farm.refresh(inputs,force)
 
 
 func _draw() -> void:
+	var span := Diagnostic.begin("scene.world_draw") if Diagnostic.enabled else 0
 	var tile: float = float(Catalog.CELL_SIZE)
 	var map_pixels := Vector2(Catalog.MAP_SIZE * Catalog.CELL_SIZE)
 	draw_texture_rect(
@@ -759,6 +815,10 @@ func _draw() -> void:
 		true,
 		road_tint
 	)
+	Diagnostic.end(span)
+
+
+func _draw_rooms(canvas: Node2D) -> void:
 	for room: Dictionary in Session.get_room_assignments():
 		if String(room.get("room_type_id", "")) != "core:living_room":
 			continue
@@ -767,35 +827,45 @@ func _draw() -> void:
 				continue
 			var room_cell := Vector2i(int(cell_value[0]), int(cell_value[1]))
 			var room_rect := Rect2(Vector2(room_cell * Catalog.CELL_SIZE), Vector2.ONE * Catalog.CELL_SIZE)
-			draw_rect(room_rect.grow(-2.0), Color(0.77, 0.62, 0.35, 0.15), true)
-			draw_rect(room_rect.grow(-2.0), Color(0.92, 0.76, 0.45, 0.48), false, 1.0)
+			canvas.draw_rect(room_rect.grow(-2.0), Color(0.77, 0.62, 0.35, 0.15), true)
+			canvas.draw_rect(room_rect.grow(-2.0), Color(0.92, 0.76, 0.45, 0.48), false, 1.0)
 
-	draw_texture_rect(
+
+
+func _draw_house(canvas: Node2D) -> void:
+	var tile := float(Catalog.CELL_SIZE)
+	canvas.draw_texture_rect(
 		DIRT_TILE,
 		Rect2(19.0 * tile, 17.0 * tile, 10.0 * tile, 9.0 * tile),
 		true
 	)
-	draw_rect(Rect2(19.0 * tile, 17.0 * tile, 10.0 * tile, 16.0), Color("3d3933"))
-	draw_rect(Rect2(19.0 * tile, 17.0 * tile, 16.0, 9.0 * tile), Color("3d3933"))
-	draw_rect(Rect2(29.0 * tile - 16.0, 17.0 * tile, 16.0, 9.0 * tile), Color("3d3933"))
-	draw_rect(Rect2(19.0 * tile, 26.0 * tile - 16.0, 5.0 * tile, 16.0), Color("3d3933"))
-	draw_rect(Rect2(25.0 * tile, 26.0 * tile - 16.0, 4.0 * tile, 16.0), Color("3d3933"))
-	draw_rect(Rect2(24.0 * tile, 26.0 * tile - 8.0, tile, 8.0), Color("b99b68"))
+	canvas.draw_rect(Rect2(19.0 * tile, 17.0 * tile, 10.0 * tile, 16.0), Color("3d3933"))
+	canvas.draw_rect(Rect2(19.0 * tile, 17.0 * tile, 16.0, 9.0 * tile), Color("3d3933"))
+	canvas.draw_rect(Rect2(29.0 * tile - 16.0, 17.0 * tile, 16.0, 9.0 * tile), Color("3d3933"))
+	canvas.draw_rect(Rect2(19.0 * tile, 26.0 * tile - 16.0, 5.0 * tile, 16.0), Color("3d3933"))
+	canvas.draw_rect(Rect2(25.0 * tile, 26.0 * tile - 16.0, 4.0 * tile, 16.0), Color("3d3933"))
+	canvas.draw_rect(Rect2(24.0 * tile, 26.0 * tile - 8.0, tile, 8.0), Color("b99b68"))
 
+
+
+func _draw_storage_zones(canvas: Node2D) -> void:
 	for zone: Dictionary in Session.get_storage_zones():
 		for cell_value: Variant in zone.get("cells", []):
 			if typeof(cell_value) != TYPE_ARRAY or (cell_value as Array).size() != 2:
 				continue
 			var cell := Vector2i(int(cell_value[0]), int(cell_value[1]))
 			var zone_rect := Rect2(Vector2(cell * Catalog.CELL_SIZE), Vector2(Catalog.CELL_SIZE, Catalog.CELL_SIZE))
-			draw_rect(zone_rect.grow(-2.0), Color(0.38, 0.68, 0.50, 0.24), true)
-			draw_rect(zone_rect.grow(-2.0), Color(0.48, 0.82, 0.62, 0.58), false, 1.0)
+			canvas.draw_rect(zone_rect.grow(-2.0), Color(0.38, 0.68, 0.50, 0.24), true)
+			canvas.draw_rect(zone_rect.grow(-2.0), Color(0.48, 0.82, 0.62, 0.58), false, 1.0)
+
+
+func _draw_storage_items(canvas: Node2D) -> void:
 	for zone: Dictionary in Session.get_storage_zones():
 		for cell_value: Variant in zone.get("cells", []):
 			if typeof(cell_value) != TYPE_ARRAY or (cell_value as Array).size() != 2:
 				continue
 			var cell := Vector2i(int(cell_value[0]), int(cell_value[1]))
-			var placements := Session.get_storage_layout(cell)
+			var placements: Array = _storage_layouts.get(cell,[])
 			if placements.is_empty():
 				continue
 			var cell_origin := Vector2(cell * Catalog.CELL_SIZE)
@@ -807,7 +877,7 @@ func _draw() -> void:
 			)
 			for row: int in range(storage_size.y):
 				for column: int in range(storage_size.x):
-					draw_rect(Rect2(mini_origin + Vector2(column, row) * mini_slot, Vector2.ONE * mini_slot), Color(0.08, 0.08, 0.07, 0.48), true)
+					canvas.draw_rect(Rect2(mini_origin + Vector2(column, row) * mini_slot, Vector2.ONE * mini_slot), Color(0.08, 0.08, 0.07, 0.48), true)
 			for placement: Dictionary in placements:
 				var item_id := String(placement.get("item_id", ""))
 				var item_origin: Vector2i = placement.get("origin", Vector2i.ZERO)
@@ -817,24 +887,66 @@ func _draw() -> void:
 					if offset_variant is Vector2i:
 						max_cell = max_cell.max(offset_variant)
 				var icon_path := String(placement.get("icon_path", _content.item_icon_path(item_id)))
-				var icon := load(icon_path) as Texture2D if not icon_path.is_empty() else null
-				if icon == null:
-					icon = PlaceholderIcon.texture_for(item_id)
+				var icon := _get_storage_icon(item_id,icon_path)
 				var icon_rect := Rect2(
 					mini_origin + Vector2(item_origin) * mini_slot,
 					Vector2(max_cell + Vector2i.ONE) * mini_slot
 				)
-				IconPresentation.draw_icon(self, icon, icon_rect, int(placement.get("rotation", 0)), 0.0)
+				IconPresentation.draw_icon(canvas, icon, icon_rect, int(placement.get("rotation", 0)), 0.0)
 				if int(placement.get("amount", 1)) > 1:
-					draw_string(ThemeDB.fallback_font, icon_rect.end + Vector2(1.0, 0.0), str(placement.amount), HORIZONTAL_ALIGNMENT_RIGHT, 12.0, 7, Color.WHITE)
+					canvas.draw_string(ThemeDB.fallback_font, icon_rect.end + Vector2(1.0, 0.0), str(placement.amount), HORIZONTAL_ALIGNMENT_RIGHT, 12.0, 7, Color.WHITE)
 
+
+
+func _get_storage_icon(item_id: String, path: String) -> Texture2D:
+	if path.is_empty(): return PlaceholderIcon.texture_for(item_id)
+	if _storage_icon_cache.has(path): return _storage_icon_cache[path]
+	var span := Diagnostic.begin("scene.storage_icon_load") if Diagnostic.enabled else 0
+	var icon := load(path) as Texture2D
+	Diagnostic.end(span)
+	if icon != null:
+		_storage_icon_cache[path] = icon
+		return icon
+	return PlaceholderIcon.texture_for(item_id)
+
+
+func _draw_farm_beds(canvas: Node2D) -> void:
+	for bed: Dictionary in Session.get_farm_beds():
+		var origin := Vector2(int(bed.cell[0]), int(bed.cell[1])) * Content.CELL_SIZE
+		var wet := int(bed.wet_until) > Session.simulation.get_elapsed_game_minutes()
+		canvas.draw_rect(Rect2(origin + Vector2(2, 2), Vector2(28, 28)), Color("554634") if wet else Color("98744c"))
+		for row: int in range(3):
+			canvas.draw_line(origin + Vector2(4, 7 + row * 8), origin + Vector2(28, 7 + row * 8), Color("3b3228"), 1)
+		var crop := Session.simulation.farming.catalog.find(String(bed.crop_id))
+		if crop.is_empty():
+			continue
+		var ratio := float(bed.growth) / float(Session.simulation.farming._required_growth(bed, crop))
+		var center := origin + Vector2(16, 16)
+		if ratio < 0.25:
+			canvas.draw_circle(center, 2, Color("e4d29b"))
+		else:
+			canvas.draw_line(center + Vector2(0, 9), center - Vector2(0, 7), Color("547d41"), 2)
+			canvas.draw_circle(center + Vector2(-4, 0), 4, Color("729953"))
+			canvas.draw_circle(center + Vector2(4, -4), 4, Color("729953"))
+			if ratio >= 1.0:
+				canvas.draw_circle(center - Vector2(0, 8), 5, Color(String(crop.color)))
+
+
+
+
+func _draw_grid(canvas: Node2D) -> void:
+	var tile := float(Catalog.CELL_SIZE)
+	var map_pixels := Vector2(Catalog.MAP_SIZE * Catalog.CELL_SIZE)
 	var grid_color := Color(0.12, 0.16, 0.11, 0.10)
-	_draw_farm_beds()
 	for x_line: int in range(Catalog.MAP_SIZE.x + 1):
-		draw_line(Vector2(x_line * tile, 0.0), Vector2(x_line * tile, map_pixels.y), grid_color, 1.0)
+		canvas.draw_line(Vector2(x_line * tile, 0.0), Vector2(x_line * tile, map_pixels.y), grid_color, 1.0)
 	for y_line: int in range(Catalog.MAP_SIZE.y + 1):
-		draw_line(Vector2(0.0, y_line * tile), Vector2(map_pixels.x, y_line * tile), grid_color, 1.0)
+		canvas.draw_line(Vector2(0.0, y_line * tile), Vector2(map_pixels.x, y_line * tile), grid_color, 1.0)
 
+
+
+func _draw_selection(canvas: Node2D) -> void:
+	var tile := float(Catalog.CELL_SIZE)
 	if _selected_cell.x >= 0 and _selected_cell.y >= 0 and _selected_cell.x < Catalog.MAP_SIZE.x and _selected_cell.y < Catalog.MAP_SIZE.y:
 		var selected_rect := Rect2(Vector2(_selected_cell) * tile, Vector2(tile, tile))
-		draw_rect(selected_rect.grow(-1.0), Color("f1d66b"), false, 2.0)
+		canvas.draw_rect(selected_rect.grow(-1.0), Color("f1d66b"), false, 2.0)

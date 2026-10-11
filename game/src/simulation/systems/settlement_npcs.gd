@@ -223,21 +223,21 @@ static func get_npcs(sim) -> Dictionary:
 
 static func is_npc_visible(sim, npc_id: String) -> bool:
 	var npc_catalog: NpcCatalog = sim.npc_catalog
-	return npc_catalog.is_visible(sim.get_npcs(), npc_id)
+	return npc_catalog.is_visible(sim.state.npcs, npc_id)
 
 
 static func get_npc_position(sim, npc_id: String, fallback: Vector2) -> Vector2:
 	var npc_catalog: NpcCatalog = sim.npc_catalog
-	return npc_catalog.get_position(sim.get_npcs(), npc_id, fallback)
+	return npc_catalog.get_position(sim.state.npcs, npc_id, fallback)
 
 
 static func get_npc_appearance(sim, npc_id: String) -> Dictionary:
 	var npc_catalog: NpcCatalog = sim.npc_catalog
-	return npc_catalog.get_appearance(sim.get_npcs(), npc_id)
+	return npc_catalog.get_appearance(sim.state.npcs, npc_id)
 
 
 static func get_npc_activity_id(sim, npc_id: String) -> String:
-	var npc: Dictionary = sim.get_npcs().get(npc_id, {}) as Dictionary
+	var npc: Dictionary = sim.state.npcs.get(npc_id, {}) as Dictionary
 	return String(npc.get("activity_id", NpcAutonomyScript.ACTIVITY_ARRIVING))
 
 
@@ -247,23 +247,23 @@ static func get_npc_activity_key(sim, npc_id: String) -> String:
 
 
 static func get_npc_needs(sim, npc_id: String) -> Dictionary:
-	var npc: Dictionary = sim.get_npcs().get(npc_id, {}) as Dictionary
+	var npc: Dictionary = sim.state.npcs.get(npc_id, {}) as Dictionary
 	return (npc.get("needs", {}) as Dictionary).duplicate(true)
 
 
 static func get_npc_personal_food(sim, npc_id: String) -> int:
-	var npc: Dictionary = sim.get_npcs().get(npc_id, {}) as Dictionary
+	var npc: Dictionary = sim.state.npcs.get(npc_id, {}) as Dictionary
 	var inventory: Dictionary = npc.get("personal_inventory", {}) as Dictionary
 	return int(inventory.get(FirstNightContent.FOOD_ID, 0))
 
 
 static func get_npc_work_commitment(sim, npc_id: String) -> Dictionary:
-	var npc: Dictionary = sim.get_npcs().get(npc_id, {}) as Dictionary
+	var npc: Dictionary = sim.state.npcs.get(npc_id, {}) as Dictionary
 	return (npc.get("work_commitment", {}) as Dictionary).duplicate(true)
 
 
 static func get_npc_memories(sim, npc_id: String) -> Array:
-	var npc: Dictionary = sim.get_npcs().get(npc_id, {}) as Dictionary
+	var npc: Dictionary = sim.state.npcs.get(npc_id, {}) as Dictionary
 	return (npc.get("memories", []) as Array).duplicate(true)
 
 
@@ -274,7 +274,7 @@ static func get_npc_relationship_to_player(sim, npc_id: String) -> Dictionary:
 
 
 static func get_npc_target_cell(sim, npc_id: String) -> Vector2i:
-	var npc: Dictionary = sim.get_npcs().get(npc_id, {}) as Dictionary
+	var npc: Dictionary = sim.state.npcs.get(npc_id, {}) as Dictionary
 	var cell: Array = npc.get("target_cell", [-1, -1]) as Array
 	if cell.size() < 2:
 		return Vector2i(-1, -1)
@@ -282,7 +282,7 @@ static func get_npc_target_cell(sim, npc_id: String) -> Vector2i:
 
 
 static func get_npc_facing(sim, npc_id: String) -> Vector2:
-	var npc: Dictionary = sim.get_npcs().get(npc_id, {}) as Dictionary
+	var npc: Dictionary = sim.state.npcs.get(npc_id, {}) as Dictionary
 	var facing: Array = npc.get("facing", [0.0, -1.0]) as Array
 	if facing.size() < 2:
 		return Vector2.UP
@@ -290,7 +290,7 @@ static func get_npc_facing(sim, npc_id: String) -> Vector2:
 
 
 static func is_npc_moving(sim, npc_id: String) -> bool:
-	var npc: Dictionary = sim.get_npcs().get(npc_id, {}) as Dictionary
+	var npc: Dictionary = sim.state.npcs.get(npc_id, {}) as Dictionary
 	return bool(npc.get("moving", false))
 
 

@@ -1,0 +1,133 @@
+{
+  "native": {
+    "pid": 23240,
+    "main_tid": 19304
+  },
+  "logical_cpus": 12,
+  "measurements": [
+    {
+      "label": "idle_before",
+      "native_window_ms": 3078.563999995822,
+      "process_cpu_ms": 3015.625,
+      "main_cpu_ms": 2984.375,
+      "main_one_core_percent": 96.94048913727472,
+      "process_machine_percent": 8.162964399430201,
+      "other_threads_cpu_ms": 31.25,
+      "threads": [
+        {
+          "tid": 19304,
+          "cpu_ms": 2984.375
+        },
+        {
+          "tid": 7680,
+          "cpu_ms": 15.625
+        },
+        {
+          "tid": 18772,
+          "cpu_ms": 15.625
+        },
+        {
+          "tid": 10512,
+          "cpu_ms": 0
+        },
+        {
+          "tid": 26296,
+          "cpu_ms": 0
+        },
+        {
+          "tid": 14736,
+          "cpu_ms": 0
+        },
+        {
+          "tid": 25788,
+          "cpu_ms": 0
+        },
+        {
+          "tid": 13436,
+          "cpu_ms": 0
+        },
+        {
+          "tid": 18492,
+          "cpu_ms": 0
+        },
+        {
+          "tid": 4160,
+          "cpu_ms": 0
+        },
+        {
+          "tid": 6812,
+          "cpu_ms": 0
+        },
+        {
+          "tid": 14024,
+          "cpu_ms": 0
+        }
+      ],
+      "rss_end_bytes": 324583424,
+      "read_bytes_delta": 124467,
+      "write_bytes_delta": 870
+    },
+    {
+      "label": "forced_world_redraw",
+      "native_window_ms": 3197.479900001781,
+      "process_cpu_ms": 3140.625,
+      "main_cpu_ms": 3125.0,
+      "main_one_core_percent": 97.73321796325473,
+      "process_machine_percent": 8.185157004422583,
+      "other_threads_cpu_ms": 15.625,
+      "threads": [
+        {
+          "tid": 19304,
+          "cpu_ms": 3125.0
+        },
+        {
+          "tid": 7680,
+          "cpu_ms": 15.625
+        },
+        {
+          "tid": 10512,
+          "cpu_ms": 0
+        },
+        {
+          "tid": 26296,
+          "cpu_ms": 0
+        },
+        {
+          "tid": 14736,
+          "cpu_ms": 0
+        },
+        {
+          "tid": 25788,
+          "cpu_ms": 0
+        },
+        {
+          "tid": 13436,
+          "cpu_ms": 0
+        },
+        {
+          "tid": 18492,
+          "cpu_ms": 0
+        },
+        {
+          "tid": 4160,
+          "cpu_ms": 0
+        },
+        {
+          "tid": 6812,
+          "cpu_ms": 0
+        },
+        {
+          "tid": 14024,
+          "cpu_ms": 0
+        },
+        {
+          "tid": 22664,
+          "cpu_ms": 0
+        }
+      ],
+      "rss_end_bytes": 324517888,
+      "read_bytes_delta": 194468,
+      "write_bytes_delta": 2064
+    }
+  ]
+}

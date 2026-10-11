@@ -1,0 +1,23 @@
+{
+  "before": [
+    {
+      "Path": "C:\\Users\\Bohdan\\AppData\\Roaming\\Godot\\app_userdata\\The Last Garden\\first_night_save.json",
+      "Hash": "E6F4627636117636DB35B492E2422A1163DB6711D258CD1BC60F1ACBF0909C25"
+    },
+    {
+      "Path": "C:\\Users\\Bohdan\\AppData\\Roaming\\Godot\\app_userdata\\The Last Garden\\first_night_save.json.bak",
+      "Hash": "697853F962B39B7ECEC48D03D96A8BF8ECA5DD06DAA29EDC9AB3FCDCF8B400CA"
+    }
+  ],
+  "after": [
+    {
+      "Path": "C:\\Users\\Bohdan\\AppData\\Roaming\\Godot\\app_userdata\\The Last Garden\\first_night_save.json",
+      "Hash": "E6F4627636117636DB35B492E2422A1163DB6711D258CD1BC60F1ACBF0909C25"
+    },
+    {
+      "Path": "C:\\Users\\Bohdan\\AppData\\Roaming\\Godot\\app_userdata\\The Last Garden\\first_night_save.json.bak",
+      "Hash": "697853F962B39B7ECEC48D03D96A8BF8ECA5DD06DAA29EDC9AB3FCDCF8B400CA"
+    }
+  ],
+  "unchanged": true
+}

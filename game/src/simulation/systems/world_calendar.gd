@@ -1,5 +1,7 @@
 extends "res://src/simulation/world_rules.gd"
 
+const Diagnostic := preload("res://src/dev/diagnostic_trace.gd")
+
 # Operates on the authoritative WorldSimulation state; owns no copy.
 
 static func tick(sim, real_delta: float) -> bool:
@@ -25,7 +27,9 @@ static func _advance_clock(sim, amount: int, notify: bool = true, player_activit
 	if amount <= 0:
 		return false
 	var npc_or_world_changed := false
+	var clock_span := Diagnostic.begin("clock.total") if Diagnostic.enabled else 0
 	for _minute: int in range(amount):
+		var span := Diagnostic.begin("clock.player_needs") if Diagnostic.enabled else 0
 		var previous_minute: int = sim.get_minute_of_day()
 		var next_minute := (previous_minute + 1) % MINUTES_PER_DAY
 		state["minute_of_day"] = next_minute
@@ -42,6 +46,8 @@ static func _advance_clock(sim, amount: int, notify: bool = true, player_activit
 		sim.needs.advance(player_needs, actual_activity, bool(player_home.covered), player_home if player_activity in ["sleeping", "resting_in_bed"] else {})
 		sim.state.player_energy = player_needs.energy
 		sim.state.player_needs = {"hunger": player_needs.hunger, "restedness": player_needs.restedness}
+		Diagnostic.end(span)
+		span = Diagnostic.begin("clock.npc_needs_and_meals") if Diagnostic.enabled else 0
 		var meals: Dictionary = {}
 		for npc_id: String in sim.state.npcs:
 			var npc: Dictionary = sim.state.npcs[npc_id]
@@ -61,27 +67,53 @@ static func _advance_clock(sim, amount: int, notify: bool = true, player_activit
 			sim.needs.advance_psychology(npc, bool(home.covered), sim.get_elapsed_game_minutes(), home,comfort)
 			if float(npc.needs.hunger) <= NpcAutonomy.HUNGRY_THRESHOLD or not npc.meal_trip.is_empty():
 				meals[npc_id] = sim.NpcFoodSupply.find_meal(sim, npc)
+		Diagnostic.end(span)
+		span = Diagnostic.begin("clock.farming_and_drops") if Diagnostic.enabled else 0
 		var farming_changed: bool = farming.advance(sim)
 		var drops_expired: bool = sim._expire_world_drops()
+		Diagnostic.end(span)
+		span = Diagnostic.begin("clock.doors_before") if Diagnostic.enabled else 0
 		var doors_changed: bool = preload("res://src/construction/world_editing.gd").open_for_npcs(sim)
+		Diagnostic.end(span)
+		# Preserve argument evaluation order while timing each context builder.
+		var actors: Dictionary = sim._npcs_mutable()
+		var player_position: Vector2 = sim.get_player_position()
+		var blueprint_cells: Array[Vector2i] = sim._get_blueprint_cells()
+		span = Diagnostic.begin("clock.prepare_work") if Diagnostic.enabled else 0
+		var work_contexts: Dictionary = sim.NpcPracticalWork.prepare(sim)
+		Diagnostic.end(span)
+		span = Diagnostic.begin("clock.housing_contexts") if Diagnostic.enabled else 0
+		var home_contexts: Dictionary = sim.housing.contexts(sim)
+		Diagnostic.end(span)
+		span = Diagnostic.begin("clock.furniture_contexts") if Diagnostic.enabled else 0
+		var furniture_contexts: Dictionary = sim.furniture.npc_contexts(sim)
+		Diagnostic.end(span)
+		span = Diagnostic.begin("clock.autonomy") if Diagnostic.enabled else 0
 		var autonomy_result: Dictionary = npc_autonomy.advance_minutes(
-			sim._npcs_mutable(),
+			actors,
 			previous_minute if next_minute != 0 else -1,
 			next_minute,
-			sim.get_player_position(),
-			sim._get_blueprint_cells(),
+			player_position,
+			blueprint_cells,
 			meals,
-			sim.NpcPracticalWork.prepare(sim),
-			sim.housing.contexts(sim),
-			sim.furniture.npc_contexts(sim)
+			work_contexts,
+			home_contexts,
+			furniture_contexts
 		)
+		Diagnostic.end(span)
+		span = Diagnostic.begin("clock.doors_after") if Diagnostic.enabled else 0
 		doors_changed = preload("res://src/construction/world_editing.gd").open_for_npcs(sim) or doors_changed
+		Diagnostic.end(span)
+		span = Diagnostic.begin("clock.apply_effects") if Diagnostic.enabled else 0
 		var construction_changed: bool = sim._apply_autonomy_effects(
 			autonomy_result.get("effects", []) as Array
 		)
-		for definition: Dictionary in sim.npc_catalog.get_definitions():
-			var resident: Dictionary = sim.state.npcs.get(String(definition.id),{})
+		Diagnostic.end(span)
+		span = Diagnostic.begin("clock.observe_home_projects") if Diagnostic.enabled else 0
+		for id: String in sim.npc_catalog.definition_ids():
+			var resident: Dictionary = sim.state.npcs.get(id,{})
 			if bool(resident.get("active",false)): sim.NpcHomeProjects.observe(sim,resident)
+		Diagnostic.end(span)
 		npc_or_world_changed = npc_or_world_changed or drops_expired or farming_changed
 		npc_or_world_changed = npc_or_world_changed or bool(autonomy_result.get("changed", false))
 		npc_or_world_changed = npc_or_world_changed or construction_changed or doors_changed
@@ -97,9 +129,12 @@ static func _advance_clock(sim, amount: int, notify: bool = true, player_activit
 			flags["late_warned"] = true
 			if notify:
 				sim._emit_result(true, "first_night.message.exhausted", true)
+	var signals_span := Diagnostic.begin("clock.signals_ui_and_supply") if Diagnostic.enabled else 0
 	if npc_or_world_changed:
 		sim.event_emitted.emit({"type": "state_changed"})
 	sim.event_emitted.emit({"type": "time_changed", "minute": sim.get_minute_of_day()})
+	Diagnostic.end(signals_span)
+	Diagnostic.end(clock_span)
 	return true
 
 

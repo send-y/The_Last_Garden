@@ -1,0 +1,1082 @@
+[
+  {
+    "seconds": 0.05016379999869969,
+    "label": "setup",
+    "edge": "",
+    "main_one_core_percent": 93.44685838938803,
+    "process_machine_percent": 7.787238199115669,
+    "machine_cpu_percent": 26.7,
+    "rss_bytes": 65789952
+  },
+  {
+    "seconds": 0.3504060999985086,
+    "label": "setup",
+    "edge": "",
+    "main_one_core_percent": 88.47021222531572,
+    "process_machine_percent": 7.372517685442976,
+    "machine_cpu_percent": 32.3,
+    "rss_bytes": 114216960
+  },
+  {
+    "seconds": 0.6541113999992376,
+    "label": "setup",
+    "edge": "",
+    "main_one_core_percent": 97.75101060116084,
+    "process_machine_percent": 8.145917550096737,
+    "machine_cpu_percent": 22.1,
+    "rss_bytes": 98623488
+  },
+  {
+    "seconds": 0.9706195999970078,
+    "label": "setup",
+    "edge": "",
+    "main_one_core_percent": 88.86025701766383,
+    "process_machine_percent": 8.227801575709615,
+    "machine_cpu_percent": 38.2,
+    "rss_bytes": 163454976
+  },
+  {
+    "seconds": 1.2701506999947014,
+    "label": "setup",
+    "edge": "",
+    "main_one_core_percent": 99.11324733968723,
+    "process_machine_percent": 8.694144503481336,
+    "machine_cpu_percent": 28.6,
+    "rss_bytes": 205799424
+  },
+  {
+    "seconds": 1.5786272999976063,
+    "label": "setup",
+    "edge": "",
+    "main_one_core_percent": 101.30428045338195,
+    "process_machine_percent": 8.442023371115162,
+    "machine_cpu_percent": 25.9,
+    "rss_bytes": 226516992
+  },
+  {
+    "seconds": 1.8829181999972207,
+    "label": "setup",
+    "edge": "",
+    "main_one_core_percent": 97.56289129920621,
+    "process_machine_percent": 8.558148359579492,
+    "machine_cpu_percent": 26.1,
+    "rss_bytes": 226648064
+  },
+  {
+    "seconds": 2.1839614999989863,
+    "label": "setup",
+    "edge": "",
+    "main_one_core_percent": 103.80566516450199,
+    "process_machine_percent": 8.650472097041833,
+    "machine_cpu_percent": 26.9,
+    "rss_bytes": 219873280
+  },
+  {
+    "seconds": 2.4939669000013964,
+    "label": "setup",
+    "edge": "",
+    "main_one_core_percent": 100.8046956593564,
+    "process_machine_percent": 8.400391304946366,
+    "machine_cpu_percent": 25.5,
+    "rss_bytes": 210698240
+  },
+  {
+    "seconds": 2.8053943999984767,
+    "label": "setup",
+    "edge": "",
+    "main_one_core_percent": 95.32716282370158,
+    "process_machine_percent": 8.362031826640491,
+    "machine_cpu_percent": 43.4,
+    "rss_bytes": 213516288
+  },
+  {
+    "seconds": 3.1075054999964777,
+    "label": "setup",
+    "edge": "",
+    "main_one_core_percent": 98.26682965371492,
+    "process_machine_percent": 8.18890247114291,
+    "machine_cpu_percent": 16.4,
+    "rss_bytes": 219353088
+  },
+  {
+    "seconds": 3.4062928999992437,
+    "label": "setup",
+    "edge": "",
+    "main_one_core_percent": 99.35994623509953,
+    "process_machine_percent": 8.71578475746487,
+    "machine_cpu_percent": 19.3,
+    "rss_bytes": 215175168
+  },
+  {
+    "seconds": 3.7061525999961304,
+    "label": "setup",
+    "edge": "",
+    "main_one_core_percent": 104.21540473869761,
+    "process_machine_percent": 8.684617061558134,
+    "machine_cpu_percent": 16.0,
+    "rss_bytes": 215273472
+  },
+  {
+    "seconds": 4.01348809999763,
+    "label": "setup",
+    "edge": "",
+    "main_one_core_percent": 96.59639058896585,
+    "process_machine_percent": 8.049699215747154,
+    "machine_cpu_percent": 21.3,
+    "rss_bytes": 240525312
+  },
+  {
+    "seconds": 4.316778299995349,
+    "label": "setup",
+    "edge": "",
+    "main_one_core_percent": 97.88479812477729,
+    "process_machine_percent": 8.157066510398108,
+    "machine_cpu_percent": 23.3,
+    "rss_bytes": 241774592
+  },
+  {
+    "seconds": 4.623944200000551,
+    "label": "setup",
+    "edge": "",
+    "main_one_core_percent": 96.64972576544858,
+    "process_machine_percent": 8.054143813787382,
+    "machine_cpu_percent": 19.4,
+    "rss_bytes": 241774592
+  },
+  {
+    "seconds": 4.924460700000054,
+    "label": "setup",
+    "edge": "",
+    "main_one_core_percent": 103.9876346225637,
+    "process_machine_percent": 8.665636218546975,
+    "machine_cpu_percent": 22.1,
+    "rss_bytes": 241774592
+  },
+  {
+    "seconds": 5.226817899994785,
+    "label": "setup",
+    "edge": "",
+    "main_one_core_percent": 98.18684655274413,
+    "process_machine_percent": 8.182237212728678,
+    "machine_cpu_percent": 19.7,
+    "rss_bytes": 241766400
+  },
+  {
+    "seconds": 5.533501799996884,
+    "label": "setup",
+    "edge": "",
+    "main_one_core_percent": 101.89644777500908,
+    "process_machine_percent": 8.491370647917423,
+    "machine_cpu_percent": 35.2,
+    "rss_bytes": 241766400
+  },
+  {
+    "seconds": 5.84149229999457,
+    "label": "setup",
+    "edge": "",
+    "main_one_core_percent": 101.46416853842821,
+    "process_machine_percent": 8.032580009292234,
+    "machine_cpu_percent": 32.5,
+    "rss_bytes": 241766400
+  },
+  {
+    "seconds": 6.159998299997824,
+    "label": "setup",
+    "edge": "",
+    "main_one_core_percent": 93.20860517446057,
+    "process_machine_percent": 8.17619343635619,
+    "machine_cpu_percent": 11.3,
+    "rss_bytes": 241766400
+  },
+  {
+    "seconds": 6.46731539999746,
+    "label": "setup",
+    "edge": "",
+    "main_one_core_percent": 101.68649905923546,
+    "process_machine_percent": 8.050181175522807,
+    "machine_cpu_percent": 18.6,
+    "rss_bytes": 241766400
+  },
+  {
+    "seconds": 6.771469200000865,
+    "label": "setup",
+    "edge": "",
+    "main_one_core_percent": 102.74407224124813,
+    "process_machine_percent": 8.562006020104011,
+    "machine_cpu_percent": 13.9,
+    "rss_bytes": 241766400
+  },
+  {
+    "seconds": 7.082286400000157,
+    "label": "setup",
+    "edge": "",
+    "main_one_core_percent": 100.54141147938786,
+    "process_machine_percent": 8.378450956615655,
+    "machine_cpu_percent": 17.5,
+    "rss_bytes": 241766400
+  },
+  {
+    "seconds": 7.398366699999315,
+    "label": "setup",
+    "edge": "",
+    "main_one_core_percent": 88.98055335962087,
+    "process_machine_percent": 7.82699311959628,
+    "machine_cpu_percent": 14.3,
+    "rss_bytes": 241766400
+  },
+  {
+    "seconds": 7.703552999999374,
+    "label": "setup",
+    "edge": "",
+    "main_one_core_percent": 102.39647061481433,
+    "process_machine_percent": 8.533039217901194,
+    "machine_cpu_percent": 14.8,
+    "rss_bytes": 241909760
+  },
+  {
+    "seconds": 8.015808399999514,
+    "label": "setup",
+    "edge": "",
+    "main_one_core_percent": 100.07833331300591,
+    "process_machine_percent": 8.339861109417159,
+    "machine_cpu_percent": 14.6,
+    "rss_bytes": 243433472
+  },
+  {
+    "seconds": 8.319273000000976,
+    "label": "setup",
+    "edge": "",
+    "main_one_core_percent": 97.82854408671389,
+    "process_machine_percent": 8.152378673892825,
+    "machine_cpu_percent": 14.9,
+    "rss_bytes": 244678656
+  },
+  {
+    "seconds": 8.624770099995658,
+    "label": "setup",
+    "edge": "",
+    "main_one_core_percent": 97.17768188476032,
+    "process_machine_percent": 8.09814015706336,
+    "machine_cpu_percent": 15.9,
+    "rss_bytes": 245936128
+  },
+  {
+    "seconds": 8.922179599998344,
+    "label": "setup",
+    "edge": "",
+    "main_one_core_percent": 105.07398048723302,
+    "process_machine_percent": 8.75616504060275,
+    "machine_cpu_percent": 13.5,
+    "rss_bytes": 247418880
+  },
+  {
+    "seconds": 9.225694799999474,
+    "label": "setup",
+    "edge": "",
+    "main_one_core_percent": 97.81223477403942,
+    "process_machine_percent": 8.151019564503285,
+    "machine_cpu_percent": 16.9,
+    "rss_bytes": 247906304
+  },
+  {
+    "seconds": 9.527282099996228,
+    "label": "setup",
+    "edge": "",
+    "main_one_core_percent": 98.43750051915154,
+    "process_machine_percent": 8.203125043262629,
+    "machine_cpu_percent": 20.5,
+    "rss_bytes": 247906304
+  },
+  {
+    "seconds": 9.824382799997693,
+    "label": "setup",
+    "edge": "",
+    "main_one_core_percent": 105.18319209562917,
+    "process_machine_percent": 8.327002707570642,
+    "machine_cpu_percent": 12.3,
+    "rss_bytes": 246992896
+  },
+  {
+    "seconds": 10.133212199994887,
+    "label": "setup",
+    "edge": "",
+    "main_one_core_percent": 96.12912501293515,
+    "process_machine_percent": 8.432379387099575,
+    "machine_cpu_percent": 15.2,
+    "rss_bytes": 246992896
+  },
+  {
+    "seconds": 10.438150999994832,
+    "label": "setup",
+    "edge": "",
+    "main_one_core_percent": 97.35560053363272,
+    "process_machine_percent": 8.539964959090591,
+    "machine_cpu_percent": 21.6,
+    "rss_bytes": 246992896
+  },
+  {
+    "seconds": 10.746333099996264,
+    "label": "setup",
+    "edge": "",
+    "main_one_core_percent": 96.3310328531803,
+    "process_machine_percent": 7.605081541040551,
+    "machine_cpu_percent": 13.6,
+    "rss_bytes": 247664640
+  },
+  {
+    "seconds": 11.051186299999245,
+    "label": "setup",
+    "edge": "",
+    "main_one_core_percent": 102.50835483995063,
+    "process_machine_percent": 8.969481048495679,
+    "machine_cpu_percent": 17.5,
+    "rss_bytes": 247664640
+  },
+  {
+    "seconds": 11.354570099996636,
+    "label": "setup",
+    "edge": "",
+    "main_one_core_percent": 103.00484073397698,
+    "process_machine_percent": 8.583736727831415,
+    "machine_cpu_percent": 18.9,
+    "rss_bytes": 247664640
+  },
+  {
+    "seconds": 11.662067500001285,
+    "label": "setup",
+    "edge": "",
+    "main_one_core_percent": 96.54553176563805,
+    "process_machine_percent": 8.045460980469837,
+    "machine_cpu_percent": 30.8,
+    "rss_bytes": 247861248
+  },
+  {
+    "seconds": 11.974442799997632,
+    "label": "setup",
+    "edge": "",
+    "main_one_core_percent": 95.03792393427763,
+    "process_machine_percent": 8.33665999423488,
+    "machine_cpu_percent": 29.1,
+    "rss_bytes": 248410112
+  },
+  {
+    "seconds": 12.275242600000638,
+    "label": "setup",
+    "edge": "",
+    "main_one_core_percent": 98.69521189742598,
+    "process_machine_percent": 8.224600991452165,
+    "machine_cpu_percent": 18.1,
+    "rss_bytes": 248684544
+  },
+  {
+    "seconds": 12.573791700000584,
+    "label": "setup",
+    "edge": "",
+    "main_one_core_percent": 99.43925471557412,
+    "process_machine_percent": 8.286604559631177,
+    "machine_cpu_percent": 33.8,
+    "rss_bytes": 248819712
+  },
+  {
+    "seconds": 12.875879799998074,
+    "label": "setup",
+    "edge": "",
+    "main_one_core_percent": 103.44664354623563,
+    "process_machine_percent": 8.620553628852969,
+    "machine_cpu_percent": 20.3,
+    "rss_bytes": 248954880
+  },
+  {
+    "seconds": 13.180769699996745,
+    "label": "setup",
+    "edge": "",
+    "main_one_core_percent": 97.37121498655567,
+    "process_machine_percent": 8.114267915546305,
+    "machine_cpu_percent": 17.6,
+    "rss_bytes": 255963136
+  },
+  {
+    "seconds": 13.480252699999255,
+    "label": "setup",
+    "edge": "",
+    "main_one_core_percent": 99.12916592845387,
+    "process_machine_percent": 8.260763827371155,
+    "machine_cpu_percent": 30.1,
+    "rss_bytes": 255963136
+  },
+  {
+    "seconds": 13.78432609999436,
+    "label": "setup",
+    "edge": "",
+    "main_one_core_percent": 97.63267684867525,
+    "process_machine_percent": 8.564269899006602,
+    "machine_cpu_percent": 19.0,
+    "rss_bytes": 255963136
+  },
+  {
+    "seconds": 14.098161199995957,
+    "label": "setup",
+    "edge": "",
+    "main_one_core_percent": 99.57458550634058,
+    "process_machine_percent": 8.297882125528382,
+    "machine_cpu_percent": 14.1,
+    "rss_bytes": 255963136
+  },
+  {
+    "seconds": 14.39855130000069,
+    "label": "setup",
+    "edge": "",
+    "main_one_core_percent": 93.62825206142548,
+    "process_machine_percent": 7.8023543384521235,
+    "machine_cpu_percent": 18.3,
+    "rss_bytes": 255963136
+  },
+  {
+    "seconds": 14.704362799995579,
+    "label": "setup",
+    "edge": "",
+    "main_one_core_percent": 97.07777503624364,
+    "process_machine_percent": 8.089814586353636,
+    "machine_cpu_percent": 18.2,
+    "rss_bytes": 255963136
+  },
+  {
+    "seconds": 15.018725299996731,
+    "label": "setup",
+    "edge": "",
+    "main_one_core_percent": 99.40753111419279,
+    "process_machine_percent": 8.69815897249187,
+    "machine_cpu_percent": 18.4,
+    "rss_bytes": 255963136
+  },
+  {
+    "seconds": 15.31787759999861,
+    "label": "setup",
+    "edge": "",
+    "main_one_core_percent": 99.23874895768327,
+    "process_machine_percent": 8.269895746473606,
+    "machine_cpu_percent": 15.2,
+    "rss_bytes": 255963136
+  },
+  {
+    "seconds": 15.622362299996894,
+    "label": "setup",
+    "edge": "",
+    "main_one_core_percent": 102.63241469990491,
+    "process_machine_percent": 8.125066163742472,
+    "machine_cpu_percent": 26.9,
+    "rss_bytes": 255963136
+  },
+  {
+    "seconds": 15.926657899995917,
+    "label": "setup",
+    "edge": "",
+    "main_one_core_percent": 97.56138439101764,
+    "process_machine_percent": 8.558016174650671,
+    "machine_cpu_percent": 12.9,
+    "rss_bytes": 255963136
+  },
+  {
+    "seconds": 16.232478199999605,
+    "label": "setup",
+    "edge": "",
+    "main_one_core_percent": 97.07498161384956,
+    "process_machine_percent": 8.08958180115413,
+    "machine_cpu_percent": 15.7,
+    "rss_bytes": 255963136
+  },
+  {
+    "seconds": 16.53417030000128,
+    "label": "setup",
+    "edge": "",
+    "main_one_core_percent": 103.58242724892908,
+    "process_machine_percent": 9.063462384281294,
+    "machine_cpu_percent": 17.6,
+    "rss_bytes": 255963136
+  },
+  {
+    "seconds": 16.838290299994696,
+    "label": "setup",
+    "edge": "",
+    "main_one_core_percent": 102.75549125567653,
+    "process_machine_percent": 8.134809724407726,
+    "machine_cpu_percent": 16.7,
+    "rss_bytes": 255963136
+  },
+  {
+    "seconds": 17.151759699998365,
+    "label": "setup",
+    "edge": "",
+    "main_one_core_percent": 99.69075131299657,
+    "process_machine_percent": 8.307562609416381,
+    "machine_cpu_percent": 13.6,
+    "rss_bytes": 255963136
+  },
+  {
+    "seconds": 17.46821639999689,
+    "label": "setup",
+    "edge": "",
+    "main_one_core_percent": 88.87471808980834,
+    "process_machine_percent": 8.229140563871143,
+    "machine_cpu_percent": 21.2,
+    "rss_bytes": 255963136
+  },
+  {
+    "seconds": 17.765448899997864,
+    "label": "setup",
+    "edge": "",
+    "main_one_core_percent": 94.62289621729761,
+    "process_machine_percent": 8.323310315410437,
+    "machine_cpu_percent": 16.5,
+    "rss_bytes": 255963136
+  },
+  {
+    "seconds": 18.064245599998685,
+    "label": "setup",
+    "edge": "",
+    "main_one_core_percent": 104.5861617612046,
+    "process_machine_percent": 8.279737806095364,
+    "machine_cpu_percent": 13.2,
+    "rss_bytes": 255963136
+  },
+  {
+    "seconds": 18.365401299997757,
+    "label": "setup",
+    "edge": "",
+    "main_one_core_percent": 98.578575800131,
+    "process_machine_percent": 8.214881316677584,
+    "machine_cpu_percent": 17.2,
+    "rss_bytes": 255963136
+  },
+  {
+    "seconds": 18.673711999996158,
+    "label": "setup",
+    "edge": "",
+    "main_one_core_percent": 101.35879163506833,
+    "process_machine_percent": 8.446565969589027,
+    "machine_cpu_percent": 25.1,
+    "rss_bytes": 256000000
+  },
+  {
+    "seconds": 18.97796229999949,
+    "label": "setup",
+    "edge": "",
+    "main_one_core_percent": 97.57591035957851,
+    "process_machine_percent": 7.70336134417725,
+    "machine_cpu_percent": 14.3,
+    "rss_bytes": 256000000
+  },
+  {
+    "seconds": 19.284208799996122,
+    "label": "setup",
+    "edge": "",
+    "main_one_core_percent": 96.93988339565173,
+    "process_machine_percent": 8.503498543478225,
+    "machine_cpu_percent": 14.7,
+    "rss_bytes": 256000000
+  },
+  {
+    "seconds": 19.586420999999973,
+    "label": "setup",
+    "edge": "",
+    "main_one_core_percent": 98.23395613949975,
+    "process_machine_percent": 8.617013696447346,
+    "machine_cpu_percent": 18.1,
+    "rss_bytes": 256000000
+  },
+  {
+    "seconds": 19.88971469999524,
+    "label": "setup",
+    "edge": "",
+    "main_one_core_percent": 97.88366853799945,
+    "process_machine_percent": 8.156972378166621,
+    "machine_cpu_percent": 16.5,
+    "rss_bytes": 256000000
+  },
+  {
+    "seconds": 20.189094999994268,
+    "label": "setup",
+    "edge": "",
+    "main_one_core_percent": 104.38228567511393,
+    "process_machine_percent": 8.698523806259495,
+    "machine_cpu_percent": 13.4,
+    "rss_bytes": 256000000
+  },
+  {
+    "seconds": 20.497653099999297,
+    "label": "setup",
+    "edge": "",
+    "main_one_core_percent": 91.1497704955454,
+    "process_machine_percent": 7.595814207962117,
+    "machine_cpu_percent": 16.1,
+    "rss_bytes": 256135168
+  },
+  {
+    "seconds": 20.796741300000576,
+    "label": "setup",
+    "edge": "",
+    "main_one_core_percent": 104.48422906643049,
+    "process_machine_percent": 8.271668134425747,
+    "machine_cpu_percent": 19.4,
+    "rss_bytes": 256135168
+  },
+  {
+    "seconds": 21.102737799999886,
+    "label": "setup",
+    "edge": "",
+    "main_one_core_percent": 97.01908355182806,
+    "process_machine_percent": 8.510445925598953,
+    "machine_cpu_percent": 16.3,
+    "rss_bytes": 256135168
+  },
+  {
+    "seconds": 21.402633999998216,
+    "label": "setup",
+    "edge": "",
+    "main_one_core_percent": 104.20272080864672,
+    "process_machine_percent": 8.249382064017867,
+    "machine_cpu_percent": 18.7,
+    "rss_bytes": 256884736
+  },
+  {
+    "seconds": 21.710561699997925,
+    "label": "setup",
+    "edge": "",
+    "main_one_core_percent": 91.33637538950398,
+    "process_machine_percent": 8.03421820555822,
+    "machine_cpu_percent": 25.8,
+    "rss_bytes": 257728512
+  },
+  {
+    "seconds": 22.0065112999946,
+    "label": "setup",
+    "edge": "",
+    "main_one_core_percent": 100.31268837779663,
+    "process_machine_percent": 8.359390698149719,
+    "machine_cpu_percent": 24.6,
+    "rss_bytes": 259117056
+  },
+  {
+    "seconds": 22.30646799999522,
+    "label": "setup",
+    "edge": "",
+    "main_one_core_percent": 98.97261838104815,
+    "process_machine_percent": 8.24771819842068,
+    "machine_cpu_percent": 19.0,
+    "rss_bytes": 260870144
+  },
+  {
+    "seconds": 22.605093999998644,
+    "label": "setup",
+    "edge": "",
+    "main_one_core_percent": 99.41364783930285,
+    "process_machine_percent": 8.284470653275237,
+    "machine_cpu_percent": 30.5,
+    "rss_bytes": 261992448
+  },
+  {
+    "seconds": 22.90685559999838,
+    "label": "setup",
+    "edge": "",
+    "main_one_core_percent": 103.55857073937615,
+    "process_machine_percent": 8.629880894948013,
+    "machine_cpu_percent": 22.0,
+    "rss_bytes": 262225920
+  },
+  {
+    "seconds": 23.215711199998623,
+    "label": "setup",
+    "edge": "",
+    "main_one_core_percent": 101.17996889153198,
+    "process_machine_percent": 8.853247278009048,
+    "machine_cpu_percent": 40.1,
+    "rss_bytes": 262230016
+  },
+  {
+    "seconds": 23.53352299999824,
+    "label": "setup",
+    "edge": "",
+    "main_one_core_percent": 98.32863348698069,
+    "process_machine_percent": 9.013458069639896,
+    "machine_cpu_percent": 26.1,
+    "rss_bytes": 262230016
+  },
+  {
+    "seconds": 23.836220099998172,
+    "label": "setup",
+    "edge": "",
+    "main_one_core_percent": 98.0765920783736,
+    "process_machine_percent": 8.173049339864466,
+    "machine_cpu_percent": 27.6,
+    "rss_bytes": 262230016
+  },
+  {
+    "seconds": 24.141039499998442,
+    "label": "setup",
+    "edge": "",
+    "main_one_core_percent": 102.51972151369753,
+    "process_machine_percent": 8.543310126141462,
+    "machine_cpu_percent": 24.2,
+    "rss_bytes": 262230016
+  },
+  {
+    "seconds": 24.442467599998054,
+    "label": "setup",
+    "edge": "",
+    "main_one_core_percent": 98.48949052871394,
+    "process_machine_percent": 8.207457544059496,
+    "machine_cpu_percent": 24.0,
+    "rss_bytes": 263032832
+  },
+  {
+    "seconds": 24.744507799994608,
+    "label": "setup",
+    "edge": "",
+    "main_one_core_percent": 103.46304895956399,
+    "process_machine_percent": 8.190824709298818,
+    "machine_cpu_percent": 20.5,
+    "rss_bytes": 263032832
+  },
+  {
+    "seconds": 25.051067599997623,
+    "label": "setup",
+    "edge": "",
+    "main_one_core_percent": 96.84081213423296,
+    "process_machine_percent": 8.494808081950259,
+    "machine_cpu_percent": 21.7,
+    "rss_bytes": 263032832
+  },
+  {
+    "seconds": 25.351488499996776,
+    "label": "setup",
+    "edge": "",
+    "main_one_core_percent": 93.61865303006304,
+    "process_machine_percent": 7.801554419171921,
+    "machine_cpu_percent": 27.1,
+    "rss_bytes": 263032832
+  },
+  {
+    "seconds": 25.655659500000183,
+    "label": "setup",
+    "edge": "",
+    "main_one_core_percent": 97.60134923995861,
+    "process_machine_percent": 8.13344576999655,
+    "machine_cpu_percent": 22.4,
+    "rss_bytes": 275263488
+  },
+  {
+    "seconds": 25.956020999998145,
+    "label": "setup",
+    "edge": "",
+    "main_one_core_percent": 98.8392320593733,
+    "process_machine_percent": 8.670108075383624,
+    "machine_cpu_percent": 31.8,
+    "rss_bytes": 329801728
+  },
+  {
+    "seconds": 26.25946290000138,
+    "label": "setup",
+    "edge": "",
+    "main_one_core_percent": 97.83586248202184,
+    "process_machine_percent": 7.723883880159619,
+    "machine_cpu_percent": 24.3,
+    "rss_bytes": 350826496
+  },
+  {
+    "seconds": 26.560967799996433,
+    "label": "setup",
+    "edge": "",
+    "main_one_core_percent": 103.64674007126524,
+    "process_machine_percent": 8.637228339272104,
+    "machine_cpu_percent": 17.1,
+    "rss_bytes": 351092736
+  },
+  {
+    "seconds": 26.866525400000683,
+    "label": "setup",
+    "edge": "",
+    "main_one_core_percent": 97.15844082944476,
+    "process_machine_percent": 8.948803760606753,
+    "machine_cpu_percent": 17.7,
+    "rss_bytes": 351150080
+  },
+  {
+    "seconds": 27.1652768999993,
+    "label": "setup",
+    "edge": "",
+    "main_one_core_percent": 99.3718859993591,
+    "process_machine_percent": 8.280990499946592,
+    "machine_cpu_percent": 15.7,
+    "rss_bytes": 351150080
+  },
+  {
+    "seconds": 27.466209999998682,
+    "label": "setup",
+    "edge": "",
+    "main_one_core_percent": 103.84367821307796,
+    "process_machine_percent": 8.22095785853534,
+    "machine_cpu_percent": 17.2,
+    "rss_bytes": 351154176
+  },
+  {
+    "seconds": 27.778874600000563,
+    "label": "idle_before",
+    "edge": "before",
+    "main_one_core_percent": 79.95788458255142,
+    "process_machine_percent": 6.663157048545951,
+    "machine_cpu_percent": 14.5,
+    "rss_bytes": 351178752
+  },
+  {
+    "seconds": 28.096032299996295,
+    "label": "idle_before",
+    "edge": "before",
+    "main_one_core_percent": 98.53142458915704,
+    "process_machine_percent": 8.621499651551241,
+    "machine_cpu_percent": 26.5,
+    "rss_bytes": 351178752
+  },
+  {
+    "seconds": 28.40042249999533,
+    "label": "idle_before",
+    "edge": "before",
+    "main_one_core_percent": 97.53106374677706,
+    "process_machine_percent": 8.127588645564755,
+    "machine_cpu_percent": 29.0,
+    "rss_bytes": 351182848
+  },
+  {
+    "seconds": 28.717137899999216,
+    "label": "idle_before",
+    "edge": "before",
+    "main_one_core_percent": 98.6690258813324,
+    "process_machine_percent": 8.222418823444366,
+    "machine_cpu_percent": 27.3,
+    "rss_bytes": 351182848
+  },
+  {
+    "seconds": 29.0190569999977,
+    "label": "idle_before",
+    "edge": "before",
+    "main_one_core_percent": 93.15409326584856,
+    "process_machine_percent": 8.62537900609709,
+    "machine_cpu_percent": 31.9,
+    "rss_bytes": 351211520
+  },
+  {
+    "seconds": 29.31253139999899,
+    "label": "idle_before",
+    "edge": "before",
+    "main_one_core_percent": 101.1587382063642,
+    "process_machine_percent": 7.986216174186647,
+    "machine_cpu_percent": 24.8,
+    "rss_bytes": 351211520
+  },
+  {
+    "seconds": 29.61140499999601,
+    "label": "idle_before",
+    "edge": "before",
+    "main_one_core_percent": 104.5592518051486,
+    "process_machine_percent": 8.713270983762383,
+    "machine_cpu_percent": 22.0,
+    "rss_bytes": 351211520
+  },
+  {
+    "seconds": 29.91724389999581,
+    "label": "idle_before",
+    "edge": "before",
+    "main_one_core_percent": 97.06907787079909,
+    "process_machine_percent": 8.51483139217536,
+    "machine_cpu_percent": 25.6,
+    "rss_bytes": 351215616
+  },
+  {
+    "seconds": 30.217883400000574,
+    "label": "idle_before",
+    "edge": "before",
+    "main_one_core_percent": 98.74783586165371,
+    "process_machine_percent": 8.228986321804475,
+    "machine_cpu_percent": 28.1,
+    "rss_bytes": 351203328
+  },
+  {
+    "seconds": 30.512557399997604,
+    "label": "idle_before",
+    "edge": "before",
+    "main_one_core_percent": 100.74692711368894,
+    "process_machine_percent": 8.395577259474079,
+    "machine_cpu_percent": 20.1,
+    "rss_bytes": 351207424
+  },
+  {
+    "seconds": 30.848664500001178,
+    "label": "minute_1",
+    "edge": "after",
+    "main_one_core_percent": 37.19052647167256,
+    "process_machine_percent": 4.261414491545815,
+    "machine_cpu_percent": 14.6,
+    "rss_bytes": 351162368
+  },
+  {
+    "seconds": 31.150872099999106,
+    "label": "render_after_1",
+    "edge": "before",
+    "main_one_core_percent": 82.72459064620286,
+    "process_machine_percent": 5.601144158336652,
+    "machine_cpu_percent": 16.8,
+    "rss_bytes": 351420416
+  },
+  {
+    "seconds": 31.449169999999867,
+    "label": "render_after_1",
+    "edge": "before",
+    "main_one_core_percent": 89.04688903251471,
+    "process_machine_percent": 7.420574086042893,
+    "machine_cpu_percent": 25.7,
+    "rss_bytes": 351420416
+  },
+  {
+    "seconds": 31.749983099995006,
+    "label": "render_after_1",
+    "edge": "before",
+    "main_one_core_percent": 98.69084823925465,
+    "process_machine_percent": 8.657091950811811,
+    "machine_cpu_percent": 26.9,
+    "rss_bytes": 351424512
+  },
+  {
+    "seconds": 32.055747899998096,
+    "label": "render_after_1",
+    "edge": "before",
+    "main_one_core_percent": 102.2027388361389,
+    "process_machine_percent": 8.091050157860996,
+    "machine_cpu_percent": 22.5,
+    "rss_bytes": 351408128
+  },
+  {
+    "seconds": 32.3668852999981,
+    "label": "render_after_1",
+    "edge": "before",
+    "main_one_core_percent": 100.43794156536407,
+    "process_machine_percent": 8.369828463780339,
+    "machine_cpu_percent": 21.5,
+    "rss_bytes": 351408128
+  },
+  {
+    "seconds": 32.66492699999799,
+    "label": "render_after_1",
+    "edge": "before",
+    "main_one_core_percent": 99.60854471039266,
+    "process_machine_percent": 8.30071205919939,
+    "machine_cpu_percent": 17.3,
+    "rss_bytes": 351412224
+  },
+  {
+    "seconds": 33.017757199995685,
+    "label": "render_after_1",
+    "edge": "after",
+    "main_one_core_percent": 70.8556127002823,
+    "process_machine_percent": 7.0117533401321035,
+    "machine_cpu_percent": 15.0,
+    "rss_bytes": 351412224
+  },
+  {
+    "seconds": 33.320769400001154,
+    "label": "idle_after",
+    "edge": "before",
+    "main_one_core_percent": 77.34837079027508,
+    "process_machine_percent": 5.586271223742089,
+    "machine_cpu_percent": 18.4,
+    "rss_bytes": 351412224
+  },
+  {
+    "seconds": 33.6290119999976,
+    "label": "idle_after",
+    "edge": "before",
+    "main_one_core_percent": 91.24306633905948,
+    "process_machine_percent": 7.60358886158829,
+    "machine_cpu_percent": 19.4,
+    "rss_bytes": 351416320
+  },
+  {
+    "seconds": 33.930684799997834,
+    "label": "idle_after",
+    "edge": "before",
+    "main_one_core_percent": 103.58905410091945,
+    "process_machine_percent": 8.20080011632279,
+    "machine_cpu_percent": 14.8,
+    "rss_bytes": 351416320
+  },
+  {
+    "seconds": 34.23366800000076,
+    "label": "idle_after",
+    "edge": "before",
+    "main_one_core_percent": 87.66987740489691,
+    "process_machine_percent": 8.165331719083536,
+    "machine_cpu_percent": 25.8,
+    "rss_bytes": 351420416
+  },
+  {
+    "seconds": 34.538218299996515,
+    "label": "idle_after",
+    "edge": "before",
+    "main_one_core_percent": 102.61030772399744,
+    "process_machine_percent": 7.6957730792998085,
+    "machine_cpu_percent": 17.2,
+    "rss_bytes": 351420416
+  },
+  {
+    "seconds": 34.8490629999942,
+    "label": "idle_after",
+    "edge": "before",
+    "main_one_core_percent": 100.53251672051175,
+    "process_machine_percent": 8.377709726709313,
+    "machine_cpu_percent": 17.3,
+    "rss_bytes": 351420416
+  },
+  {
+    "seconds": 35.14456999999675,
+    "label": "idle_after",
+    "edge": "before",
+    "main_one_core_percent": 95.17541039555016,
+    "process_machine_percent": 7.93128419962918,
+    "machine_cpu_percent": 14.9,
+    "rss_bytes": 351424512
+  },
+  {
+    "seconds": 35.454799099999946,
+    "label": "idle_after",
+    "edge": "before",
+    "main_one_core_percent": 95.6954070385207,
+    "process_machine_percent": 7.9746172532100585,
+    "machine_cpu_percent": 22.1,
+    "rss_bytes": 351424512
+  },
+  {
+    "seconds": 35.75508529999934,
+    "label": "idle_after",
+    "edge": "before",
+    "main_one_core_percent": 98.86401706125756,
+    "process_machine_percent": 8.23866808843813,
+    "machine_cpu_percent": 14.4,
+    "rss_bytes": 351428608
+  },
+  {
+    "seconds": 36.05160169999726,
+    "label": "idle_after",
+    "edge": "before",
+    "main_one_core_percent": 100.12093766215821,
+    "process_machine_percent": 8.343411471846517,
+    "machine_cpu_percent": 13.7,
+    "rss_bytes": 351428608
+  },
+  {
+    "seconds": 36.35660790000111,
+    "label": "idle_after",
+    "edge": "after",
+    "main_one_core_percent": 56.35131351357225,
+    "process_machine_percent": 5.976654463560693,
+    "machine_cpu_percent": 30.2,
+    "rss_bytes": 236376064
+  }
+]

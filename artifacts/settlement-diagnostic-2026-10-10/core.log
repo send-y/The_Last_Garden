@@ -1,0 +1,142 @@
+Godot Engine v4.7.stable.mono.official.5b4e0cb0f - https://godotengine.org
+
+PASS: ordinary pantry -> actual wood/planks/study table -> wild berry seeds -> watered crop -> own seeds -> replanted second harvest
+PASS: 50-structure open-map room search (11.71 ms)
+PASS: room enclosure, size limits, requirements, designation, and persistence
+PASS: prototype simulation and mechanics lab tests
+WARNING: Save version 23 migrated into prototype version 36.
+   at: push_warning (core/variant/variant_utility.cpp:1033)
+   GDScript backtrace (most recent call first):
+       [0] _normalize_state (res://src/simulation/systems/save_migrations.gd:196)
+       [1] _normalize_state (res://src/simulation/world_simulation.gd:873)
+       [2] _init (res://src/simulation/world_simulation.gd:71)
+       [3] _test_player_energy_save_migration (res://tests/run_tests.gd:665)
+       [4] _run (res://tests/run_tests.gd:91)
+WARNING: Save version 13 migrated into prototype version 36.
+   at: push_warning (core/variant/variant_utility.cpp:1033)
+   GDScript backtrace (most recent call first):
+       [0] _normalize_state (res://src/simulation/systems/save_migrations.gd:196)
+       [1] _normalize_state (res://src/simulation/world_simulation.gd:873)
+       [2] _init (res://src/simulation/world_simulation.gd:71)
+       [3] _test_surface_boulders_are_seeded_and_workable (res://tests/run_tests.gd:1458)
+       [4] _run (res://tests/run_tests.gd:98)
+WARNING: Save version 13 migrated into prototype version 36.
+   at: push_warning (core/variant/variant_utility.cpp:1033)
+   GDScript backtrace (most recent call first):
+       [0] _normalize_state (res://src/simulation/systems/save_migrations.gd:196)
+       [1] _normalize_state (res://src/simulation/world_simulation.gd:873)
+       [2] _init (res://src/simulation/world_simulation.gd:71)
+       [3] _test_resource_layout_versions_preserve_existing_saves (res://tests/run_tests.gd:757)
+       [4] _run (res://tests/run_tests.gd:103)
+WARNING: Save version 22 migrated into prototype version 36.
+   at: push_warning (core/variant/variant_utility.cpp:1033)
+   GDScript backtrace (most recent call first):
+       [0] _normalize_state (res://src/simulation/systems/save_migrations.gd:196)
+       [1] _normalize_state (res://src/simulation/world_simulation.gd:873)
+       [2] _init (res://src/simulation/world_simulation.gd:71)
+       [3] _test_resource_layout_versions_preserve_existing_saves (res://tests/run_tests.gd:779)
+       [4] _run (res://tests/run_tests.gd:103)
+WARNING: Save version 21 migrated into prototype version 36.
+   at: push_warning (core/variant/variant_utility.cpp:1033)
+   GDScript backtrace (most recent call first):
+       [0] _normalize_state (res://src/simulation/systems/save_migrations.gd:196)
+       [1] _normalize_state (res://src/simulation/world_simulation.gd:873)
+       [2] _init (res://src/simulation/world_simulation.gd:71)
+       [3] _test_bucket_instances_hotbar_and_transfers (res://tests/run_tests.gd:1681)
+       [4] _run (res://tests/run_tests.gd:106)
+WARNING: Save version 16 migrated into prototype version 36.
+   at: push_warning (core/variant/variant_utility.cpp:1033)
+   GDScript backtrace (most recent call first):
+       [0] _normalize_state (res://src/simulation/systems/save_migrations.gd:196)
+       [1] _normalize_state (res://src/simulation/world_simulation.gd:873)
+       [2] _init (res://src/simulation/world_simulation.gd:71)
+       [3] _test_storage_zones_and_physical_transfers (res://tests/run_tests.gd:2171)
+       [4] _run (res://tests/run_tests.gd:116)
+WARNING: Save version 18 migrated into prototype version 36.
+   at: push_warning (core/variant/variant_utility.cpp:1033)
+   GDScript backtrace (most recent call first):
+       [0] _normalize_state (res://src/simulation/systems/save_migrations.gd:196)
+       [1] _normalize_state (res://src/simulation/world_simulation.gd:873)
+       [2] _init (res://src/simulation/world_simulation.gd:71)
+       [3] _test_storage_zones_and_physical_transfers (res://tests/run_tests.gd:2177)
+       [4] _run (res://tests/run_tests.gd:116)
+WARNING: Save version 1 migrated into prototype version 36.
+   at: push_warning (core/variant/variant_utility.cpp:1033)
+   GDScript backtrace (most recent call first):
+       [0] _normalize_state (res://src/simulation/systems/save_migrations.gd:196)
+       [1] _normalize_state (res://src/simulation/world_simulation.gd:873)
+       [2] _init (res://src/simulation/world_simulation.gd:71)
+       [3] _test_legacy_save_ids_are_migrated (res://tests/run_tests.gd:2771)
+       [4] _run (res://tests/run_tests.gd:125)
+WARNING: Save version 3 migrated into prototype version 36.
+   at: push_warning (core/variant/variant_utility.cpp:1033)
+   GDScript backtrace (most recent call first):
+       [0] _normalize_state (res://src/simulation/systems/save_migrations.gd:196)
+       [1] _normalize_state (res://src/simulation/world_simulation.gd:873)
+       [2] _init (res://src/simulation/world_simulation.gd:71)
+       [3] _test_v3_outcomes_are_migrated (res://tests/run_tests.gd:2793)
+       [4] _run (res://tests/run_tests.gd:126)
+WARNING: Save version 4 migrated into prototype version 36.
+   at: push_warning (core/variant/variant_utility.cpp:1033)
+   GDScript backtrace (most recent call first):
+       [0] _normalize_state (res://src/simulation/systems/save_migrations.gd:196)
+       [1] _normalize_state (res://src/simulation/world_simulation.gd:873)
+       [2] _init (res://src/simulation/world_simulation.gd:71)
+       [3] _test_v4_npc_state_is_migrated (res://tests/run_tests.gd:2837)
+       [4] _run (res://tests/run_tests.gd:127)
+WARNING: Save version 5 migrated into prototype version 36.
+   at: push_warning (core/variant/variant_utility.cpp:1033)
+   GDScript backtrace (most recent call first):
+       [0] _normalize_state (res://src/simulation/systems/save_migrations.gd:196)
+       [1] _normalize_state (res://src/simulation/world_simulation.gd:873)
+       [2] _init (res://src/simulation/world_simulation.gd:71)
+       [3] _test_v5_blueprints_are_migrated (res://tests/run_tests.gd:2855)
+       [4] _run (res://tests/run_tests.gd:128)
+WARNING: Save version 6 migrated into prototype version 36.
+   at: push_warning (core/variant/variant_utility.cpp:1033)
+   GDScript backtrace (most recent call first):
+       [0] _normalize_state (res://src/simulation/systems/save_migrations.gd:196)
+       [1] _normalize_state (res://src/simulation/world_simulation.gd:873)
+       [2] _init (res://src/simulation/world_simulation.gd:71)
+       [3] _test_v6_structures_are_migrated (res://tests/run_tests.gd:2901)
+       [4] _run (res://tests/run_tests.gd:129)
+WARNING: Save version 7 migrated into prototype version 36.
+   at: push_warning (core/variant/variant_utility.cpp:1033)
+   GDScript backtrace (most recent call first):
+       [0] _normalize_state (res://src/simulation/systems/save_migrations.gd:196)
+       [1] _normalize_state (res://src/simulation/world_simulation.gd:873)
+       [2] _init (res://src/simulation/world_simulation.gd:71)
+       [3] _test_v7_work_commitments_are_migrated (res://tests/run_tests.gd:4112)
+       [4] _run (res://tests/run_tests.gd:130)
+WARNING: Save version 8 migrated into prototype version 36.
+   at: push_warning (core/variant/variant_utility.cpp:1033)
+   GDScript backtrace (most recent call first):
+       [0] _normalize_state (res://src/simulation/systems/save_migrations.gd:196)
+       [1] _normalize_state (res://src/simulation/world_simulation.gd:873)
+       [2] _init (res://src/simulation/world_simulation.gd:71)
+       [3] _test_v8_memories_are_migrated (res://tests/run_tests.gd:4149)
+       [4] _run (res://tests/run_tests.gd:131)
+WARNING: Save version 9 migrated into prototype version 36.
+   at: push_warning (core/variant/variant_utility.cpp:1033)
+   GDScript backtrace (most recent call first):
+       [0] _normalize_state (res://src/simulation/systems/save_migrations.gd:196)
+       [1] _normalize_state (res://src/simulation/world_simulation.gd:873)
+       [2] _init (res://src/simulation/world_simulation.gd:71)
+       [3] _test_v9_blueprint_progress_is_migrated (res://tests/run_tests.gd:4188)
+       [4] _run (res://tests/run_tests.gd:132)
+WARNING: Save version 19 migrated into prototype version 36.
+   at: push_warning (core/variant/variant_utility.cpp:1033)
+   GDScript backtrace (most recent call first):
+       [0] _normalize_state (res://src/simulation/systems/save_migrations.gd:196)
+       [1] _normalize_state (res://src/simulation/world_simulation.gd:873)
+       [2] _init (res://src/simulation/world_simulation.gd:71)
+       [3] _test_v19_wall_materials_migrate_to_planks (res://tests/run_tests.gd:4350)
+       [4] _run (res://tests/run_tests.gd:133)
+WARNING: Save version 22 migrated into prototype version 36.
+   at: push_warning (core/variant/variant_utility.cpp:1033)
+   GDScript backtrace (most recent call first):
+       [0] _normalize_state (res://src/simulation/systems/save_migrations.gd:196)
+       [1] _normalize_state (res://src/simulation/world_simulation.gd:873)
+       [2] _init (res://src/simulation/world_simulation.gd:71)
+       [3] _test_v19_wall_materials_migrate_to_planks (res://tests/run_tests.gd:4368)
+       [4] _run (res://tests/run_tests.gd:133)

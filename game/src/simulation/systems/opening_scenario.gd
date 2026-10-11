@@ -507,6 +507,7 @@ static func _on_world_morning(sim, notify: bool) -> bool:
 	flags["first_night_complete"] = true
 	var arrived: bool = sim.npc_catalog.activate_after_first_night(sim._npcs_mutable())
 	if arrived:
+		sim.notify_housing_changed()
 		sim.npc_autonomy.start_morning(sim._npcs_mutable(), MORNING_MINUTE, true)
 		if notify:
 			sim._emit_result(true, "world.message.neighbor_arrived", true, true)

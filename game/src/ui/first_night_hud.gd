@@ -6,6 +6,7 @@ signal crafting_recipe_requested(cell: Vector2i, recipe_id: String)
 signal npc_conversation_opened(npc_id: String)
 
 const Content := preload("res://src/content/first_night_content.gd")
+const Diagnostic := preload("res://src/dev/diagnostic_trace.gd")
 const Localized := preload("res://src/localization/localized_text.gd")
 const UiSkin := preload("res://src/ui/pixel_ui_skin.gd")
 const CraftingPanelScene: PackedScene = preload(
@@ -21,6 +22,7 @@ const PlaceholderIcon := preload("res://src/items/item_placeholder_icon.gd")
 const CompactLayout := preload("res://src/ui/compact_panel_layout.gd")
 
 var _content_data: FirstNightContent = Content.new()
+var _refresh_queued := false
 var _time_label: Label
 var _inventory_label: Label
 var _objective_label: Label
@@ -123,9 +125,9 @@ func _ready() -> void:
 	_inventory_panel.set_external_hotbar_target(get_node("Hotbar") as Control)
 	_inventory_panel.hide()
 	_inventory_backdrop.hide()
-	Session.state_changed.connect(refresh)
+	Session.state_changed.connect(_request_refresh)
 	Session.state_reloaded.connect(refresh)
-	Session.time_changed.connect(refresh)
+	Session.time_changed.connect(_request_refresh)
 	Session.pause_changed.connect(_on_pause_changed)
 	Session.message_emitted.connect(_on_message)
 	refresh()
@@ -276,6 +278,23 @@ func _on_marker_delete_requested(marker_id: String) -> void:
 
 
 func refresh() -> void:
+	_refresh_queued = false
+	var span := Diagnostic.begin("scene.hud_refresh") if Diagnostic.enabled else 0
+	_refresh_content()
+	Diagnostic.end(span)
+
+
+func _request_refresh() -> void:
+	if _refresh_queued: return
+	_refresh_queued = true
+	call_deferred("_flush_requested_refresh")
+
+
+func _flush_requested_refresh() -> void:
+	if _refresh_queued: refresh()
+
+
+func _refresh_content() -> void:
 	if _farming_panel != null and _farming_panel.visible:
 		_farming_panel.refresh()
 	var time_key: String = "ui.hud.day_time_paused" if Session.is_paused() else "ui.hud.day_time"
@@ -649,7 +668,7 @@ func _on_pause_changed(_paused: bool) -> void:
 func _on_message(message: String, success: bool) -> void:
 	_message_label.text = message
 	_message_label.add_theme_color_override("font_color", Color("d7e8bd") if success else Color("f0c2a7"))
-	refresh()
+	_request_refresh()
 
 
 func _on_build_mode_toggled(active: bool) -> void:

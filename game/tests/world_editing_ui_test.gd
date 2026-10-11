@@ -73,9 +73,9 @@ func _ready() -> void:
 		get_viewport().get_texture().get_image().save_png("D:/The_Last_Garden/artifacts/world-editing-2026-10-09/door-closed.png")
 	# Removing the wall over a floor must preserve the floor and update neighbours.
 	var at := Vector2i(43,36)
-	sim.state.structures.append({"building_id":"core:wood_floor","cell":[43,36]})
-	sim.state.structures.append({"building_id":"core:wood_wall","cell":[43,36]})
-	sim.state.structures.append({"building_id":"core:wood_wall","cell":[43,37]})
+	sim.add_structure({"building_id":"core:wood_floor","cell":[43,36]})
+	sim.add_structure({"building_id":"core:wood_wall","cell":[43,36]})
+	sim.add_structure({"building_id":"core:wood_wall","cell":[43,37]})
 	Session.state_changed.emit()
 	await frames()
 	check(is_equal_approx(sprite_at(layer,at).rotation,PI/2),"New neighbour turns a wall vertically")

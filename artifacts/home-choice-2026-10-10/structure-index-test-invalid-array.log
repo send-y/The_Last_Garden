@@ -1,0 +1,6 @@
+Godot Engine v4.7.stable.mono.official.5b4e0cb0f - https://godotengine.org
+
+SCRIPT ERROR: Invalid type in function 'in_cells' in base 'RefCounted (structure_index.gd)'. The array of argument 1 (Array) does not have the same element type as the expected typed array argument.
+   at: run (res://tests/structure_index_test.gd:39)
+   GDScript backtrace (most recent call first):
+       [0] run (res://tests/structure_index_test.gd:39)

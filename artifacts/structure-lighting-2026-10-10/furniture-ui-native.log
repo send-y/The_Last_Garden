@@ -1,0 +1,5 @@
+Godot Engine v4.7.stable.mono.official.5b4e0cb0f - https://godotengine.org
+OpenGL API 3.3.0 NVIDIA 617.14 - Compatibility - Using Device: NVIDIA - NVIDIA GeForce RTX 4060
+
+LIGHT SAMPLE: (432.0, 270.0) (0.4157, 0.298, 0.2235, 1.0) / (0.3059, 0.2392, 0.2431, 1.0)
+PASS: furniture UI clicks, real meal, chair movement, pause, bounds, disk persistence and rendered lighting

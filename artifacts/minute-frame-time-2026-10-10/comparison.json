@@ -1,0 +1,582 @@
+{
+  "minutes": [
+    {
+      "case": "work-30",
+      "label": "minute_1",
+      "before_ms": 1299.855,
+      "after_ms": 144.572
+    },
+    {
+      "case": "work-30",
+      "label": "minute_2",
+      "before_ms": 737.763,
+      "after_ms": 89.479
+    },
+    {
+      "case": "sleep-30",
+      "label": "minute_1",
+      "before_ms": 197.02,
+      "after_ms": 22.06
+    },
+    {
+      "case": "evening-lights-30",
+      "label": "minute_1",
+      "before_ms": 6082.53,
+      "after_ms": 258.663,
+      "lit_before": 0,
+      "lit_after": 0,
+      "lighting_revision_delta": 0
+    },
+    {
+      "case": "evening-lights-30",
+      "label": "minute_2",
+      "before_ms": 4546.971,
+      "after_ms": 104.285,
+      "lit_before": 0,
+      "lit_after": 30,
+      "lighting_revision_delta": 30
+    },
+    {
+      "case": "work-3",
+      "label": "minute_1",
+      "before_ms": null,
+      "after_ms": 62.599
+    }
+  ],
+  "natural_windows": [
+    {
+      "case": "work-30",
+      "label": "idle_before",
+      "fps": 85.543854206644,
+      "max_frame_ms": 15.451,
+      "frames": 257,
+      "elapsed_game_minutes": 1980,
+      "minute_calls": 0,
+      "world_refreshes": 0,
+      "hud_refreshes": 0,
+      "active_residents": 30
+    },
+    {
+      "case": "work-30",
+      "label": "render_after_1",
+      "fps": 82.59474886469536,
+      "max_frame_ms": 24.043,
+      "frames": 166,
+      "elapsed_game_minutes": 1981,
+      "minute_calls": 0,
+      "world_refreshes": 1,
+      "hud_refreshes": 1,
+      "active_residents": 30
+    },
+    {
+      "case": "work-30",
+      "label": "render_after_2",
+      "fps": 76.77443670496082,
+      "max_frame_ms": 24.009,
+      "frames": 154,
+      "elapsed_game_minutes": 1982,
+      "minute_calls": 0,
+      "world_refreshes": 1,
+      "hud_refreshes": 1,
+      "active_residents": 30
+    },
+    {
+      "case": "work-30",
+      "label": "idle_after",
+      "fps": 84.0786870165891,
+      "max_frame_ms": 16.223,
+      "frames": 253,
+      "elapsed_game_minutes": 1982,
+      "minute_calls": 0,
+      "world_refreshes": 0,
+      "hud_refreshes": 0,
+      "active_residents": 30
+    },
+    {
+      "case": "sleep-30",
+      "label": "idle_before",
+      "fps": 81.17623026901936,
+      "max_frame_ms": 18.284,
+      "frames": 244,
+      "elapsed_game_minutes": 2700,
+      "minute_calls": 0,
+      "world_refreshes": 0,
+      "hud_refreshes": 0,
+      "active_residents": 30
+    },
+    {
+      "case": "sleep-30",
+      "label": "render_after_1",
+      "fps": 68.44541478171159,
+      "max_frame_ms": 43.418,
+      "frames": 137,
+      "elapsed_game_minutes": 2701,
+      "minute_calls": 0,
+      "world_refreshes": 1,
+      "hud_refreshes": 1,
+      "active_residents": 30
+    },
+    {
+      "case": "sleep-30",
+      "label": "idle_after",
+      "fps": 84.59726870723716,
+      "max_frame_ms": 15.736,
+      "frames": 254,
+      "elapsed_game_minutes": 2701,
+      "minute_calls": 0,
+      "world_refreshes": 0,
+      "hud_refreshes": 0,
+      "active_residents": 30
+    },
+    {
+      "case": "evening-lights-30",
+      "label": "idle_before",
+      "fps": 84.2131611523689,
+      "max_frame_ms": 23.625,
+      "frames": 253,
+      "elapsed_game_minutes": 2520,
+      "minute_calls": 0,
+      "world_refreshes": 0,
+      "hud_refreshes": 0,
+      "active_residents": 30
+    },
+    {
+      "case": "evening-lights-30",
+      "label": "render_after_1",
+      "fps": 84.31055418474688,
+      "max_frame_ms": 24.52,
+      "frames": 169,
+      "elapsed_game_minutes": 2521,
+      "minute_calls": 0,
+      "world_refreshes": 1,
+      "hud_refreshes": 1,
+      "active_residents": 30
+    },
+    {
+      "case": "evening-lights-30",
+      "label": "render_after_2",
+      "fps": 79.73976926301016,
+      "max_frame_ms": 175.361,
+      "frames": 160,
+      "elapsed_game_minutes": 2522,
+      "minute_calls": 0,
+      "world_refreshes": 1,
+      "hud_refreshes": 1,
+      "active_residents": 30
+    },
+    {
+      "case": "evening-lights-30",
+      "label": "idle_after",
+      "fps": 81.63608034856274,
+      "max_frame_ms": 32.464,
+      "frames": 245,
+      "elapsed_game_minutes": 2522,
+      "minute_calls": 0,
+      "world_refreshes": 0,
+      "hud_refreshes": 0,
+      "active_residents": 30
+    },
+    {
+      "case": "work-3",
+      "label": "idle_before",
+      "fps": 84.77827654740302,
+      "max_frame_ms": 14.143,
+      "frames": 255,
+      "elapsed_game_minutes": 1980,
+      "minute_calls": 0,
+      "world_refreshes": 0,
+      "hud_refreshes": 0,
+      "active_residents": 3
+    },
+    {
+      "case": "work-3",
+      "label": "render_after_1",
+      "fps": 82.94181631585442,
+      "max_frame_ms": 18.762,
+      "frames": 166,
+      "elapsed_game_minutes": 1981,
+      "minute_calls": 0,
+      "world_refreshes": 1,
+      "hud_refreshes": 1,
+      "active_residents": 3
+    },
+    {
+      "case": "work-3",
+      "label": "idle_after",
+      "fps": 86.28357647090178,
+      "max_frame_ms": 16.277,
+      "frames": 259,
+      "elapsed_game_minutes": 1981,
+      "minute_calls": 0,
+      "world_refreshes": 0,
+      "hud_refreshes": 0,
+      "active_residents": 3
+    },
+    {
+      "case": "natural-30",
+      "label": "idle_before",
+      "fps": 84.11427173165353,
+      "max_frame_ms": 17.4,
+      "frames": 253,
+      "elapsed_game_minutes": 1980,
+      "minute_calls": 0,
+      "world_refreshes": 0,
+      "hud_refreshes": 0,
+      "active_residents": 30
+    },
+    {
+      "case": "natural-30",
+      "label": "natural_minutes",
+      "fps": 73.2614805355223,
+      "max_frame_ms": 161.179,
+      "frames": 881,
+      "elapsed_game_minutes": 1989,
+      "minute_calls": 9,
+      "world_refreshes": 9,
+      "hud_refreshes": 9,
+      "active_residents": 30
+    },
+    {
+      "case": "natural-30",
+      "label": "idle_after",
+      "fps": 83.41131682210194,
+      "max_frame_ms": 16.411,
+      "frames": 251,
+      "elapsed_game_minutes": 1989,
+      "minute_calls": 0,
+      "world_refreshes": 0,
+      "hud_refreshes": 0,
+      "active_residents": 30
+    },
+    {
+      "case": "ordinary-2",
+      "label": "idle_before",
+      "fps": 494.8739720951064,
+      "max_frame_ms": 3.632,
+      "frames": 1485,
+      "elapsed_game_minutes": 1980,
+      "minute_calls": 0,
+      "world_refreshes": 0,
+      "hud_refreshes": 0,
+      "active_residents": 3
+    },
+    {
+      "case": "ordinary-2",
+      "label": "natural_minutes",
+      "fps": 485.0297375473344,
+      "max_frame_ms": 22.3,
+      "frames": 5821,
+      "elapsed_game_minutes": 1989,
+      "minute_calls": 9,
+      "world_refreshes": 9,
+      "hud_refreshes": 9,
+      "active_residents": 3
+    },
+    {
+      "case": "ordinary-2",
+      "label": "idle_after",
+      "fps": 509.3798857909664,
+      "max_frame_ms": 3.536,
+      "frames": 1529,
+      "elapsed_game_minutes": 1989,
+      "minute_calls": 0,
+      "world_refreshes": 0,
+      "hud_refreshes": 0,
+      "active_residents": 3
+    }
+  ],
+  "checks": [
+    {
+      "name": "npc_query_cost_test",
+      "exit": 0,
+      "errors": [],
+      "passed": true,
+      "summary": [
+        "NPC_QUERY_COST: 0 failures; full roster reads 1"
+      ]
+    },
+    {
+      "name": "local_home_layout_cost_test",
+      "exit": 0,
+      "errors": [],
+      "passed": true,
+      "summary": [
+        "LOCAL_HOME_LAYOUT_COST: 0 failures"
+      ]
+    },
+    {
+      "name": "housing_refresh_cost_test",
+      "exit": 0,
+      "errors": [],
+      "passed": true,
+      "summary": [
+        "HOUSING_REFRESH_COST: 0 failures"
+      ]
+    },
+    {
+      "name": "indexed_consumers_test",
+      "exit": 0,
+      "errors": [],
+      "passed": true,
+      "summary": [
+        "INDEXED_CONSUMERS: 0 failures"
+      ]
+    },
+    {
+      "name": "structure_index_test",
+      "exit": 0,
+      "errors": [],
+      "passed": true,
+      "summary": [
+        "STRUCTURE_INDEX: 0 failures"
+      ]
+    },
+    {
+      "name": "diagnostic_trace_test",
+      "exit": 0,
+      "errors": [],
+      "passed": true,
+      "summary": [
+        "DIAGNOSTIC_TRACE: 0 failures"
+      ]
+    },
+    {
+      "name": "run_tests",
+      "exit": 0,
+      "errors": [],
+      "passed": true,
+      "summary": [
+        "PASS: ordinary pantry -> actual wood/planks/study table -> wild berry seeds -> watered crop -> own seeds -> replanted second harvest",
+        "PASS: 50-structure open-map room search (15.96 ms)",
+        "PASS: room enclosure, size limits, requirements, designation, and persistence",
+        "PASS: prototype simulation and mechanics lab tests"
+      ]
+    },
+    {
+      "name": "housing_sleep_test",
+      "exit": 0,
+      "errors": [],
+      "passed": true,
+      "summary": [
+        "PASS: personal sleep places, shared housing, starter bedroll, NPC sleep, physical quality and persistence"
+      ]
+    },
+    {
+      "name": "resident_home_policy_test",
+      "exit": 0,
+      "errors": [],
+      "passed": true,
+      "summary": [
+        "PASS: resident home modes, foundation admission, legacy assignments, damaged policies and stock reserves"
+      ]
+    },
+    {
+      "name": "resident_home_projects_test",
+      "exit": 0,
+      "errors": [],
+      "passed": true,
+      "summary": [
+        "PASS: resident homes, common-house authority, real furniture, reserves, expansion and save continuity"
+      ]
+    },
+    {
+      "name": "npc_home_projects_test",
+      "exit": 0,
+      "errors": [],
+      "passed": true,
+      "summary": [
+        "PASS: NPC home projects, real materials, safe layout, needs, refusal and deterministic persistence"
+      ]
+    },
+    {
+      "name": "npc_home_production_test",
+      "exit": 0,
+      "errors": [],
+      "passed": true,
+      "summary": [
+        "NPC_HOME_PRODUCTION: 0 failures"
+      ]
+    },
+    {
+      "name": "npc_practical_work_test",
+      "exit": 0,
+      "errors": [],
+      "passed": true,
+      "summary": [
+        "PASS: NPC practical watering, physical resource work, hauling, blueprint construction, needs and persistence"
+      ]
+    },
+    {
+      "name": "household_feedback_test",
+      "exit": 0,
+      "errors": [],
+      "passed": true,
+      "summary": [
+        "PASS: household location, availability, actual food, occupied furniture, evening lighting and read-only feedback"
+      ]
+    },
+    {
+      "name": "world_editing_test",
+      "exit": 0,
+      "errors": [],
+      "passed": true,
+      "summary": [
+        "WORLD_EDITING: 0 failures"
+      ]
+    },
+    {
+      "name": "furniture_rules_test",
+      "exit": 0,
+      "errors": [],
+      "passed": true,
+      "summary": [
+        "PASS: furniture meals, real food transport, chair recovery, light, ownership, fallback and persistence"
+      ]
+    },
+    {
+      "name": "farming_rules_test",
+      "exit": 0,
+      "errors": [],
+      "passed": true,
+      "summary": [
+        "PASS: farming seed transactions, 72-hour bushes, physical tools/water, three harvest modes, dry growth, sleep, and save migration"
+      ]
+    },
+    {
+      "name": "settlement_stress_test",
+      "exit": 0,
+      "errors": [],
+      "passed": true,
+      "summary": [
+        "SETTLEMENT_STRESS: 0 failures"
+      ]
+    },
+    {
+      "name": "lab_status_cost_test",
+      "exit": 0,
+      "errors": [],
+      "passed": true,
+      "summary": [
+        "LAB_STATUS_COST: 0 failures"
+      ]
+    },
+    {
+      "name": "mechanics_lab_dialogue_ui_test",
+      "exit": 0,
+      "errors": [],
+      "passed": true,
+      "summary": [
+        "PASS: MechanicsLab dialogue clicks, compact button, default collapse, automatic hiding and F2"
+      ]
+    },
+    {
+      "name": "world_presentation_test",
+      "exit": 0,
+      "errors": [],
+      "passed": true,
+      "summary": [
+        "WORLD_PRESENTATION: 0 failures"
+      ]
+    },
+    {
+      "name": "generated_npcs_integration_test",
+      "exit": 0,
+      "errors": [],
+      "passed": true,
+      "summary": [
+        "PASS: multiple NPC arrivals, views, reload, needs, unique beds, tool ownership and navigation"
+      ]
+    },
+    {
+      "name": "housing_ui_test",
+      "exit": 0,
+      "errors": [],
+      "passed": true,
+      "summary": [
+        "PASS: housing UI clicks, shared ownership, physical interaction, save/load, pause and viewport bounds"
+      ]
+    },
+    {
+      "name": "resident_homes_ui_test",
+      "exit": 0,
+      "errors": [],
+      "passed": true,
+      "summary": [
+        "PASS: resident homes GUI roles, fixed settlement, reserve resource entry, protected stock, expansion, viewport bounds"
+      ]
+    },
+    {
+      "name": "npc_home_projects_ui_test",
+      "exit": 0,
+      "errors": [],
+      "passed": true,
+      "summary": [
+        "PASS: NPC project card, permissions, intent, shortages, decline, resume, disk reload and compact layout"
+      ]
+    },
+    {
+      "name": "npc_home_production_ui_test",
+      "exit": 0,
+      "errors": [],
+      "passed": true,
+      "summary": [
+        "NPC_HOME_PRODUCTION_UI: 0 failures"
+      ]
+    },
+    {
+      "name": "world_editing_ui_test",
+      "exit": 0,
+      "errors": [],
+      "passed": true,
+      "summary": [
+        "PASS: Door interaction, collision, wall connections, removal and bush visuals"
+      ]
+    },
+    {
+      "name": "furniture_ui_test",
+      "exit": 0,
+      "errors": [],
+      "passed": true,
+      "summary": [
+        "PASS: furniture UI clicks, real meal, chair movement, pause, bounds, disk persistence and rendered lighting"
+      ]
+    },
+    {
+      "name": "storage_integration_test",
+      "exit": 0,
+      "errors": [],
+      "passed": true,
+      "summary": [
+        "PASS: storage selection, pause, and item transfers integrate with the HUD"
+      ]
+    },
+    {
+      "name": "settlement_stress_ui_test",
+      "exit": 0,
+      "errors": [],
+      "passed": true,
+      "summary": [
+        "SETTLEMENT_STRESS_UI: 0 failures"
+      ]
+    },
+    {
+      "name": "frame_rate_hud_test",
+      "exit": 0,
+      "errors": [],
+      "passed": true,
+      "summary": [
+        "FRAME_RATE_HUD: 0 failures"
+      ]
+    },
+    {
+      "name": "minute_geometry_cache_test",
+      "exit": 0,
+      "errors": [],
+      "passed": true,
+      "summary": [
+        "PASS: room topology reuse, live actor obstruction, structure/room edits and save isolation"
+      ]
+    }
+  ],
+  "authority_equal": true
+}

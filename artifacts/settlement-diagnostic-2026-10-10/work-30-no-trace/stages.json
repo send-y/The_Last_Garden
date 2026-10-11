@@ -1,0 +1,59 @@
+[
+	{
+		"elapsed_game_minutes": 1980,
+		"frames": {
+			"frames": 132,
+			"max_frame_ms": 62.297
+		},
+		"label": "idle_before",
+		"trace": {
+			"counters": {},
+			"slow_paths": [],
+			"spans": {}
+		},
+		"trace_enabled": false,
+		"wall_ms": 3002.055
+	},
+	{
+		"elapsed_game_minutes": 1981,
+		"frames": {},
+		"label": "minute_1",
+		"trace": {
+			"counters": {},
+			"slow_paths": [],
+			"spans": {}
+		},
+		"trace_enabled": false,
+		"wall_ms": 28106.8
+	},
+	{
+		"elapsed_game_minutes": 1981,
+		"frames": {
+			"frames": 1,
+			"max_frame_ms": 3177.904
+		},
+		"label": "render_after_1",
+		"trace": {
+			"counters": {},
+			"slow_paths": [],
+			"spans": {}
+		},
+		"trace_enabled": false,
+		"wall_ms": 3177.917
+	},
+	{
+		"elapsed_game_minutes": 1981,
+		"frames": {
+			"frames": 137,
+			"max_frame_ms": 27.406
+		},
+		"label": "idle_after",
+		"trace": {
+			"counters": {},
+			"slow_paths": [],
+			"spans": {}
+		},
+		"trace_enabled": false,
+		"wall_ms": 3023.373
+	}
+]

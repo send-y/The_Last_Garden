@@ -14,7 +14,7 @@ static func execute(sim, action: String, cell: Vector2i, target_id: String, acto
 		if String(structure.building_id) != DOOR: return _result(false,"world_edit.failure.target")
 		var opening := not bool(structure.get("open",true))
 		if not opening and sim._is_actor_in_cell(structure.cell): return _result(false,"world_edit.failure.occupied")
-		structure.open = opening
+		sim.set_structure_state(structure,"open",opening)
 		sim.event_emitted.emit({"type":"state_changed"})
 		return _result(true,"world_edit.door.opened" if opening else "world_edit.door.closed")
 	# Reserved recipe inputs must not be silently lost with their workbench.
@@ -34,7 +34,7 @@ static func execute(sim, action: String, cell: Vector2i, target_id: String, acto
 	var place_id := "%s@%d,%d" % [structure.building_id,origin.x,origin.y]
 	for id: String in sim.state.sleep_assignments:
 		if sim.state.sleep_assignments[id] == place_id: sim.state.sleep_assignments[id] = ""
-	sim.state.structures.erase(structure)
+	sim.remove_structure(structure)
 	sim._sync_structure_navigation()
 	sim.housing.normalize(sim)
 	sim.furniture.normalize(sim)
@@ -68,13 +68,13 @@ static func _clear_bush(sim, target_id: String) -> Dictionary:
 static func open_for_npcs(sim) -> bool:
 	# Doors are traversable by pathfinding: a resident opens the leaf before passing.
 	var changed := false
-	for structure: Dictionary in sim.state.structures:
+	for structure: Dictionary in sim.structure_index.of_type(DOOR):
 		if String(structure.building_id) != DOOR or bool(structure.get("open",true)): continue
 		var center := Content.cell_center(int(structure.cell[0]),int(structure.cell[1]))
 		for id: String in sim.state.npcs:
 			if not bool(sim.state.npcs[id].get("active",false)): continue
 			if sim.get_npc_position(id,Vector2.ZERO).distance_to(center) <= 33.0:
-				structure.open = true
+				sim.set_structure_state(structure,"open",true)
 				changed = true
 				break
 	return changed

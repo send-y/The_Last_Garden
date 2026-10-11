@@ -6,12 +6,20 @@ static func get_inventory(sim) -> Dictionary:
 	var state: Dictionary = sim.state
 	var content: FirstNightContent = sim.content
 	var inventory: Dictionary = sim._inventory_mutable().duplicate(true)
+	var instance_items: Dictionary = {}
 	for item_id: String in content.item_ids():
 		if not content.item_is_instance_based(item_id):
 			continue
-		inventory[item_id] = ItemInstanceRegistryScript.in_location(
-			state, item_id, "inventory"
-		).size()
+		instance_items[item_id] = true
+		inventory[item_id] = 0
+	for value: Variant in state.get("item_instances",[]):
+		if sim.Diagnostic.enabled:
+			sim.Diagnostic.counters["inventory.instance_records"] = int(sim.Diagnostic.counters.get("inventory.instance_records",0)) + 1
+		if not value is Dictionary: continue
+		var instance: Dictionary = value
+		var item_id := String(instance.get("item_id",""))
+		if instance_items.has(item_id) and String(instance.get("location",{}).get("kind","")) == "inventory":
+			inventory[item_id] += 1
 	return inventory
 
 

@@ -18,15 +18,15 @@ func fixture():
 	sim.state.flags.first_night_complete = true
 	sim.state.npcs["core:first_neighbor"].known = true
 	sim.state.npcs["core:first_neighbor"].active = true
-	sim.state.structures.clear()
+	sim.replace_structures([])
 	sim.state.resource_nodes.clear()
 	sim.state.tree_nodes.clear()
 	for y: int in range(10, 16):
 		for x: int in range(10, 17):
 			if x == 10 or x == 16 or y == 10 or y == 15:
-				sim.state.structures.append({"building_id": "core:wood_door" if x == 13 and y == 15 else "core:wood_wall", "cell": [x,y]})
-	sim.state.structures.append({"building_id":"core:bedroll", "cell":[11,11]})
-	sim.state.structures.append({"building_id":"core:bedroll", "cell":[14,13]})
+				sim.add_structure({"building_id": "core:wood_door" if x == 13 and y == 15 else "core:wood_wall", "cell": [x,y]})
+	sim.add_structure({"building_id":"core:bedroll", "cell":[11,11]})
+	sim.add_structure({"building_id":"core:bedroll", "cell":[14,13]})
 	sim._sync_structure_navigation()
 	return sim
 
@@ -71,7 +71,7 @@ func _test_assignment() -> void:
 	sim.state.npcs["core:first_neighbor"].known = false
 	check(not sim.get_home_policy("core:first_neighbor").may_furnish, "Unknown residents cannot furnish")
 	sim.state.npcs["core:first_neighbor"].known = true
-	sim.state.npcs["core:first_neighbor"].active = false
+	sim.set_npc_active("core:first_neighbor",false)
 	check(not sim.get_home_policy("core:first_neighbor").may_furnish, "Inactive residents cannot furnish")
 
 func _test_migration() -> void:
@@ -99,6 +99,10 @@ func _test_migration() -> void:
 	legacy.stock_reserves = "damaged"
 	loaded = World.new(legacy)
 	check(loaded.state.home_policies is Dictionary and loaded.state.stock_reserves.is_empty(), "Malformed policy containers normalize")
+	for malformed: Variant in [null, 42, "damaged"]:
+		legacy.home_policies = malformed
+		loaded = World.new(legacy)
+		check(loaded.state.home_policies is Dictionary and loaded.get_home_policy("core:first_neighbor").mode == "shared", "Scalar and null policies normalize while preserving actual occupants")
 
 func _test_reserves() -> void:
 	var sim = fixture()

@@ -24,6 +24,10 @@ static func find_room_at(
 	var bounds := Rect2i(Vector2i.ZERO, map_size)
 	if not bounds.has_point(target):
 		return []
+	return find_room_in_boundaries(target, build_boundaries(structures,catalog), map_size)
+
+
+static func build_boundaries(structures: Array[Dictionary], catalog: BuildingCatalog) -> Dictionary:
 	var boundary_cells: Dictionary = {}
 	for structure: Dictionary in structures:
 		var building_id := String(structure.get("building_id", ""))
@@ -35,6 +39,12 @@ static func find_room_at(
 		var origin := Vector2i(int(raw_origin[0]), int(raw_origin[1]))
 		for boundary_cell: Vector2i in catalog.get_footprint_cells(building_id, origin):
 			boundary_cells[boundary_cell] = true
+	return boundary_cells
+
+
+static func find_room_in_boundaries(target: Vector2i, boundary_cells: Dictionary, map_size: Vector2i) -> Array[Vector2i]:
+	var bounds := Rect2i(Vector2i.ZERO, map_size)
+	if not bounds.has_point(target): return []
 	if boundary_cells.has(target):
 		return []
 	var visited: Dictionary = {target: true}

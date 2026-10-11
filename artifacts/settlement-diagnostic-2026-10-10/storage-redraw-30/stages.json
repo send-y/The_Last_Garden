@@ -1,0 +1,100 @@
+[
+	{
+		"elapsed_game_minutes": 1980,
+		"frames": {
+			"frames": 134,
+			"max_frame_ms": 65.743
+		},
+		"label": "idle_before",
+		"trace": {
+			"counters": {},
+			"slow_paths": [],
+			"spans": {
+				"lighting.rebuild": {
+					"calls": 1,
+					"inclusive_us": 17234,
+					"maximum_us": 17234,
+					"self_us": 17234
+				},
+				"lighting.serialize_structures": {
+					"calls": 134,
+					"inclusive_us": 988421,
+					"maximum_us": 11274,
+					"self_us": 988421
+				},
+				"scene.update_light_field": {
+					"calls": 134,
+					"inclusive_us": 1021079,
+					"maximum_us": 25256,
+					"self_us": 15424
+				},
+				"scene.world_depth": {
+					"calls": 134,
+					"inclusive_us": 46647,
+					"maximum_us": 502,
+					"self_us": 46647
+				}
+			}
+		},
+		"trace_enabled": true,
+		"wall_ms": 3010.622
+	},
+	{
+		"elapsed_game_minutes": 1980,
+		"frames": {
+			"frames": 1,
+			"max_frame_ms": 3138.833
+		},
+		"label": "forced_world_redraw",
+		"trace": {
+			"counters": {},
+			"slow_paths": [],
+			"spans": {
+				"lighting.serialize_structures": {
+					"calls": 1,
+					"inclusive_us": 7254,
+					"maximum_us": 7254,
+					"self_us": 7254
+				},
+				"scene.update_light_field": {
+					"calls": 1,
+					"inclusive_us": 7360,
+					"maximum_us": 7360,
+					"self_us": 106
+				},
+				"scene.world_depth": {
+					"calls": 1,
+					"inclusive_us": 317,
+					"maximum_us": 317,
+					"self_us": 317
+				},
+				"scene.world_draw": {
+					"calls": 1,
+					"inclusive_us": 3112257,
+					"maximum_us": 3112257,
+					"self_us": 9131
+				},
+				"scene.world_storage_draw": {
+					"calls": 1,
+					"inclusive_us": 3103126,
+					"maximum_us": 3103126,
+					"self_us": 190194
+				},
+				"storage.grid_size_query": {
+					"calls": 137,
+					"inclusive_us": 2763737,
+					"maximum_us": 24480,
+					"self_us": 2763737
+				},
+				"storage.layout_query": {
+					"calls": 152,
+					"inclusive_us": 149195,
+					"maximum_us": 1535,
+					"self_us": 149195
+				}
+			}
+		},
+		"trace_enabled": true,
+		"wall_ms": 3138.846
+	}
+]

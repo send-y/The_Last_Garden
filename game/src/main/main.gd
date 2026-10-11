@@ -1,4 +1,5 @@
 extends Node2D
+const Diagnostic := preload("res://src/dev/diagnostic_trace.gd")
 const ConstructionCommand := preload(
 	"res://src/construction/construction_command.gd"
 )
@@ -696,8 +697,10 @@ func _update_dusk_overlay() -> void:
 func _update_light_field() -> void:
 	if _lighting_material == null:
 		return
+	var span := Diagnostic.begin("scene.update_light_field") if Diagnostic.enabled else 0
 	var inverse := get_viewport().get_canvas_transform().affine_inverse()
 	var origin := inverse * Vector2.ZERO
 	_lighting_material.set_shader_parameter("world_origin",origin)
 	_lighting_material.set_shader_parameter("world_extent",inverse * get_viewport_rect().size - origin)
 	_lighting_material.set_shader_parameter("light_mask",Session.simulation.furniture.lighting.texture(Session.simulation))
+	Diagnostic.end(span)

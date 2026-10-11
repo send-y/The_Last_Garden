@@ -1,0 +1,122 @@
+[
+  {
+    "case": "original-3",
+    "fps": 632.235837917231,
+    "frames": 12645,
+    "seconds": 20.000448,
+    "game_minutes": 14,
+    "max_frame_ms": 19.635,
+    "max_minute_ms": 7.824,
+    "final_activities": {
+      "core:outdoors": 3
+    },
+    "diagnostic": false
+  },
+  {
+    "case": "baseline-3",
+    "fps": 2.29569947273686,
+    "frames": 70,
+    "seconds": 30.491796,
+    "game_minutes": 9,
+    "max_frame_ms": 4396.146,
+    "max_minute_ms": 1272.135,
+    "final_activities": {
+      "core:work_travel": 3
+    },
+    "diagnostic": false
+  },
+  {
+    "case": "quiet-30",
+    "fps": 46.213020341123,
+    "frames": 925,
+    "seconds": 20.016004,
+    "game_minutes": 0,
+    "max_frame_ms": 35.392,
+    "max_minute_ms": null,
+    "final_activities": {
+      "core:arriving": 30
+    },
+    "diagnostic": false
+  },
+  {
+    "case": "full-30",
+    "fps": 0.154231050665932,
+    "frames": 13,
+    "seconds": 84.289123,
+    "game_minutes": 3,
+    "max_frame_ms": 31682.649,
+    "max_minute_ms": 28472.374,
+    "final_activities": {
+      "core:outdoors": 22,
+      "core:work_travel": 8
+    },
+    "diagnostic": false
+  },
+  {
+    "case": "night-30",
+    "fps": 0.269123047555542,
+    "frames": 14,
+    "seconds": 52.020814,
+    "game_minutes": 3,
+    "max_frame_ms": 17974.017,
+    "max_minute_ms": 14821.406,
+    "final_activities": {
+      "core:going_to_rest": 30
+    },
+    "diagnostic": false
+  },
+  {
+    "case": "production-30",
+    "fps": 0.418675837182709,
+    "frames": 14,
+    "seconds": 33.438758,
+    "game_minutes": 1,
+    "max_frame_ms": 32022.431,
+    "max_minute_ms": 32021.585,
+    "final_activities": {
+      "core:outdoors": 26,
+      "core:work_travel": 4
+    },
+    "diagnostic": false
+  },
+  {
+    "case": "gather-30",
+    "fps": 0.482042302805477,
+    "frames": 11,
+    "seconds": 22.819574,
+    "game_minutes": 1,
+    "max_frame_ms": 21457.621,
+    "max_minute_ms": 21457.022,
+    "final_activities": {
+      "core:outdoors": 26,
+      "core:work_travel": 4
+    },
+    "diagnostic": false
+  },
+  {
+    "case": "sleep-30",
+    "fps": 2.91574489837698,
+    "frames": 47,
+    "seconds": 16.11938,
+    "game_minutes": 1,
+    "max_frame_ms": 14713.014,
+    "max_minute_ms": 14712.395,
+    "final_activities": {
+      "core:sleeping": 30
+    },
+    "diagnostic": false
+  },
+  {
+    "case": "quiet-no-light-refresh-30",
+    "fps": 63.4675141528808,
+    "frames": 1270,
+    "seconds": 20.010237,
+    "game_minutes": 0,
+    "max_frame_ms": 24.303,
+    "max_minute_ms": null,
+    "final_activities": {
+      "core:arriving": 30
+    },
+    "diagnostic": true
+  }
+]

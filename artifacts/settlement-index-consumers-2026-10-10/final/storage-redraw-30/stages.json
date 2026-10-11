@@ -1,0 +1,114 @@
+[
+	{
+		"elapsed_game_minutes": 1980,
+		"frames": {
+			"frames": 258,
+			"max_frame_ms": 21.715
+		},
+		"label": "idle_before",
+		"structure_validation_enabled": false,
+		"trace": {
+			"counters": {},
+			"slow_paths": [],
+			"spans": {
+				"scene.update_light_field": {
+					"calls": 258,
+					"inclusive_us": 7060,
+					"maximum_us": 43,
+					"self_us": 7060
+				},
+				"scene.world_depth": {
+					"calls": 258,
+					"inclusive_us": 86868,
+					"maximum_us": 533,
+					"self_us": 86868
+				}
+			}
+		},
+		"trace_enabled": true,
+		"wall_ms": 3007.116
+	},
+	{
+		"elapsed_game_minutes": 1980,
+		"frames": {
+			"frames": 4,
+			"max_frame_ms": 220.167
+		},
+		"label": "forced_world_redraw",
+		"structure_validation_enabled": false,
+		"trace": {
+			"counters": {},
+			"slow_paths": [],
+			"spans": {
+				"scene.update_light_field": {
+					"calls": 4,
+					"inclusive_us": 98,
+					"maximum_us": 27,
+					"self_us": 98
+				},
+				"scene.world_depth": {
+					"calls": 4,
+					"inclusive_us": 1427,
+					"maximum_us": 500,
+					"self_us": 1427
+				},
+				"scene.world_draw": {
+					"calls": 1,
+					"inclusive_us": 126,
+					"maximum_us": 126,
+					"self_us": 126
+				},
+				"scene.world_farm_draw": {
+					"calls": 1,
+					"inclusive_us": 1585,
+					"maximum_us": 1585,
+					"self_us": 1585
+				},
+				"scene.world_grid_draw": {
+					"calls": 1,
+					"inclusive_us": 62,
+					"maximum_us": 62,
+					"self_us": 62
+				},
+				"scene.world_house_draw": {
+					"calls": 1,
+					"inclusive_us": 13,
+					"maximum_us": 13,
+					"self_us": 13
+				},
+				"scene.world_rooms_draw": {
+					"calls": 1,
+					"inclusive_us": 7350,
+					"maximum_us": 7350,
+					"self_us": 7350
+				},
+				"scene.world_selection_draw": {
+					"calls": 1,
+					"inclusive_us": 4,
+					"maximum_us": 4,
+					"self_us": 4
+				},
+				"scene.world_storage_draw": {
+					"calls": 1,
+					"inclusive_us": 193165,
+					"maximum_us": 193165,
+					"self_us": 191548
+				},
+				"scene.world_storage_zones_draw": {
+					"calls": 1,
+					"inclusive_us": 899,
+					"maximum_us": 899,
+					"self_us": 899
+				},
+				"storage.grid_size_query": {
+					"calls": 137,
+					"inclusive_us": 1617,
+					"maximum_us": 19,
+					"self_us": 1617
+				}
+			}
+		},
+		"trace_enabled": true,
+		"wall_ms": 254.542
+	}
+]

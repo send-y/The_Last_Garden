@@ -1,0 +1,952 @@
+class_name FirstNightWorld
+extends Node2D
+
+const PresentationLayer := preload("res://src/world/world_presentation_layer.gd")
+const StoragePresentation := preload("res://src/simulation/systems/storage_system.gd")
+
+const Diagnostic := preload("res://src/dev/diagnostic_trace.gd")
+
+signal selection_changed(selection: Dictionary)
+signal blueprint_interaction_requested(cell: Vector2i, continuous_work: bool)
+signal resource_interaction_requested(target_id: String, continuous_work: bool)
+signal structure_interaction_requested(cell: Vector2i, continuous_work: bool)
+signal storage_interaction_requested(cell: Vector2i)
+signal water_interaction_requested(cell: Vector2i)
+signal farming_interaction_requested(cell: Vector2i)
+signal npc_conversation_requested(npc_id: String)
+
+const Catalog := preload("res://src/world/first_night_catalog.gd")
+const WaterMapScript := preload("res://src/world/water_map.gd")
+const Interactable := preload("res://src/world/interactable_view.gd")
+const Content := preload("res://src/content/first_night_content.gd")
+const PlaceholderIcon := preload("res://src/items/item_placeholder_icon.gd")
+const IconPresentation := preload("res://src/items/inventory_icon_presentation.gd")
+const Localized := preload("res://src/localization/localized_text.gd")
+const BuildingCatalogScript := preload(
+	"res://src/construction/building_catalog.gd"
+)
+const CraftingCatalogScript := preload(
+	"res://src/crafting/crafting_catalog.gd"
+)
+const DroppedItemScene: PackedScene = preload(
+	"res://src/items/dropped_item.tscn"
+)
+const GRASS_TILE: Texture2D = preload(
+	"res://assets/sprites/tiles/ai_grass.png"
+)
+const DIRT_TILE: Texture2D = preload(
+	"res://assets/sprites/tiles/ai_dirt.png"
+)
+const ROAD_TILE: Texture2D = preload(
+	"res://assets/sprites/tiles/ai_road.png"
+)
+
+var _presentation_layers: Dictionary = {}
+var _storage_layouts: Dictionary = {}
+var _storage_icon_cache: Dictionary = {}
+var _state_refresh_queued := false
+
+var _interactables: Array[InteractableView] = []
+var _drop_views: Dictionary = {}
+var _resource_view_snapshot: Dictionary = {}
+var _selected: InteractableView
+var _selected_cell: Vector2i = Vector2i(-1, -1)
+var _content := Content.new()
+var _building_catalog := BuildingCatalogScript.new()
+var _crafting_catalog := CraftingCatalogScript.new()
+
+@onready var _player: CharacterBody2D = get_node("../Player") as CharacterBody2D
+
+@onready var _dropped_items: Node2D = (
+	$DroppedItems as Node2D
+)
+
+func _ready() -> void:
+	_build_static_collision()
+	_build_presentation_layers()
+	_spawn_interactables()
+	_sync_dropped_items()
+	Session.state_changed.connect(_on_state_changed)
+	Session.state_reloaded.connect(_on_state_reloaded)
+	Session.time_changed.connect(_refresh_farm_presentation)
+	_refresh_presentation(true)
+	queue_redraw()
+
+
+func _process(_delta: float) -> void:
+	if _player == null:
+		return
+	var player_controller := _player as PlayerController
+	if player_controller == null:
+		return
+	var player_foot_y: float = player_controller.get_depth_sort_y()
+	var span := Diagnostic.begin("scene.world_depth") if Diagnostic.enabled else 0
+	for interactable: InteractableView in _interactables:
+		interactable.update_boulder_depth_order(player_foot_y)
+	Diagnostic.end(span)
+
+
+func _sync_dropped_items() -> void:
+	var active_ids: Dictionary = {}
+	for drop_value: Variant in Session.get_world_drops():
+		if typeof(drop_value) != TYPE_DICTIONARY:
+			continue
+		var definition: Dictionary = drop_value as Dictionary
+		var drop_id: String = String(definition.get("drop_id", ""))
+		if drop_id.is_empty():
+			continue
+		active_ids[drop_id] = true
+		var drop: DroppedItem = _drop_views.get(drop_id) as DroppedItem
+		if drop == null or not is_instance_valid(drop):
+			drop = _create_dropped_item_view(definition)
+			if drop == null:
+				continue
+			_drop_views[drop_id] = drop
+		_update_dropped_item_view(drop, definition)
+
+	for drop_id_variant: Variant in _drop_views.keys():
+		var drop_id: String = String(drop_id_variant)
+		if active_ids.has(drop_id):
+			continue
+		var stale_drop: DroppedItem = (
+			_drop_views.get(drop_id) as DroppedItem
+		)
+		if stale_drop != null and is_instance_valid(stale_drop):
+			stale_drop.queue_free()
+		_drop_views.erase(drop_id)
+
+
+func _create_dropped_item_view(
+	definition: Dictionary
+) -> DroppedItem:
+	var drop := DroppedItemScene.instantiate() as DroppedItem
+	if drop == null:
+		push_error("Failed to create dropped item view.")
+		return null
+	_dropped_items.add_child(drop)
+	drop.pickup_requested.connect(
+		_on_dropped_item_pickup_requested
+	)
+	return drop
+
+
+func _update_dropped_item_view(
+	drop: DroppedItem,
+	definition: Dictionary
+) -> void:
+	var item_id: String = String(definition.get("item_id", ""))
+	var instance_id := String(definition.get("instance_id", ""))
+	var instance_state: Dictionary = Session.get_item_instance(instance_id).get("state", {}) as Dictionary if not instance_id.is_empty() else {}
+	var icon_path: String = _content.item_icon_path(item_id, instance_state)
+	var icon_texture: Texture2D
+	if not icon_path.is_empty():
+		icon_texture = load(icon_path) as Texture2D
+	if icon_texture == null:
+		icon_texture = PlaceholderIcon.texture_for(item_id)
+
+	drop.configure(
+		String(definition.get("drop_id", "")),
+		item_id,
+		int(definition.get("amount", 1)),
+		icon_texture
+	)
+	var position_data: Array = definition.get("position", []) as Array
+	if position_data.size() == 2:
+		drop.global_position = Vector2(
+			float(position_data[0]),
+			float(position_data[1])
+		)
+
+
+func _on_dropped_item_pickup_requested(
+	drop: DroppedItem
+) -> void:
+	if not is_instance_valid(drop):
+		return
+
+	Session.try_pickup_world_drop(drop.drop_id)
+
+
+func _unhandled_input(event: InputEvent) -> void:
+	var hud := get_node_or_null("../Hud/HudRoot")
+	if hud != null and bool(hud.call("is_modal_open")):
+		if (
+			event is InputEventMouseButton
+			or event.is_action_pressed(&"interact")
+		):
+			get_viewport().set_input_as_handled()
+			return
+	if event is InputEventMouseButton and event.pressed:
+		var mouse_event := event as InputEventMouseButton
+		var world_position := get_canvas_transform().affine_inverse()*mouse_event.position
+		if mouse_event.button_index == MOUSE_BUTTON_LEFT:
+			select_at_world_position(world_position)
+			get_viewport().set_input_as_handled()
+		elif mouse_event.button_index == MOUSE_BUTTON_RIGHT:
+			select_at_world_position(world_position)
+			if mouse_event.shift_pressed:
+				remove_selection()
+			else:
+				interact_with_selection(false)
+			get_viewport().set_input_as_handled()
+	elif event.is_action_pressed(&"interact"):
+		interact_with_selection(true)
+		get_viewport().set_input_as_handled()
+
+
+func select_at_world_position(world_position: Vector2) -> void:
+	var clicked_cell := Vector2i(floori(world_position.x / Catalog.CELL_SIZE), floori(world_position.y / Catalog.CELL_SIZE))
+	# A crop bed remains selectable beneath the canopy of a neighboring tree.
+	if not Session.get_farm_bed(clicked_cell).is_empty():
+		_selected_cell = clicked_cell
+		_set_selected(null)
+		_refresh_presentation()
+		return
+	var nearest: InteractableView
+	var nearest_distance: float = INF
+	for candidate: InteractableView in _interactables:
+		if not candidate.contains_world_point(world_position):
+			continue
+		var candidate_distance: float = candidate.global_position.distance_to(world_position)
+		if candidate_distance < nearest_distance:
+			nearest = candidate
+			nearest_distance = candidate_distance
+
+	if nearest != null and String(Session.get_active_item_instance().get("item_id", "")) == "core:hoe" and Session.simulation.farming._soil_allowed(Session.simulation, clicked_cell):
+		nearest = null
+	if nearest == null:
+		_selected_cell = Vector2i(floori(world_position.x / Catalog.CELL_SIZE), floori(world_position.y / Catalog.CELL_SIZE))
+	else:
+		_selected_cell = Vector2i(-1, -1)
+	_set_selected(nearest)
+	_refresh_presentation()
+
+
+func remove_selection() -> void:
+	var result: Dictionary
+	if _selected != null and is_instance_valid(_selected) and _selected.kind == "food":
+		result = Session.simulation.edit_world("clear_bush",Vector2i.ZERO,_selected.object_id)
+	else:
+		result = Session.simulation.edit_world("dismantle",_selected_cell)
+	Session.notify_player_key(String(result.message_key),{},bool(result.success))
+
+
+func interact_with_selection(continuous_work: bool = false) -> void:
+	if _selected == null and not Session.get_farm_bed(_selected_cell).is_empty():
+		var farm_position := Content.cell_center(_selected_cell.x, _selected_cell.y)
+		if _player.global_position.distance_to(farm_position) > Catalog.INTERACTION_RANGE:
+			Session.notify_player_key("interaction.failure.too_far")
+			return
+		farming_interaction_requested.emit(_selected_cell)
+		return
+	if _selected == null and WaterMapScript.contains_cell(_selected_cell):
+		if String(Session.get_active_item_instance().get("item_id", "")) == "core:bucket":
+			water_interaction_requested.emit(_selected_cell)
+		else:
+			Session.notify_player_key("ui.bucket.failure.not_equipped")
+		return
+	if _selected != null and is_instance_valid(_selected) and _selected.visible:
+		var selected_definition := _content.get_interactable(_selected.object_id)
+		if String(selected_definition.get("kind", "")) == "water" and String(Session.get_active_item_instance().get("item_id", "")) == "core:bucket":
+			var nearest_water := _nearest_water_cell(_selected.global_position)
+			if nearest_water != Vector2i(-1, -1):
+				water_interaction_requested.emit(nearest_water)
+				return
+	var blueprint: Dictionary = _get_selected_blueprint()
+	if not blueprint.is_empty():
+		var target_position := Content.cell_center(_selected_cell.x, _selected_cell.y)
+		if _player.global_position.distance_to(target_position) > Catalog.INTERACTION_RANGE:
+			Session.notify_player_key("interaction.failure.too_far")
+			return
+		blueprint_interaction_requested.emit(
+			Vector2i(int(blueprint.cell[0]), int(blueprint.cell[1])),
+			continuous_work
+		)
+		return
+	var structure: Dictionary = _get_selected_structure()
+	if not structure.is_empty():
+		var building: Dictionary = _building_catalog.get_definition(
+			String(structure.get("building_id", ""))
+		)
+		var building_id := String(structure.get("building_id", ""))
+		if not String(building.get("station_type", "")).is_empty() or building_id in ["core:bed", "core:bedroll","core:chair","core:table","core:torch","core:wood_door"]:
+			var target_position := Content.cell_center(_selected_cell.x, _selected_cell.y)
+			if _player.global_position.distance_to(target_position) > Catalog.INTERACTION_RANGE:
+				Session.notify_player_key("interaction.failure.too_far")
+				return
+			var structure_cell: Array = structure.get("cell", []) as Array
+			structure_interaction_requested.emit(
+				Vector2i(int(structure_cell[0]), int(structure_cell[1])),
+				continuous_work
+			)
+			return
+		if not _building_catalog.is_floor(building_id):
+			Session.notify_player_key("interaction.failure.unsupported_target")
+			return
+	if _is_selected_storage_cell():
+		var storage_position := Content.cell_center(_selected_cell.x, _selected_cell.y)
+		if _player.global_position.distance_to(storage_position) > Catalog.INTERACTION_RANGE:
+			Session.notify_player_key("interaction.failure.too_far")
+			return
+		storage_interaction_requested.emit(_selected_cell)
+		return
+
+	if _selected == null or not is_instance_valid(_selected) or not _selected.visible:
+		if _selected_cell.x >= 0 and String(Session.get_active_item_instance().get("item_id", "")) == "core:hoe":
+			farming_interaction_requested.emit(_selected_cell)
+			return
+		Session.notify_player_key("interaction.prompt.select_object")
+		return
+	var required_work: int = (
+		Session.get_resource_work_required(
+			_selected.object_id
+		)
+	)
+
+	if required_work > 0:
+		var distance: float = (
+			_player.global_position.distance_to(
+				_selected.global_position
+			)
+		)
+
+		if distance > Catalog.INTERACTION_RANGE:
+			Session.notify_player_key(
+				"interaction.failure.too_far"
+			)
+			return
+
+		resource_interaction_requested.emit(
+			_selected.object_id,
+			continuous_work
+		)
+		return
+
+	if _selected.kind == "npc":
+		npc_conversation_requested.emit(_selected.object_id)
+		return
+	Session.execute_interaction(_selected.object_id)
+	_refresh_interactables()
+	if _selected == null or not is_instance_valid(_selected):
+		return
+	if not _selected.visible:
+		_set_selected(null)
+	else:
+		var in_range: bool = (
+			_player.global_position.distance_to(_selected.global_position)
+			<= Catalog.INTERACTION_RANGE
+		)
+		selection_changed.emit(_selection_payload(_selected, in_range))
+
+
+func _nearest_water_cell(world_position: Vector2) -> Vector2i:
+	var best_cell := Vector2i(-1, -1)
+	var best_distance := INF
+	for cell: Vector2i in WaterMapScript.surface_cells():
+		var distance := world_position.distance_to(Content.cell_center(cell.x, cell.y))
+		if distance < best_distance:
+			best_distance = distance
+			best_cell = cell
+	return best_cell if best_distance <= Catalog.INTERACTION_RANGE * 2.0 else Vector2i(-1, -1)
+
+
+func _set_selected(value: InteractableView) -> void:
+	if _selected != null and is_instance_valid(_selected):
+		_selected.set_selected(false)
+	_selected = value
+	if _selected == null:
+		if _selected_cell.x < 0 or _selected_cell.y < 0:
+			selection_changed.emit({"kind": "none"})
+		elif not _get_selected_blueprint().is_empty():
+			selection_changed.emit(_blueprint_selection_payload())
+		elif not _get_selected_structure().is_empty():
+			selection_changed.emit(_structure_selection_payload())
+		elif _is_selected_storage_cell():
+			selection_changed.emit(_storage_selection_payload())
+		elif not Session.get_farm_bed(_selected_cell).is_empty():
+			selection_changed.emit({"kind": "structure", "label": Session.simulation.farming.status(Session.simulation, _selected_cell),
+				"in_range": _player.global_position.distance_to(Content.cell_center(_selected_cell.x, _selected_cell.y)) <= Content.INTERACTION_RANGE,
+				"status": Localized.resolve("farming.open_hint")})
+		else:
+			selection_changed.emit({
+				"kind": "cell",
+				"x": _selected_cell.x,
+				"y": _selected_cell.y,
+			})
+		return
+	_selected.set_selected(true)
+	var in_range: bool = _player.global_position.distance_to(_selected.global_position) <= Catalog.INTERACTION_RANGE
+	selection_changed.emit(_selection_payload(_selected, in_range))
+
+
+func _spawn_interactables() -> void:
+	var definitions: Array[Dictionary] = Catalog.interactables()
+	definitions = definitions.filter(func(definition: Dictionary) -> bool: return String(definition.get("kind","")) != "npc")
+	definitions.append_array(Session.simulation.npc_catalog.get_interactables())
+	definitions = definitions.filter(
+		func(definition: Dictionary) -> bool:
+			return bool(definition.get("spawn_in_world", true))
+	)
+	definitions.append_array(Session.get_surface_boulders())
+	definitions.append_array(Session.get_surface_trees())
+	definitions.append_array(Session.get_surface_berry_bushes())
+	var existing_by_id: Dictionary = {}
+	for interactable: InteractableView in _interactables:
+		if is_instance_valid(interactable):
+			existing_by_id[interactable.object_id] = interactable
+	var next_interactables: Array[InteractableView] = []
+	var retained_ids: Dictionary = {}
+	for definition: Dictionary in definitions:
+		var object_id := String(definition.get("id", ""))
+		var interactable: InteractableView
+		if existing_by_id.has(object_id):
+			interactable = existing_by_id[object_id] as InteractableView
+		else:
+			interactable = Interactable.new()
+			add_child(interactable)
+		interactable.configure(definition)
+		next_interactables.append(interactable)
+		retained_ids[object_id] = true
+	for old_interactable: InteractableView in _interactables:
+		if (
+			is_instance_valid(old_interactable)
+			and not retained_ids.has(old_interactable.object_id)
+		):
+			old_interactable.queue_free()
+	_interactables = next_interactables
+	_resource_view_snapshot = _resource_view_state().duplicate(true)
+
+
+func _resource_view_state() -> Dictionary:
+	# Inventory-only changes do not affect resource appearances or colliders.
+	return {
+		"trees": Session.simulation.state.get("tree_nodes", []),
+		"boulders": Session.simulation.state.get("resource_nodes", []),
+		"collected": Session.simulation.state.get("collected", {}),
+		"work": Session.simulation.state.get("resource_work", {}),
+	}
+
+
+func _refresh_interactables(snap: bool = false) -> void:
+	var resource_state := _resource_view_state()
+	var resources_changed := snap or _resource_view_snapshot != resource_state
+	var tree_definitions: Dictionary = {}
+	if resources_changed:
+		_resource_view_snapshot = resource_state.duplicate(true)
+		for definition: Dictionary in Session.get_surface_trees():
+			tree_definitions[String(definition.get("id", ""))] = definition
+	for interactable: InteractableView in _interactables:
+		if not resources_changed and interactable.presentation_id in ["surface_tree", "surface_stump", "surface_boulder"]:
+			continue
+		if tree_definitions.has(interactable.object_id):
+			interactable.configure(tree_definitions[interactable.object_id])
+		else:
+			interactable.refresh_from_state(snap)
+	_refresh_presentation()
+
+
+func _on_state_changed() -> void:
+	if _state_refresh_queued: return
+	_state_refresh_queued = true
+	call_deferred("_flush_state_refresh")
+
+
+func _flush_state_refresh() -> void:
+	if not _state_refresh_queued: return
+	_state_refresh_queued = false
+	var span := Diagnostic.begin("scene.world_state_refresh") if Diagnostic.enabled else 0
+	_refresh_session_state()
+	Diagnostic.end(span)
+
+
+func _refresh_session_state() -> void:
+	var npc_view_count := 0
+	for interactable: InteractableView in _interactables:
+		if interactable.kind == "npc": npc_view_count += 1
+	if npc_view_count != Session.simulation.npc_catalog.get_definitions().size(): _spawn_interactables()
+	_refresh_interactables()
+	_sync_dropped_items()
+	if _selected == null or not is_instance_valid(_selected):
+		if _selected_cell.x >= 0 and _selected_cell.y >= 0:
+			_set_selected(null)
+		return
+	if not _selected.visible:
+		_selected_cell = Vector2i(-1, -1)
+		_set_selected(null)
+		return
+	var in_range: bool = _player.global_position.distance_to(_selected.global_position) <= Catalog.INTERACTION_RANGE
+	selection_changed.emit(_selection_payload(_selected, in_range))
+
+
+func _on_state_reloaded() -> void:
+	_state_refresh_queued = false
+	_selected_cell = Vector2i(-1, -1)
+	_set_selected(null)
+	_spawn_interactables()
+	_refresh_interactables(true)
+	_sync_dropped_items()
+	_refresh_presentation(true)
+	queue_redraw()
+
+
+func _selection_payload(interactable: InteractableView, in_range: bool) -> Dictionary:
+	var result: Dictionary = {
+		"kind": "interactable",
+		"label": interactable.get_display_label(),
+		"in_range": in_range,
+		"object_id": interactable.object_id,
+	}
+	var status: String = interactable.get_status_text()
+	if interactable.kind == "food" and not Session.simulation.farming.berry_ready(Session.simulation, interactable.object_id):
+		status = Localized.resolve("farming.berry.empty")
+	if interactable.kind == "food":
+		status += "\n" + Localized.resolve("world_edit.bush.hint")
+	if not status.is_empty():
+		result["status"] = status
+	if interactable.kind == "repair" or interactable.kind == "bed":
+		result["sleep_preview"] = true
+	var required_tool_item_id: String = Session.get_resource_required_tool_item_id(
+		interactable.object_id
+	)
+	if (
+		not required_tool_item_id.is_empty()
+		and Session.get_resource_work_required(interactable.object_id) > 0
+		and not Session.is_collected(interactable.object_id)
+	):
+		result["required_tool_item_id"] = required_tool_item_id
+		result["action_hint_key"] = "resource.selection.hold_to_work"
+	return result
+
+
+func _get_selected_blueprint() -> Dictionary:
+	if _selected_cell.x < 0 or _selected_cell.y < 0:
+		return {}
+	var blueprints := Session.get_blueprints()
+	for index: int in range(blueprints.size() - 1, -1, -1):
+		var blueprint_value: Variant = blueprints[index]
+		if typeof(blueprint_value) != TYPE_DICTIONARY:
+			continue
+		var blueprint: Dictionary = blueprint_value as Dictionary
+		if _entity_covers_selected_cell(blueprint):
+			return blueprint
+	return {}
+
+
+func _get_selected_structure() -> Dictionary:
+	if _selected_cell.x < 0 or _selected_cell.y < 0:
+		return {}
+	var fallback: Dictionary = {}
+	for structure_value: Variant in Session.get_structures():
+		if typeof(structure_value) != TYPE_DICTIONARY:
+			continue
+		var structure := structure_value as Dictionary
+		if _entity_covers_selected_cell(structure):
+			var building_id := String(structure.get("building_id", ""))
+			var definition := _building_catalog.get_definition(building_id)
+			if not String(definition.get("station_type", "")).is_empty():
+				return structure
+			if not _building_catalog.is_floor(building_id):
+				fallback = structure
+			elif fallback.is_empty():
+				fallback = structure
+	return fallback
+
+
+func _entity_covers_selected_cell(entity: Dictionary) -> bool:
+	var cell_data: Array = entity.get("cell", []) as Array
+	if cell_data.size() != 2:
+		return false
+	var origin := Vector2i(int(cell_data[0]), int(cell_data[1]))
+	var building_id := String(entity.get("building_id", ""))
+	return _building_catalog.get_footprint_cells(building_id, origin).has(
+		_selected_cell
+	)
+
+
+func _is_selected_storage_cell() -> bool:
+	return not _get_selected_storage_zone().is_empty()
+
+
+func _get_selected_storage_zone() -> Dictionary:
+	if _selected_cell.x < 0 or _selected_cell.y < 0:
+		return {}
+	for zone: Dictionary in Session.get_storage_zones():
+		for cell_value: Variant in zone.get("cells", []):
+			if cell_value == [_selected_cell.x, _selected_cell.y]:
+				return zone
+	return {}
+
+
+func _storage_selection_payload() -> Dictionary:
+	var target := Content.cell_center(_selected_cell.x, _selected_cell.y)
+	var total_items := 0
+	for amount_value: Variant in Session.get_storage_contents(_selected_cell).values():
+		total_items += int(amount_value)
+	return {
+		"kind": "storage",
+		"x": _selected_cell.x,
+		"y": _selected_cell.y,
+		"label": Localized.resolve("ui.storage.zone.name"),
+		"status": Localized.resolve("ui.storage.zone.contents", {
+			"count": total_items,
+		}),
+		"in_range": _player.global_position.distance_to(target) <= Catalog.INTERACTION_RANGE,
+	}
+
+
+func _structure_selection_payload() -> Dictionary:
+	var structure: Dictionary = _get_selected_structure()
+	var building: Dictionary = _building_catalog.get_definition(
+		String(structure.get("building_id", ""))
+	)
+	var status := ""
+	for project_value: Variant in Session.get_crafting_projects():
+		if typeof(project_value) != TYPE_DICTIONARY:
+			continue
+		var project := project_value as Dictionary
+		if project.get("cell", []) != structure.get("cell", []):
+			continue
+		var recipe := _crafting_catalog.get_definition(String(project.get("recipe_id", "")))
+		status = Localized.resolve("crafting.project.status", {
+			"recipe": Localized.resolve(String(recipe.get("label_key", ""))),
+			"progress": int(project.get("work_progress_minutes", 0)),
+			"required": int(project.get("required_work_minutes", 0)),
+		})
+		var owner_id := String(project.get("owner_id", ""))
+		if not owner_id.is_empty():
+			status += "\n" + Localized.resolve("npc.production.station_owner", {"name": Localized.text_reference(Session.simulation.npc_catalog.get_label_key(Session.simulation.state.npcs,owner_id,"npc.generic.traveler.name"))})
+		break
+	var structure_cell: Array = structure.get("cell", []) as Array
+	var target_position := Content.cell_center(_selected_cell.x, _selected_cell.y)
+	var sleep_place := String(structure.get("building_id", "")) in ["core:bed", "core:bedroll"]
+	if String(structure.get("building_id","")) in ["core:chair","core:table"]:
+		status = Localized.resolve("furniture.open_hint")
+	elif String(structure.get("building_id","")) == "core:torch":
+		status = Localized.resolve("furniture.light.on_hint" if bool(structure.get("lit",true)) else "furniture.light.off_hint")
+	if String(structure.get("building_id","")) == "core:wood_door":
+		status = Localized.resolve("world_edit.door.open_hint" if bool(structure.get("open",true)) else "world_edit.door.closed_hint")
+	if sleep_place:
+		var place_id := "%s@%d,%d" % [structure.building_id, structure_cell[0], structure_cell[1]]
+		var home: Dictionary = Session.simulation.housing.preview_status(Session.simulation, place_id)
+		status = Localized.resolve(String(home.reason_key)) if not bool(home.valid) else Localized.resolve("sleep.preview.full" if bool(home.covered) else "sleep.preview.partial", {
+			"energy": roundi(Session.get_sleep_energy_preview(place_id)), "energy_max": roundi(Session.get_player_energy_max())})
+		if bool(home.valid) and Session.simulation.get_minute_of_day() >= Session.simulation.MORNING_MINUTE and Session.simulation.get_minute_of_day() < Session.simulation.EVENING_MINUTE:
+			status = Localized.resolve("housing.day_rest")
+	status += "\n" + Localized.resolve("world_edit.dismantle.hint")
+	return {
+		"kind": "structure",
+		"x": int(structure_cell[0]),
+		"y": int(structure_cell[1]),
+		"building_id": String(structure.get("building_id", "")),
+		"label": Localized.resolve(String(building.get("label_key", ""))),
+		"status": status,
+		"sleep_preview": sleep_place,
+		"in_range": _player.global_position.distance_to(target_position) <= Catalog.INTERACTION_RANGE,
+	}
+
+
+func _blueprint_selection_payload() -> Dictionary:
+	var blueprint: Dictionary = _get_selected_blueprint()
+	if blueprint.is_empty():
+		return {
+			"kind": "cell",
+			"x": _selected_cell.x,
+			"y": _selected_cell.y,
+		}
+	var building: Dictionary = _building_catalog.get_definition(
+		String(blueprint.get("building_id", ""))
+	)
+	var label: String = Localized.resolve(
+		String(building.get("label_key", "building.core.wood_wall.name"))
+	)
+	var progress_parts: PackedStringArray = []
+	var anchor_cell: Array = blueprint.get("cell", []) as Array
+	var required: Dictionary = blueprint.get("required_materials", {}) as Dictionary
+	var delivered: Dictionary = blueprint.get("delivered_materials", {}) as Dictionary
+	var item_ids: Array[String] = []
+	for item_variant: Variant in required.keys():
+		item_ids.append(String(item_variant))
+	item_ids.sort()
+	for item_id: String in item_ids:
+		progress_parts.append(Localized.resolve(
+			"construction.blueprint.material_progress",
+			{
+				"item": Localized.resolve(_content.item_label_key(item_id)),
+				"delivered": int(delivered.get(item_id, 0)),
+				"required": int(required.get(item_id, 0)),
+			}
+		))
+	progress_parts.append(Localized.resolve(
+		"construction.blueprint.work_progress",
+		{
+			"progress": int(blueprint.get("work_progress_minutes", 0)),
+			"required": int(blueprint.get("required_work_minutes", 0)),
+		}
+	))
+	var target_position := Content.cell_center(_selected_cell.x, _selected_cell.y)
+	return {
+		"kind": "blueprint",
+		"x": int(anchor_cell[0]),
+		"y": int(anchor_cell[1]),
+		"label": label,
+		"status": ", ".join(progress_parts),
+		"in_range": (
+			_player.global_position.distance_to(target_position)
+			<= Catalog.INTERACTION_RANGE
+		),
+	}
+
+
+func _build_static_collision() -> void:
+	var map_pixels := Vector2(Catalog.MAP_SIZE * Catalog.CELL_SIZE)
+	_add_static_rect(Rect2(-32.0, -32.0, map_pixels.x + 64.0, 32.0))
+	_add_static_rect(Rect2(-32.0, map_pixels.y, map_pixels.x + 64.0, 32.0))
+	_add_static_rect(Rect2(-32.0, 0.0, 32.0, map_pixels.y))
+	_add_static_rect(Rect2(map_pixels.x, 0.0, 32.0, map_pixels.y))
+
+	var tile: float = float(Catalog.CELL_SIZE)
+	for water_cell: Vector2i in WaterMapScript.surface_cells():
+		_add_static_rect(WaterMapScript.cell_rect(water_cell))
+	_add_static_rect(Rect2(19.0 * tile, 17.0 * tile, 10.0 * tile, 16.0))
+	_add_static_rect(Rect2(19.0 * tile, 17.0 * tile, 16.0, 9.0 * tile))
+	_add_static_rect(Rect2(29.0 * tile - 16.0, 17.0 * tile, 16.0, 9.0 * tile))
+	_add_static_rect(Rect2(19.0 * tile, 26.0 * tile - 16.0, 5.0 * tile, 16.0))
+	_add_static_rect(Rect2(25.0 * tile, 26.0 * tile - 16.0, 4.0 * tile, 16.0))
+
+
+func _add_static_rect(rect: Rect2) -> void:
+	var body := StaticBody2D.new()
+	body.collision_layer = 2
+	body.collision_mask = 0
+	body.position = rect.get_center()
+	var shape := RectangleShape2D.new()
+	shape.size = rect.size
+	var collision := CollisionShape2D.new()
+	collision.shape = shape
+	body.add_child(collision)
+	add_child(body)
+
+
+func _build_presentation_layers() -> void:
+	# Insert before structures/interactables to preserve the original draw order.
+	var order := ["rooms","house","storage_zones","storage","farm","grid","selection"]
+	var methods := [_draw_rooms,_draw_house,_draw_storage_zones,_draw_storage_items,_draw_farm_beds,_draw_grid,_draw_selection]
+	for i: int in range(order.size()):
+		var layer := PresentationLayer.new()
+		layer.name = "Presentation_" + order[i]
+		layer.draw_callback = methods[i]
+		layer.trace_label = "scene.world_%s_draw" % order[i]
+		add_child(layer)
+		move_child(layer,i)
+		_presentation_layers[order[i]] = layer
+
+
+func _refresh_presentation(force: bool = false) -> void:
+	if _presentation_layers.is_empty(): return
+	var sim = Session.simulation
+	_presentation_layers.rooms.refresh(sim.state.room_assignments,force)
+	_presentation_layers.storage_zones.refresh(sim.state.storage_zones,force)
+	var stored_instances := {}
+	var stored_ids := {}
+	for item: Dictionary in sim.state.storage_items:
+		if item.has("instance_id"): stored_ids[String(item.instance_id)] = true
+	for instance: Dictionary in sim.state.item_instances:
+		if stored_ids.has(String(instance.instance_id)): stored_instances[String(instance.instance_id)] = instance.state
+	var storage_inputs := {"items":sim.state.storage_items,"instances":stored_instances,
+		"zones":sim.state.storage_zones,"geometry":sim.structure_index.geometry_revision}
+	if _presentation_layers.storage.refresh(storage_inputs,force):
+		_storage_layouts = StoragePresentation.build_storage_view_layouts(sim)
+	_refresh_farm_presentation(force)
+	_presentation_layers.selection.refresh(_selected_cell,force)
+	if force:
+		_presentation_layers.house.refresh(null,true)
+		_presentation_layers.grid.refresh(null,true)
+
+
+func _refresh_farm_presentation(force: bool = false) -> void:
+	if _presentation_layers.is_empty(): return
+	var sim = Session.simulation
+	var inputs: Array = []
+	for bed: Dictionary in sim.state.farming.beds:
+		inputs.append({"cell":bed.cell,"crop":bed.crop_id,"growth":bed.growth,"harvests":bed.harvests,
+			"wet":int(bed.wet_until) > sim.get_elapsed_game_minutes()})
+	_presentation_layers.farm.refresh(inputs,force)
+
+
+func _draw() -> void:
+	var span := Diagnostic.begin("scene.world_draw") if Diagnostic.enabled else 0
+	var tile: float = float(Catalog.CELL_SIZE)
+	var map_pixels := Vector2(Catalog.MAP_SIZE * Catalog.CELL_SIZE)
+	draw_texture_rect(
+		GRASS_TILE,
+		Rect2(Vector2.ZERO, map_pixels),
+		true
+	)
+
+	for water_cell: Vector2i in WaterMapScript.surface_cells():
+		var water_rect := WaterMapScript.cell_rect(water_cell)
+		draw_rect(water_rect, Color("356c79"))
+		if posmod(water_cell.y, 2) == 1 and water_cell.x == 3:
+			draw_line(
+				water_rect.position + Vector2(3.0, tile * 0.5),
+				water_rect.position + Vector2(tile - 3.0, tile * 0.5),
+				Color(0.45, 0.72, 0.73, 0.45),
+				2.0
+			)
+
+	draw_colored_polygon(PackedVector2Array([
+		Vector2(7.0 * tile, 20.0 * tile),
+		Vector2(9.0 * tile, 21.0 * tile),
+		Vector2(8.0 * tile, 35.0 * tile),
+		Vector2(7.0 * tile, 35.0 * tile),
+	]), Color("b39a69"))
+
+	# Keep the paths narrow and draw them beneath buildings and the shoreline.
+	var road_tint := Color(1.0, 1.0, 1.0, 0.86)
+	draw_texture_rect(
+		ROAD_TILE,
+		Rect2(23.5 * tile, 26.0 * tile, tile, 12.0 * tile),
+		true,
+		road_tint
+	)
+	draw_texture_rect(
+		ROAD_TILE,
+		Rect2(8.0 * tile, 30.5 * tile, 16.0 * tile, tile),
+		true,
+		road_tint
+	)
+	Diagnostic.end(span)
+
+
+func _draw_rooms(canvas: Node2D) -> void:
+	for room: Dictionary in Session.get_room_assignments():
+		if String(room.get("room_type_id", "")) != "core:living_room":
+			continue
+		for cell_value: Variant in room.get("cells", []):
+			if typeof(cell_value) != TYPE_ARRAY or (cell_value as Array).size() != 2:
+				continue
+			var room_cell := Vector2i(int(cell_value[0]), int(cell_value[1]))
+			var room_rect := Rect2(Vector2(room_cell * Catalog.CELL_SIZE), Vector2.ONE * Catalog.CELL_SIZE)
+			canvas.draw_rect(room_rect.grow(-2.0), Color(0.77, 0.62, 0.35, 0.15), true)
+			canvas.draw_rect(room_rect.grow(-2.0), Color(0.92, 0.76, 0.45, 0.48), false, 1.0)
+
+
+
+func _draw_house(canvas: Node2D) -> void:
+	var tile := float(Catalog.CELL_SIZE)
+	canvas.draw_texture_rect(
+		DIRT_TILE,
+		Rect2(19.0 * tile, 17.0 * tile, 10.0 * tile, 9.0 * tile),
+		true
+	)
+	canvas.draw_rect(Rect2(19.0 * tile, 17.0 * tile, 10.0 * tile, 16.0), Color("3d3933"))
+	canvas.draw_rect(Rect2(19.0 * tile, 17.0 * tile, 16.0, 9.0 * tile), Color("3d3933"))
+	canvas.draw_rect(Rect2(29.0 * tile - 16.0, 17.0 * tile, 16.0, 9.0 * tile), Color("3d3933"))
+	canvas.draw_rect(Rect2(19.0 * tile, 26.0 * tile - 16.0, 5.0 * tile, 16.0), Color("3d3933"))
+	canvas.draw_rect(Rect2(25.0 * tile, 26.0 * tile - 16.0, 4.0 * tile, 16.0), Color("3d3933"))
+	canvas.draw_rect(Rect2(24.0 * tile, 26.0 * tile - 8.0, tile, 8.0), Color("b99b68"))
+
+
+
+func _draw_storage_zones(canvas: Node2D) -> void:
+	for zone: Dictionary in Session.get_storage_zones():
+		for cell_value: Variant in zone.get("cells", []):
+			if typeof(cell_value) != TYPE_ARRAY or (cell_value as Array).size() != 2:
+				continue
+			var cell := Vector2i(int(cell_value[0]), int(cell_value[1]))
+			var zone_rect := Rect2(Vector2(cell * Catalog.CELL_SIZE), Vector2(Catalog.CELL_SIZE, Catalog.CELL_SIZE))
+			canvas.draw_rect(zone_rect.grow(-2.0), Color(0.38, 0.68, 0.50, 0.24), true)
+			canvas.draw_rect(zone_rect.grow(-2.0), Color(0.48, 0.82, 0.62, 0.58), false, 1.0)
+
+
+func _draw_storage_items(canvas: Node2D) -> void:
+	for zone: Dictionary in Session.get_storage_zones():
+		for cell_value: Variant in zone.get("cells", []):
+			if typeof(cell_value) != TYPE_ARRAY or (cell_value as Array).size() != 2:
+				continue
+			var cell := Vector2i(int(cell_value[0]), int(cell_value[1]))
+			var placements: Array = _storage_layouts.get(cell,[])
+			if placements.is_empty():
+				continue
+			var cell_origin := Vector2(cell * Catalog.CELL_SIZE)
+			var storage_size := Session.get_storage_grid_size(cell)
+			var mini_slot := 8.0 if storage_size.y > 2 else 10.0
+			var mini_origin := cell_origin + Vector2(
+				(float(Catalog.CELL_SIZE) - storage_size.x * mini_slot) * 0.5,
+				(float(Catalog.CELL_SIZE) - storage_size.y * mini_slot) * 0.5
+			)
+			for row: int in range(storage_size.y):
+				for column: int in range(storage_size.x):
+					canvas.draw_rect(Rect2(mini_origin + Vector2(column, row) * mini_slot, Vector2.ONE * mini_slot), Color(0.08, 0.08, 0.07, 0.48), true)
+			for placement: Dictionary in placements:
+				var item_id := String(placement.get("item_id", ""))
+				var item_origin: Vector2i = placement.get("origin", Vector2i.ZERO)
+				var footprint: Array = placement.get("footprint", [])
+				var max_cell := Vector2i.ZERO
+				for offset_variant: Variant in footprint:
+					if offset_variant is Vector2i:
+						max_cell = max_cell.max(offset_variant)
+				var icon_path := String(placement.get("icon_path", _content.item_icon_path(item_id)))
+				var icon := _get_storage_icon(item_id,icon_path)
+				var icon_rect := Rect2(
+					mini_origin + Vector2(item_origin) * mini_slot,
+					Vector2(max_cell + Vector2i.ONE) * mini_slot
+				)
+				IconPresentation.draw_icon(canvas, icon, icon_rect, int(placement.get("rotation", 0)), 0.0)
+				if int(placement.get("amount", 1)) > 1:
+					canvas.draw_string(ThemeDB.fallback_font, icon_rect.end + Vector2(1.0, 0.0), str(placement.amount), HORIZONTAL_ALIGNMENT_RIGHT, 12.0, 7, Color.WHITE)
+
+
+
+func _get_storage_icon(item_id: String, path: String) -> Texture2D:
+	if path.is_empty(): return PlaceholderIcon.texture_for(item_id)
+	if _storage_icon_cache.has(path): return _storage_icon_cache[path]
+	var span := Diagnostic.begin("scene.storage_icon_load") if Diagnostic.enabled else 0
+	var icon := load(path) as Texture2D
+	Diagnostic.end(span)
+	if icon != null:
+		_storage_icon_cache[path] = icon
+		return icon
+	return PlaceholderIcon.texture_for(item_id)
+
+
+func _draw_farm_beds(canvas: Node2D) -> void:
+	for bed: Dictionary in Session.get_farm_beds():
+		var origin := Vector2(int(bed.cell[0]), int(bed.cell[1])) * Content.CELL_SIZE
+		var wet := int(bed.wet_until) > Session.simulation.get_elapsed_game_minutes()
+		canvas.draw_rect(Rect2(origin + Vector2(2, 2), Vector2(28, 28)), Color("554634") if wet else Color("98744c"))
+		for row: int in range(3):
+			canvas.draw_line(origin + Vector2(4, 7 + row * 8), origin + Vector2(28, 7 + row * 8), Color("3b3228"), 1)
+		var crop := Session.simulation.farming.catalog.find(String(bed.crop_id))
+		if crop.is_empty():
+			continue
+		var ratio := float(bed.growth) / float(Session.simulation.farming._required_growth(bed, crop))
+		var center := origin + Vector2(16, 16)
+		if ratio < 0.25:
+			canvas.draw_circle(center, 2, Color("e4d29b"))
+		else:
+			canvas.draw_line(center + Vector2(0, 9), center - Vector2(0, 7), Color("547d41"), 2)
+			canvas.draw_circle(center + Vector2(-4, 0), 4, Color("729953"))
+			canvas.draw_circle(center + Vector2(4, -4), 4, Color("729953"))
+			if ratio >= 1.0:
+				canvas.draw_circle(center - Vector2(0, 8), 5, Color(String(crop.color)))
+
+
+
+
+func _draw_grid(canvas: Node2D) -> void:
+	var tile := float(Catalog.CELL_SIZE)
+	var map_pixels := Vector2(Catalog.MAP_SIZE * Catalog.CELL_SIZE)
+	var grid_color := Color(0.12, 0.16, 0.11, 0.10)
+	for x_line: int in range(Catalog.MAP_SIZE.x + 1):
+		canvas.draw_line(Vector2(x_line * tile, 0.0), Vector2(x_line * tile, map_pixels.y), grid_color, 1.0)
+	for y_line: int in range(Catalog.MAP_SIZE.y + 1):
+		canvas.draw_line(Vector2(0.0, y_line * tile), Vector2(map_pixels.x, y_line * tile), grid_color, 1.0)
+
+
+
+func _draw_selection(canvas: Node2D) -> void:
+	var tile := float(Catalog.CELL_SIZE)
+	if _selected_cell.x >= 0 and _selected_cell.y >= 0 and _selected_cell.x < Catalog.MAP_SIZE.x and _selected_cell.y < Catalog.MAP_SIZE.y:
+		var selected_rect := Rect2(Vector2(_selected_cell) * tile, Vector2(tile, tile))
+		canvas.draw_rect(selected_rect.grow(-1.0), Color("f1d66b"), false, 2.0)

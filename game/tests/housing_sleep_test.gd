@@ -45,7 +45,7 @@ func _test_starter_and_shared_places() -> void:
 	var player: Dictionary = sim.get_character_home("core:player")
 	check(String(player.get("place_id", "")) == "core:starter_bedroll", "Player has a starter bedroll without an expensive bed")
 	check(not sim.assign_sleep_place("core:first_neighbor", "core:starter_bedroll").success, "NPC cannot take the player's occupied bedroll")
-	sim.state.structures.append({"building_id": "core:bedroll", "cell": [20,23]})
+	sim.add_structure({"building_id": "core:bedroll", "cell": [20,23]})
 	sim._sync_structure_navigation()
 	check(sim.assign_sleep_place("core:first_neighbor", "core:bedroll@20,23").success, "A second cheap bedroll can be assigned in the shared base house")
 	var npc: Dictionary = sim.get_character_home("core:first_neighbor")
@@ -56,7 +56,7 @@ func _test_starter_and_shared_places() -> void:
 
 func _test_npc_sleep_and_save() -> void:
 	var sim = fixture()
-	sim.state.structures.append({"building_id": "core:bed", "cell": [20,23]})
+	sim.add_structure({"building_id": "core:bed", "cell": [20,23]})
 	sim._sync_structure_navigation()
 	check(sim.assign_sleep_place("core:first_neighbor", "core:bed@20,23").success, "Resident can be assigned a real constructed bed")
 	var before: float = sim.state.npcs["core:first_neighbor"].needs.energy
@@ -77,10 +77,10 @@ func _test_quality_and_missing_place() -> void:
 	check(sim.sleep_at_place("core:starter_bedroll").success, "Starter bedroll supports real night sleep")
 	check(sim.get_player_energy() == 100, "Covered starter bedroll preserves full energy recovery")
 	var npc: Dictionary = sim.state.npcs["core:first_neighbor"]
-	sim.state.structures.append({"building_id": "core:bed", "cell": [20,23]})
+	sim.add_structure({"building_id": "core:bed", "cell": [20,23]})
 	sim._sync_structure_navigation()
 	sim.assign_sleep_place(String(npc.id), "core:bed@20,23")
-	sim.state.structures.pop_back()
+	sim.remove_structure(sim.state.structures.back())
 	sim._sync_structure_navigation()
 	var missing: Dictionary = sim.get_character_home(String(npc.id))
 	check(not bool(missing.get("valid", false)), "Removed bed does not remain a usable phantom place")
@@ -95,17 +95,17 @@ func _test_quality_and_missing_place() -> void:
 func room_fixture():
 	var sim = fixture()
 	sim.state.flags.repair_stage = 0
-	sim.state.structures.clear()
+	sim.replace_structures([])
 	sim.state.tree_nodes.clear()
 	sim.state.resource_nodes.clear()
 	for y: int in range(10,16):
 		for x: int in range(10,17):
 			if x == 10 or x == 16 or y == 10 or y == 15:
-				sim.state.structures.append({"building_id":"core:wood_door" if x == 13 and y == 15 else "core:wood_wall", "cell":[x,y]})
-	sim.state.structures.append({"building_id":"core:bed", "cell":[11,11]})
-	sim.state.structures.append({"building_id":"core:bedroll", "cell":[14,13]})
-	sim.state.structures.append({"building_id":"core:table", "cell":[12,12]})
-	sim.state.structures.append({"building_id":"core:torch", "cell":[15,11]})
+				sim.add_structure({"building_id":"core:wood_door" if x == 13 and y == 15 else "core:wood_wall", "cell":[x,y]})
+	sim.add_structure({"building_id":"core:bed", "cell":[11,11]})
+	sim.add_structure({"building_id":"core:bedroll", "cell":[14,13]})
+	sim.add_structure({"building_id":"core:table", "cell":[12,12]})
+	sim.add_structure({"building_id":"core:torch", "cell":[15,11]})
 	sim._sync_structure_navigation()
 	check(sim.assign_room_type("core:living_room", Vector2i(11,12)).success, "Real furnished enclosure can be designated a living room")
 	return sim
@@ -120,18 +120,20 @@ func _test_constructed_shared_room() -> void:
 	check(player.room_id == npc.room_id and bool(npc.covered) and not sim.is_roof_covered(), "Constructed room has independent shelter from the starting roof")
 	sim.set_player_position(Content.cell_center(11,10))
 	check(not sim.sleep_at_place("core:bed@11,11").success, "A nearby bed cannot be used through its room wall")
-	sim.state.structures.append({"building_id":"core:bed", "cell":[32,32]})
+	sim.add_structure({"building_id":"core:bed", "cell":[32,32]})
 	sim._sync_structure_navigation()
 	check(not sim.assign_sleep_place("core:player", "core:bed@32,32").success, "Outdoor bed cannot be assigned as housing")
-	for structure: Dictionary in sim.state.structures:
+	var updated: Array = sim.get_structures()
+	for structure: Dictionary in updated:
 		if structure.cell == [13,15]:
 			structure.building_id = "core:wood_wall"
+	sim.replace_structures(updated)
 	sim._sync_structure_navigation()
 	check(not bool(sim.get_character_home("core:first_neighbor").valid), "A completely closed door invalidates access to assigned housing")
 	check(not sim.assign_sleep_place("core:first_neighbor", "core:bedroll@14,13").success, "Unreachable housing cannot be assigned")
 	for index: int in range(sim.state.structures.size()):
 		if sim.state.structures[index].cell == [10,12]:
-			sim.state.structures.remove_at(index)
+			sim.remove_structure(sim.state.structures[index])
 			break
 	sim._sync_structure_navigation()
 	check(not bool(sim.get_character_home("core:player").valid), "Opening the enclosing wall invalidates actual housing geometry")
@@ -173,13 +175,13 @@ func _test_fallback_and_starter_overlap() -> void:
 	var sim = fixture()
 	check(not sim.execute_construction_command(Construction.place_blueprint(Vector2i(26,23),"core:bedroll")).success, "Furniture cannot duplicate the starter's physical place")
 	check(not sim.execute_construction_command(Construction.place_blueprint(Vector2i(25,23),"core:bed")).success, "Full furniture footprint reserves starter place")
-	sim.state.structures.append({"building_id":"core:wood_wall", "cell":[25,23]})
+	sim.add_structure({"building_id":"core:wood_wall", "cell":[25,23]})
 	sim._sync_structure_navigation()
 	sim.state.npcs["core:first_neighbor"].needs.energy = 5.0
 	sim.advance_minutes(110)
 	check(String(sim.state.npcs["core:first_neighbor"].activity_id) == "core:resting" and float(sim.state.npcs["core:first_neighbor"].needs.energy) > 5, "Resident without housing finds reachable temporary rest when old rest cell is blocked")
 	var overlapping = fixture()
-	overlapping.state.structures.append({"building_id":"core:bed", "cell":[26,23]})
+	overlapping.add_structure({"building_id":"core:bed", "cell":[26,23]})
 	overlapping._sync_structure_navigation()
 	check(not bool(overlapping.get_character_home("core:player").valid), "Older overlapping furniture cannot produce two usable personal places")
 	check(overlapping.assign_sleep_place("core:first_neighbor", "core:bed@26,23").success, "Older constructed bed remains assignable without deleting it")

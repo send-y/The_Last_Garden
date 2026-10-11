@@ -7,6 +7,7 @@ const Localized := preload("res://src/localization/localized_text.gd")
 const HomeStock := preload("res://src/npc_work/home_project_stock.gd")
 const Production := preload("res://src/npc_work/npc_home_production.gd")
 const INVALID := Vector2i(-1,-1)
+const Diagnostic := preload("res://src/dev/diagnostic_trace.gd")
 
 static func normalize(npc: Dictionary) -> void:
 	npc.home_goal = clean_goal(npc.get("home_goal",{}))
@@ -58,7 +59,7 @@ static func missing(sim, npc: Dictionary, goal: Dictionary) -> Dictionary:
 
 static func status(sim, id: String) -> Dictionary:
 	var npc: Dictionary = sim.state.npcs.get(id,{})
-	if npc.is_empty() or sim.npc_catalog.get_definition(id).is_empty(): return {}
+	if npc.is_empty() or not sim.npc_catalog.has_definition(id): return {}
 	var goal: Dictionary = npc.home_goal
 	var state := "idle"
 	var lacks: Dictionary = {}
@@ -94,12 +95,18 @@ static func status(sim, id: String) -> Dictionary:
 		"expansion":expansion,"completed":npc.home_goals_completed.duplicate(true),"declined":npc.home_goals_declined.duplicate()}
 
 static func choose(sim, npc: Dictionary) -> Dictionary:
+	var span := Diagnostic.begin("home_project.choose") if Diagnostic.enabled else 0
+	var result := _choose(sim,npc)
+	Diagnostic.end(span)
+	return result
+
+static func _choose(sim, npc: Dictionary) -> Dictionary:
 	if String(npc.get("residency","resident")) == "visitor": return {}
 	var room := Layout.territory(sim,npc)
 	if room.is_empty(): return {}
 	if not sim.HomePolicy.may_furnish(sim,npc,String(room.id)): return {}
-	var furnishings: Array[Dictionary] = Layout.furnishings(sim,room)
-	var planned: Array[Dictionary] = Layout.furnishings(sim,room,true)
+	var furnishings: Array[Dictionary] = Layout.furnishings(sim,room,false,false)
+	var planned: Array[Dictionary] = Layout.furnishings(sim,room,true,false)
 	var has_table := false
 	var chair_count := 0
 	var has_light := false
@@ -137,7 +144,7 @@ static func choose(sim, npc: Dictionary) -> Dictionary:
 		var reserved := false
 		for other: Dictionary in sim.state.npcs.values():
 			var other_goal: Dictionary = other.get("home_goal",{})
-			if String(other.get("id","")) != String(npc.id) and not sim.npc_catalog.get_definition(String(other.get("id",""))).is_empty() and bool(other.get("active",false)) and not other_goal.is_empty() and String(other_goal.status) == "pending" and key(other_goal) == key(candidate): reserved = true
+			if String(other.get("id","")) != String(npc.id) and sim.npc_catalog.has_definition(String(other.get("id",""))) and bool(other.get("active",false)) and not other_goal.is_empty() and String(other_goal.status) == "pending" and key(other_goal) == key(candidate): reserved = true
 		if reserved: continue
 		var cell := INVALID
 		var placed := false
@@ -174,7 +181,7 @@ static func request_expansion(sim, npc: Dictionary, room_id: String, building_id
 	if String(previous.get("room_id","")) == room_id and String(previous.get("building_id","")) == building_id: return
 	npc.home_expansion = clean_expansion({"room_id":room_id,"building_id":building_id,"created_minute":sim.get_elapsed_game_minutes()})
 	sim._emit_result(true,"npc.home.expansion.requested",true,false,{"name":Localized.text_reference(sim.npc_catalog.get_label_key(sim.state.npcs,String(npc.id),"npc.generic.traveler.name")),
-		"item":Localized.text_reference(sim.building_catalog.get_definition(building_id).label_key)})
+		"item":Localized.text_reference(sim.building_catalog.get_definition(building_id).label_key)},false)
 
 static func refresh_authority(sim, npc: Dictionary) -> void:
 	var goal: Dictionary = npc.get("home_goal",{})
@@ -194,7 +201,9 @@ static func refresh_authority(sim, npc: Dictionary) -> void:
 		sim.NpcPracticalWork.cancel(npc)
 
 static func matching_structure(sim, goal: Dictionary) -> Dictionary:
-	for structure: Dictionary in sim.state.structures:
+	var cell: Array = goal.get("cell",[])
+	if cell.size() != 2: return {}
+	for structure: Dictionary in sim.structure_index.at(Vector2i(int(cell[0]),int(cell[1]))):
 		if structure.cell == goal.cell and String(structure.building_id) == String(goal.building_id): return structure
 	return {}
 
@@ -214,12 +223,18 @@ static func observe(sim, npc: Dictionary) -> void:
 			npc.home_goals_completed.append(goal.duplicate(true))
 			if npc.home_goals_completed.size() > 4: npc.home_goals_completed.pop_front()
 			npc.next_home_goal_minute = now + 60
-			sim._emit_result(true,"npc.goal.finished",true,false,{"name":Localized.text_reference(sim.npc_catalog.get_label_key(sim.state.npcs,String(npc.id),"npc.generic.traveler.name")),"item":Localized.text_reference(sim.building_catalog.get_definition(String(goal.building_id)).label_key)})
+			sim._emit_result(true,"npc.goal.finished",true,false,{"name":Localized.text_reference(sim.npc_catalog.get_label_key(sim.state.npcs,String(npc.id),"npc.generic.traveler.name")),"item":Localized.text_reference(sim.building_catalog.get_definition(String(goal.building_id)).label_key)},false)
 		elif bool(goal.tracked) and String(sim._find_blueprint(goal.cell).get("building_id","")) != String(goal.building_id):
 			decline(sim,npc,false)
 
 # Returns a physical job for the existing worker, preserving the higher-level goal.
 static func prepare(sim, npc: Dictionary) -> Dictionary:
+	var span := Diagnostic.begin("home_project.prepare") if Diagnostic.enabled else 0
+	var result := _prepare(sim,npc)
+	Diagnostic.end(span)
+	return result
+
+static func _prepare(sim, npc: Dictionary) -> Dictionary:
 	refresh_authority(sim,npc)
 	observe(sim,npc)
 	var goal: Dictionary = npc.home_goal
@@ -231,7 +246,7 @@ static func prepare(sim, npc: Dictionary) -> Dictionary:
 		npc.home_goal = choose(sim,npc)
 		goal = npc.home_goal
 		npc.next_home_goal_minute = now + 30
-		if not goal.is_empty(): sim._emit_result(true,"npc.goal.chosen",true,false,{"name":Localized.text_reference(sim.npc_catalog.get_label_key(sim.state.npcs,String(npc.id),"npc.generic.traveler.name")),"item":Localized.text_reference(sim.building_catalog.get_definition(String(goal.building_id)).label_key)})
+		if not goal.is_empty(): sim._emit_result(true,"npc.goal.chosen",true,false,{"name":Localized.text_reference(sim.npc_catalog.get_label_key(sim.state.npcs,String(npc.id),"npc.generic.traveler.name")),"item":Localized.text_reference(sim.building_catalog.get_definition(String(goal.building_id)).label_key)},false)
 	if goal.is_empty() or String(goal.status) != "pending": return {}
 	var current_status := status(sim,String(npc.id))
 	var production_job: Dictionary = {}

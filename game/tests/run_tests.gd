@@ -1722,14 +1722,14 @@ func _test_bucket_instances_hotbar_and_transfers() -> void:
 	var repeated_fill := simulation.fill_active_bucket(Vector2i(6, 27))
 	_expect(bool(repeated_fill.get("success", false)) and not bool(repeated_fill.get("changed", true)), "repeating fill with a full bucket is a no-op")
 	_expect(bool(simulation.select_hotbar_slot(1).get("success", false)), "the second bucket can be selected independently")
-	var structures: Array = simulation.state.get("structures", []) as Array
+	var structures: Array = simulation.get_structures()
 	structures.append({"building_id": "core:wood_wall", "cell": [7, 27], "stage_id": "core:complete"})
-	simulation.state["structures"] = structures
+	simulation.replace_structures(structures)
 	simulation.set_player_position(Content.cell_center(8, 27))
 	var blocked_fill := simulation.fill_active_bucket(Vector2i(6, 27))
 	_expect(not bool(blocked_fill.get("success", false)), "a constructed wall blocks filling through it")
 	_expect(int((simulation.get_item_instance(second_id).get("state", {}) as Dictionary).get("charges", 0)) == 1, "a blocked attempt preserves the partially filled bucket")
-	simulation.state["structures"] = []
+	simulation.replace_structures([])
 	simulation.set_player_position(Content.cell_center(7, 27))
 	var inventory_layout: Array[Dictionary] = simulation.get_inventory_layout()
 	for placement: Dictionary in inventory_layout:

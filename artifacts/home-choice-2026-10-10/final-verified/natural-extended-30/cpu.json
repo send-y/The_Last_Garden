@@ -1,0 +1,71 @@
+{
+  "native": {
+    "pid": 23984,
+    "main_tid": 22692
+  },
+  "logical_cpus": 12,
+  "measurements": [
+    {
+      "label": "idle_before",
+      "native_window_ms": 3068.27450000128,
+      "process_cpu_ms": 3015.625,
+      "main_cpu_ms": 2953.125,
+      "main_one_core_percent": 96.24709262482115,
+      "process_machine_percent": 8.190339010842363,
+      "other_threads_cpu_ms": 62.5,
+      "threads": [
+        {
+          "tid": 22692,
+          "cpu_ms": 2953.125
+        },
+        {
+          "tid": 23392,
+          "cpu_ms": 62.5
+        },
+        {
+          "tid": 16864,
+          "cpu_ms": 0
+        },
+        {
+          "tid": 25964,
+          "cpu_ms": 0
+        },
+        {
+          "tid": 8868,
+          "cpu_ms": 0
+        },
+        {
+          "tid": 1556,
+          "cpu_ms": 0
+        },
+        {
+          "tid": 26240,
+          "cpu_ms": 0
+        },
+        {
+          "tid": 22796,
+          "cpu_ms": 0
+        },
+        {
+          "tid": 24448,
+          "cpu_ms": 0
+        },
+        {
+          "tid": 24752,
+          "cpu_ms": 0
+        },
+        {
+          "tid": 24720,
+          "cpu_ms": 0
+        },
+        {
+          "tid": 6568,
+          "cpu_ms": 0
+        }
+      ],
+      "rss_end_bytes": 323403776,
+      "read_bytes_delta": 0,
+      "write_bytes_delta": 739
+    }
+  ]
+}

@@ -8,6 +8,10 @@ const ConstructionCommand := preload(
 const NpcWorkRequest := preload("res://src/simulation/npc_work_request.gd")
 const FirstNightContent := preload("res://src/content/first_night_content.gd")
 const ResidentHomes := preload("res://src/dev/resident_homes_scenario.gd")
+const SettlementStress := preload("res://src/dev/settlement_stress_scenario.gd")
+const SETTLEMENT_STRESS: StringName = &"settlement_stress"
+const STRESS_PRODUCTION: StringName = &"stress_production"
+const STRESS_GATHER: StringName = &"stress_gather"
 
 const FRESH_START: StringName = &"fresh_start"
 const RESIDENT_HOMES: StringName = &"resident_homes"
@@ -25,6 +29,9 @@ const PREPARED_MINUTE: int = 17 * 60 + 50
 
 static func definitions() -> Array[Dictionary]:
 	return [
+		{"id": SETTLEMENT_STRESS, "label": "30 жителей: стресс поселения", "description": "30 домов · 60 грядок · все работы.\nСклад пополняется. Пробел — пауза."},
+		{"id": STRESS_PRODUCTION, "label": "30 жителей: нужны доски", "description": "30 домов · нужны доски для мебели.\nСырьё и еда пополняются."},
+		{"id": STRESS_GATHER, "label": "30 жителей: добыча и полив", "description": "30 домов уже обустроены.\nДобыча сырья и полив; еда пополняется."},
 		{"id": HOME_PRODUCTION, "label":"Житель делает доски для дома", "description":"Личные дома и верстак. На общем складе 25 древесины; 5 защищены. Досок нет: житель должен изготовить их для своей мебели."},
 		{"id": RESIDENT_HOMES, "label":"Дома жителей и защищённый запас", "description":"Два знакомых жителя: отдельные дома, самостоятельная мебель, теснота и склад с защищённым запасом в 35 досок."},
 		{"id": GENERATED_RESIDENTS, "label":"Три случайных жителя", "description":"Три незнакомых человека рядом с домом: разговор, ночлег и работа."},
@@ -78,7 +85,7 @@ static func get_definition(scenario_id: StringName) -> Dictionary:
 	return {}
 
 
-static func build(scenario_id: StringName) -> Dictionary:
+static func build(scenario_id: StringName, stress_count: int = 30) -> Dictionary:
 	var definition: Dictionary = get_definition(scenario_id)
 	if definition.is_empty():
 		return {
@@ -88,6 +95,13 @@ static func build(scenario_id: StringName) -> Dictionary:
 			"steps": [],
 		}
 
+	if scenario_id in [SETTLEMENT_STRESS, STRESS_PRODUCTION, STRESS_GATHER]:
+		var mode := "production" if scenario_id == STRESS_PRODUCTION else ("gather" if scenario_id == STRESS_GATHER else "full")
+		var stress: Dictionary = SettlementStress.build(stress_count, mode)
+		stress.scenario_id = scenario_id
+		stress.definition = definition
+		stress.steps = []
+		return stress
 	var initial_state: Dictionary = Simulation.create_new_state()
 	if scenario_id in [RESIDENT_HOMES,HOME_PRODUCTION]: initial_state = ResidentHomes.initial_state()
 	if scenario_id == HOME_PRODUCTION:

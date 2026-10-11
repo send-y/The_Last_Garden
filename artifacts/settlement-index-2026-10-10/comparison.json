@@ -1,0 +1,268 @@
+{
+  "authority_equal": {
+    "initial": true,
+    "minute_1": true,
+    "minute_2": true
+  },
+  "checks_passed": 25,
+  "comparison": [
+    {
+      "case": "work-30",
+      "label": "idle_before",
+      "before_wall_ms": 3011.393,
+      "after_wall_ms": 3011.422,
+      "ratio": 0.9999903699979611,
+      "geometry_compare_calls_before": 0,
+      "geometry_compare_calls_after": 0,
+      "policy_rebuild_calls": 0,
+      "housing_rebuild_calls": 0,
+      "structure_validation_enabled": false,
+      "frames": {
+        "frames": 138,
+        "max_frame_ms": 81.358
+      },
+      "spans": {
+        "lighting.rebuild": {
+          "calls": 1,
+          "inclusive_us": 16471,
+          "maximum_us": 16471,
+          "self_us": 16471
+        },
+        "lighting.serialize_structures": {
+          "calls": 138,
+          "inclusive_us": 978747,
+          "maximum_us": 11168,
+          "self_us": 978747
+        }
+      }
+    },
+    {
+      "case": "work-30",
+      "label": "minute_1",
+      "before_wall_ms": 28487.584,
+      "after_wall_ms": 1488.818,
+      "ratio": 19.13436296444562,
+      "geometry_compare_calls_before": 54925,
+      "geometry_compare_calls_after": 0,
+      "policy_rebuild_calls": 0,
+      "housing_rebuild_calls": 0,
+      "structure_validation_enabled": false,
+      "frames": {},
+      "spans": {}
+    },
+    {
+      "case": "work-30",
+      "label": "render_after_1",
+      "before_wall_ms": 3090.801,
+      "after_wall_ms": 3016.226,
+      "ratio": 1.0247246061800408,
+      "geometry_compare_calls_before": 0,
+      "geometry_compare_calls_after": 0,
+      "policy_rebuild_calls": 0,
+      "housing_rebuild_calls": 0,
+      "structure_validation_enabled": false,
+      "frames": {
+        "frames": 1,
+        "max_frame_ms": 3016.213
+      },
+      "spans": {
+        "lighting.serialize_structures": {
+          "calls": 1,
+          "inclusive_us": 7121,
+          "maximum_us": 7121,
+          "self_us": 7121
+        },
+        "storage.grid_size_query": {
+          "calls": 137,
+          "inclusive_us": 2663606,
+          "maximum_us": 27546,
+          "self_us": 2663606
+        },
+        "storage.layout_query": {
+          "calls": 152,
+          "inclusive_us": 134517,
+          "maximum_us": 1509,
+          "self_us": 134517
+        }
+      }
+    },
+    {
+      "case": "work-30",
+      "label": "minute_2",
+      "before_wall_ms": 23101.711,
+      "after_wall_ms": 894.305,
+      "ratio": 25.83202710484678,
+      "geometry_compare_calls_before": 44327,
+      "geometry_compare_calls_after": 0,
+      "policy_rebuild_calls": 0,
+      "housing_rebuild_calls": 0,
+      "structure_validation_enabled": false,
+      "frames": {},
+      "spans": {}
+    },
+    {
+      "case": "work-30",
+      "label": "render_after_2",
+      "before_wall_ms": 3109.51,
+      "after_wall_ms": 3042.616,
+      "ratio": 1.0219856860017829,
+      "geometry_compare_calls_before": 0,
+      "geometry_compare_calls_after": 0,
+      "policy_rebuild_calls": 0,
+      "housing_rebuild_calls": 0,
+      "structure_validation_enabled": false,
+      "frames": {
+        "frames": 1,
+        "max_frame_ms": 3042.605
+      },
+      "spans": {
+        "lighting.serialize_structures": {
+          "calls": 1,
+          "inclusive_us": 6560,
+          "maximum_us": 6560,
+          "self_us": 6560
+        },
+        "storage.grid_size_query": {
+          "calls": 137,
+          "inclusive_us": 2661724,
+          "maximum_us": 27070,
+          "self_us": 2661724
+        },
+        "storage.layout_query": {
+          "calls": 152,
+          "inclusive_us": 135133,
+          "maximum_us": 1631,
+          "self_us": 135133
+        }
+      }
+    },
+    {
+      "case": "work-30",
+      "label": "idle_after",
+      "before_wall_ms": 3012.164,
+      "after_wall_ms": 3017.993,
+      "ratio": 0.9980685839894262,
+      "geometry_compare_calls_before": 0,
+      "geometry_compare_calls_after": 0,
+      "policy_rebuild_calls": 0,
+      "housing_rebuild_calls": 0,
+      "structure_validation_enabled": false,
+      "frames": {
+        "frames": 136,
+        "max_frame_ms": 29.62
+      },
+      "spans": {
+        "lighting.serialize_structures": {
+          "calls": 136,
+          "inclusive_us": 1000219,
+          "maximum_us": 12257,
+          "self_us": 1000219
+        }
+      }
+    },
+    {
+      "case": "sleep-30",
+      "label": "idle_before",
+      "before_wall_ms": 3001.332,
+      "after_wall_ms": 3018.309,
+      "ratio": 0.994375327377018,
+      "geometry_compare_calls_before": 0,
+      "geometry_compare_calls_after": 0,
+      "policy_rebuild_calls": 0,
+      "housing_rebuild_calls": 0,
+      "structure_validation_enabled": false,
+      "frames": {
+        "frames": 131,
+        "max_frame_ms": 56.935
+      },
+      "spans": {
+        "lighting.rebuild": {
+          "calls": 1,
+          "inclusive_us": 17841,
+          "maximum_us": 17841,
+          "self_us": 17841
+        },
+        "lighting.serialize_structures": {
+          "calls": 131,
+          "inclusive_us": 975415,
+          "maximum_us": 10674,
+          "self_us": 975415
+        }
+      }
+    },
+    {
+      "case": "sleep-30",
+      "label": "minute_1",
+      "before_wall_ms": 15089.772,
+      "after_wall_ms": 394.711,
+      "ratio": 38.22992518576883,
+      "geometry_compare_calls_before": 28921,
+      "geometry_compare_calls_after": 0,
+      "policy_rebuild_calls": 0,
+      "housing_rebuild_calls": 0,
+      "structure_validation_enabled": false,
+      "frames": {},
+      "spans": {}
+    },
+    {
+      "case": "sleep-30",
+      "label": "render_after_1",
+      "before_wall_ms": 3197.43,
+      "after_wall_ms": 3303.614,
+      "ratio": 0.9678582304106956,
+      "geometry_compare_calls_before": 0,
+      "geometry_compare_calls_after": 0,
+      "policy_rebuild_calls": 0,
+      "housing_rebuild_calls": 0,
+      "structure_validation_enabled": false,
+      "frames": {
+        "frames": 1,
+        "max_frame_ms": 3303.602
+      },
+      "spans": {
+        "lighting.serialize_structures": {
+          "calls": 1,
+          "inclusive_us": 7983,
+          "maximum_us": 7983,
+          "self_us": 7983
+        },
+        "storage.grid_size_query": {
+          "calls": 137,
+          "inclusive_us": 2886355,
+          "maximum_us": 29594,
+          "self_us": 2886355
+        },
+        "storage.layout_query": {
+          "calls": 152,
+          "inclusive_us": 155305,
+          "maximum_us": 3446,
+          "self_us": 155305
+        }
+      }
+    },
+    {
+      "case": "sleep-30",
+      "label": "idle_after",
+      "before_wall_ms": 3018.483,
+      "after_wall_ms": 3009.052,
+      "ratio": 1.0031342097112312,
+      "geometry_compare_calls_before": 0,
+      "geometry_compare_calls_after": 0,
+      "policy_rebuild_calls": 0,
+      "housing_rebuild_calls": 0,
+      "structure_validation_enabled": false,
+      "frames": {
+        "frames": 121,
+        "max_frame_ms": 38.33
+      },
+      "spans": {
+        "lighting.serialize_structures": {
+          "calls": 121,
+          "inclusive_us": 982884,
+          "maximum_us": 11148,
+          "self_us": 982884
+        }
+      }
+    }
+  ]
+}

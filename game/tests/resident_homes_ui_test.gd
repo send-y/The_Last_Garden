@@ -171,8 +171,8 @@ func _run() -> void:
 	check(card._details.text.contains("Защищённый запас"), "Goal card distinguishes protected stock from missing material")
 	await screenshot("goal-reserve")
 	var small = fixture.create(false, Vector2i(3,2))
-	small.state.structures.append({"building_id": "core:torch", "cell": [42,30], "enabled": true})
-	small.state.structures.append({"building_id": "core:torch", "cell": [40,31], "enabled": true})
+	small.add_structure({"building_id": "core:torch", "cell": [42,30], "enabled": true})
+	small.add_structure({"building_id": "core:torch", "cell": [40,31], "enabled": true})
 	var resident_position := Content.cell_center(42,31)
 	small.state.npcs[NPC].position = [resident_position.x, resident_position.y]
 	small._sync_structure_navigation()
