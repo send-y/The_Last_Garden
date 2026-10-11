@@ -765,6 +765,9 @@ func _set_inventory_open(should_open: bool) -> void:
 	if should_open: _close_npc_conversation()
 	if _inventory_panel.visible == should_open:
 		return
+	var hotbar := get_node("Hotbar") as Control
+	hotbar.offset_top = -56.0 if should_open else -66.0
+	hotbar.offset_bottom = 0.0 if should_open else -10.0
 
 	if should_open:
 		_inventory_was_paused = Session.is_paused()

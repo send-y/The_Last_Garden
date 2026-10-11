@@ -66,7 +66,7 @@ func _ready() -> void:
 	for placement: Dictionary in _panel._inventory_grid._placements:
 		if placement.item_id == "core:wood":
 			wood_placement = placement
-	var wood_point := _panel._inventory_grid.get_global_transform_with_canvas() * (Vector2(wood_placement.origin) * 42 + Vector2(21, 21))
+	var wood_point := _panel._inventory_grid.get_global_transform_with_canvas() * (Vector2(wood_placement.origin) * _panel._inventory_grid.CELL_SIZE + Vector2.ONE * _panel._inventory_grid.CELL_SIZE * 0.5)
 	var press := InputEventMouseButton.new()
 	press.button_index = MOUSE_BUTTON_LEFT
 	press.pressed = true

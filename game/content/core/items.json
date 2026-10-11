@@ -166,7 +166,7 @@
     {
       "id": "core:axe",
       "label_key": "item.core.axe.name",
-      "icon_path": "res://assets/sprites/items/axe_n.png",
+      "icon_path": "res://assets/sprites/items/axe_pilot_steel.png",
       "max_stack": 1,
       "instance_based": true,
       "footprint": [[0, 0], [1, 0], [0, 1], [1, 1], [0, 2]],

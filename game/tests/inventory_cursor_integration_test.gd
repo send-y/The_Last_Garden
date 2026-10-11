@@ -25,7 +25,7 @@ func _run() -> void:
 	var grid := hud._inventory_panel._inventory_grid
 	var before := Session.get_inventory_layout()
 	var placement: Dictionary = grid._placements[0]
-	var point: Vector2 = grid.get_global_transform_with_canvas() * (Vector2(placement.origin) * 42 + Vector2(18, 18))
+	var point: Vector2 = grid.get_global_transform_with_canvas() * (Vector2(placement.origin) * grid.CELL_SIZE + Vector2.ONE * grid.CELL_SIZE * 0.5)
 	_click(point)
 	await get_tree().process_frame
 	if not grid.is_holding_item():
@@ -47,7 +47,7 @@ func _run() -> void:
 		_fail("The held image did not follow the pointer outside its source panel")
 		return
 	await _capture("cursor-outside-backpack.png")
-	var target: Vector2 = grid.get_global_transform_with_canvas() * Vector2(147, 147)
+	var target: Vector2 = grid.get_global_transform_with_canvas() * (Vector2.ONE * grid.CELL_SIZE * 3.5)
 	_click(target)
 	await get_tree().process_frame
 	if grid.is_holding_item() or Session.get_inventory_layout()[0].origin != [3, 3]:

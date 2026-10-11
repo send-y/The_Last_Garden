@@ -35,8 +35,8 @@ func _ready() -> void:
 	await get_tree().process_frame
 	var panel_rect := inventory_panel.get_global_rect()
 	var hotbar_rect := hotbar.get_global_rect()
-	if panel_rect.size.x > hotbar_rect.size.x or not is_equal_approx(panel_rect.get_center().x, hotbar_rect.get_center().x):
-		_fail("Compact inventory panel is not centered above the hotbar. panel=%s hotbar=%s" % [panel_rect, hotbar_rect])
+	if panel_rect.intersects(hotbar_rect) or not is_equal_approx(panel_rect.get_center().x, hotbar_rect.get_center().x):
+		_fail("Inventory panel is not centered above the accessible hotbar. panel=%s hotbar=%s" % [panel_rect, hotbar_rect])
 		return
 	if panel_rect.end.y > hotbar_rect.position.y or hotbar_rect.position.y - panel_rect.end.y > 12.0:
 		_fail("Inventory panel is not positioned just above the hotbar. panel=%s hotbar=%s" % [panel_rect, hotbar_rect])
@@ -53,7 +53,11 @@ func _ready() -> void:
 	if assigned_bucket_id != "core:item_instance_000001":
 		_fail("Number 1 did not assign the selected bucket instance to the hotbar.")
 		return
+	# Assignment keeps the click-to-carry cursor; finish that gesture before
+	# starting an independent transfer to another hotbar slot.
+	grid.return_held_item()
 	_send_mouse_button(_cell_center(grid, bucket_cell), true)
+	_send_mouse_button(_cell_center(grid, bucket_cell), false)
 	var slot_two := hud.get_node("Hotbar/Slot2") as Button
 	var slot_two_position := slot_two.get_global_rect().get_center()
 	_send_mouse_motion(slot_two_position)
@@ -105,7 +109,7 @@ func _ready() -> void:
 	_send_mouse_button(_cell_center(grid, water_cell), false)
 	var rotated_target := Vector2i(0, 2)
 	_send_key(KEY_R)
-	var rotated_point := grid.get_global_transform_with_canvas() * (Vector2(rotated_target) * 42 + grid._drag_grab_fraction * Vector2(84, 42))
+	var rotated_point := grid.get_global_transform_with_canvas() * (Vector2(rotated_target) * grid.CELL_SIZE + grid._drag_grab_fraction * Vector2(2, 1) * grid.CELL_SIZE)
 	_send_mouse_motion(rotated_point)
 	_send_mouse_button(rotated_point, true)
 	_send_mouse_button(rotated_point, false)

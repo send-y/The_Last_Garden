@@ -1,7 +1,7 @@
 extends Node
 const Visual := preload("res://src/characters/character_visual.gd")
 const Fixture := preload("res://tests/fixtures/item_tool_fixture.gd")
-const OUT := "res://../artifacts/item-tools-2026-10-11/render"
+const OUT := "res://../artifacts/inventory-scale-2026-10-12/held-items"
 var failures := 0
 func _ready() -> void: call_deferred("run")
 func check(value: bool, label: String) -> void:

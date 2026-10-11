@@ -10,7 +10,7 @@ signal cross_grid_drop_requested(placement: Dictionary, target_cell: Vector2i)
 signal quick_transfer_requested(placement: Dictionary)
 signal hotbar_drop_requested(placement: Dictionary, slot_index: int)
 
-const CELL_SIZE: float = 42.0
+const CELL_SIZE: float = 64.0
 const CELL_GAP: float = 0.0
 const FirstNightContent := preload("res://src/content/first_night_content.gd")
 const PlacementRules := preload("res://src/inventory/inventory_placement_rules.gd")
@@ -265,7 +265,7 @@ func _input(event: InputEvent) -> void:
 			_cancel_hand()
 			get_viewport().set_input_as_handled()
 			return
-		if external_transfer_target != null and external_transfer_target.get_global_rect().has_point(pointer):
+		if _point_is_visible_in(external_transfer_target, pointer):
 			var target_pointer := external_transfer_target.get_global_transform_with_canvas().affine_inverse() * pointer
 			var extent := Vector2(_footprint_bounds(_dragged_footprint()).size) * CELL_SIZE
 			var target_origin := target_pointer - _drag_grab_fraction * extent
@@ -278,7 +278,7 @@ func _input(event: InputEvent) -> void:
 				_cancel_hand()
 				get_viewport().set_input_as_handled()
 				return
-		if get_global_rect().has_point(pointer):
+		if _point_is_visible_in(self, pointer):
 			if _is_drag_target_valid(_cursor_target_cell()):
 				_finish_drag(_cursor_target_cell())
 				_cancel_hand()
@@ -290,6 +290,20 @@ func _input(event: InputEvent) -> void:
 		drop_requested.emit(placement)
 		_cancel_hand()
 		get_viewport().set_input_as_handled()
+
+
+static func _point_is_visible_in(target: Control, point: Vector2) -> bool:
+	if target == null or not target.is_visible_in_tree() or not target.get_global_rect().has_point(point):
+		return false
+	# _input runs before GUI clipping. Hidden rows of a scrolled grid must not
+	# receive placements or transfers merely because its full rect contains them.
+	var ancestor := target.get_parent()
+	while ancestor != null:
+		var control := ancestor as Control
+		if control != null and control.clip_contents and not control.get_global_rect().has_point(point):
+			return false
+		ancestor = ancestor.get_parent()
+	return true
 
 
 func _hotbar_slot_at_global_position(global_position: Vector2) -> int:

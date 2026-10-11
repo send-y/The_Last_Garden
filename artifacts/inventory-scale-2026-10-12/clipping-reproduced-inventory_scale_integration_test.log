@@ -1,0 +1,4 @@
+Godot Engine v4.7.stable.mono.official.5b4e0cb0f - https://godotengine.org
+
+FAIL: Clicking a clipped row inside the panel does not place an invisible item
+INVENTORY_SCALE: 1 failures

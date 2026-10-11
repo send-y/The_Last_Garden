@@ -1,0 +1,12 @@
+Godot Engine v4.7.stable.mono.official.5b4e0cb0f - https://godotengine.org
+OpenGL API 3.3.0 NVIDIA 617.14 - Compatibility - Using Device: NVIDIA - NVIDIA GeForce RTX 4060
+
+FAIL: Inventory retains a 64-pixel cell at (640, 360) (got 37.80)
+FAIL: Inventory retains a 64-pixel cell at (1280, 720) (got 37.80)
+FAIL: Inventory retains a 64-pixel cell at (1270, 640) (got 37.80)
+FAIL: Storage retains the larger backpack cells
+FAIL: Actual icon pixels preserve source proportions at rotation 0: [P: (21, 21), S: (118, 182)]
+FAIL: Actual icon pixels preserve source proportions at rotation 1: [P: (21, 21), S: (118, 182)]
+FAIL: Actual icon pixels preserve source proportions at rotation 2: [P: (21, 21), S: (118, 182)]
+FAIL: Actual icon pixels preserve source proportions at rotation 3: [P: (21, 21), S: (118, 182)]
+INVENTORY_SCALE: 8 failures

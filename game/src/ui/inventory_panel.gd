@@ -48,10 +48,10 @@ const CLOSE_HOVER_TEXTURE := preload(
 	as InventoryGrid
 )
 @onready var _tab_buttons: Array[Button] = [
-	$ContentMargin/ContentColumn/TabCenter/TabRow/Tab1 as Button,
-	$ContentMargin/ContentColumn/TabCenter/TabRow/Tab2 as Button,
-	$ContentMargin/ContentColumn/TabCenter/TabRow/Tab3 as Button,
-	$ContentMargin/ContentColumn/TabCenter/TabRow/Tab4 as Button,
+	$ContentMargin/ContentColumn/HeaderRow/TabCenter/TabRow/Tab1 as Button,
+	$ContentMargin/ContentColumn/HeaderRow/TabCenter/TabRow/Tab2 as Button,
+	$ContentMargin/ContentColumn/HeaderRow/TabCenter/TabRow/Tab3 as Button,
+	$ContentMargin/ContentColumn/HeaderRow/TabCenter/TabRow/Tab4 as Button,
 ]
 
 
@@ -185,12 +185,13 @@ func _process(_delta: float) -> void:
 
 
 func _fit_to_viewport() -> void:
-	# Preserve hotbar-adjacent placement while keeping the compact panel visible.
+	# Use native-size cells whenever the viewport can fit them. The hotbar sits
+	# against the bottom edge while this panel is open, leaving room for all rows.
 	var available := (get_parent() as Control).size
 	var height := maxf(custom_minimum_size.y, get_combined_minimum_size().y)
 	var width := maxf(custom_minimum_size.x, get_combined_minimum_size().x)
-	var bottom_gap := minf(74.0, available.y * 0.22)
-	var factor := minf(0.9, minf((available.x - 16) / width, (available.y - bottom_gap - 8) / height))
+	var bottom_gap := minf(56.0, available.y * 0.16)
+	var factor := minf(1.0, minf((available.x - 16) / width, (available.y - bottom_gap - 8) / height))
 	scale = Vector2.ONE * maxf(0.1, factor)
 	size = Vector2(width, height)
 	position = Vector2((available.x - width * scale.x) * 0.5, available.y - bottom_gap - height * scale.y)
@@ -241,6 +242,11 @@ func _apply_panel_style() -> void:
 	panel_style.texture_margin_top = 20.0
 	panel_style.texture_margin_right = 20.0
 	panel_style.texture_margin_bottom = 20.0
+	# Padding belongs to ContentMargin; nine-patch edges must not add it again.
+	panel_style.content_margin_left = 0.0
+	panel_style.content_margin_top = 0.0
+	panel_style.content_margin_right = 0.0
+	panel_style.content_margin_bottom = 0.0
 	add_theme_stylebox_override("panel", panel_style)
 
 

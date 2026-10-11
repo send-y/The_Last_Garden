@@ -2,7 +2,7 @@ extends Node
 
 const Grid := preload("res://src/ui/inventory_grid.gd")
 const Content := preload("res://src/content/first_night_content.gd")
-const OUTPUT_DIR := "res://../artifacts/inventory-fixes-2026-10-07"
+const OUTPUT_DIR := "res://../artifacts/inventory-scale-2026-10-12/rotations"
 
 func _ready() -> void:
 	call_deferred("_run")
@@ -10,8 +10,10 @@ func _ready() -> void:
 func _run() -> void:
 	Session.set_mechanics_lab_active(true)
 	Session.set_process(false)
-	get_window().size = Vector2i(720, 620)
-	get_window().content_scale_size = Vector2i(720, 620)
+	var stride := Grid.CELL_SIZE * 4 + 8
+	var screen_size := Vector2i(Vector2.ONE * (stride * 4 + 24))
+	get_window().size = screen_size
+	get_window().content_scale_size = screen_size
 	var colors: Array[Color] = [Color.RED, Color.GREEN, Color.BLUE, Color.YELLOW]
 	var marker := Image.create(16, 16, false, Image.FORMAT_RGBA8)
 	for y: int in range(16):
@@ -24,7 +26,7 @@ func _run() -> void:
 		for turns: int in range(4):
 			var grid := Grid.new()
 			grid.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
-			grid.position = Vector2(12 + turns * 176, 12 + tool_index * 148)
+			grid.position = Vector2(12 + turns * stride, 12 + tool_index * stride)
 			grid._icon_cache["test:orientation"] = ImageTexture.create_from_image(marker)
 			add_child(grid)
 			grid.present([{
@@ -43,6 +45,8 @@ func _run() -> void:
 		var bounds := grid._footprint_bounds(content.item_footprint(tools[index / 4], turns))
 		var extent := Vector2(bounds.size) * Grid.CELL_SIZE - Vector2(10.0, 10.0)
 		var source_extent := Vector2(extent.y, extent.x) if turns % 2 else extent
+		# The square marker keeps its source proportions in every footprint.
+		source_extent = Vector2.ONE * minf(source_extent.x, source_extent.y)
 		var center := grid.global_position + Vector2(bounds.size) * Grid.CELL_SIZE * 0.5
 		for quadrant: int in range(4):
 			var offset := Vector2(-0.25 if quadrant % 2 == 0 else 0.25, -0.25 if quadrant < 2 else 0.25) * source_extent
@@ -62,9 +66,9 @@ func _run() -> void:
 	await get_tree().process_frame
 	await RenderingServer.frame_post_draw
 	var preview_image := get_viewport().get_texture().get_image()
-	var preview_size := Vector2(126.0, 84.0)
+	var preview_size := Vector2(preview._footprint_bounds(content.item_footprint("core:axe", 1)).size) * Grid.CELL_SIZE
 	var preview_center := preview.global_position + preview_size * 0.5
-	var preview_sample := preview_center + (Vector2(-0.25, -0.25) * Vector2(74.0, 116.0)).rotated(PI / 2.0)
+	var preview_sample := preview_center + (Vector2(-0.25, -0.25) * (minf(preview_size.x, preview_size.y) - 10)).rotated(PI / 2.0)
 	var preview_pixel := preview_image.get_pixel(int(preview_sample.x), int(preview_sample.y))
 	if preview_pixel.r < 0.6 or preview_pixel.g > 0.45 or preview_pixel.b > 0.45:
 		_fail("held axe preview does not rotate its icon")

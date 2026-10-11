@@ -1,0 +1,64 @@
+{
+  "checks": [
+    {
+      "name": "inventory_scale_integration_test.tscn",
+      "graphic": true,
+      "exit": 0,
+      "passed": true
+    },
+    {
+      "name": "held_item_integration_test.tscn",
+      "graphic": false,
+      "exit": 0,
+      "passed": true
+    },
+    {
+      "name": "inventory_context_integration_test.tscn",
+      "graphic": false,
+      "exit": 0,
+      "passed": true
+    },
+    {
+      "name": "inventory_cursor_integration_test.tscn",
+      "graphic": false,
+      "exit": 0,
+      "passed": true
+    },
+    {
+      "name": "inventory_markers_integration_test.tscn",
+      "graphic": false,
+      "exit": 0,
+      "passed": true
+    },
+    {
+      "name": "item_tool_ui_test.tscn",
+      "graphic": false,
+      "exit": 0,
+      "passed": true
+    },
+    {
+      "name": "inventory_rotation_integration_test.tscn",
+      "graphic": true,
+      "exit": 0,
+      "passed": true
+    },
+    {
+      "name": "item_tool_render_test.tscn",
+      "graphic": true,
+      "exit": 0,
+      "passed": true
+    }
+  ],
+  "all_passed": true,
+  "save_sha256": "62ecbdaaba71d10ab01d0292844d3803c830cfa6a382a5be353f2dfa9e06b905",
+  "catalog_unchanged_except_axe_icon": true,
+  "performance_measurements_run": false,
+  "reports": [
+    "green",
+    "regressions",
+    "corrected",
+    "clipping-green"
+  ],
+  "review_clipping_finding": "reproduced_fixed_and_verified",
+  "review_remaining_blockers": 0
+}
