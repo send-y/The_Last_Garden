@@ -223,6 +223,18 @@ static func _normalize_crafting_projects(sim,
 			continue
 		var recipe_id := String(project.get("recipe_id", ""))
 		var recipe := crafting_catalog.get_definition(recipe_id)
+		var inactive_inputs := crafting_catalog.get_inactive_inputs(recipe_id)
+		if recipe.is_empty() and not inactive_inputs.is_empty():
+			# Source retirement must not erase already committed materials.
+			# The discarded project cannot refund again on the next reload.
+			var reserved: Variant = project.get("reserved_inputs", inactive_inputs)
+			if reserved is Dictionary:
+				for item_variant: Variant in reserved:
+					var item_id := content.normalize_item_id(String(item_variant))
+					var amount := maxi(0, _safe_int(reserved[item_variant], 0))
+					if amount > 0 and content.has_item(item_id):
+						sim._create_resource_drops("core:crafting_recovery", item_id, amount, FirstNightContent.cell_center(int((station_data.anchor as Array)[0]), int((station_data.anchor as Array)[1])))
+			continue
 		if recipe.is_empty() or String(recipe.get("station_type", "")) != String(station_data.station_type):
 			continue
 		var required_work := crafting_catalog.get_work_minutes(recipe_id)

@@ -4,6 +4,7 @@ extends RefCounted
 const PATH := "res://content/core/crops.json"
 var settings: Dictionary = {}
 var crops: Array[Dictionary] = []
+var _saved_crops: Array[Dictionary] = []
 
 
 var reference_errors: Array[String] = []
@@ -33,6 +34,8 @@ func _init(item_content: FirstNightContent = null) -> void:
 		for field: String in ["seed_id", "product_id"]:
 			refs.append({"source_path": PATH, "owner_id": String(crop.get("id", "")), "field": field, "item_id": String(crop.get(field, ""))})
 		var errors := content.validate_item_references(refs)
+		if content.has_item(String(crop.get("seed_id", ""))) and content.has_item(String(crop.get("product_id", ""))):
+			_saved_crops.append(crop.duplicate(true))
 		reference_errors.append_array(errors)
 		content.report_reference_errors(errors)
 		if errors.is_empty():
@@ -41,6 +44,15 @@ func _init(item_content: FirstNightContent = null) -> void:
 
 func find(id: String) -> Dictionary:
 	for crop: Dictionary in crops:
+		if [String(crop.id), String(crop.seed_id), String(crop.product_id)].has(id):
+			return crop.duplicate(true)
+	return {}
+
+
+# Historical definitions are for restoring/presenting existing beds only.
+# New planting, growth and outputs must continue to use the active catalog.
+func find_saved(id: String) -> Dictionary:
+	for crop: Dictionary in _saved_crops:
 		if [String(crop.id), String(crop.seed_id), String(crop.product_id)].has(id):
 			return crop.duplicate(true)
 	return {}

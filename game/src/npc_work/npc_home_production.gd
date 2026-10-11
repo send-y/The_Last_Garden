@@ -5,6 +5,7 @@ const RECIPE := "core:saw_planks"
 const PHASES := ["craft_take", "craft"]
 
 static func authorized(sim, npc: Dictionary) -> bool:
+	if sim.crafting_catalog.get_definition(RECIPE).is_empty(): return false
 	var goal: Dictionary = npc.get("home_goal", {})
 	return bool(npc.get("active", false)) and bool(npc.get("known", false)) and bool(npc.get("work_options", {}).get("build", false)) and not goal.is_empty() and String(goal.status) == "pending" and String(goal.action) == "build" and sim.HomePolicy.may_furnish(sim,npc,String(goal.room_id)) and matches_goal_blueprint(sim,goal)
 

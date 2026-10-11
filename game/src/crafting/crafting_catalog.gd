@@ -5,6 +5,7 @@ const RECIPES_PATH: String = "res://content/core/recipes.json"
 const SCHEMA_VERSION: int = 1
 
 var _definitions: Dictionary = {}
+var _inactive_inputs: Dictionary = {}
 var _order: Array[String] = []
 
 
@@ -33,6 +34,10 @@ func recipes_for_station(station_type: String) -> Array[Dictionary]:
 
 func get_inputs(recipe_id: String) -> Dictionary:
 	return _positive_item_amounts(get_definition(recipe_id).get("inputs", {}))
+
+
+func get_inactive_inputs(recipe_id: String) -> Dictionary:
+	return (_inactive_inputs.get(recipe_id, {}) as Dictionary).duplicate(true)
 
 
 func get_outputs(recipe_id: String) -> Dictionary:
@@ -82,6 +87,7 @@ func _load_definitions() -> void:
 		reference_errors.append_array(errors)
 		content.report_reference_errors(errors)
 		if not errors.is_empty():
+			_inactive_inputs[recipe_id] = _positive_item_amounts(definition.get("inputs", {}))
 			continue
 		_definitions[recipe_id] = definition.duplicate(true)
 		_order.append(recipe_id)

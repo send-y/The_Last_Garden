@@ -5,166 +5,182 @@
       "graphic": false,
       "exit": 0,
       "passed": true,
-      "report": "precommit.json"
+      "report": "review-final-complete.json"
     },
     {
       "name": "npc_practical_work_test.gd",
       "graphic": false,
       "exit": 0,
       "passed": true,
-      "report": "task4-fixed.json"
+      "report": "review-final-complete.json"
     },
     {
       "name": "npc_work_query_cache_test.gd",
       "graphic": false,
       "exit": 0,
       "passed": true,
-      "report": "task4.json"
+      "report": "review-final-complete.json"
     },
     {
       "name": "npc_work_material_query_test.gd",
       "graphic": false,
       "exit": 0,
       "passed": true,
-      "report": "task4.json"
+      "report": "review-final-complete.json"
     },
     {
       "name": "item_tool_properties_test.gd",
       "graphic": false,
       "exit": 0,
       "passed": true,
-      "report": "precommit.json"
+      "report": "review-final-complete.json"
     },
     {
       "name": "item_source_references_test.gd",
       "graphic": false,
       "exit": 0,
       "passed": true,
-      "report": "precommit.json"
+      "report": "review-final-complete.json"
     },
     {
       "name": "item_tool_resource_test.gd",
       "graphic": false,
       "exit": 0,
       "passed": true,
-      "report": "precommit.json"
+      "report": "review-final-complete.json"
     },
     {
       "name": "item_tool_water_test.gd",
       "graphic": false,
       "exit": 0,
       "passed": true,
-      "report": "precommit.json"
+      "report": "review-final-complete.json"
     },
     {
       "name": "item_tool_ui_test.tscn",
       "graphic": false,
       "exit": 0,
       "passed": true,
-      "report": "precommit.json"
+      "report": "review-final-complete.json"
     },
     {
       "name": "item_tool_render_test.tscn",
       "graphic": true,
       "exit": 0,
       "passed": true,
-      "report": "precommit.json"
+      "report": "review-final-complete.json"
     },
     {
       "name": "held_item_integration_test.tscn",
       "graphic": false,
       "exit": 0,
       "passed": true,
-      "report": "precommit.json"
+      "report": "review-final-complete.json"
     },
     {
       "name": "held_item_render_integration_test.tscn",
       "graphic": true,
       "exit": 0,
       "passed": true,
-      "report": "precommit.json"
+      "report": "review-final-complete.json"
     },
     {
       "name": "farming_rules_test.gd",
       "graphic": false,
       "exit": 0,
       "passed": true,
-      "report": "precommit.json"
+      "report": "review-final-complete.json"
     },
     {
       "name": "farming_integration_test.tscn",
       "graphic": false,
       "exit": 0,
       "passed": true,
-      "report": "precommit.json"
+      "report": "review-final-complete.json"
     },
     {
       "name": "inventory_context_integration_test.tscn",
       "graphic": false,
       "exit": 0,
       "passed": true,
-      "report": "precommit.json"
+      "report": "review-final-complete.json"
     },
     {
       "name": "world_editing_test.gd",
       "graphic": false,
       "exit": 0,
       "passed": true,
-      "report": "precommit.json"
+      "report": "review-final-complete.json"
     },
     {
       "name": "item_food_properties_test.gd",
       "graphic": false,
       "exit": 0,
       "passed": true,
-      "report": "precommit.json"
+      "report": "review-final-complete.json"
     },
     {
       "name": "item_food_actions_test.tscn",
       "graphic": false,
       "exit": 0,
       "passed": true,
-      "report": "precommit.json"
+      "report": "review-final-complete.json"
     },
     {
       "name": "run_tests.gd",
       "graphic": false,
       "exit": 0,
       "passed": true,
-      "report": "precommit.json"
+      "report": "review-final-complete.json"
     },
     {
       "name": "starting_pantry_integration_test.tscn",
       "graphic": false,
       "exit": 0,
       "passed": true,
-      "report": "final-cross.json"
+      "report": "review-final-complete.json"
     },
     {
       "name": "boulder_depth_integration_test.tscn",
       "graphic": false,
       "exit": 0,
       "passed": true,
-      "report": "final-cross-fixed.json"
+      "report": "review-final-complete.json"
     },
     {
       "name": "world_editing_ui_test.tscn",
       "graphic": false,
       "exit": 0,
       "passed": true,
-      "report": "final-cross.json"
+      "report": "review-final-complete.json"
     },
     {
       "name": "npc_practical_work_ui_test.tscn",
       "graphic": false,
       "exit": 0,
       "passed": true,
-      "report": "final-cross-fixed.json"
+      "report": "review-final-complete.json"
+    },
+    {
+      "name": "item_source_compatibility_test.gd",
+      "graphic": false,
+      "exit": 0,
+      "passed": true,
+      "report": "review-final-complete.json"
+    },
+    {
+      "name": "npc_home_production_test.gd",
+      "graphic": false,
+      "exit": 0,
+      "passed": true,
+      "report": "review-final-complete.json"
     }
   ],
-  "count": 23,
   "save_before": "62ecbdaaba71d10ab01d0292844d3803c830cfa6a382a5be353f2dfa9e06b905",
   "save_after": "62ecbdaaba71d10ab01d0292844d3803c830cfa6a382a5be353f2dfa9e06b905",
+  "count": 25,
   "game_commit": "8932d48568bf95b2c78fd81d2b1f49e11baf9bd7",
+  "reviewed_head": "725464b53036dd25d9bc05d75eceac60c63ece92",
+  "review_findings_fixed": true,
   "fps_probes": false
 }

@@ -36,7 +36,7 @@ func normalize(sim) -> void:
 			if used.has(_key(cell)) or not _soil_allowed(sim, cell):
 				continue
 			used[_key(cell)] = true
-			var crop := catalog.find(String(value.get("crop_id", "")))
+			var crop := catalog.find_saved(String(value.get("crop_id", "")))
 			var bed: Dictionary = {"cell": [cell.x, cell.y], "crop_id": String(crop.get("id", "")),
 				"growth": 0, "wet_until": 0, "last_update": now, "harvests": 0}
 			bed["harvests"] = clampi(_number(value.get("harvests"), 0), 0, 100000000)
@@ -117,6 +117,10 @@ func execute(sim, command: Dictionary) -> Dictionary:
 	# Refusals must not interrupt a seated/resting actor or consume a charge.
 	if action == "till" and not sim.actor_tool_supports("core:player", "till"):
 		return _result(sim, false, "farming.failure.hoe")
+	if action == "plant" and catalog.find(String(command.get("item_id", ""))).is_empty():
+		return _result(sim, false, "farming.failure.plant")
+	if action == "harvest" and catalog.find(String(bed_at(sim, cell).get("crop_id", ""))).is_empty():
+		return _result(sim, false, "farming.failure.unripe")
 	if action == "water":
 		var selected: Dictionary = sim.get_actor_tool("core:player")
 		var selected_bed := bed_at(sim, cell)
@@ -289,7 +293,7 @@ func status(sim, cell: Vector2i) -> String:
 	var bed := bed_at(sim, cell)
 	if bed.is_empty():
 		return ""
-	var crop := catalog.find(String(bed.crop_id))
+	var crop := catalog.find_saved(String(bed.crop_id))
 	var wet: bool = int(bed.wet_until) > sim.get_elapsed_game_minutes()
 	if crop.is_empty():
 		return Localized.resolve("farming.bed.empty")

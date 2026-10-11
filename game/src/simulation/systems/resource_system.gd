@@ -36,6 +36,8 @@ static func execute_resource_work(sim,
 
 	var kind: String = String(target.get("kind", ""))
 	var rule: Dictionary = content.get_collect_rule(kind)
+	if rule.is_empty():
+		return {"success": false, "changed": false, "reason_id": "core:not_workable_resource"}
 	var presentation_id := String(target.get("presentation_id", ""))
 	var required_work: int = maxi(
 		0,

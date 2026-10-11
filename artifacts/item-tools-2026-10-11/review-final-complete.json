@@ -1,0 +1,156 @@
+{
+  "checks": [
+    {
+      "name": "item_tool_npc_test.gd",
+      "graphic": false,
+      "exit": 0,
+      "passed": true
+    },
+    {
+      "name": "npc_practical_work_test.gd",
+      "graphic": false,
+      "exit": 0,
+      "passed": true
+    },
+    {
+      "name": "npc_work_query_cache_test.gd",
+      "graphic": false,
+      "exit": 0,
+      "passed": true
+    },
+    {
+      "name": "npc_work_material_query_test.gd",
+      "graphic": false,
+      "exit": 0,
+      "passed": true
+    },
+    {
+      "name": "item_tool_properties_test.gd",
+      "graphic": false,
+      "exit": 0,
+      "passed": true
+    },
+    {
+      "name": "item_source_references_test.gd",
+      "graphic": false,
+      "exit": 0,
+      "passed": true
+    },
+    {
+      "name": "item_tool_resource_test.gd",
+      "graphic": false,
+      "exit": 0,
+      "passed": true
+    },
+    {
+      "name": "item_tool_water_test.gd",
+      "graphic": false,
+      "exit": 0,
+      "passed": true
+    },
+    {
+      "name": "item_tool_ui_test.tscn",
+      "graphic": false,
+      "exit": 0,
+      "passed": true
+    },
+    {
+      "name": "item_tool_render_test.tscn",
+      "graphic": true,
+      "exit": 0,
+      "passed": true
+    },
+    {
+      "name": "held_item_integration_test.tscn",
+      "graphic": false,
+      "exit": 0,
+      "passed": true
+    },
+    {
+      "name": "held_item_render_integration_test.tscn",
+      "graphic": true,
+      "exit": 0,
+      "passed": true
+    },
+    {
+      "name": "farming_rules_test.gd",
+      "graphic": false,
+      "exit": 0,
+      "passed": true
+    },
+    {
+      "name": "farming_integration_test.tscn",
+      "graphic": false,
+      "exit": 0,
+      "passed": true
+    },
+    {
+      "name": "inventory_context_integration_test.tscn",
+      "graphic": false,
+      "exit": 0,
+      "passed": true
+    },
+    {
+      "name": "world_editing_test.gd",
+      "graphic": false,
+      "exit": 0,
+      "passed": true
+    },
+    {
+      "name": "item_food_properties_test.gd",
+      "graphic": false,
+      "exit": 0,
+      "passed": true
+    },
+    {
+      "name": "item_food_actions_test.tscn",
+      "graphic": false,
+      "exit": 0,
+      "passed": true
+    },
+    {
+      "name": "run_tests.gd",
+      "graphic": false,
+      "exit": 0,
+      "passed": true
+    },
+    {
+      "name": "starting_pantry_integration_test.tscn",
+      "graphic": false,
+      "exit": 0,
+      "passed": true
+    },
+    {
+      "name": "boulder_depth_integration_test.tscn",
+      "graphic": false,
+      "exit": 0,
+      "passed": true
+    },
+    {
+      "name": "world_editing_ui_test.tscn",
+      "graphic": false,
+      "exit": 0,
+      "passed": true
+    },
+    {
+      "name": "npc_practical_work_ui_test.tscn",
+      "graphic": false,
+      "exit": 0,
+      "passed": true
+    },
+    {
+      "name": "item_source_compatibility_test.gd",
+      "graphic": false,
+      "exit": 0,
+      "passed": true
+    },
+    {
+      "name": "npc_home_production_test.gd",
+      "graphic": false,
+      "exit": 0,
+      "passed": true
+    }
+  ],
+  "save_before": "62ecbdaaba71d10ab01d0292844d3803c830cfa6a382a5be353f2dfa9e06b905",
+  "save_after": "62ecbdaaba71d10ab01d0292844d3803c830cfa6a382a5be353f2dfa9e06b905"
+}

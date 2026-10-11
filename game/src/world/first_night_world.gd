@@ -919,7 +919,7 @@ func _draw_farm_beds(canvas: Node2D) -> void:
 		canvas.draw_rect(Rect2(origin + Vector2(2, 2), Vector2(28, 28)), Color("554634") if wet else Color("98744c"))
 		for row: int in range(3):
 			canvas.draw_line(origin + Vector2(4, 7 + row * 8), origin + Vector2(28, 7 + row * 8), Color("3b3228"), 1)
-		var crop := Session.simulation.farming.catalog.find(String(bed.crop_id))
+		var crop := Session.simulation.farming.catalog.find_saved(String(bed.crop_id))
 		if crop.is_empty():
 			continue
 		var ratio := float(bed.growth) / float(Session.simulation.farming._required_growth(bed, crop))

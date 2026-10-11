@@ -1,0 +1,135 @@
+Godot Engine v4.7.stable.mono.official.5b4e0cb0f - https://godotengine.org
+
+WARNING: res://content/core/first_night_objects.json: wood collect_rules.item_id: deprecated item core:wood
+   at: push_warning (core/variant/variant_utility.cpp:1033)
+   GDScript backtrace (most recent call first):
+       [0] report_reference_errors (res://src/content/first_night_content.gd:205)
+       [1] _load_objects (res://src/content/first_night_content.gd:375)
+       [2] _init (res://src/content/first_night_content.gd:64)
+       [3] catalog (res://tests/fixtures/item_tool_fixture.gd:22)
+       [4] run (res://tests/item_source_compatibility_test.gd:12)
+WARNING: res://content/core/recipes.json: core:saw_planks inputs: deprecated item core:wood
+   at: push_warning (core/variant/variant_utility.cpp:1033)
+   GDScript backtrace (most recent call first):
+       [0] report_reference_errors (res://src/content/first_night_content.gd:205)
+       [1] _load_definitions (res://src/crafting/crafting_catalog.gd:83)
+       [2] _init (res://src/crafting/crafting_catalog.gd:16)
+       [3] _init (res://src/simulation/world_simulation.gd:73)
+       [4] run (res://tests/item_source_compatibility_test.gd:13)
+WARNING: res://content/core/recipes.json: core:split_firewood inputs: deprecated item core:wood
+   at: push_warning (core/variant/variant_utility.cpp:1033)
+   GDScript backtrace (most recent call first):
+       [0] report_reference_errors (res://src/content/first_night_content.gd:205)
+       [1] _load_definitions (res://src/crafting/crafting_catalog.gd:83)
+       [2] _init (res://src/crafting/crafting_catalog.gd:16)
+       [3] _init (res://src/simulation/world_simulation.gd:73)
+       [4] run (res://tests/item_source_compatibility_test.gd:13)
+FAIL: Disabled wood refuses without mutation: core:surface_tree_01
+FAIL: Disabled stump refuses without energy, drops or progress
+WARNING: res://content/core/crops.json: carrot seed_id: deprecated item core:carrot_seed
+   at: push_warning (core/variant/variant_utility.cpp:1033)
+   GDScript backtrace (most recent call first):
+       [0] report_reference_errors (res://src/content/first_night_content.gd:205)
+       [1] _init (res://src/farming/crop_catalog.gd:37)
+       [2] _init (res://src/farming/farming_system.gd:12)
+       [3] _init (res://src/simulation/world_simulation.gd:74)
+       [4] run (res://tests/item_source_compatibility_test.gd:36)
+FAIL: Deprecated source retains saved cultivation: core:carrot_seed
+FAIL: Inactive saved cultivation is frozen
+WARNING: res://content/core/crops.json: carrot seed_id: deprecated item core:carrot_seed
+   at: push_warning (core/variant/variant_utility.cpp:1033)
+   GDScript backtrace (most recent call first):
+       [0] report_reference_errors (res://src/content/first_night_content.gd:205)
+       [1] _init (res://src/farming/crop_catalog.gd:37)
+       [2] _init (res://src/farming/farming_system.gd:12)
+       [3] _init (res://src/simulation/world_simulation.gd:74)
+       [4] run (res://tests/item_source_compatibility_test.gd:41)
+FAIL: Inactive crop survives another reload
+WARNING: res://content/core/crops.json: carrot product_id: deprecated item core:carrot
+   at: push_warning (core/variant/variant_utility.cpp:1033)
+   GDScript backtrace (most recent call first):
+       [0] report_reference_errors (res://src/content/first_night_content.gd:205)
+       [1] _init (res://src/farming/crop_catalog.gd:37)
+       [2] _init (res://src/farming/farming_system.gd:12)
+       [3] _init (res://src/simulation/world_simulation.gd:74)
+       [4] run (res://tests/item_source_compatibility_test.gd:36)
+FAIL: Deprecated source retains saved cultivation: core:carrot
+FAIL: Inactive saved cultivation is frozen
+WARNING: res://content/core/crops.json: carrot product_id: deprecated item core:carrot
+   at: push_warning (core/variant/variant_utility.cpp:1033)
+   GDScript backtrace (most recent call first):
+       [0] report_reference_errors (res://src/content/first_night_content.gd:205)
+       [1] _init (res://src/farming/crop_catalog.gd:37)
+       [2] _init (res://src/farming/farming_system.gd:12)
+       [3] _init (res://src/simulation/world_simulation.gd:74)
+       [4] run (res://tests/item_source_compatibility_test.gd:41)
+FAIL: Inactive crop survives another reload
+WARNING: res://content/core/recipes.json: core:saw_planks outputs: deprecated item core:plank
+   at: push_warning (core/variant/variant_utility.cpp:1033)
+   GDScript backtrace (most recent call first):
+       [0] report_reference_errors (res://src/content/first_night_content.gd:205)
+       [1] _load_definitions (res://src/crafting/crafting_catalog.gd:83)
+       [2] _init (res://src/crafting/crafting_catalog.gd:16)
+       [3] _init (res://src/simulation/world_simulation.gd:73)
+       [4] run (res://tests/item_source_compatibility_test.gd:54)
+FAIL: Disabled recipe refunds committed materials: core:plank
+WARNING: res://content/core/recipes.json: core:saw_planks outputs: deprecated item core:plank
+   at: push_warning (core/variant/variant_utility.cpp:1033)
+   GDScript backtrace (most recent call first):
+       [0] report_reference_errors (res://src/content/first_night_content.gd:205)
+       [1] _load_definitions (res://src/crafting/crafting_catalog.gd:83)
+       [2] _init (res://src/crafting/crafting_catalog.gd:16)
+       [3] _init (res://src/simulation/world_simulation.gd:73)
+       [4] run (res://tests/item_source_compatibility_test.gd:59)
+FAIL: Recipe recovery is not duplicated on reload
+WARNING: res://content/core/first_night_objects.json: wood collect_rules.item_id: deprecated item core:wood
+   at: push_warning (core/variant/variant_utility.cpp:1033)
+   GDScript backtrace (most recent call first):
+       [0] report_reference_errors (res://src/content/first_night_content.gd:205)
+       [1] _load_objects (res://src/content/first_night_content.gd:375)
+       [2] _init (res://src/content/first_night_content.gd:64)
+       [3] catalog (res://tests/fixtures/item_tool_fixture.gd:22)
+       [4] run (res://tests/item_source_compatibility_test.gd:54)
+WARNING: res://content/core/recipes.json: core:saw_planks inputs: deprecated item core:wood
+   at: push_warning (core/variant/variant_utility.cpp:1033)
+   GDScript backtrace (most recent call first):
+       [0] report_reference_errors (res://src/content/first_night_content.gd:205)
+       [1] _load_definitions (res://src/crafting/crafting_catalog.gd:83)
+       [2] _init (res://src/crafting/crafting_catalog.gd:16)
+       [3] _init (res://src/simulation/world_simulation.gd:73)
+       [4] run (res://tests/item_source_compatibility_test.gd:54)
+WARNING: res://content/core/recipes.json: core:split_firewood inputs: deprecated item core:wood
+   at: push_warning (core/variant/variant_utility.cpp:1033)
+   GDScript backtrace (most recent call first):
+       [0] report_reference_errors (res://src/content/first_night_content.gd:205)
+       [1] _load_definitions (res://src/crafting/crafting_catalog.gd:83)
+       [2] _init (res://src/crafting/crafting_catalog.gd:16)
+       [3] _init (res://src/simulation/world_simulation.gd:73)
+       [4] run (res://tests/item_source_compatibility_test.gd:54)
+FAIL: Disabled recipe refunds committed materials: core:wood
+WARNING: res://content/core/first_night_objects.json: wood collect_rules.item_id: deprecated item core:wood
+   at: push_warning (core/variant/variant_utility.cpp:1033)
+   GDScript backtrace (most recent call first):
+       [0] report_reference_errors (res://src/content/first_night_content.gd:205)
+       [1] _load_objects (res://src/content/first_night_content.gd:375)
+       [2] _init (res://src/content/first_night_content.gd:64)
+       [3] catalog (res://tests/fixtures/item_tool_fixture.gd:22)
+       [4] run (res://tests/item_source_compatibility_test.gd:59)
+WARNING: res://content/core/recipes.json: core:saw_planks inputs: deprecated item core:wood
+   at: push_warning (core/variant/variant_utility.cpp:1033)
+   GDScript backtrace (most recent call first):
+       [0] report_reference_errors (res://src/content/first_night_content.gd:205)
+       [1] _load_definitions (res://src/crafting/crafting_catalog.gd:83)
+       [2] _init (res://src/crafting/crafting_catalog.gd:16)
+       [3] _init (res://src/simulation/world_simulation.gd:73)
+       [4] run (res://tests/item_source_compatibility_test.gd:59)
+WARNING: res://content/core/recipes.json: core:split_firewood inputs: deprecated item core:wood
+   at: push_warning (core/variant/variant_utility.cpp:1033)
+   GDScript backtrace (most recent call first):
+       [0] report_reference_errors (res://src/content/first_night_content.gd:205)
+       [1] _load_definitions (res://src/crafting/crafting_catalog.gd:83)
+       [2] _init (res://src/crafting/crafting_catalog.gd:16)
+       [3] _init (res://src/simulation/world_simulation.gd:73)
+       [4] run (res://tests/item_source_compatibility_test.gd:59)
+FAIL: Recipe recovery is not duplicated on reload
+ITEM_SOURCE_COMPATIBILITY: 12 failures
