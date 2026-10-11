@@ -37,7 +37,7 @@
 
 ## Проверки и ограничения доказательств
 
-25 различных набора прошли с exit 0, без ERROR/SCRIPT ERROR.
+25 различных наборов прошли с exit 0, без ERROR/SCRIPT ERROR.
 [Сводка с командами и хешами](../../artifacts/item-tools-2026-10-11/final-results.json).
 [Общий прогон после исправлений ревью: 25/25](../../artifacts/item-tools-2026-10-11/review-final-complete.json).
 Основной пакет: [16 наборов перед коммитом](../../artifacts/item-tools-2026-10-11/precommit.json).
