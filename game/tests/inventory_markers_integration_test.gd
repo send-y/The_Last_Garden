@@ -109,7 +109,7 @@ func _ready() -> void:
 	_send_mouse_button(_cell_center(grid, water_cell), false)
 	var rotated_target := Vector2i(0, 2)
 	_send_key(KEY_R)
-	var rotated_point := grid.get_global_transform_with_canvas() * (Vector2(rotated_target) * grid.CELL_SIZE + grid._drag_grab_fraction * Vector2(2, 1) * grid.CELL_SIZE)
+	var rotated_point := grid.get_global_transform_with_canvas() * ((Vector2(rotated_target + grid._drag_grab_cell) + Vector2.ONE * 0.5) * grid.CELL_SIZE)
 	_send_mouse_motion(rotated_point)
 	_send_mouse_button(rotated_point, true)
 	_send_mouse_button(rotated_point, false)

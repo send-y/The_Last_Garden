@@ -111,7 +111,7 @@ func run() -> void:
 	for placement: Dictionary in grid._placements:
 		if placement.item_id == "core:wood": wood = placement
 	click(grid.get_global_transform_with_canvas() * (Vector2(wood.origin) * grid.CELL_SIZE + Vector2(20,20)))
-	var target := grid.get_global_transform_with_canvas() * (Vector2(3,3) * grid.CELL_SIZE + grid._drag_grab_fraction * Vector2.ONE * grid.CELL_SIZE)
+	var target := grid.get_global_transform_with_canvas() * ((Vector2(Vector2i(3,3) + grid._drag_grab_cell) + Vector2.ONE * 0.5) * grid.CELL_SIZE)
 	click(target)
 	await settle()
 	var moved := false

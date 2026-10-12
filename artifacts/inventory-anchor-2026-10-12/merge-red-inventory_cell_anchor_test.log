@@ -1,0 +1,4 @@
+Godot Engine v4.7.stable.mono.official.5b4e0cb0f - https://godotengine.org
+
+FAIL: Returning wood to a partial stack still merges through the simulation
+INVENTORY_CELL_ANCHOR: 1 failures

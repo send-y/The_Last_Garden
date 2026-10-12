@@ -59,7 +59,8 @@ var _drag_rotation: int = 0
 var _drag_mouse_position := Vector2.ZERO
 var _drag_start_origin := Vector2i.ZERO
 var _drag_start_rotation: int = 0
-var _drag_grab_fraction := Vector2.ZERO
+var _drag_grab_cell := Vector2i.ZERO
+var _drag_grab_offset := Vector2.ZERO
 var _cursor_pointer_global := Vector2.ZERO
 var _cursor_visual: Control
 var _content: FirstNightContent
@@ -183,8 +184,9 @@ func _gui_input(event: InputEvent) -> void:
 			and key_event.physical_keycode == KEY_R
 			and _dragged_placement_index >= 0
 		):
+			var old_size := _footprint_bounds(_dragged_footprint()).size
+			_drag_grab_cell = Vector2i(old_size.y - 1 - _drag_grab_cell.y, _drag_grab_cell.x)
 			_drag_rotation = posmod(_drag_rotation + 1, 4)
-			_drag_grab_fraction = Vector2(1.0 - _drag_grab_fraction.y, _drag_grab_fraction.x)
 			_update_cursor_visual()
 			queue_redraw()
 			accept_event()
@@ -235,7 +237,7 @@ func _gui_input(event: InputEvent) -> void:
 
 	if cell.x < 0:
 		return
-	_finish_drag(cell)
+	_finish_drag(cell - _drag_grab_cell)
 	accept_event()
 
 
@@ -266,18 +268,18 @@ func _input(event: InputEvent) -> void:
 			get_viewport().set_input_as_handled()
 			return
 		if _point_is_visible_in(external_transfer_target, pointer):
+			var target_grid := external_transfer_target as InventoryGrid
 			var target_pointer := external_transfer_target.get_global_transform_with_canvas().affine_inverse() * pointer
-			var extent := Vector2(_footprint_bounds(_dragged_footprint()).size) * CELL_SIZE
-			var target_origin := target_pointer - _drag_grab_fraction * extent
-			var target_cell := Vector2i(floori(target_origin.x / CELL_SIZE), floori(target_origin.y / CELL_SIZE))
-			if target_cell.x >= 0:
+			var target_cell := _origin_for_pointer(target_pointer)
+			# Bounds are geometric; stacking and occupancy are decided by the
+			# simulation. The caller clears the cursor only after acceptance.
+			if PlacementRules.can_place(_dragged_footprint(), target_cell, {}, target_grid.grid_columns, target_grid.grid_rows):
 				var placement := _placements[_dragged_placement_index].duplicate(true)
 				placement["rotation"] = _drag_rotation
 				placement["footprint"] = _dragged_footprint()
 				cross_grid_drop_requested.emit(placement, target_cell)
-				_cancel_hand()
-				get_viewport().set_input_as_handled()
-				return
+			get_viewport().set_input_as_handled()
+			return
 		if _point_is_visible_in(self, pointer):
 			if _is_drag_target_valid(_cursor_target_cell()):
 				_finish_drag(_cursor_target_cell())
@@ -377,16 +379,19 @@ func _begin_hand(placement_index: int, mouse_position: Vector2) -> void:
 	_drag_start_origin = placement.get("origin", Vector2i.ZERO)
 	_drag_mouse_position = mouse_position
 	_cursor_pointer_global = get_global_transform_with_canvas() * mouse_position
-	var extent := Vector2(_footprint_bounds(_dragged_footprint()).size) * CELL_SIZE
-	_drag_grab_fraction = ((mouse_position - Vector2(_drag_start_origin) * CELL_SIZE) / extent).clamp(Vector2.ZERO, Vector2.ONE)
+	_drag_grab_cell = _cell_at_position(mouse_position) - _drag_start_origin
+	_drag_grab_offset = mouse_position - Vector2(_drag_start_origin + _drag_grab_cell) * CELL_SIZE
 	_update_cursor_visual()
 	queue_redraw()
 
 
 func _cursor_target_cell() -> Vector2i:
-	var extent := Vector2(_footprint_bounds(_dragged_footprint()).size) * CELL_SIZE
-	var origin := _drag_mouse_position - _drag_grab_fraction * extent
-	return Vector2i(floori(origin.x / CELL_SIZE), floori(origin.y / CELL_SIZE))
+	return _origin_for_pointer(_drag_mouse_position)
+
+
+func _origin_for_pointer(pointer: Vector2) -> Vector2i:
+	# Snap the grabbed cell to the pointer cell, not the item's pixel corner.
+	return Vector2i(floori(pointer.x / CELL_SIZE), floori(pointer.y / CELL_SIZE)) - _drag_grab_cell
 
 
 func _process(_delta: float) -> void:
@@ -401,7 +406,7 @@ func _update_cursor_visual() -> void:
 	_drag_mouse_position = get_global_transform_with_canvas().affine_inverse() * _cursor_pointer_global
 	var extent := Vector2(_footprint_bounds(_dragged_footprint()).size) * CELL_SIZE * screen_scale
 	_cursor_visual.size = extent
-	_cursor_visual.position = get_global_transform_with_canvas() * _drag_mouse_position - _drag_grab_fraction * extent
+	_cursor_visual.position = _cursor_pointer_global - (Vector2(_drag_grab_cell) * CELL_SIZE + _drag_grab_offset) * screen_scale
 	_cursor_visual.set("texture", _placement_icon(_placements[_dragged_placement_index]))
 	_cursor_visual.set("rotation_steps", _drag_rotation)
 	_cursor_visual.set("inset", 5.0 * screen_scale.x)

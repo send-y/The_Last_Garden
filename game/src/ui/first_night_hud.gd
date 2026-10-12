@@ -897,6 +897,7 @@ func _on_storage_transfer_requested(
 			int(placement.get("rotation", 0))
 		)
 	if bool(result.get("success", false)):
+		_storage_panel.return_held_items()
 		_storage_panel.refresh(_storage_cell)
 
 

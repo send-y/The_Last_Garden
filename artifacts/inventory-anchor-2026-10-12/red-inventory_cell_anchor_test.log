@@ -1,0 +1,79 @@
+Godot Engine v4.7.stable.mono.official.5b4e0cb0f - https://godotengine.org
+
+FAIL: Preview follows the cell under the cursor regardless of pixel offset at turn 0
+FAIL: Click places the bucket exactly where the preview indicated at turn 0
+FAIL: Rotation stays around the grabbed cell centre at turn 1
+FAIL: Preview follows the cell under the cursor regardless of pixel offset at turn 1
+FAIL: Click places the bucket exactly where the preview indicated at turn 1
+FAIL: Rotation stays around the grabbed cell centre at turn 1
+FAIL: Rotation stays around the grabbed cell centre at turn 2
+FAIL: Preview follows the cell under the cursor regardless of pixel offset at turn 2
+FAIL: Click places the bucket exactly where the preview indicated at turn 2
+FAIL: Rotation stays around the grabbed cell centre at turn 1
+FAIL: Rotation stays around the grabbed cell centre at turn 2
+FAIL: Rotation stays around the grabbed cell centre at turn 3
+FAIL: Preview follows the cell under the cursor regardless of pixel offset at turn 3
+FAIL: Click places the bucket exactly where the preview indicated at turn 3
+FAIL: Rotation stays around the grabbed cell centre at turn 1
+FAIL: Rotation stays around the grabbed cell centre at turn 1
+FAIL: Rotation stays around the grabbed cell centre at turn 2
+FAIL: Rotation stays around the grabbed cell centre at turn 1
+FAIL: Rotation stays around the grabbed cell centre at turn 2
+FAIL: Rotation stays around the grabbed cell centre at turn 3
+FAIL: Preview follows the cell under the cursor regardless of pixel offset at turn 0
+FAIL: Click places the bucket exactly where the preview indicated at turn 0
+FAIL: Rotation stays around the grabbed cell centre at turn 1
+FAIL: Preview follows the cell under the cursor regardless of pixel offset at turn 1
+FAIL: Click places the bucket exactly where the preview indicated at turn 1
+FAIL: Rotation stays around the grabbed cell centre at turn 1
+FAIL: Rotation stays around the grabbed cell centre at turn 2
+FAIL: Preview follows the cell under the cursor regardless of pixel offset at turn 2
+FAIL: Click places the bucket exactly where the preview indicated at turn 2
+FAIL: Rotation stays around the grabbed cell centre at turn 1
+FAIL: Rotation stays around the grabbed cell centre at turn 2
+FAIL: Rotation stays around the grabbed cell centre at turn 3
+FAIL: Preview follows the cell under the cursor regardless of pixel offset at turn 3
+FAIL: Click places the bucket exactly where the preview indicated at turn 3
+FAIL: Rotation stays around the grabbed cell centre at turn 1
+FAIL: Rotation stays around the grabbed cell centre at turn 1
+FAIL: Rotation stays around the grabbed cell centre at turn 2
+FAIL: Rotation stays around the grabbed cell centre at turn 1
+FAIL: Rotation stays around the grabbed cell centre at turn 2
+FAIL: Rotation stays around the grabbed cell centre at turn 3
+FAIL: Scaled cross-grid transfer uses the grabbed cell at turn 0
+FAIL: Rotation stays around the grabbed cell centre at turn 1
+FAIL: Scaled cross-grid transfer uses the grabbed cell at turn 1
+FAIL: Rotation stays around the grabbed cell centre at turn 1
+FAIL: Rotation stays around the grabbed cell centre at turn 2
+FAIL: Scaled cross-grid transfer uses the grabbed cell at turn 2
+FAIL: Rotation stays around the grabbed cell centre at turn 1
+FAIL: Rotation stays around the grabbed cell centre at turn 2
+FAIL: Rotation stays around the grabbed cell centre at turn 3
+FAIL: Scaled cross-grid transfer uses the grabbed cell at turn 3
+FAIL: Rotation stays around the grabbed cell centre at turn 1
+FAIL: Rotation stays around the grabbed cell centre at turn 1
+FAIL: Rotation stays around the grabbed cell centre at turn 2
+FAIL: Rotation stays around the grabbed cell centre at turn 1
+FAIL: Rotation stays around the grabbed cell centre at turn 2
+FAIL: Rotation stays around the grabbed cell centre at turn 3
+FAIL: Scaled cross-grid transfer uses the grabbed cell at turn 0
+FAIL: Rotation stays around the grabbed cell centre at turn 1
+FAIL: Scaled cross-grid transfer uses the grabbed cell at turn 1
+FAIL: Rotation stays around the grabbed cell centre at turn 1
+FAIL: Rotation stays around the grabbed cell centre at turn 2
+FAIL: Scaled cross-grid transfer uses the grabbed cell at turn 2
+FAIL: Rotation stays around the grabbed cell centre at turn 1
+FAIL: Rotation stays around the grabbed cell centre at turn 2
+FAIL: Rotation stays around the grabbed cell centre at turn 3
+FAIL: Scaled cross-grid transfer uses the grabbed cell at turn 3
+FAIL: Rotation stays around the grabbed cell centre at turn 1
+FAIL: Rotation stays around the grabbed cell centre at turn 1
+FAIL: Rotation stays around the grabbed cell centre at turn 2
+FAIL: Rotation stays around the grabbed cell centre at turn 1
+FAIL: Rotation stays around the grabbed cell centre at turn 2
+FAIL: Rotation stays around the grabbed cell centre at turn 3
+FAIL: Out-of-bounds anchored placement keeps the item on the cursor
+FAIL: Irregular axe rotates around the grabbed occupied cell
+FAIL: Irregular axe rotates around the grabbed occupied cell
+FAIL: Irregular axe rotates around the grabbed occupied cell
+INVENTORY_CELL_ANCHOR: 76 failures
