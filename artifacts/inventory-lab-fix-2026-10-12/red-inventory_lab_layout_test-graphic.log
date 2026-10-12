@@ -1,0 +1,10 @@
+Godot Engine v4.7.stable.mono.official.5b4e0cb0f - https://godotengine.org
+OpenGL API 3.3.0 NVIDIA 617.14 - Compatibility - Using Device: NVIDIA - NVIDIA GeForce RTX 4060
+
+LAB_READY scenario=fresh_start day=1 time=11:00
+FAIL: Lab toggle does not cover backpack controls at (640, 360)
+FAIL: Lab toggle does not cover backpack controls at (1920, 1080)
+FAIL: Lab toggle does not cover backpack controls at (1280, 720)
+FAIL: Lab toggle does not cover backpack controls at (1270, 640)
+FAIL: Painted frame encloses panel contents instead of leaving transparent gutters: [P: (37, 37), S: (260, 269)] vs [P: (24.0, 24.0), S: (286.0, 295.0)]
+INVENTORY_LAB_LAYOUT: 5 failures

@@ -10,6 +10,7 @@ const FIRST_NEIGHBOR_ID: String = "core:first_neighbor"
 	$ConstructionCursor as ConstructionCursor
 )
 @onready var _world: FirstNightWorld = $Game/World as FirstNightWorld
+@onready var _hud: FirstNightHud = $Game/Hud/HudRoot as FirstNightHud
 
 var _build_mode_button: Button
 var _request_help_button: Button
@@ -29,6 +30,9 @@ var _verify_structure_index := false
 var _structure_verify_elapsed := 0.0
 
 func _process(delta: float) -> void:
+	# DevUi is above all game UI. Its launcher must not cover modal controls;
+	# F2 remains available for explicitly opening/closing the lab.
+	_lab_toggle_button.visible = not _hud.is_modal_open()
 	if not _verify_structure_index: return
 	_structure_verify_elapsed += delta
 	if _structure_verify_elapsed < 1.0: return

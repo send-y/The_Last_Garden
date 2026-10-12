@@ -242,7 +242,13 @@ func _apply_panel_style() -> void:
 	panel_style.texture_margin_top = 20.0
 	panel_style.texture_margin_right = 20.0
 	panel_style.texture_margin_bottom = 20.0
-	# Padding belongs to ContentMargin; nine-patch edges must not add it again.
+	# The source frame has a 13px transparent gutter. Expand the draw region
+	# so the painted frame follows this panel's actual rectangle.
+	panel_style.expand_margin_left = 13.0
+	panel_style.expand_margin_top = 13.0
+	panel_style.expand_margin_right = 13.0
+	panel_style.expand_margin_bottom = 13.0
+	# ContentMargin supplies padding inside the painted frame.
 	panel_style.content_margin_left = 0.0
 	panel_style.content_margin_top = 0.0
 	panel_style.content_margin_right = 0.0

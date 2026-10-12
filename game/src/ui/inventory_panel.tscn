@@ -12,13 +12,13 @@ script = ExtResource("1_1loxd")
 [node name="ContentMargin" type="MarginContainer" parent="." unique_id=887105410]
 layout_mode = 2
 theme_override_constants/margin_left = 15
-theme_override_constants/margin_top = 4
+theme_override_constants/margin_top = 8
 theme_override_constants/margin_right = 15
-theme_override_constants/margin_bottom = 4
+theme_override_constants/margin_bottom = 6
 
 [node name="ContentColumn" type="VBoxContainer" parent="ContentMargin" unique_id=794421566]
 layout_mode = 2
-theme_override_constants/separation = 3
+theme_override_constants/separation = 1
 
 [node name="HeaderRow" type="HBoxContainer" parent="ContentMargin/ContentColumn" unique_id=1325962495]
 custom_minimum_size = Vector2(0, 24)
@@ -59,7 +59,7 @@ layout_mode = 2
 toggle_mode = true
 
 [node name="CloseButton" type="Button" parent="ContentMargin/ContentColumn/HeaderRow" unique_id=629868418]
-custom_minimum_size = Vector2(28, 28)
+custom_minimum_size = Vector2(24, 24)
 layout_mode = 2
 
 [node name="GridCenter" type="CenterContainer" parent="ContentMargin/ContentColumn" unique_id=95995594]
