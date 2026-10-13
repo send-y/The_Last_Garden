@@ -1,0 +1,87 @@
+{
+  "mode": "built-in image_gen",
+  "reference": "C:/Users/Bohdan/Downloads/Gemini_Generated_Image_pgyjt0pgyjt0pgyj.jpg",
+  "transparent_background": true,
+  "records": [
+    {
+      "name": "pickaxe_wood",
+      "path": "C:\\Users\\Bohdan\\.codex\\generated_images\\01a0fd06-c903-71d0-8e8a-1a4a3d07406f\\exec-210ee4ef-31f7-4b8f-bbb5-36f17456e3fa.png",
+      "prompt": "Prepare a game sprite from this supplied 4x4 tool sheet. Faithfully reproduce ONLY the tool at row 1 column 2 (top row, second tool): primitive wooden pickaxe with brown curved crosspiece, small pale working tips, rope joint, rough vertical wooden handle. One tool alone, upright, preserve reference silhouette, proportions, materials and muted warm palette. Preserve visibly stepped pixel-art shading and crisp edges, no smooth painting, no glow. Transparent alpha background, no white halo, shadow, text, border, pedestal or other tools. Tightly frame it with a small transparent margin on a nearly square portrait canvas. Match the primitive first row, do not take the stone, copper or steel tools from other rows. This is a faithful asset preparation for The Last Garden rather than a new design."
+    },
+    {
+      "name": "hoe_wood",
+      "path": "C:\\Users\\Bohdan\\.codex\\generated_images\\01a0fd06-c903-71d0-8e8a-1a4a3d07406f\\exec-6123e6c8-e1f7-45ea-8033-10e5c3442259.png",
+      "prompt": "Prepare a game sprite from this supplied 4x4 tool sheet. Faithfully reproduce ONLY the tool at row 1 column 3 (top row, third tool): primitive wooden hoe with pale small working blade extending right, brown curved vertical wooden handle and rope joint. One tool alone, upright, preserve reference silhouette, proportions, materials and muted warm palette. Preserve visibly stepped pixel-art shading and crisp edges, no smooth painting, no glow. Transparent alpha background, no white halo, shadow, text, border, pedestal or other tools. Tightly frame it with a small transparent margin on a 2:3 portrait canvas. Match the primitive first row, do not take the stone, copper or steel tools from other rows. This is a faithful asset preparation for The Last Garden rather than a new design."
+    },
+    {
+      "name": "mallet_wood",
+      "path": "C:\\Users\\Bohdan\\.codex\\generated_images\\01a0fd06-c903-71d0-8e8a-1a4a3d07406f\\exec-b30bea9e-ff33-43e1-ad12-5c2f63f0d09a.png",
+      "prompt": "Prepare a game sprite from this supplied 4x4 tool sheet. Faithfully reproduce ONLY the tool at row 1 column 4 (top-right tool): primitive construction mallet, large rough brown wooden cylinder head, rope ties, vertical brown wooden handle; it is a work tool not a weapon. One tool alone, upright, preserve reference silhouette, proportions, materials and muted warm palette. Preserve visibly stepped pixel-art shading and crisp edges, no smooth painting, no glow. Transparent alpha background, no white halo, shadow, text, border, pedestal or other tools. Tightly frame it with a small transparent margin on a 2:3 portrait canvas. Match the primitive first row, do not take the stone, copper or steel tools from other rows. This is a faithful asset preparation for The Last Garden rather than a new design."
+    },
+    {
+      "name": "axe_stone",
+      "path": "C:\\Users\\Bohdan\\.codex\\generated_images\\01a0fd06-c903-71d0-8e8a-1a4a3d07406f\\exec-0d57f672-6940-49ff-b1a3-c91b9fe11864.png",
+      "prompt": "From the supplied 4x4 sprite sheet faithfully reproduce ONLY row 2 column 1: stone axe with broad chipped grey stone blade extending right, warm brown slightly curved handle, rope bindings. The second row is the STONE construction tier. One upright tool alone. Preserve this reference's exact recognizable silhouette, warm wood palette, cool grey chipped stone where applicable, rope details, crisp stepped pixel-art edges and shading. Do not copy another row or add fantasy decoration. Transparent alpha background, no white halo, shadow, text, border or other tools. Tightly framed portrait 2:3 canvas with a small transparent margin. This is a faithful game-asset preparation for The Last Garden, not a redesign."
+    },
+    {
+      "name": "pickaxe_stone",
+      "path": "C:\\Users\\Bohdan\\.codex\\generated_images\\01a0fd06-c903-71d0-8e8a-1a4a3d07406f\\exec-524b2952-7136-4571-a6e2-eaa576f2f192.png",
+      "prompt": "From the supplied 4x4 sprite sheet faithfully reproduce ONLY row 2 column 2: stone pickaxe with a horizontal double-ended chipped grey stone head, central rope bindings and a long straight brown wooden handle. The second row is the STONE construction tier. One upright tool alone. Preserve this reference's exact recognizable silhouette, warm wood palette, cool grey chipped stone where applicable, rope details, crisp stepped pixel-art edges and shading. Do not copy another row or add fantasy decoration. Transparent alpha background, no white halo, shadow, text, border or other tools. Tightly framed nearly square canvas with a small transparent margin. This is a faithful game-asset preparation for The Last Garden, not a redesign."
+    },
+    {
+      "name": "hoe_stone",
+      "path": "C:\\Users\\Bohdan\\.codex\\generated_images\\01a0fd06-c903-71d0-8e8a-1a4a3d07406f\\exec-7ea2575c-815e-40ba-8de3-6a143a4dc780.png",
+      "prompt": "From the supplied 4x4 sprite sheet faithfully reproduce ONLY row 2 column 3: stone hoe with its horizontally broad chipped grey stone head near the top, cord bindings and slightly curved brown vertical handle. The second row is the STONE construction tier. One upright tool alone. Preserve this reference's exact recognizable silhouette, warm wood palette, cool grey chipped stone where applicable, rope details, crisp stepped pixel-art edges and shading. Do not copy another row or add fantasy decoration. Transparent alpha background, no white halo, shadow, text, border or other tools. Tightly framed portrait 2:3 canvas with a small transparent margin. This is a faithful game-asset preparation for The Last Garden, not a redesign."
+    },
+    {
+      "name": "mallet_stone",
+      "path": "C:\\Users\\Bohdan\\.codex\\generated_images\\01a0fd06-c903-71d0-8e8a-1a4a3d07406f\\exec-8a595af8-8d09-4cb4-84f1-d1801a6ec6c7.png",
+      "prompt": "From the supplied 4x4 sprite sheet faithfully reproduce ONLY row 2 column 4: second-tier construction mallet, still a brown wooden cylindrical head rather than a stone hammer, better shaped wooden head and wrapped handle as in this row of the reference. The second row is the STONE construction tier. One upright tool alone. Preserve this reference's exact recognizable silhouette, warm wood palette, cool grey chipped stone where applicable, rope details, crisp stepped pixel-art edges and shading. Do not copy another row or add fantasy decoration. Transparent alpha background, no white halo, shadow, text, border or other tools. Tightly framed portrait 2:3 canvas with a small transparent margin. This is a faithful game-asset preparation for The Last Garden, not a redesign."
+    },
+    {
+      "name": "axe_copper",
+      "path": "C:\\Users\\Bohdan\\.codex\\generated_images\\01a0fd06-c903-71d0-8e8a-1a4a3d07406f\\exec-5e217ce2-8be6-4ba5-99a8-6fd545b0b9d0.png",
+      "prompt": "From the supplied 4x4 tool sprite sheet faithfully reproduce ONLY row 3 column 1: copper axe with warm reddish-orange metal head and blade extending right, brown curved wooden handle and metal fastening. The third row is the COPPER tier. One upright tool alone. Preserve the recognizable reference silhouette, proportions, muted warm copper/brown palette, hand-made joinery, crisp stepped pixel-art edges and shading. Do not substitute a stone or steel tool, do not add gold/fantasy decoration. Transparent alpha background, no white halo, shadow, text, border or other tools. Tightly framed portrait 2:3 canvas with a small transparent margin. This is game asset preparation for The Last Garden, not a redesign."
+    },
+    {
+      "name": "pickaxe_copper",
+      "path": "C:\\Users\\Bohdan\\.codex\\generated_images\\01a0fd06-c903-71d0-8e8a-1a4a3d07406f\\exec-04434d7c-143b-4ff7-8e8c-87ad80fb2a51.png",
+      "prompt": "From the supplied 4x4 tool sprite sheet faithfully reproduce ONLY row 3 column 2: copper pickaxe with orange-red curved symmetrical head, long straight brown wooden handle and plain copper central socket. The third row is the COPPER tier. One upright tool alone. Preserve the recognizable reference silhouette, proportions, muted warm copper/brown palette, hand-made joinery, crisp stepped pixel-art edges and shading. Do not substitute a stone or steel tool, do not add gold/fantasy decoration. Transparent alpha background, no white halo, shadow, text, border or other tools. Tightly framed nearly square canvas with a small transparent margin. This is game asset preparation for The Last Garden, not a redesign."
+    },
+    {
+      "name": "hoe_copper",
+      "path": "C:\\Users\\Bohdan\\.codex\\generated_images\\01a0fd06-c903-71d0-8e8a-1a4a3d07406f\\exec-3fc113e7-7853-41f6-ab97-7adb1161842e.png",
+      "prompt": "From the supplied 4x4 tool sprite sheet faithfully reproduce ONLY row 3 column 3: copper hoe with an orange-red blade extending left from the top of a straight upright brown wooden handle. The third row is the COPPER tier. One upright tool alone. Preserve the recognizable reference silhouette, proportions, muted warm copper/brown palette, hand-made joinery, crisp stepped pixel-art edges and shading. Do not substitute a stone or steel tool, do not add gold/fantasy decoration. Transparent alpha background, no white halo, shadow, text, border or other tools. Tightly framed portrait 2:3 canvas with a small transparent margin. This is game asset preparation for The Last Garden, not a redesign."
+    },
+    {
+      "name": "mallet_copper",
+      "path": "C:\\Users\\Bohdan\\.codex\\generated_images\\01a0fd06-c903-71d0-8e8a-1a4a3d07406f\\exec-b6e1d93c-2306-474d-a8d9-02e4e2059b26.png",
+      "prompt": "From the supplied 4x4 tool sprite sheet faithfully reproduce ONLY row 3 column 4: construction mallet with a brown wooden cylindrical head reinforced by copper bands, straight vertical brown wooden handle, wooden striking faces. The third row is the COPPER tier. One upright tool alone. Preserve the recognizable reference silhouette, proportions, muted warm copper/brown palette, hand-made joinery, crisp stepped pixel-art edges and shading. Do not substitute a stone or steel tool, do not add gold/fantasy decoration. Transparent alpha background, no white halo, shadow, text, border or other tools. Tightly framed portrait 2:3 canvas with a small transparent margin. This is game asset preparation for The Last Garden, not a redesign."
+    },
+    {
+      "name": "pickaxe_steel",
+      "path": "C:\\Users\\Bohdan\\.codex\\generated_images\\01a0fd06-c903-71d0-8e8a-1a4a3d07406f\\exec-28d099f7-d299-4c61-a2e3-d8fd306e9cf7.png",
+      "prompt": "From the supplied 4x4 tool sprite sheet faithfully reproduce ONLY row 4 column 2: steel pickaxe with a curved symmetrical cool grey steel head and centre socket, straight dark wooden vertical handle. The fourth row is the STEEL tier. One upright tool alone. Preserve the recognizable reference silhouette, proportions, muted cool grey metal and warm dark brown wood palette, practical joinery, crisp stepped pixel-art edges and shading. No gold or fantasy decoration. Transparent alpha background, no white halo, shadow, text, border or other tools. Tightly framed nearly square canvas with a small transparent margin. This is faithful asset preparation for The Last Garden, not a redesign."
+    },
+    {
+      "name": "hoe_steel",
+      "path": "C:\\Users\\Bohdan\\.codex\\generated_images\\01a0fd06-c903-71d0-8e8a-1a4a3d07406f\\exec-1919ff65-cc5a-4cdd-b1c4-70dfcfed0a85.png",
+      "prompt": "From the supplied 4x4 tool sprite sheet faithfully reproduce ONLY row 4 column 3: steel hoe with a wide cool grey steel blade extending left near the top of its dark wooden upright handle, polished edge and metal fastening. The fourth row is the STEEL tier. One upright tool alone. Preserve the recognizable reference silhouette, proportions, muted cool grey metal and warm dark brown wood palette, practical joinery, crisp stepped pixel-art edges and shading. No gold or fantasy decoration. Transparent alpha background, no white halo, shadow, text, border or other tools. Tightly framed portrait 2:3 canvas with a small transparent margin. This is faithful asset preparation for The Last Garden, not a redesign."
+    },
+    {
+      "name": "mallet_steel",
+      "path": "C:\\Users\\Bohdan\\.codex\\generated_images\\01a0fd06-c903-71d0-8e8a-1a4a3d07406f\\exec-ced77d70-e685-4824-ad6b-9fea8d1b99df.png",
+      "prompt": "From the supplied 4x4 tool sprite sheet faithfully reproduce ONLY row 4 column 4: construction mallet with a dark brown wooden cylindrical head reinforced by grey steel bands, vertical dark wooden handle with grey fittings, wooden striking faces. The fourth row is the STEEL tier. One upright tool alone. Preserve the recognizable reference silhouette, proportions, muted cool grey metal and warm dark brown wood palette, practical joinery, crisp stepped pixel-art edges and shading. No gold or fantasy decoration. Transparent alpha background, no white halo, shadow, text, border or other tools. Tightly framed portrait 2:3 canvas with a small transparent margin. This is faithful asset preparation for The Last Garden, not a redesign."
+    },
+    {
+      "name": "axe_wood",
+      "path": "C:/Users/Bohdan/.codex/generated_images/01a0fd06-c903-71d0-8e8a-1a4a3d07406f/exec-724d7834-a6eb-47b8-af90-1466eb7774cb.png",
+      "prompt": "Game sprite extraction from the supplied 4x4 tool sheet. Extract and faithfully reproduce ONLY the primitive AXE at row 1 column 1 (top-left). One upright axe, its small grey chipped working blade extending right, coarse wooden handle, visible rope ties. Preserve this precise tool's silhouette, proportions, rough construction, warm brown wood and muted grey insert. The first tier means primitive handmade construction with wooden support and a small working insert, not an all-wood blade. Do not replace it with the large stone axe from row 2 or polished metal axe from other rows. Detailed crisp stepped pixel art, matching the reference, no painted smoothing. Transparent alpha background with no white halo, shadow, text, frame or other tools. Portrait canvas approximately 2:3, tightly framed with only a small transparent margin. This is an inventory/hand asset for The Last Garden, a faithful extraction not a new concept design."
+    },
+    {
+      "name": "axe_steel",
+      "path": "D:/The_Last_Garden/game/assets/sprites/items/axe_pilot_steel.png",
+      "reused_from": "docs/art/inventory-scale-pilot-2026-10-12.md"
+    }
+  ]
+}

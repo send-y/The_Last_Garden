@@ -1,0 +1,245 @@
+{
+  "assets": [
+    {
+      "file": "axe_copper.png",
+      "size": [
+        1024,
+        1536
+      ],
+      "mode": "RGBA",
+      "transparent_pixels": 1171727,
+      "alpha_bbox": [
+        65,
+        89,
+        986,
+        1518
+      ]
+    },
+    {
+      "file": "axe_steel.png",
+      "size": [
+        1024,
+        1536
+      ],
+      "mode": "RGBA",
+      "transparent_pixels": 1023223,
+      "alpha_bbox": [
+        49,
+        29,
+        1006,
+        1527
+      ]
+    },
+    {
+      "file": "axe_stone.png",
+      "size": [
+        1024,
+        1536
+      ],
+      "mode": "RGBA",
+      "transparent_pixels": 1111356,
+      "alpha_bbox": [
+        33,
+        7,
+        994,
+        1536
+      ]
+    },
+    {
+      "file": "axe_wood.png",
+      "size": [
+        1024,
+        1536
+      ],
+      "mode": "RGBA",
+      "transparent_pixels": 1130274,
+      "alpha_bbox": [
+        0,
+        31,
+        1004,
+        1514
+      ]
+    },
+    {
+      "file": "hoe_copper.png",
+      "size": [
+        1024,
+        1536
+      ],
+      "mode": "RGBA",
+      "transparent_pixels": 1356183,
+      "alpha_bbox": [
+        25,
+        37,
+        970,
+        1502
+      ]
+    },
+    {
+      "file": "hoe_steel.png",
+      "size": [
+        1024,
+        1536
+      ],
+      "mode": "RGBA",
+      "transparent_pixels": 1228960,
+      "alpha_bbox": [
+        21,
+        18,
+        996,
+        1512
+      ]
+    },
+    {
+      "file": "hoe_stone.png",
+      "size": [
+        1024,
+        1536
+      ],
+      "mode": "RGBA",
+      "transparent_pixels": 1244427,
+      "alpha_bbox": [
+        0,
+        21,
+        968,
+        1536
+      ]
+    },
+    {
+      "file": "hoe_wood.png",
+      "size": [
+        1024,
+        1536
+      ],
+      "mode": "RGBA",
+      "transparent_pixels": 1289284,
+      "alpha_bbox": [
+        51,
+        79,
+        962,
+        1501
+      ]
+    },
+    {
+      "file": "mallet_copper.png",
+      "size": [
+        1024,
+        1536
+      ],
+      "mode": "RGBA",
+      "transparent_pixels": 1050478,
+      "alpha_bbox": [
+        0,
+        21,
+        998,
+        1520
+      ]
+    },
+    {
+      "file": "mallet_steel.png",
+      "size": [
+        1024,
+        1536
+      ],
+      "mode": "RGBA",
+      "transparent_pixels": 1092889,
+      "alpha_bbox": [
+        0,
+        69,
+        1004,
+        1520
+      ]
+    },
+    {
+      "file": "mallet_stone.png",
+      "size": [
+        1024,
+        1536
+      ],
+      "mode": "RGBA",
+      "transparent_pixels": 1146101,
+      "alpha_bbox": [
+        0,
+        41,
+        1010,
+        1536
+      ]
+    },
+    {
+      "file": "mallet_wood.png",
+      "size": [
+        1024,
+        1536
+      ],
+      "mode": "RGBA",
+      "transparent_pixels": 1153428,
+      "alpha_bbox": [
+        0,
+        37,
+        996,
+        1518
+      ]
+    },
+    {
+      "file": "pickaxe_copper.png",
+      "size": [
+        1254,
+        1254
+      ],
+      "mode": "RGBA",
+      "transparent_pixels": 1309913,
+      "alpha_bbox": [
+        0,
+        19,
+        1236,
+        1220
+      ]
+    },
+    {
+      "file": "pickaxe_steel.png",
+      "size": [
+        1254,
+        1254
+      ],
+      "mode": "RGBA",
+      "transparent_pixels": 1376890,
+      "alpha_bbox": [
+        166,
+        85,
+        1182,
+        1236
+      ]
+    },
+    {
+      "file": "pickaxe_stone.png",
+      "size": [
+        1254,
+        1254
+      ],
+      "mode": "RGBA",
+      "transparent_pixels": 1349284,
+      "alpha_bbox": [
+        65,
+        37,
+        1144,
+        1206
+      ]
+    },
+    {
+      "file": "pickaxe_wood.png",
+      "size": [
+        1238,
+        1271
+      ],
+      "mode": "RGBA",
+      "transparent_pixels": 1296991,
+      "alpha_bbox": [
+        57,
+        31,
+        1218,
+        1239
+      ]
+    }
+  ],
+  "count": 16
+}
