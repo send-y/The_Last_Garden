@@ -86,7 +86,7 @@ func _initialize() -> void:
 func _run() -> void:
 	TranslationServer.set_locale("ru")
 	_test_localization_catalog_and_resolver()
-	_test_complete_first_night()
+	_test_stocked_first_night_regression()
 	_test_player_energy_and_roof_sleep()
 	_test_player_energy_save_migration()
 	_test_serialization_round_trip()
@@ -243,9 +243,9 @@ func _test_localization_catalog_and_resolver() -> void:
 	)
 
 
-func _test_complete_first_night() -> void:
+func _test_stocked_first_night_regression() -> void:
 	var simulation: World = Simulation.new(
-		Simulation.create_new_game_state()
+		preload("res://tests/fixtures/stocked_tool_state.gd").prepare(Simulation.create_new_game_state())
 	)
 	_expect(simulation.get_day() == 1, "new game starts on day 1")
 	_expect(simulation.get_time_text() == "11:00", "new game starts at 11:00")
@@ -256,7 +256,7 @@ func _test_complete_first_night() -> void:
 		return
 	if not _surface_route_interact(simulation, "core:repair_room"):
 		return
-	_expect(String(simulation.get_resource_search_hint().get("kind", "")) == "wood", "ordinary start points toward generated wood after finding a pantry tool")
+	_expect(String(simulation.get_resource_search_hint().get("kind", "")) == "wood", "stocked regression start points toward generated wood after finding a pantry tool")
 	if not _surface_route_harvest(simulation, simulation.get_surface_trees()):
 		return
 	if not _surface_route_store_item(simulation, "core:axe", axe_id):
@@ -268,14 +268,14 @@ func _test_complete_first_night() -> void:
 		return
 	if not _surface_route_store_item(simulation, "core:pickaxe", pickaxe_id):
 		return
-	_expect(simulation.get_current_objective_key() == "first_night.objective.build_workbench", "ordinary roof route explains the missing board-making station")
+	_expect(simulation.get_current_objective_key() == "first_night.objective.build_workbench", "stocked regression roof route explains the missing board-making station")
 	var workbench_cell := _surface_route_build_workbench(simulation)
 	if workbench_cell.x < 0:
 		return
 	if not _surface_route_saw_planks(simulation, workbench_cell):
 		return
-	_expect(simulation.get_item_count("core:plank") == 10, "ordinary route physically collects its first crafted roof boards")
-	_expect(simulation.get_current_objective_key() == "first_night.objective.cover_roof", "picked-up boards advance the ordinary objective to covering the roof")
+	_expect(simulation.get_item_count("core:plank") == 10, "stocked regression route physically collects its first crafted roof boards")
+	_expect(simulation.get_current_objective_key() == "first_night.objective.cover_roof", "picked-up boards advance the stocked regression objective to covering the roof")
 	var energy_before_roof := simulation.get_player_energy()
 	if not _surface_route_interact(simulation, "core:repair_room"):
 		return
@@ -284,7 +284,7 @@ func _test_complete_first_night() -> void:
 	_expect(is_equal_approx(simulation.get_player_energy(), energy_before_roof), "covering the roof does not instantly restore player energy")
 	_expect(
 		simulation.get_elapsed_game_minutes() > starting_elapsed + 16 + 18 + 8,
-		"ordinary gathering, construction, crafting, and walking advance the first-night clock"
+		"stocked regression gathering, construction, crafting, and walking advance the first-night clock"
 	)
 	_expect(
 		simulation.get_item_count(FirstNightContent.WOOD_ID) >= 5
@@ -301,7 +301,7 @@ func _test_complete_first_night() -> void:
 	)
 	_expect(
 		bool(simulation.get_flags().get("tools_found", false)),
-		"taking a tool from the ordinary starter pantry advances the tutorial"
+		"taking a tool from the stocked regression starter pantry advances the tutorial"
 	)
 	if not _surface_route_interact(simulation, "core:repair_room"):
 		return
@@ -327,7 +327,7 @@ func _test_complete_first_night() -> void:
 	_expect(simulation.get_day() == 2, "sleep advances to day 2")
 	_expect(simulation.get_time_text() == "07:00", "sleep advances to 07:00")
 	_expect(bool(simulation.get_flags()["first_night_complete"]), "first night is marked complete")
-	_expect(bool(simulation.get_flags().get("comfortable_sleep_completed", false)), "ordinary covered-roof sleep completes the comfortable-start result")
+	_expect(bool(simulation.get_flags().get("comfortable_sleep_completed", false)), "stocked regression covered-roof sleep completes the comfortable-start result")
 	_expect(is_equal_approx(simulation.get_player_energy(), simulation.get_player_energy_max()), "comfortable sleep restores full player energy after actual work")
 	_expect(simulation.is_npc_visible("core:first_neighbor"), "first neighbor appears after the first night")
 	_expect(
@@ -340,28 +340,28 @@ func _test_complete_first_night() -> void:
 	_cleanup_save_files(TEST_SURFACE_ROUTE_SAVE_PATH)
 	var store := SaveStore.new(TEST_SURFACE_ROUTE_SAVE_PATH)
 	var written := store.write_state(simulation.export_state())
-	_expect(bool(written.get("success", false)), "ordinary first-night route can be saved to disk")
+	_expect(bool(written.get("success", false)), "stocked regression first-night route can be saved to disk")
 	var read_result := store.read_state()
-	_expect(bool(read_result.get("success", false)), "ordinary first-night route can be loaded from disk")
+	_expect(bool(read_result.get("success", false)), "stocked regression first-night route can be loaded from disk")
 	if bool(read_result.get("success", false)):
 		var restored := Simulation.new(read_result.get("state", {}) as Dictionary)
-		_expect(restored.get_day() == 2 and bool(restored.get_flags()["first_night_complete"]), "saved ordinary route preserves its morning and completion")
-		_expect(restored.get_inventory() == simulation.get_inventory(), "saved ordinary route preserves its earned and consumed resources")
-		_expect(restored.is_roof_covered() and bool(restored.get_flags().get("comfortable_sleep_completed", false)), "saved ordinary route preserves roof and comfortable sleep completion")
-		_expect(is_equal_approx(restored.get_player_energy(), simulation.get_player_energy()), "saved ordinary route preserves restored player energy")
-		_expect(restored.get_structures() == simulation.get_structures(), "saved ordinary route preserves the actually built starter workbench")
-		_expect(restored.export_state().get("resource_nodes") == simulation.export_state().get("resource_nodes"), "saved ordinary route preserves mined generated boulders")
-		_expect(restored.export_state().get("tree_nodes") == simulation.export_state().get("tree_nodes"), "saved ordinary route preserves harvested generated trees")
-		_expect(restored.export_state().get("collected") == simulation.export_state().get("collected"), "saved ordinary route preserves resource depletion")
-		_expect((restored.export_state().get("item_instances", []) as Array).size() == original_instances.size(), "ordinary route and reload do not create replacement tools")
+		_expect(restored.get_day() == 2 and bool(restored.get_flags()["first_night_complete"]), "saved stocked regression route preserves its morning and completion")
+		_expect(restored.get_inventory() == simulation.get_inventory(), "saved stocked regression route preserves its earned and consumed resources")
+		_expect(restored.is_roof_covered() and bool(restored.get_flags().get("comfortable_sleep_completed", false)), "saved stocked regression route preserves roof and comfortable sleep completion")
+		_expect(is_equal_approx(restored.get_player_energy(), simulation.get_player_energy()), "saved stocked regression route preserves restored player energy")
+		_expect(restored.get_structures() == simulation.get_structures(), "saved stocked regression route preserves the actually built starter workbench")
+		_expect(restored.export_state().get("resource_nodes") == simulation.export_state().get("resource_nodes"), "saved stocked regression route preserves mined generated boulders")
+		_expect(restored.export_state().get("tree_nodes") == simulation.export_state().get("tree_nodes"), "saved stocked regression route preserves harvested generated trees")
+		_expect(restored.export_state().get("collected") == simulation.export_state().get("collected"), "saved stocked regression route preserves resource depletion")
+		_expect((restored.export_state().get("item_instances", []) as Array).size() == original_instances.size(), "stocked regression route and reload do not create replacement tools")
 		for instance: Dictionary in original_instances:
 			var preserved := restored.get_item_instance(String(instance.get("instance_id", "")))
-			_expect(String(preserved.get("item_id", "")) == String(instance.get("item_id", "")), "ordinary route preserves every original physical tool ID")
+			_expect(String(preserved.get("item_id", "")) == String(instance.get("item_id", "")), "stocked regression route preserves every original physical tool ID")
 	_cleanup_save_files(TEST_SURFACE_ROUTE_SAVE_PATH)
-	_continue_ordinary_farming_route(simulation, workbench_cell)
+	_continue_stocked_farming_route(simulation, workbench_cell)
 
 
-func _continue_ordinary_farming_route(simulation: World, workbench_cell: Vector2i) -> void:
+func _continue_stocked_farming_route(simulation: World, workbench_cell: Vector2i) -> void:
 	# Continue the real tool/tree/workbench/plank/roof/sleep route. No seeds,
 	# crops, table materials, water charges, or completed buildings are granted.
 	while not simulation.get_inventory_placements().is_empty():
@@ -421,7 +421,7 @@ func _continue_ordinary_farming_route(simulation: World, workbench_cell: Vector2
 		return
 	for _minute: int in range(BuildingCatalogScript.new().get_work_minutes("core:study_table")):
 		simulation.advance_minutes(1)
-		result = simulation.execute_construction_command(ConstructionCommandScript.work_blueprint(table))
+		result = _equipped_fixture_work(simulation, table)
 		if not bool(result.success):
 			_expect(false, "ordinary farm route must construct its study table through work")
 			return
@@ -535,7 +535,7 @@ func _continue_ordinary_farming_route(simulation: World, workbench_cell: Vector2
 	var restored := _farm_route_restore(store)
 	_expect(restored.get_farm_beds() == simulation.get_farm_beds() and restored.get_inventory() == simulation.get_inventory(), "ordinary repeated harvest and seed stock survive disk reload")
 	_cleanup_save_files(TEST_SURFACE_ROUTE_SAVE_PATH)
-	print("PASS: ordinary pantry -> actual wood/planks/study table -> wild berry seeds -> watered crop -> own seeds -> replanted second harvest")
+	print("PASS: stocked roof/farming regression -> actual wood/planks/study table -> wild berry seeds -> watered crop -> own seeds -> replanted second harvest")
 
 
 func _farm_route_restore(store: FirstNightSaveStore) -> World:
@@ -947,6 +947,8 @@ func _surface_route_take_tool(simulation: World, item_id: String) -> String:
 
 
 func _surface_route_build_workbench(simulation: World) -> Vector2i:
+	if simulation.get_inventory_instance_id("core:mallet", 0).is_empty():
+		if _surface_route_take_tool(simulation, "core:mallet").is_empty(): return Vector2i(-1,-1)
 	var catalog := BuildingCatalogScript.new()
 	var building_id := "core:workbench"
 	var chosen := Vector2i(-1, -1)
@@ -983,7 +985,7 @@ func _surface_route_build_workbench(simulation: World) -> Vector2i:
 	var result: Dictionary = {}
 	for minute: int in range(required):
 		simulation.advance_minutes(1)
-		result = simulation.execute_construction_command(ConstructionCommandScript.work_blueprint(chosen))
+		result = _equipped_fixture_work(simulation, chosen)
 		if not bool(result.get("success", false)):
 			_expect(false, "ordinary workbench construction stopped at minute %d: %s" % [minute, result])
 			return Vector2i(-1, -1)
@@ -2006,9 +2008,9 @@ func _test_pickup_keeps_manual_inventory_layout() -> void:
 func _test_click_to_pickup_inventory_controls() -> void:
 	var grid: InventoryGrid = InventoryGridScript.new()
 	root.add_child(grid)
-	grid.size = Vector2(168, 168)
-	_expect(grid._cell_at_position(Vector2(41.99, 10)) == Vector2i.ZERO, "point just before a touching cell edge belongs to the first slot")
-	_expect(grid._cell_at_position(Vector2(42, 10)) == Vector2i(1, 0), "the shared edge between touching slots maps directly to the next slot")
+	grid.size = Vector2.ONE * (InventoryGridScript.CELL_SIZE * 4)
+	_expect(grid._cell_at_position(Vector2(InventoryGridScript.CELL_SIZE - 0.01, 10)) == Vector2i.ZERO, "point just before a touching cell edge belongs to the first slot")
+	_expect(grid._cell_at_position(Vector2(InventoryGridScript.CELL_SIZE, 10)) == Vector2i(1, 0), "the shared edge between touching slots maps directly to the next slot")
 	grid.present([{
 		"item_id": "core:raw_water",
 		"stack_index": 0,
@@ -2036,7 +2038,7 @@ func _test_click_to_pickup_inventory_controls() -> void:
 	grid._input(release)
 	_expect(equipped.size() == 1 and grid.is_holding_item() and changed_layouts.is_empty(), "releasing LMB keeps the cursor item and does not rearrange inventory")
 	var motion := InputEventMouseMotion.new()
-	motion.global_position = Vector2(10, 142)
+	motion.global_position = Vector2(10, InventoryGridScript.CELL_SIZE * 3 + 10)
 	grid._input(motion)
 	_expect(grid.is_holding_item(), "cursor transfer persists while moving without held LMB")
 	release.global_position = motion.global_position
@@ -3548,6 +3550,7 @@ func _build_mira_work_simulation(
 	mira_inventory["core:plank"] = 30
 	mira["personal_inventory"] = mira_inventory
 	simulation = Simulation.new(state_with_materials)
+	simulation.state.npcs["core:first_neighbor"].carried_instance_id = simulation._create_item_instances("core:mallet",1,"npc","core:first_neighbor")[0]
 	simulation.set_player_position(
 		simulation.get_npc_position("core:first_neighbor", Vector2.ZERO)
 	)
@@ -4006,9 +4009,7 @@ func _test_blueprint_command_execution() -> void:
 		ConstructionCommandScript.deliver_blueprint_materials(Vector2i(23, 29))
 	).get("success", false)), "second blueprint accepts its material")
 	for work_step: int in range(24):
-		var progress_result: Dictionary = simulation.execute_construction_command(
-			ConstructionCommandScript.work_blueprint(Vector2i(23, 29))
-		)
+		var progress_result: Dictionary = _equipped_fixture_work(simulation, Vector2i(23, 29))
 		_expect(
 			String(progress_result.get("reason_id", ""))
 			== "core:construction_work_progressed",
@@ -4021,9 +4022,7 @@ func _test_blueprint_command_execution() -> void:
 		)) == 24,
 		"player work progress is stored on the blueprint"
 	)
-	var complete_result: Dictionary = simulation.execute_construction_command(
-		ConstructionCommandScript.work_blueprint(Vector2i(23, 29))
-	)
+	var complete_result: Dictionary = _equipped_fixture_work(simulation, Vector2i(23, 29))
 	_expect(bool(complete_result.get("success", false)), "valid completion builds a structure")
 	_expect(bool(complete_result.get("changed", false)), "valid completion reports a state change")
 	_expect(
@@ -4075,9 +4074,7 @@ func _test_blueprint_command_execution() -> void:
 	_expect(bool(simulation.execute_construction_command(
 		ConstructionCommandScript.deliver_blueprint_materials(Vector2i(24, 29))
 	).get("success", false)), "an actor-cell blueprint accepts its material")
-	var actor_blocked_completion: Dictionary = simulation.execute_construction_command(
-		ConstructionCommandScript.work_blueprint(Vector2i(24, 29))
-	)
+	var actor_blocked_completion: Dictionary = _equipped_fixture_work(simulation, Vector2i(24, 29))
 	_expect(
 		String(actor_blocked_completion.get("reason_id", "")) == "core:occupied_by_actor",
 		"a wall cannot complete inside the player"
@@ -4311,9 +4308,7 @@ func _test_multi_cell_construction_footprints() -> void:
 		"2x1 blueprint footprint cannot extend past the map edge"
 	)
 	for _minute: int in range(15):
-		simulation.execute_construction_command(
-			ConstructionCommandScript.work_blueprint(Vector2i(31, 30))
-		)
+		_equipped_fixture_work(simulation, Vector2i(31, 30))
 	var completed_table := simulation.get_structures().filter(
 		func(value: Variant) -> bool:
 			return String((value as Dictionary).get("building_id", "")) == "core:table"
@@ -4386,9 +4381,7 @@ func _test_floor_layer_coexists_with_structures() -> void:
 		ConstructionCommandScript.deliver_blueprint_materials(cell)
 	).get("success", false)), "wall materials can be delivered")
 	for _minute: int in range(25):
-		simulation.execute_construction_command(
-			ConstructionCommandScript.work_blueprint(cell)
-		)
+		_equipped_fixture_work(simulation, cell)
 	var floor_result := simulation.execute_construction_command(
 		ConstructionCommandScript.place_blueprint(cell, "core:wood_floor")
 	)
@@ -4397,9 +4390,7 @@ func _test_floor_layer_coexists_with_structures() -> void:
 		ConstructionCommandScript.deliver_blueprint_materials(cell)
 	).get("success", false)), "floor materials can be delivered over a wall")
 	for _minute: int in range(4):
-		simulation.execute_construction_command(
-			ConstructionCommandScript.work_blueprint(cell)
-		)
+		_equipped_fixture_work(simulation, cell)
 	_expect(simulation.get_structures().size() == 2, "floor and wall persist as separate structures")
 	var restored := Simulation.new(simulation.export_state())
 	_expect(restored.get_structures().size() == 2, "floor and wall survive save normalization")
@@ -4412,7 +4403,7 @@ func _test_floor_layer_coexists_with_structures() -> void:
 func _test_crafting_catalog_and_project_lifecycle() -> void:
 	var catalog := CraftingCatalogScript.new()
 	var recipes: Array[Dictionary] = catalog.recipes_for_station("core:workbench")
-	_expect(recipes.size() == 2, "workbench catalog exposes two starter recipes")
+	_expect(recipes.size() == 10, "workbench catalog exposes original recipes plus wooden and stone tools")
 	_expect(
 		catalog.get_inputs("core:saw_planks") == {"core:wood": 5},
 		"plank recipe reads its input from content"
@@ -5009,6 +5000,13 @@ func _equip_test_resource_tool(
 	_expect(bool(assigned.get("success", false)), "test fixture equips the required tool")
 	simulation.select_hotbar_slot(0)
 
+
+
+func _equipped_fixture_work(simulation: World, cell: Vector2i) -> Dictionary:
+	var id := simulation.get_inventory_instance_id("core:mallet", 0)
+	if id.is_empty(): id = _add_test_tool(simulation, "core:mallet", false)
+	simulation.select_inventory_item("core:mallet", id)
+	return simulation.execute_construction_command(ConstructionCommandScript.work_blueprint(cell))
 
 func _cell_center(cell: Vector2i) -> Vector2:
 	return Vector2(

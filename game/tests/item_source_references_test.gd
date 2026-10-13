@@ -70,7 +70,7 @@ func run() -> void:
 	check(not started.item_instances.any(func(record): return String(record.item_id) == "core:axe"), "Public new-game entry validates actual starter sources")
 	var outputs := Fixture.catalog(["core:plank", "core:firewood", "core:carrot", "core:pinecone"])
 	var output_recipes = crafting_script.new(outputs)
-	check(output_recipes.recipes_for_station("core:workbench").is_empty(), "Actual output hooks reject deprecated results")
+	check(output_recipes.get_definition("core:saw_planks").is_empty() and output_recipes.get_definition("core:split_firewood").is_empty(), "Actual output hooks reject deprecated results while keeping unrelated tool recipes")
 	var output_crops = crop_script.new(outputs)
 	check(output_crops.find("core:carrot").is_empty(), "Actual product hook disables crop")
 	var no_drop = world_script.new({}, outputs)

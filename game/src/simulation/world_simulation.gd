@@ -595,6 +595,9 @@ func get_crafting_projects() -> Array:
 func get_crafting_recipes(station_type: String) -> Array[Dictionary]:
 	return CraftingSystem.get_crafting_recipes(self, station_type)
 
+func is_recipe_unlocked(recipe_id: String) -> bool:
+	return preload("res://src/crafting/recipe_learning.gd").unlocked(self, crafting_catalog.get_definition(recipe_id))
+
 
 func is_navigation_cell_walkable(cell: Vector2i) -> bool:
 	return ConstructionProjectsSystem.is_navigation_cell_walkable(self, cell)
@@ -676,8 +679,8 @@ func get_sleep_energy_preview(place_id: String = "") -> float:
 	return WorldCalendarSystem.get_sleep_energy_preview(self, place_id)
 
 
-func _spend_player_work_energy() -> void:
-	WorldCalendarSystem._spend_player_work_energy(self)
+func _spend_player_work_energy(multiplier: float = 1.0) -> void:
+	WorldCalendarSystem._spend_player_work_energy(self, multiplier)
 
 
 func get_day() -> int:

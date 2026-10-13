@@ -35,7 +35,7 @@ func run() -> void:
 	before = sim.export_state()
 	check(not sim.fill_active_bucket(bank).success and sim.export_state() == before, "Distant fill preserves state")
 	var restored := Fixture.world(JSON.parse_string(JSON.stringify(sim.export_state())))
-	check(restored.state.version == 36 and restored.get_active_item_instance().instance_id == id and restored.get_item_instance(id).state.charges == 3, "Save 36 retains exact instance and water")
+	check(restored.state.version == restored.SAVE_VERSION and restored.get_active_item_instance().instance_id == id and restored.get_item_instance(id).state.charges == 3, "Current save retains exact instance and water")
 	var normalizer = load("res://src/items/tool_instance_state.gd")
 	for raw: Variant in [null, "3", true, 1.5, NAN, INF]:
 		check(normalizer.normalize_water_state({"charges": raw, "other": 7}, 4) == {"charges": 0, "other": 7}, "Invalid charge becomes zero; unrelated state retained")

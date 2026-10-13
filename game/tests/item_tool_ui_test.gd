@@ -26,7 +26,7 @@ func run() -> void:
 	Session.set_mechanics_lab_active(true)
 	Session.set_process(false)
 	Session.set_paused(true, false)
-	var state := World.create_new_game_state()
+	var state := preload("res://tests/fixtures/stocked_tool_state.gd").prepare(World.create_new_game_state())
 	state.storage_items = []
 	state.item_instances = []
 	for index: int in range(3):

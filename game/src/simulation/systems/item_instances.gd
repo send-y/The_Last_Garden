@@ -64,6 +64,7 @@ static func _set_instance_location(sim,
 	var instances: Array = state["item_instances"] as Array
 	var record: Dictionary = instances[index] as Dictionary
 	record["location"] = {"kind": location_kind, "id": location_id}
+	if location_kind == "inventory": preload("res://src/crafting/recipe_learning.gd").discover(sim, String(record.item_id))
 	instances[index] = record
 	return true
 

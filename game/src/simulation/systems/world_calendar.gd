@@ -175,10 +175,10 @@ static func get_sleep_energy_preview(sim, place_id: String = "") -> float:
 	return float(physical.energy)
 
 
-static func _spend_player_work_energy(sim) -> void:
+static func _spend_player_work_energy(sim, multiplier: float = 1.0) -> void:
 	var state: Dictionary = sim.state
 	var physical: Dictionary = sim.get_player_needs()
-	sim.needs.spend_work(physical)
+	sim.needs.spend_work(physical, multiplier)
 	state["player_energy"] = physical.energy
 
 

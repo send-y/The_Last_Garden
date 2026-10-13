@@ -280,6 +280,8 @@ static func _advance_blueprint_work(sim, cell_data: Array, actor_id: String = PL
 			"changed": false,
 			"reason_id": "core:required_materials_missing",
 		}
+	if not sim.actor_tool_supports(actor_id, "build"):
+		return {"success":false,"changed":false,"reason_id":"core:construction_tool_not_selected"}
 	if actor_id != PLAYER_ACTOR_ID and not sim.NpcHomeProjects.safe_to_build(sim,blueprint):
 		return {"success":false,"changed":false,"reason_id":"core:npc_project_unsafe"}
 	if sim._is_actor_in_blueprint(blueprint):
@@ -293,13 +295,10 @@ static func _advance_blueprint_work(sim, cell_data: Array, actor_id: String = PL
 		1,
 		int(blueprint.get("required_work_minutes", 1))
 	)
-	var current_work: int = clampi(
-		int(blueprint.get("work_progress_minutes", 0)),
-		0,
-		required_work
-	)
-	var next_work: int = mini(current_work + 1, required_work)
-	blueprint["work_progress_minutes"] = next_work
+	var current_work: float = preload("res://src/items/tool_work_progress.gd").normalize(blueprint.get("work_progress_minutes", 0), required_work)
+	var tool: Dictionary = sim.get_actor_tool(actor_id)
+	var next_work: float = minf(current_work + sim.content.item_tool_work_rate(String(tool.get("item_id", ""))), float(required_work))
+	blueprint["work_progress_minutes"] = preload("res://src/items/tool_work_progress.gd").stored(next_work)
 	if next_work < required_work:
 		return {
 			"success": true,

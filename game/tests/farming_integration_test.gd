@@ -20,6 +20,9 @@ func _run() -> void:
 	_cleanup()
 	Session.set_paused(true, false)
 	Session._start_new_simulation()
+	# This UI regression explicitly supplies its farm equipment; the ordinary
+	# axe-only start and crafting chain are checked by starter/progression tests.
+	Session._replace_simulation(preload("res://tests/fixtures/stocked_tool_state.gd").prepare(Session.get_state()))
 	var main := MainScene.instantiate()
 	add_child(main)
 	await get_tree().process_frame
@@ -125,6 +128,9 @@ func _run() -> void:
 		return
 	if not _check(bool(Session.execute_construction_command(Construction.deliver_blueprint_materials(table)).success), "table receives authored material cost"):
 		return
+	if not _take_tool("core:mallet", 2): return
+	_hud.handle_hotbar_key(2)
+	_move(Content.cell_center(21,21))
 	for _minute: int in range(Session.simulation.building_catalog.get_work_minutes("core:study_table")):
 		if not _check(bool(Session.execute_construction_command(Construction.work_blueprint(table)).success), "table work succeeds"):
 			return

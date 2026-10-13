@@ -10,10 +10,10 @@ const Placement := preload("res://src/inventory/inventory_placement_rules.gd")
 const Resources := preload("res://src/content/resource_node_catalog.gd")
 const HOUSE_COUNT := 30
 const COLUMNS := 6
-const WAREHOUSE := Rect2i(34, 31, 14, 11)
+const WAREHOUSE := Rect2i(34, 31, 16, 14)
 const CLEARING := Rect2i(13, 30, 99, 86)
 const MODES := ["full", "production", "gather"]
-const TOOLS := ["core:axe", "core:pickaxe", "core:hoe", "core:bucket"]
+const TOOLS := ["core:axe", "core:pickaxe", "core:hoe", "core:bucket", "core:mallet"]
 
 static func origin(index: int) -> Vector2i:
 	return Vector2i(15 + (index % COLUMNS) * 16, 48 + (index / COLUMNS) * 14)

@@ -448,12 +448,10 @@ func _on_structure_interaction_requested(
 		if structure.get("cell", []) == [cell.x, cell.y] and String(structure.get("building_id", "")) in ["core:bed", "core:bedroll"]:
 			Session.sleep_at_place("%s@%d,%d" % [structure.building_id, cell.x, cell.y])
 			return
-		if structure.get("cell", []) == [cell.x, cell.y] and String(structure.get("building_id", "")) == "core:study_table":
-			Session.notify_player_key("farming.study_ready", {}, true)
-			return
 	var project: Dictionary = _crafting_project_at(cell)
 	if project.is_empty():
-		_hud.open_crafting(cell, Session.get_crafting_recipes("core:workbench"))
+		var station_type := "core:study_table" if String(clicked.get("building_id", "")) == "core:study_table" else "core:workbench"
+		_hud.open_crafting(cell, Session.get_crafting_recipes(station_type))
 		return
 	if not continuous_work:
 		Session.notify_player_key("crafting.feedback.hold_to_work")
@@ -469,7 +467,7 @@ func _on_structure_interaction_requested(
 
 func _on_crafting_recipe_requested(cell: Vector2i, recipe_id: String) -> void:
 	var result: Dictionary = Session.execute_crafting_command(
-		CraftingCommand.start_project(cell, recipe_id)
+		CraftingCommand.craft_in_hands(recipe_id) if cell == INVALID_CELL else CraftingCommand.start_project(cell, recipe_id)
 	)
 	_show_crafting_result(result)
 
@@ -559,6 +557,8 @@ func _show_crafting_result(result: Dictionary) -> void:
 			message_key = "crafting.feedback.materials_missing"
 		"core:station_busy":
 			message_key = "crafting.feedback.station_busy"
+		"core:recipe_locked":
+			message_key = "crafting.feedback.recipe_locked"
 		"core:too_far":
 			message_key = "crafting.feedback.too_far"
 	Session.notify_player_key(message_key, {
@@ -637,6 +637,8 @@ func _show_construction_result(result: Dictionary) -> void:
 			message_key = "construction.feedback.materials_already_delivered"
 		"core:required_materials_missing":
 			message_key = "construction.feedback.required_materials_missing"
+		"core:construction_tool_not_selected":
+			message_key = "construction.feedback.mallet_required"
 		"core:construction_work_progressed":
 			message_key = "construction.feedback.work_progressed"
 		"core:structure_completed":

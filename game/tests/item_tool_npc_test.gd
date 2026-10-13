@@ -10,7 +10,7 @@ func check(value: bool, label: String) -> void:
 		print("FAIL: ", label)
 func _initialize() -> void: call_deferred("run")
 func fixture():
-	var state := World.create_new_game_state()
+	var state := preload("res://tests/fixtures/stocked_tool_state.gd").prepare(World.create_new_game_state())
 	state.day = 2
 	state.minute_of_day = 540
 	state.elapsed_game_minutes = 1980

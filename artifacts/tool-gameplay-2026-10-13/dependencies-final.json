@@ -1,0 +1,42 @@
+{
+  "checks": [
+    {
+      "name": "npc_work_query_cache_test.gd",
+      "graphic": false,
+      "exit": 1,
+      "passed": false
+    },
+    {
+      "name": "item_source_references_test.gd",
+      "graphic": false,
+      "exit": 0,
+      "passed": true
+    },
+    {
+      "name": "farming_integration_test.tscn",
+      "graphic": false,
+      "exit": 1,
+      "passed": false
+    },
+    {
+      "name": "npc_home_production_test.gd",
+      "graphic": false,
+      "exit": 0,
+      "passed": true
+    },
+    {
+      "name": "npc_home_projects_test.gd",
+      "graphic": false,
+      "exit": 0,
+      "passed": true
+    },
+    {
+      "name": "resident_home_projects_test.gd",
+      "graphic": false,
+      "exit": 0,
+      "passed": true
+    }
+  ],
+  "save_before": "62ecbdaaba71d10ab01d0292844d3803c830cfa6a382a5be353f2dfa9e06b905",
+  "save_after": "62ecbdaaba71d10ab01d0292844d3803c830cfa6a382a5be353f2dfa9e06b905"
+}

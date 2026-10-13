@@ -8,6 +8,7 @@ signal inventory_layout_changed(layout: Array[Dictionary])
 signal drop_requested(placement: Dictionary)
 signal hotbar_drop_requested(placement: Dictionary, slot_index: int)
 signal equip_requested(placement: Dictionary)
+signal handcraft_requested
 
 const Localized := preload(
 	"res://src/localization/localized_text.gd"
@@ -60,6 +61,12 @@ func _ready() -> void:
 	_apply_close_button_style()
 	_apply_tab_styles()
 	_create_context_menu()
+	var craft := Button.new()
+	craft.name = "HandcraftButton"
+	craft.text = Localized.resolve("ui.crafting.hands")
+	craft.add_theme_font_size_override("font_size", 11)
+	craft.pressed.connect(func() -> void: handcraft_requested.emit())
+	$ContentMargin/ContentColumn.add_child(craft)
 	visibility_changed.connect(_close_context_menu)
 	_close_button.pressed.connect(_on_close_button_pressed)
 	_inventory_grid.context_requested.connect(_open_context_menu)
@@ -317,6 +324,11 @@ func _on_inventory_selection_changed(
 		var item_state: Dictionary = placement.get("instance_state", {}) as Dictionary
 		_details_label.text += "  %d/%d" % [int(item_state.get("charges", 0)), Session.simulation.content.item_tool_capacity(String(placement.item_id))]
 	var item_id := String(placement.get("item_id", ""))
+	var tool: Dictionary = Session.simulation.content.item_tool_profile(item_id)
+	if tool.get("actions", []).has("till"):
+		_details_label.text += Localized.resolve("ui.inventory.tool_energy", {"percent":roundi(Session.simulation.content.item_tool_energy_multiplier(item_id) * 100.0)})
+	elif tool.get("actions", []).has("build") or tool.get("actions", []).has("chop") or tool.get("actions", []).has("mine"):
+		_details_label.text += Localized.resolve("ui.inventory.tool_speed", {"speed":Session.simulation.content.item_tool_work_rate(item_id)})
 	var profile: Dictionary = Session.simulation.content.item_food_profile(item_id)
 	_eat_button.visible = not profile.is_empty()
 	_extract_button.visible = Session.simulation.farming.can_extract_seeds(item_id)

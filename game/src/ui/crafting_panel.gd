@@ -12,7 +12,7 @@ var _content_data: FirstNightContent
 @onready var _title_label: Label = $Margin/Column/Header/Title as Label
 @onready var _close_button: Button = $Margin/Column/Header/Close as Button
 @onready var _hint_label: Label = $Margin/Column/Hint as Label
-@onready var _recipes: VBoxContainer = $Margin/Column/Recipes as VBoxContainer
+@onready var _recipes: VBoxContainer = $Margin/Column/RecipeScroll/Recipes as VBoxContainer
 @onready var _footer_label: Label = $Margin/Column/Footer as Label
 
 
@@ -33,6 +33,7 @@ func present(
 	content_data: FirstNightContent
 ) -> void:
 	_content_data = content_data
+	_title_label.text = Localized.resolve("ui.crafting.hands" if not recipes.is_empty() and recipes[0].get("station_type", "") == "core:hands" else "ui.crafting.title")
 	for child: Node in _recipes.get_children():
 		child.queue_free()
 	for recipe: Dictionary in recipes:
@@ -40,6 +41,8 @@ func present(
 		var button := Button.new()
 		button.custom_minimum_size = Vector2(320.0, 48.0)
 		button.text = _format_recipe(recipe)
+		button.disabled = bool(recipe.get("locked", false))
+		if button.disabled: button.tooltip_text = Localized.resolve("crafting.feedback.recipe_locked")
 		button.alignment = HORIZONTAL_ALIGNMENT_LEFT
 		button.add_theme_font_size_override("font_size", 11)
 		UiSkin.apply_card_button(button)
@@ -58,6 +61,7 @@ func _emit_recipe(recipe_id: String) -> void:
 func _format_recipe(recipe: Dictionary) -> String:
 	var input_text := _format_items(recipe.get("inputs", {}) as Dictionary)
 	var output_text := _format_items(recipe.get("outputs", {}) as Dictionary)
+	if output_text.is_empty() and not recipe.get("unlocks", []).is_empty(): output_text = Localized.resolve("ui.crafting.knowledge")
 	return "%s\n%s  →  %s   ·   %d мин" % [
 		Localized.resolve(String(recipe.get("label_key", recipe.get("id", "")))),
 		input_text,

@@ -3,6 +3,7 @@ extends Control
 const IconPresentation := preload("res://src/items/inventory_icon_presentation.gd")
 var texture: Texture2D
 var rotation_steps: int = 0
+var icon_scale: Vector2 = Vector2.ZERO
 var inset: float = 5.0
 var amount: int = 1
 
@@ -13,7 +14,7 @@ func _ready() -> void:
 
 func _draw() -> void:
 	if texture != null:
-		IconPresentation.draw_icon(self, texture, Rect2(Vector2.ZERO, size), rotation_steps, inset, Color(1, 1, 1, 0.9))
+		IconPresentation.draw_icon(self, texture, Rect2(Vector2.ZERO, size), rotation_steps, inset, Color(1, 1, 1, 0.9), icon_scale)
 		if amount > 1:
 			var font_size := maxi(8, roundi(inset * 2))
 			var label := str(amount)

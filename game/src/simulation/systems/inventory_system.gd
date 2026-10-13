@@ -57,6 +57,7 @@ static func get_inventory_placements(sim) -> Array[Dictionary]:
 		placement["icon_path"] = content.item_icon_path(
 			item_id, placement.get("instance_state", {}) as Dictionary
 		)
+		placement["icon_scale"] = content.item_inventory_icon_scale(item_id)
 		placement["label"] = Localized.resolve(content.item_label_key(item_id))
 		result.append(placement)
 	return result
@@ -146,6 +147,7 @@ static func _can_add_item(sim, item_id: String, amount: int) -> bool:
 static func _add_item(sim, item_id: String, amount: int) -> void:
 	var content: FirstNightContent = sim.content
 	var normalized_id: String = content.normalize_item_id(item_id)
+	if amount > 0: preload("res://src/crafting/recipe_learning.gd").discover(sim, normalized_id)
 	if content.item_is_instance_based(normalized_id):
 		sim._create_item_instances(normalized_id, amount, "inventory")
 		return

@@ -118,6 +118,7 @@ func present(placements: Array[Dictionary], item_content: FirstNightContent = nu
 
 	for placement: Dictionary in placements:
 		var placement_copy := placement.duplicate(true)
+		placement_copy["icon_scale"] = _content.item_inventory_icon_scale(String(placement_copy.get("item_id", "")))
 		var placement_index := _placements.size()
 		_placements.append(placement_copy)
 		_cache_placement_icon(placement_copy)
@@ -409,6 +410,7 @@ func _update_cursor_visual() -> void:
 	_cursor_visual.position = _cursor_pointer_global - (Vector2(_drag_grab_cell) * CELL_SIZE + _drag_grab_offset) * screen_scale
 	_cursor_visual.set("texture", _placement_icon(_placements[_dragged_placement_index]))
 	_cursor_visual.set("rotation_steps", _drag_rotation)
+	_cursor_visual.set("icon_scale", _placements[_dragged_placement_index].get("icon_scale", Vector2.ZERO))
 	_cursor_visual.set("inset", 5.0 * screen_scale.x)
 	_cursor_visual.set("amount", int(_placements[_dragged_placement_index].get("amount", 1)))
 	_cursor_visual.show()
@@ -567,16 +569,17 @@ func _draw_placement_icon(placement: Dictionary) -> void:
 		_cell_rect(origin + bounds.position).position,
 		Vector2(bounds.size) * CELL_SIZE + (Vector2(bounds.size) - Vector2.ONE) * CELL_GAP
 	)
-	_draw_rotated_icon(texture, footprint_rect, int(placement.get("rotation", 0)))
+	_draw_rotated_icon(texture, footprint_rect, int(placement.get("rotation", 0)), Color.WHITE, placement.get("icon_scale", Vector2.ZERO))
 
 
 func _draw_rotated_icon(
 	texture: Texture2D,
 	footprint_rect: Rect2,
 	quarter_turns: int,
-	modulate: Color = Color.WHITE
+	modulate: Color = Color.WHITE,
+	icon_scale: Vector2 = Vector2.ZERO
 ) -> void:
-	IconPresentation.draw_icon(self, texture, footprint_rect, quarter_turns, 5.0, modulate)
+	IconPresentation.draw_icon(self, texture, footprint_rect, quarter_turns, 5.0, modulate, icon_scale)
 
 
 func _footprint_bounds(footprint: Array) -> Rect2i:

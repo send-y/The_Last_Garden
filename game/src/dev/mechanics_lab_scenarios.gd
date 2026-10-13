@@ -240,6 +240,12 @@ static func _prepare_shared_wall_memory(
 		simulation.get_npc_position("core:first_neighbor", Vector2.ZERO)
 	)
 
+	# This isolated wall-memory scenario explicitly equips its worker.
+	# Ordinary residents must borrow a player-supplied tool from a real warehouse.
+	if not simulation.actor_tool_supports("core:first_neighbor", "build"):
+		var worker: Dictionary = simulation.state.npcs["core:first_neighbor"]
+		simulation.NpcPracticalWork.Supply.drop_remaining(simulation, worker)
+		worker.carried_instance_id = simulation._create_item_instances("core:mallet", 1, "npc", "core:first_neighbor")[0]
 	var request_result: Dictionary = simulation.execute_npc_work_request(
 		NpcWorkRequest.request_construction_help(
 			"core:first_neighbor",

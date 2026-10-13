@@ -4,6 +4,10 @@ extends RefCounted
 const PLAYER_ACTOR_ID: String = "core:player"
 const ACTION_START_PROJECT: String = "core:start_crafting_project"
 const ACTION_WORK_PROJECT: String = "core:work_crafting_project"
+const ACTION_CRAFT_IN_HANDS: String = "core:craft_in_hands"
+
+static func craft_in_hands(recipe_id: String) -> Dictionary:
+	return {"actor_id": PLAYER_ACTOR_ID, "action_id": ACTION_CRAFT_IN_HANDS, "recipe_id":recipe_id}
 
 
 static func start_project(cell: Vector2i, recipe_id: String) -> Dictionary:

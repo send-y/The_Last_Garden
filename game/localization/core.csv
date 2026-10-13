@@ -426,9 +426,9 @@ ui.inventory.move.invalid,Здесь недостаточно места или 
 ui.inventory.move.success,Предмет перемещён.
 ui.inventory.drop.success,Выброшено: {item} ×{amount}.
 ui.inventory.drop.failure,Не удалось выбросить предмет.
-item.core.pickaxe.name,Кирка
-item.core.hoe.name,Мотыга
-item.core.axe.name,Топор
+item.core.pickaxe.name,Деревянная кирка
+item.core.hoe.name,Деревянная мотыга
+item.core.axe.name,Деревянный топор
 ui.marker.create_title,Новая метка
 ui.marker.list_title,Метки
 ui.marker.name_placeholder,Название метки
@@ -777,3 +777,35 @@ world_edit.dismantle.hint,Shift + ПКМ: разобрать (возврат 50%
 world_edit.door.open_hint,Открыта. ПКМ / E: закрыть.
 world_edit.door.closed_hint,Закрыта. ПКМ / E: открыть.
 world_edit.failure.storage,Сначала уберите предметы с этой клетки склада.
+item.core.axe_stone.name,Каменный топор
+item.core.axe_copper.name,Медный топор
+item.core.axe_steel.name,Стальной топор
+item.core.pickaxe_stone.name,Каменная кирка
+item.core.pickaxe_copper.name,Медная кирка
+item.core.pickaxe_steel.name,Стальная кирка
+item.core.hoe_stone.name,Каменная мотыга
+item.core.hoe_copper.name,Медная мотыга
+item.core.hoe_steel.name,Стальная мотыга
+item.core.mallet.name,Деревянная киянка
+item.core.mallet_stone.name,Киянка с каменным усилением
+item.core.mallet_copper.name,Киянка с медными обручами
+item.core.mallet_steel.name,Киянка со стальными обручами
+construction.feedback.mallet_required,Для строительства выберите киянку в рюкзаке или хотбаре.
+ui.crafting.hands,Изготовить в руках
+ui.crafting.knowledge,Новые рецепты
+crafting.feedback.recipe_locked,Сначала добудьте нужный материал или завершите изучение на столе.
+recipe.core.make_mallet.name,Изготовить деревянную киянку
+recipe.core.make_axe.name,Изготовить деревянный топор
+recipe.core.make_pickaxe.name,Изготовить деревянную кирку
+recipe.core.make_hoe.name,Изготовить деревянную мотыгу
+recipe.core.make_bucket.name,Изготовить ведро
+recipe.core.study_stone_tools.name,Изучить каменные инструменты
+recipe.core.make_axe_stone.name,Изготовить каменный топор
+recipe.core.make_pickaxe_stone.name,Изготовить каменную кирку
+recipe.core.make_hoe_stone.name,Изготовить каменную мотыгу
+recipe.core.make_mallet_stone.name,Усилить киянку камнем
+ui.inventory.tool_energy, · Вспашка: {percent}% энергии
+ui.inventory.tool_speed, · Работа ×{speed}
+npc.work_request.failure.mallet,Для стройки нужна киянка у жителя или на доступном складе.
+tool.learning.objective.gather_wood,Срубите дерево топором и подберите древесину для первых инструментов.
+tool.learning.objective.make_mallet,Откройте рюкзак → «Изготовить в руках» и сделайте киянку для верстака.

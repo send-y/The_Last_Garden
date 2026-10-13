@@ -177,6 +177,13 @@ static func get_current_objective_key(sim) -> String:
 			return "first_night.objective.finish_saw_planks"
 		if sim._has_starting_workbench():
 			return "first_night.objective.saw_planks"
+		var build_tool_exists := false
+		for instance: Dictionary in sim.state.get("item_instances", []):
+			if content.item_tool_supports(String(instance.get("item_id", "")), "build"):
+				build_tool_exists = true
+				break
+		if not build_tool_exists:
+			return "tool.learning.objective.make_mallet" if sim.state.get("learning", {}).get("discovered_items", {}).get("core:wood", false) else "tool.learning.objective.gather_wood"
 		if not sim._get_starting_workbench_blueprint().is_empty():
 			return "first_night.objective.finish_workbench"
 		return "first_night.objective.build_workbench"

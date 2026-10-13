@@ -52,7 +52,7 @@ static func choose(sim, npc: Dictionary) -> Dictionary:
 			if reserved(sim, npc, "build", blueprint.cell):
 				continue
 			var cell := Vector2i(int(blueprint.cell[0]), int(blueprint.cell[1]))
-			if Supply.work_cell(sim, npc, cell) == Vector2i(-1, -1):
+			if Supply.build_work_cell(sim, npc, cell) == Vector2i(-1, -1):
 				continue
 			var ready: bool = sim._blueprint_has_all_materials(blueprint)
 			if ready or not material_source(sim, npc, blueprint).is_empty():
@@ -107,6 +107,7 @@ static func material_source(sim, npc: Dictionary, blueprint: Dictionary) -> Dict
 	return {}
 
 static func tool_action(job: Dictionary) -> String:
+	if String(job.get("kind", "")) == "build": return "build"
 	if String(job.get("kind", "")) == "water": return "water"
 	if String(job.get("kind", "")) == "gather": return "chop" if String(job.get("resource_item", "")) == "core:wood" else "mine"
 	return ""

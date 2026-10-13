@@ -81,6 +81,7 @@ static func _describe_storage_item(sim, item: Dictionary) -> Dictionary:
 		instance_state = (sim.get_item_instance(instance).get("state",{}) as Dictionary).duplicate(true)
 		placement.instance_state = instance_state
 	placement.icon_path = content.item_icon_path(id,instance_state)
+	placement.icon_scale = content.item_inventory_icon_scale(id)
 	return placement
 
 

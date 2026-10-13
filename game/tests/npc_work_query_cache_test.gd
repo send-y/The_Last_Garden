@@ -67,7 +67,25 @@ func _test_paired_minutes() -> void:
 			if minute == 60: sim.set_npc_work_enabled(Fixture.NPC,"build",false)
 			if minute == 65: sim.set_npc_work_enabled(Fixture.NPC,"build",true)
 			if minute == 90: sim.state.npcs[Fixture.NPC].needs.hunger = 35.0
-			if minute == 100: sim.state.npcs[Fixture.NPC].needs.hunger = 100.0
+			if minute == 100:
+				sim.state.npcs[Fixture.NPC].needs.hunger = 100.0
+				# Urgent needs may leave the borrowed physical tool as a recoverable
+				# drop. The player returns it; compare both caches without cloning tools.
+				var saved_position: Vector2 = sim.get_player_position()
+				for drop: Dictionary in sim.get_world_drops():
+					if not bool(drop.get("npc_recovery", false)): continue
+					sim.set_player_position(Vector2(float(drop.position[0]),float(drop.position[1])))
+					check(sim.try_pickup_world_drop(String(drop.drop_id)).success, "Player recovers interrupted construction supplies")
+					while sim.get_item_count(String(drop.item_id)) > 0:
+						var stored := false
+						for cell: Vector2i in [Vector2i(38,32),Vector2i(37,31),Vector2i(38,31),Vector2i(37,32)]:
+							sim.set_player_position(Content.cell_center(cell.x,cell.y+1))
+							if sim.transfer_inventory_stack_to_storage(cell,String(drop.item_id),0).success:
+								stored = true
+								break
+						check(stored, "Recovered supplies return to available local warehouse space")
+						if not stored: break
+				sim.set_player_position(saved_position)
 			sim.advance_minutes(1)
 		check(cached.export_state() == uncached.export_state(),"Cache preserves authoritative work, stocks, needs and RNG at minute %d" % (minute+1))
 	check(not cached.state.npcs[Fixture.NPC].home_goals_completed.is_empty(),"Paired comparison actually completes an autonomous home project")

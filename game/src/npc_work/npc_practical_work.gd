@@ -42,6 +42,10 @@ static func prepare(sim) -> Dictionary:
 		sim.NpcHomeProjects.refresh_authority(sim,npc)
 		Diagnostic.end(span)
 		var job: Dictionary = npc.initiative_job
+		var requested: bool = not npc.work_commitment.is_empty()
+		if requested and job.is_empty() and not sim.actor_tool_supports(String(npc.id), "build"):
+			npc.initiative_job = {"kind":"build", "phase":"build", "cell":npc.work_commitment.target_cell.duplicate(), "drops":[]}
+			job = npc.initiative_job
 		var urgent_need: bool = float(npc.needs.hunger) <= 55 or float(npc.needs.energy) <= 18 or sim.get_minute_of_day() >= 21 * 60 or sim.get_minute_of_day() < 7 * 60
 		if urgent_need and (not job.is_empty() or not String(npc.carried_instance_id).is_empty() or not npc.work_cargo.is_empty()):
 			# Needs interrupt work without trapping communal supplies on a hungry resident.
@@ -51,10 +55,10 @@ static func prepare(sim) -> Dictionary:
 			Supply.drop_remaining(sim, npc)
 			finish(sim, npc)
 			continue
-		if not job.is_empty() and String(job.phase) != "return" and not bool(npc.work_options.get(String(job.kind), false)):
+		if not requested and not job.is_empty() and String(job.phase) != "return" and not bool(npc.work_options.get(String(job.kind), false)):
 			cancel(npc)
 			job = npc.initiative_job
-		if job.is_empty() and (not String(npc.carried_instance_id).is_empty() or not npc.work_cargo.is_empty()):
+		if not requested and job.is_empty() and (not String(npc.carried_instance_id).is_empty() or not npc.work_cargo.is_empty()):
 			cancel(npc)
 			job = npc.initiative_job
 		if job.is_empty():
@@ -82,10 +86,23 @@ static func context_for(sim, npc: Dictionary) -> Dictionary:
 
 static func _context_for(sim, npc: Dictionary) -> Dictionary:
 	var job: Dictionary = npc.initiative_job
-	if String(job.get("kind", "")) == "build" and not Supply.HomeStock.can_work(sim,job.get("cell",[])):
+	if String(job.get("kind", "")) == "build" and String(job.get("phase", "")) != "return" and not Supply.HomeStock.can_work(sim,job.get("cell",[])):
 		cancel(npc)
 		return context_for(sim,npc) if not npc.initiative_job.is_empty() else {}
 	var phase := String(job.phase)
+	# A ready blueprint still requires a real tool, including personal home projects
+	# and explicit player requests. Borrowing uses the existing warehouse route.
+	if phase in ["build", "take_materials"] and not sim.actor_tool_supports(String(npc.id), "build"):
+		if not String(npc.carried_instance_id).is_empty():
+			cancel(npc)
+			return context_for(sim, npc)
+		var source: Dictionary = Supply.find_tool_stock(sim, npc, "build")
+		if source.is_empty():
+			cancel(npc)
+			return {}
+		job.tool_id = String(source.record.item_id)
+		job.phase = "borrow"
+		phase = "borrow"
 	if sim.NpcHomeProjects.Production.PHASES.has(phase):
 		var production_context: Dictionary = sim.NpcHomeProjects.Production.context(sim,npc)
 		if production_context.is_empty(): cancel(npc)
@@ -114,7 +131,7 @@ static func _context_for(sim, npc: Dictionary) -> Dictionary:
 				if sim.NpcHomeProjects.Layout.territory(sim,npc).get("id","") != String(goal.room_id) or (phase != "switch_on" and String(sim._find_blueprint(job.cell).get("building_id","")) != String(goal.building_id)):
 					cancel(npc)
 					return {}
-			target = Supply.work_cell(sim, npc, cell)
+			target = Supply.build_work_cell(sim, npc, cell) if String(job.kind) == "build" and phase != "switch_on" else Supply.work_cell(sim, npc, cell)
 		"take_materials":
 			var blueprint: Dictionary = sim._find_blueprint(job.cell)
 			if blueprint.is_empty():
@@ -127,6 +144,13 @@ static func _context_for(sim, npc: Dictionary) -> Dictionary:
 			if context.is_empty():
 				if not npc.work_cargo.is_empty():
 					job.phase = "deliver"
+					return context_for(sim, npc)
+				# Keep the borrowed construction tool while manufacturing another
+				# batch for this same project, rather than returning it between batches.
+				var report: Dictionary = Supply.HomeStock.report(sim, npc, npc.home_goal)
+				var production: Dictionary = sim.NpcHomeProjects.Production.choose(sim, npc, report.missing)
+				if not production.is_empty():
+					npc.initiative_job = production
 					return context_for(sim, npc)
 				cancel(npc)
 				return {}
@@ -206,7 +230,7 @@ static func fulfil(sim, effect: Dictionary) -> bool:
 	match phase:
 		"borrow":
 			if String(context.get("record", {}).get("item_id", "")) == String(job.tool_id) and Supply.borrow_tool(sim, npc, context, Planner.tool_action(job)):
-				job.phase = "refill" if String(job.kind) == "water" and int(Supply.tool(sim, npc).get("state", {}).get("charges", 0)) == 0 else "work"
+				job.phase = ("build" if sim._blueprint_has_all_materials(sim._find_blueprint(job.cell)) else "take_materials") if String(job.kind) == "build" else ("refill" if String(job.kind) == "water" and int(Supply.tool(sim, npc).get("state", {}).get("charges", 0)) == 0 else "work")
 				if String(job.phase) == "refill" and job.get("water_cell", []).is_empty():
 					job.water_cell = Supply.find_water(sim, npc)
 					if job.water_cell.is_empty():
@@ -265,6 +289,8 @@ static func fulfil(sim, effect: Dictionary) -> bool:
 				if String(result.get("reason_id", "")) == "core:structure_completed":
 					if String(result.get("building_id", "")) == "core:wood_wall":
 						sim._record_first_shared_wall_memory(npc, job.cell, sim.get_minute_of_day())
+					if npc.work_commitment.get("target_cell", []) == job.cell:
+						npc.work_commitment = {}
 					cancel(npc)
 				elif not bool(result.get("changed", false)):
 					cancel(npc)

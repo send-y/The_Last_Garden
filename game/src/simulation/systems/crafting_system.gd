@@ -1,4 +1,5 @@
 extends "res://src/simulation/world_rules.gd"
+const Learning := preload("res://src/crafting/recipe_learning.gd")
 
 # Operates on the authoritative WorldSimulation state; owns no copy.
 
@@ -6,6 +7,8 @@ static func execute_crafting_command(sim, command: Dictionary) -> Dictionary:
 	var building_catalog: BuildingCatalog = sim.building_catalog
 	if String(command.get("actor_id", "")) != PLAYER_ACTOR_ID:
 		return _crafting_failure("core:unknown_actor")
+	if String(command.get("action_id", "")) == CraftingCommandScript.ACTION_CRAFT_IN_HANDS:
+		return _craft_in_hands(sim, String(command.get("recipe_id", "")))
 	var cell_value: Variant = command.get("cell", [])
 	if typeof(cell_value) != TYPE_ARRAY or (cell_value as Array).size() != 2:
 		return _crafting_failure("core:invalid_cell")
@@ -52,10 +55,11 @@ static func _start_crafting_project(sim,
 	var recipe: Dictionary = crafting_catalog.get_definition(recipe_id)
 	if recipe.is_empty() or String(recipe.get("station_type", "")) != station_type:
 		return _crafting_failure("core:invalid_recipe")
+	if not Learning.unlocked(sim, recipe): return _crafting_failure("core:recipe_locked")
 	var inputs: Dictionary = crafting_catalog.get_inputs(recipe_id)
 	var outputs: Dictionary = crafting_catalog.get_outputs(recipe_id)
 	var required_work: int = crafting_catalog.get_work_minutes(recipe_id)
-	if inputs.is_empty() or outputs.is_empty() or required_work <= 0:
+	if inputs.is_empty() or (outputs.is_empty() and recipe.get("unlocks", []).is_empty()) or required_work <= 0:
 		return _crafting_failure("core:invalid_recipe")
 	var inventory: Dictionary = sim._inventory_mutable()
 	for item_variant: Variant in inputs.keys():
@@ -109,6 +113,7 @@ static func _advance_crafting_project(sim, cell_data: Array, target_position: Ve
 			"required_work_minutes": required_work,
 		}
 	var recipe_id := String(project.get("recipe_id", ""))
+	Learning.complete(sim, crafting_catalog.get_definition(recipe_id))
 	var outputs: Dictionary = crafting_catalog.get_outputs(recipe_id)
 	var drop_origin: Vector2 = sim._get_crafting_drop_origin(target_position)
 	var created_drop_ids: Array[String] = []
@@ -156,7 +161,28 @@ static func get_crafting_projects(sim) -> Array:
 
 static func get_crafting_recipes(sim, station_type: String) -> Array[Dictionary]:
 	var crafting_catalog: CraftingCatalog = sim.crafting_catalog
-	return crafting_catalog.recipes_for_station(station_type)
+	var recipes := crafting_catalog.recipes_for_station(station_type)
+	for recipe: Dictionary in recipes: recipe["locked"] = not Learning.unlocked(sim, recipe)
+	return recipes
+
+static func _craft_in_hands(sim, recipe_id: String) -> Dictionary:
+	var recipe: Dictionary = sim.crafting_catalog.get_definition(recipe_id)
+	if recipe.is_empty() or String(recipe.get("station_type", "")) != "core:hands": return _crafting_failure("core:invalid_recipe")
+	if not Learning.unlocked(sim, recipe): return _crafting_failure("core:recipe_locked")
+	var inputs: Dictionary = sim.crafting_catalog.get_inputs(recipe_id)
+	for id: String in inputs:
+		if sim.content.item_is_instance_based(id) or sim.get_item_count(id) < int(inputs[id]): return _crafting_failure("core:required_materials_missing")
+	if not sim.prepare_player_work(): return _crafting_failure("core:too_far")
+	if not sim._consume_items(inputs): return _crafting_failure("core:required_materials_missing")
+	var minutes: int = sim.crafting_catalog.get_work_minutes(recipe_id)
+	sim._spend_player_work_energy(float(minutes))
+	sim.advance_minutes(minutes)
+	var ids: Array[String] = []
+	for id: String in sim.crafting_catalog.get_outputs(recipe_id):
+		ids.append_array(sim._create_resource_drops("crafting:%s" % recipe_id, id, int(recipe.outputs[id]), sim.get_player_position()))
+	Learning.complete(sim, recipe)
+	sim.event_emitted.emit({"type":"state_changed"})
+	return {"success":true,"changed":true,"reason_id":"core:crafting_completed","recipe_id":recipe_id,"created_drop_ids":ids,"work_progress_minutes":minutes,"required_work_minutes":minutes}
 
 
 static func _normalize_crafting_projects(sim,
@@ -239,7 +265,7 @@ static func _normalize_crafting_projects(sim,
 			continue
 		var required_work := crafting_catalog.get_work_minutes(recipe_id)
 		var inputs := crafting_catalog.get_inputs(recipe_id)
-		if required_work <= 0 or inputs.is_empty() or crafting_catalog.get_outputs(recipe_id).is_empty():
+		if required_work <= 0 or inputs.is_empty() or (crafting_catalog.get_outputs(recipe_id).is_empty() and recipe.get("unlocks", []).is_empty()):
 			continue
 		occupied[cell_key] = true
 		normalized.append({

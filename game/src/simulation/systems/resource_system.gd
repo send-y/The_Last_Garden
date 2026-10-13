@@ -1,6 +1,7 @@
 extends "res://src/simulation/world_rules.gd"
 
 const PINECONE_DROP_ITEM_ID := "core:pinecone"
+const WorkProgress := preload("res://src/items/tool_work_progress.gd")
 
 # Operates on the authoritative WorldSimulation state; owns no copy.
 
@@ -90,11 +91,7 @@ static func execute_resource_work(sim,
 	var work_tool_instances := (
 		state["resource_work_tool_instances"] as Dictionary
 	)
-	var current_work: int = clampi(
-		int(resource_work.get(normalized_id, 0)),
-		0,
-		required_work
-	)
+	var current_work: float = WorkProgress.normalize(resource_work.get(normalized_id, 0), required_work)
 	if (
 		not required_action.is_empty()
 		and not sim.actor_tool_supports(actor_id, required_action)
@@ -144,17 +141,14 @@ static func execute_resource_work(sim,
 		sim._spend_player_work_energy()
 	else:
 		sim.needs.spend_work(sim.state.npcs[actor_id].needs)
-	var next_work: int = mini(
-		current_work + 1,
-		required_work
-	)
+	var next_work: float = minf(current_work + content.item_tool_work_rate(String(active_tool.get("item_id", ""))), float(required_work))
 
 	if next_work < required_work:
-		resource_work[normalized_id] = next_work
+		resource_work[normalized_id] = WorkProgress.stored(next_work)
 		var pinecone_drop_ids: Array[String] = []
 		if presentation_id == "surface_tree":
 			pinecone_drop_ids = sim._maybe_drop_pinecone(normalized_id,
-				next_work,
+				int(next_work),
 				target_position
 			)
 		sim.event_emitted.emit({"type": "state_changed"})
@@ -198,7 +192,7 @@ static func execute_resource_work(sim,
 	)
 	if presentation_id == "surface_tree":
 		created_drop_ids.append_array(sim._maybe_drop_pinecone(normalized_id,
-			next_work,
+			int(next_work),
 			drop_origin
 		))
 	if presentation_id in ["surface_tree", "surface_stump", "surface_boulder"]:
@@ -277,6 +271,9 @@ static func _create_resource_drops(sim,
 			"source_id": source_id,
 			"expires_at_game_minute": sim.get_elapsed_game_minutes() + WORLD_DROP_LIFETIME_MINUTES,
 		})
+		if content.item_is_instance_based(normalized_item_id):
+			var instances: Array[String] = sim._create_item_instances(normalized_item_id, 1, "world_drop", drop_id)
+			drops.back()["instance_id"] = instances[0]
 		created_ids.append(drop_id)
 
 	return created_ids
@@ -426,14 +423,10 @@ static func _normalize_resource_work(sim,
 		if required <= 0:
 			continue
 
-		var progress: int = clampi(
-			_safe_int(raw_progress.get(object_variant), 0),
-			0,
-			required
-		)
+		var progress: float = WorkProgress.normalize(raw_progress.get(object_variant), required)
 
 		if progress > 0:
-			normalized[object_id] = progress
+			normalized[object_id] = WorkProgress.stored(progress)
 
 	return normalized
 

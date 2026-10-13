@@ -1,0 +1,48 @@
+{
+  "checks": [
+    {
+      "name": "recipe_learning_validation_test.gd",
+      "graphic": false,
+      "exit": 0,
+      "passed": true
+    },
+    {
+      "name": "tool_learning_edges_test.gd",
+      "graphic": false,
+      "exit": 0,
+      "passed": true
+    },
+    {
+      "name": "item_tool_properties_test.gd",
+      "graphic": false,
+      "exit": 0,
+      "passed": true
+    },
+    {
+      "name": "item_tool_resource_test.gd",
+      "graphic": false,
+      "exit": 0,
+      "passed": true
+    },
+    {
+      "name": "item_tool_water_test.gd",
+      "graphic": false,
+      "exit": 1,
+      "passed": false
+    },
+    {
+      "name": "item_tool_npc_test.gd",
+      "graphic": false,
+      "exit": 0,
+      "passed": true
+    },
+    {
+      "name": "farming_rules_test.gd",
+      "graphic": false,
+      "exit": 0,
+      "passed": true
+    }
+  ],
+  "save_before": "62ecbdaaba71d10ab01d0292844d3803c830cfa6a382a5be353f2dfa9e06b905",
+  "save_after": "62ecbdaaba71d10ab01d0292844d3803c830cfa6a382a5be353f2dfa9e06b905"
+}

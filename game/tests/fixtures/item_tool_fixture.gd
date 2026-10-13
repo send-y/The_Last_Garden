@@ -6,7 +6,7 @@ const World := preload("res://src/simulation/world_simulation.gd")
 static func data() -> Dictionary:
 	var result: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(Content.ITEMS_PATH))
 	var additions: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://tests/fixtures/item_tool_additions.json"))
-	result.merge({"schema_version": 5, "food_schema_version": 1, "tool_schema_version": 1}, true)
+	result.merge({"schema_version": 5, "food_schema_version": 1}, true)
 	result.items.append_array(additions.items)
 	return result
 

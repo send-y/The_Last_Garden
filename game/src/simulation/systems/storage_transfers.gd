@@ -132,6 +132,7 @@ static func transfer_storage_stack_to_inventory(sim,
 		var candidate_layout: Array[Dictionary] = packed_candidate.get("layout", [])
 		state["inventory"] = sim._inventory_counts_without_instances(candidate_inventory)
 		state["inventory_layout"] = candidate_layout
+		preload("res://src/crafting/recipe_learning.gd").discover(sim, item_id)
 		if not item_instance_id.is_empty():
 			sim._set_instance_location(item_instance_id, "inventory")
 		if not content.item_tool_profile(item_id).is_empty():

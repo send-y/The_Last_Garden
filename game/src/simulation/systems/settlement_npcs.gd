@@ -97,6 +97,8 @@ static func execute_npc_work_request(sim, command: Dictionary) -> Dictionary:
 			"npc.work_request.failure.unreachable"
 		)
 
+	if not sim.actor_tool_supports(npc_id, "build") and preload("res://src/npc_work/npc_work_supplies.gd").find_tool_stock(sim, npc, "build").is_empty():
+		return sim._emit_work_request_result(false, "core:construction_tool_missing", "npc.work_request.failure.mallet")
 	if not sim._blueprint_has_all_materials(blueprint):
 		var npc_inventory: Dictionary = npc.get("personal_inventory", {}) as Dictionary
 		var transfer: Dictionary = sim._calculate_material_transfer(

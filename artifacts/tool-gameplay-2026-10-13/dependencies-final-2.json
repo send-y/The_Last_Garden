@@ -1,0 +1,18 @@
+{
+  "checks": [
+    {
+      "name": "npc_work_query_cache_test.gd",
+      "graphic": false,
+      "exit": 0,
+      "passed": true
+    },
+    {
+      "name": "farming_integration_test.tscn",
+      "graphic": false,
+      "exit": 1,
+      "passed": false
+    }
+  ],
+  "save_before": "62ecbdaaba71d10ab01d0292844d3803c830cfa6a382a5be353f2dfa9e06b905",
+  "save_after": "62ecbdaaba71d10ab01d0292844d3803c830cfa6a382a5be353f2dfa9e06b905"
+}

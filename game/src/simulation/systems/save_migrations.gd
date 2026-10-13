@@ -127,6 +127,7 @@ static func _normalize_state(sim) -> void:
 	state["next_npc_serial"] = maxi(1, preload("res://src/npc_work/npc_work_state.gd").number(state.get("next_npc_serial", 1)))
 	sim._reconcile_item_instance_locations()
 	sim._normalize_hotbar_state()
+	state["learning"] = preload("res://src/crafting/recipe_learning.gd").normalize(sim, state.get("learning", {}))
 	var selected_value: Variant = state.get("selected_inventory_item", {})
 	state["selected_inventory_item"] = _as_dictionary(selected_value)
 	if sim.get_held_item().is_empty():

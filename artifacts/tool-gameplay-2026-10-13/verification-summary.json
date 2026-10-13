@@ -1,0 +1,191 @@
+{
+  "checks": [
+    {
+      "name": "run_tests.gd",
+      "graphic": false,
+      "exit": 0,
+      "passed": true,
+      "source_report": "frozen-core.json",
+      "log": "frozen-core-run_tests.log"
+    },
+    {
+      "name": "tool_progression_test.gd",
+      "graphic": false,
+      "exit": 0,
+      "passed": true,
+      "source_report": "hint-final.json",
+      "log": "hint-final-tool_progression_test.log"
+    },
+    {
+      "name": "tool_tiers_test.gd",
+      "graphic": false,
+      "exit": 0,
+      "passed": true,
+      "source_report": "final.json",
+      "log": "final-tool_tiers_test.log"
+    },
+    {
+      "name": "npc_practical_work_test.gd",
+      "graphic": false,
+      "exit": 0,
+      "passed": true,
+      "source_report": "final.json",
+      "log": "final-npc_practical_work_test.log"
+    },
+    {
+      "name": "recipe_learning_validation_test.gd",
+      "graphic": false,
+      "exit": 0,
+      "passed": true,
+      "source_report": "contract-final.json",
+      "log": "contract-final-recipe_learning_validation_test.log"
+    },
+    {
+      "name": "tool_learning_edges_test.gd",
+      "graphic": false,
+      "exit": 0,
+      "passed": true,
+      "source_report": "contract-final.json",
+      "log": "contract-final-tool_learning_edges_test.log"
+    },
+    {
+      "name": "item_tool_properties_test.gd",
+      "graphic": false,
+      "exit": 0,
+      "passed": true,
+      "source_report": "contract-final.json",
+      "log": "contract-final-item_tool_properties_test.log"
+    },
+    {
+      "name": "item_tool_resource_test.gd",
+      "graphic": false,
+      "exit": 0,
+      "passed": true,
+      "source_report": "contract-final.json",
+      "log": "contract-final-item_tool_resource_test.log"
+    },
+    {
+      "name": "item_tool_npc_test.gd",
+      "graphic": false,
+      "exit": 0,
+      "passed": true,
+      "source_report": "contract-final.json",
+      "log": "contract-final-item_tool_npc_test.log"
+    },
+    {
+      "name": "farming_rules_test.gd",
+      "graphic": false,
+      "exit": 0,
+      "passed": true,
+      "source_report": "contract-final.json",
+      "log": "contract-final-farming_rules_test.log"
+    },
+    {
+      "name": "tool_tiers_render_test.tscn",
+      "graphic": true,
+      "exit": 0,
+      "passed": true,
+      "source_report": "graphics-final.json",
+      "log": "graphics-final-tool_tiers_render_test-graphic.log"
+    },
+    {
+      "name": "crafting_integration_test.tscn",
+      "graphic": false,
+      "exit": 0,
+      "passed": true,
+      "source_report": "graphics-final.json",
+      "log": "graphics-final-crafting_integration_test.log"
+    },
+    {
+      "name": "item_tool_water_test.gd",
+      "graphic": false,
+      "exit": 0,
+      "passed": true,
+      "source_report": "graphics-final.json",
+      "log": "graphics-final-item_tool_water_test.log"
+    },
+    {
+      "name": "tool_request_test.gd",
+      "graphic": false,
+      "exit": 0,
+      "passed": true,
+      "source_report": "graphics-final.json",
+      "log": "graphics-final-tool_request_test.log"
+    },
+    {
+      "name": "starting_pantry_integration_test.tscn",
+      "graphic": true,
+      "exit": 0,
+      "passed": true,
+      "source_report": "translations-final.json",
+      "log": "translations-final-starting_pantry_integration_test-graphic.log"
+    },
+    {
+      "name": "npc_work_query_cache_test.gd",
+      "graphic": false,
+      "exit": 0,
+      "passed": true,
+      "source_report": "dependencies-final-2.json",
+      "log": "dependencies-final-2-npc_work_query_cache_test.log"
+    },
+    {
+      "name": "farming_integration_test.tscn",
+      "graphic": false,
+      "exit": 0,
+      "passed": true,
+      "source_report": "farming-ui-final-2.json",
+      "log": "farming-ui-final-2-farming_integration_test.log"
+    },
+    {
+      "name": "item_source_references_test.gd",
+      "graphic": false,
+      "exit": 0,
+      "passed": true,
+      "source_report": "dependencies-final.json",
+      "log": "dependencies-final-item_source_references_test.log"
+    },
+    {
+      "name": "npc_home_production_test.gd",
+      "graphic": false,
+      "exit": 0,
+      "passed": true,
+      "source_report": "dependencies-final.json",
+      "log": "dependencies-final-npc_home_production_test.log"
+    },
+    {
+      "name": "npc_home_projects_test.gd",
+      "graphic": false,
+      "exit": 0,
+      "passed": true,
+      "source_report": "dependencies-final.json",
+      "log": "dependencies-final-npc_home_projects_test.log"
+    },
+    {
+      "name": "resident_home_projects_test.gd",
+      "graphic": false,
+      "exit": 0,
+      "passed": true,
+      "source_report": "dependencies-final.json",
+      "log": "dependencies-final-resident_home_projects_test.log"
+    },
+    {
+      "name": "inventory_cell_anchor_test.tscn",
+      "graphic": false,
+      "exit": 0,
+      "passed": true,
+      "source_report": "presentation-fixed.json",
+      "log": "presentation-fixed-inventory_cell_anchor_test.log"
+    },
+    {
+      "name": "item_tool_ui_test.tscn",
+      "graphic": false,
+      "exit": 0,
+      "passed": true,
+      "source_report": "presentation-fixed.json",
+      "log": "presentation-fixed-item_tool_ui_test.log"
+    }
+  ],
+  "save_sha256": "62ecbdaaba71d10ab01d0292844d3803c830cfa6a382a5be353f2dfa9e06b905",
+  "fps_benchmarks_run": false,
+  "scope": "Selected successful contract checks; intermediate failures are not final evidence."
+}

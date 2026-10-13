@@ -116,6 +116,10 @@ func _ready() -> void:
 		_on_inventory_close_requested
 	)
 	_inventory_panel.eat_food_requested.connect(_on_eat_food_requested)
+	_inventory_panel.handcraft_requested.connect(func() -> void:
+		_set_inventory_open(false)
+		open_crafting(Vector2i(-1,-1), Session.get_crafting_recipes("core:hands"))
+	)
 	_inventory_panel.extract_seeds_requested.connect(_on_extract_seeds_requested)
 	_inventory_panel.inventory_layout_changed.connect(
 		_on_inventory_layout_changed

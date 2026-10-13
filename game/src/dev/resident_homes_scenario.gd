@@ -35,6 +35,10 @@ static func initial_state() -> Dictionary:
 		state.structures.append({"building_id":"core:wood_floor","cell":[cell.x,cell.y]})
 	state.storage_zones.append({"id":"core:storage_zone_0002","cells":warehouse})
 	state.next_storage_zone_serial = 3
+	var instance := "core:item_instance_000003"
+	state.item_instances.append({"instance_id":instance,"item_id":"core:mallet","state":{},"location":{"kind":"storage","id":"core:mallet:0"}})
+	state.storage_items.append({"cell":[37,31],"item_id":"core:mallet","amount":1,"origin":[0,0],"rotation":0,"stack_index":0,"placement_id":"core:mallet:0","instance_id":instance})
+	state.next_item_instance_serial = 4
 	var position := Content.cell_center(37,33)
 	state.player_position = [position.x,position.y]
 	return state

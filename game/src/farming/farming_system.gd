@@ -142,7 +142,7 @@ func execute(sim, command: Dictionary) -> Dictionary:
 				return _result(sim, false, "farming.failure.soil")
 			sim.state.farming.beds.append({"cell": [cell.x, cell.y], "crop_id": "", "growth": 0,
 				"wet_until": 0, "last_update": sim.get_elapsed_game_minutes(), "harvests": 0})
-			sim._spend_player_work_energy()
+			sim._spend_player_work_energy(sim.content.item_tool_energy_multiplier(String(sim.get_actor_tool("core:player").get("item_id", ""))))
 			return _result(sim, true, "farming.tilled")
 		"plant":
 			var seed_id := String(command.get("item_id", ""))

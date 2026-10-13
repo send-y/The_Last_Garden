@@ -1,0 +1,5 @@
+Godot Engine v4.7.stable.mono.official.5b4e0cb0f - https://godotengine.org
+
+FAIL: Warehouse wood unlocks basic recipe immediately, without reload
+FAIL: Wide blueprint has reachable approach beyond its occupied anchor neighbours
+TOOL_LEARNING_EDGES: 2 failures

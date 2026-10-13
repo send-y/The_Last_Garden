@@ -13,6 +13,11 @@ static func cell_of(sim, npc: Dictionary) -> Vector2i:
 static func work_cell(sim, npc: Dictionary, target: Vector2i) -> Vector2i:
 	return sim.work_queries.work_cell(sim,npc,target)
 
+static func build_work_cell(sim, npc: Dictionary, target: Vector2i) -> Vector2i:
+	var blueprint: Dictionary = sim._find_blueprint([target.x, target.y])
+	var occupied: Array[Vector2i] = sim.building_catalog.get_footprint_cells(String(blueprint.get("building_id", "")), target)
+	return sim.work_queries.work_cell(sim, npc, target, occupied)
+
 # One bounded flood search finds an accessible bank, including enclosed gardens.
 # Avoid running an A* search for each of the river's many water cells.
 static func find_water(sim, npc: Dictionary) -> Array:

@@ -39,8 +39,15 @@ layout_mode = 2
 theme_override_font_sizes/font_size = 11
 autowrap_mode = 2
 
-[node name="Recipes" type="VBoxContainer" parent="Margin/Column"]
+[node name="RecipeScroll" type="ScrollContainer" parent="Margin/Column"]
+custom_minimum_size = Vector2(0, 170)
 layout_mode = 2
+size_flags_vertical = 3
+horizontal_scroll_mode = 0
+
+[node name="Recipes" type="VBoxContainer" parent="Margin/Column/RecipeScroll"]
+layout_mode = 2
+size_flags_horizontal = 3
 size_flags_vertical = 3
 theme_override_constants/separation = 6
 

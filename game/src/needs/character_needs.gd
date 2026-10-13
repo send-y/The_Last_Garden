@@ -64,8 +64,8 @@ func advance(needs: Dictionary, activity: String, covered: bool, sleep_profile: 
 	for key: String in ["hunger", "energy", "restedness"]:
 		needs[key] = roundf(float(needs[key]) * 1000.0) / 1000.0
 
-func spend_work(needs: Dictionary) -> void:
-	needs.energy = maxf(0, float(needs.energy) - float(config.work_energy_cost))
+func spend_work(needs: Dictionary, multiplier: float = 1.0) -> void:
+	needs.energy = maxf(0, float(needs.energy) - float(config.work_energy_cost) * multiplier)
 
 func food_profile(item_id: String, items: FirstNightContent) -> Dictionary:
 	return items.item_food_profile(item_id)

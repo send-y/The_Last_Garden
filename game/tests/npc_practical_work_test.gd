@@ -13,7 +13,7 @@ func check(value: bool, description: String) -> void:
 		push_error(description)
 
 func fixture():
-	var state := World.create_new_game_state()
+	var state := preload("res://tests/fixtures/stocked_tool_state.gd").prepare(World.create_new_game_state())
 	state.day = 2
 	state.minute_of_day = 9 * 60
 	state.elapsed_game_minutes = 1980

@@ -103,11 +103,7 @@ static func _normalize_blueprints(sim,
 				int(required_materials.get("core:plank", 0))
 			)
 
-		var work_progress_minutes: int = clampi(
-			_safe_int(blueprint.get("work_progress_minutes"), 0),
-			0,
-			required_work_minutes
-		)
+		var work_progress_minutes: float = preload("res://src/items/tool_work_progress.gd").normalize(blueprint.get("work_progress_minutes", 0), required_work_minutes)
 		normalized.append({
 			"building_id": building_id,
 			"cell": normalized_cell.duplicate(),
@@ -115,7 +111,7 @@ static func _normalize_blueprints(sim,
 			"required_materials": required_materials,
 			"delivered_materials": delivered_materials,
 			"required_work_minutes": required_work_minutes,
-			"work_progress_minutes": work_progress_minutes,
+			"work_progress_minutes": preload("res://src/items/tool_work_progress.gd").stored(work_progress_minutes),
 		})
 		var home_project_id: Variant = blueprint.get("home_project_id", "")
 		if home_project_id is String and not home_project_id.is_empty() and home_project_id.length() <= 160:

@@ -3,6 +3,7 @@ extends RefCounted
 
 const Pathfinder := preload("res://src/simulation/local_grid_pathfinder.gd")
 const NavigationData := preload("res://src/simulation/first_night_navigation.gd")
+const Content := preload("res://src/content/first_night_content.gd")
 
 const ACTIVITY_ARRIVING: String = "core:arriving"
 const ACTIVITY_MORNING: String = "core:morning"
@@ -118,7 +119,8 @@ func find_temporary_rest_cell(preferred: Vector2i, from: Vector2i, _blocker: Vec
 func find_construction_work_cell(
 	target_cell: Vector2i,
 	npc_cell: Vector2i,
-	_player_cell: Vector2i
+	_player_cell: Vector2i,
+	excluded: Array[Vector2i] = []
 ) -> Vector2i:
 	var candidates: Array[Vector2i] = [
 		target_cell + Vector2i.DOWN,
@@ -126,10 +128,20 @@ func find_construction_work_cell(
 		target_cell + Vector2i.UP,
 		target_cell + Vector2i.LEFT,
 	]
+	if not excluded.is_empty():
+		# A multi-cell footprint may occupy an immediate neighbour. Consider all
+		# other standing cells in the actual interaction radius, keeping old ties stable.
+		for y: int in range(-2, 3):
+			for x: int in range(-2, 3):
+				var offset := Vector2i(x, y)
+				var candidate := target_cell + offset
+				if offset == Vector2i.ZERO or candidates.has(candidate): continue
+				if Vector2(offset * Content.CELL_SIZE).length() <= Content.INTERACTION_RANGE: candidates.append(candidate)
 	var best_cell: Vector2i = INVALID_CELL
 	var best_distance: int = 1_000_000
 
 	for candidate: Vector2i in candidates:
+		if excluded.has(candidate): continue
 		if not _pathfinder.is_walkable(candidate):
 			continue
 		var reachable: bool = (
@@ -278,7 +290,7 @@ func _advance_npc_minute(
 			target_cell = Vector2i(int(meal.target_cell[0]),int(meal.target_cell[1]))
 		travel_activity = ACTIVITY_GOING_TO_MEAL
 		arrival_activity = (ACTIVITY_COLLECTING_MEAL if bool(meal.get("carry",false)) else ACTIVITY_EATING) if food_count > 0 else ACTIVITY_WAITING_FOR_FOOD
-	elif not commitment.is_empty():
+	elif not commitment.is_empty() and practical.is_empty():
 		var current_cell: Vector2i = _pathfinder.world_to_cell(_position_from_state(npc))
 		var committed_target: Vector2i = _cell_from_value(
 			commitment.get("target_cell"),

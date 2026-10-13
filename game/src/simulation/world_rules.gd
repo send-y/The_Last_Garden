@@ -46,7 +46,7 @@ const RoomTopologyScript := preload(
 const WaterMapScript := preload("res://src/world/water_map.gd")
 const FarmingScript := preload("res://src/farming/farming_system.gd")
 
-const SAVE_VERSION: int = 36
+const SAVE_VERSION: int = 37
 const LEGACY_WALL_MATERIAL_MIGRATION_CUTOFF: int = 22
 const PLAYER_ENERGY_SAVE_VERSION: int = 24
 const PLAYER_ENERGY_MAX: float = 100.0
@@ -176,6 +176,7 @@ static func create_new_state(
 		"blueprints": [],
 		"structures": [],
 		"crafting_projects": [],
+		"learning": {"discovered_items": {}, "unlocks": {}},
 	}
 
 static func create_new_game_state(seed_value: int = DEFAULT_SEED, item_content: FirstNightContent = null) -> Dictionary:
@@ -197,55 +198,16 @@ static func create_new_game_state(seed_value: int = DEFAULT_SEED, item_content: 
 	}]
 	new_state["next_storage_zone_serial"] = 2
 	new_state["collected"] = {"core:old_tools": true}
-	new_state["item_instances"] = [
-		{
-			"instance_id": "core:item_instance_000001",
-			"item_id": "core:bucket",
-			"state": {"charges": 0},
-			"location": {"kind": "storage", "id": "core:bucket:0"},
-		},
-		{
-			"instance_id": "core:item_instance_000002",
-			"item_id": "core:axe",
-			"state": {},
-			"location": {"kind": "storage", "id": "core:axe:0"},
-		},
-		{
-			"instance_id": "core:item_instance_000003",
-			"item_id": "core:pickaxe",
-			"state": {},
-			"location": {"kind": "storage", "id": "core:pickaxe:0"},
-		},
-		{
-			"instance_id": "core:item_instance_000004",
-			"item_id": "core:hoe",
-			"state": {},
-			"location": {"kind": "storage", "id": "core:hoe:0"},
-		},
-	]
-	new_state["next_item_instance_serial"] = 5
-	new_state["storage_items"] = [
-		{
-			"cell": [22, 22], "item_id": "core:axe", "amount": 1,
-			"origin": [0, 0], "rotation": 0, "stack_index": 0,
-			"placement_id": "core:axe:0", "instance_id": "core:item_instance_000002",
-		},
-		{
-			"cell": [22, 22], "item_id": "core:bucket", "amount": 1,
-			"origin": [2, 0], "rotation": 0, "stack_index": 0,
-			"placement_id": "core:bucket:0", "instance_id": "core:item_instance_000001",
-		},
-		{
-			"cell": [23, 22], "item_id": "core:pickaxe", "amount": 1,
-			"origin": [0, 0], "rotation": 0, "stack_index": 0,
-			"placement_id": "core:pickaxe:0", "instance_id": "core:item_instance_000003",
-		},
-		{
-			"cell": [22, 23], "item_id": "core:hoe", "amount": 1,
-			"origin": [0, 0], "rotation": 0, "stack_index": 0,
-			"placement_id": "core:hoe:0", "instance_id": "core:item_instance_000004",
-		},
-	]
+	new_state["item_instances"] = [{
+		"instance_id": "core:item_instance_000002", "item_id": "core:axe", "state": {},
+		"location": {"kind": "storage", "id": "core:axe:0"},
+	}]
+	new_state["next_item_instance_serial"] = 3
+	new_state["storage_items"] = [{
+		"cell": [22,22], "item_id": "core:axe", "amount": 1,
+		"origin": [0,0], "rotation": 0, "stack_index": 0,
+		"placement_id": "core:axe:0", "instance_id": "core:item_instance_000002",
+	}]
 	# Validate the declarations used above, never saved instances.
 	var rejected: Dictionary = {}
 	for record: Dictionary in new_state.item_instances:

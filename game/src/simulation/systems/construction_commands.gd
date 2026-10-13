@@ -266,6 +266,8 @@ static func _execute_work_blueprint(sim, command: Dictionary) -> Dictionary:
 		}
 
 	# Work cannot be combined with an ongoing chair rest.
+	if not sim.actor_tool_supports(PLAYER_ACTOR_ID, "build"):
+		return {"success":false,"changed":false,"reason_id":"core:construction_tool_not_selected"}
 	if not sim.prepare_player_work() or sim.get_player_position().distance_to(target_position) > FirstNightContent.INTERACTION_RANGE:
 		return {"success":false,"changed":false,"reason_id":"core:too_far"}
 	var result: Dictionary = sim._advance_blueprint_work(cell_data)

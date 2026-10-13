@@ -46,7 +46,7 @@ func run() -> void:
 		check(not content.call("validate_item_tool", bad).is_empty(), "Physical singleton required " + field)
 	for version: int in [3, 4]:
 		check(not Content.validate_item_schema({"schema_version": version, "food_schema_version": 1, "items": [valid]}).is_empty(), "Legacy schemas reject new tool fields")
-	check(not Content.validate_item_schema({"schema_version": 5, "food_schema_version": 1, "tool_schema_version": 2, "items": []}).is_empty(), "Unknown tool version rejected")
+	check(not Content.validate_item_schema({"schema_version": 5, "food_schema_version": 1, "tool_schema_version": 3, "items": []}).is_empty(), "Unknown tool version rejected")
 	check(Content.validate_item_schema(Fixture.data()).is_empty(), "Fixture schema valid")
 	check(content.call("item_tool_supports", "core:axe", "clear_bush"), "Literal base axe clears bushes")
 	check(not content.call("item_tool_supports", "test:axe_variant", "water") and not content.call("item_tool_supports", "missing:axe", "chop"), "Unsupported action and unknown ID have no capability")

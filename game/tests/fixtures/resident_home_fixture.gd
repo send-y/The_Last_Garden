@@ -7,7 +7,7 @@ const ROOM := "core:room_0001"
 const ORIGIN := Vector2i(40, 30)
 
 static func create(shared: bool = false, interior_size: Vector2i = Vector2i(5, 5)):
-	var state := World.create_new_game_state()
+	var state := preload("res://tests/fixtures/stocked_tool_state.gd").prepare(World.create_new_game_state())
 	state.day = 2
 	state.minute_of_day = 9 * 60
 	state.elapsed_game_minutes = 1980
@@ -46,6 +46,10 @@ static func create(shared: bool = false, interior_size: Vector2i = Vector2i(5, 5
 	state.next_storage_zone_serial = 3
 	state.player_position = [Content.cell_center(37,33).x, Content.cell_center(37,33).y]
 	var sim = World.new(state)
+	# Furniture workers collect their physical mallet beside the project stock,
+	# rather than taking an unrelated trip to the starter house.
+	for record: Dictionary in sim.state.storage_items:
+		if String(record.item_id) == "core:mallet": record.cell = [37,31]
 	if shared:
 		var created: Dictionary = sim.create_generated_npc(95, Vector2i(42,33))
 		var id := String(created.npc_id)

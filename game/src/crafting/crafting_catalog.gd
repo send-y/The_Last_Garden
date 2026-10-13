@@ -2,11 +2,15 @@ class_name CraftingCatalog
 extends RefCounted
 
 const RECIPES_PATH: String = "res://content/core/recipes.json"
-const SCHEMA_VERSION: int = 1
+const SCHEMA_VERSION: int = 2
 
 var _definitions: Dictionary = {}
 var _inactive_inputs: Dictionary = {}
 var _order: Array[String] = []
+var _unlocks: Dictionary = {}
+
+func has_unlock(id: String) -> bool:
+	return _unlocks.has(id)
 
 
 var content: FirstNightContent
@@ -64,7 +68,7 @@ func _load_definitions() -> void:
 		push_error("Crafting catalog root must be a dictionary.")
 		return
 	var data := parsed as Dictionary
-	if int(data.get("schema_version", 0)) != SCHEMA_VERSION:
+	if int(data.get("schema_version", 0)) not in [1, SCHEMA_VERSION]:
 		push_error("Crafting catalog has an unsupported schema version.")
 		return
 	var recipes_value: Variant = data.get("recipes", [])
@@ -75,11 +79,17 @@ func _load_definitions() -> void:
 		if typeof(definition_value) != TYPE_DICTIONARY:
 			continue
 		var definition := definition_value as Dictionary
+		var definition_errors := validate_definition(definition)
+		if not definition_errors.is_empty():
+			for error: String in definition_errors: push_error(error)
+			continue
 		var recipe_id := String(definition.get("id", ""))
 		if recipe_id.is_empty() or not recipe_id.contains(":") or _definitions.has(recipe_id):
 			push_error("Crafting catalog contains invalid or duplicate id %s." % recipe_id)
 			continue
 		var refs: Array[Dictionary] = []
+		if definition.has("requires_discovery"):
+			refs.append({"source_path":RECIPES_PATH,"owner_id":recipe_id,"field":"requires_discovery","item_id":String(definition.requires_discovery)})
 		for field: String in ["inputs", "outputs"]:
 			for id: String in definition.get(field, {}):
 				refs.append({"source_path": RECIPES_PATH, "owner_id": recipe_id, "field": field, "item_id": id})
@@ -91,6 +101,45 @@ func _load_definitions() -> void:
 			continue
 		_definitions[recipe_id] = definition.duplicate(true)
 		_order.append(recipe_id)
+		for unlock: String in definition.get("unlocks", []): _unlocks[unlock] = true
+	for id: String in _order.duplicate():
+		var required := String(_definitions[id].get("requires_unlock", ""))
+		if not required.is_empty() and not _unlocks.has(required):
+			push_error("Recipe %s requires unknown unlock %s" % [id, required])
+			_definitions.erase(id)
+			_order.erase(id)
+
+static func validate_definition(recipe: Dictionary) -> Array[String]:
+	var errors: Array[String] = []
+	var prefix := "Recipe %s " % str(recipe.get("id", "<missing>"))
+	for key: Variant in recipe:
+		if key not in ["id", "label_key", "station_type", "inputs", "outputs", "work_minutes", "requires_discovery", "requires_unlock", "unlocks"]: errors.append(prefix + str(key) + ": unknown field")
+	for field: String in ["id", "label_key", "station_type"]:
+		if not recipe.get(field) is String or String(recipe.get(field, "")).is_empty(): errors.append(prefix + field + ": nonempty string required")
+	var work: Variant = recipe.get("work_minutes")
+	if not (typeof(work) in [TYPE_INT, TYPE_FLOAT]) or not is_finite(float(work)) or float(work) <= 0 or float(work) > 1440 or float(work) != floor(float(work)): errors.append(prefix + "work_minutes: integer in 1..1440 required")
+	for field: String in ["inputs", "outputs"]:
+		var amounts: Variant = recipe.get(field)
+		if not amounts is Dictionary:
+			errors.append(prefix + field + ": object required")
+			continue
+		for id: Variant in amounts:
+			var amount: Variant = amounts[id]
+			if not id is String or not String(id).contains(":") or not (typeof(amount) in [TYPE_INT, TYPE_FLOAT]) or not is_finite(float(amount)) or float(amount) < 1 or float(amount) > 10000 or float(amount) != floor(float(amount)): errors.append(prefix + field + ": positive integer amounts required")
+	for field: String in ["requires_discovery", "requires_unlock"]:
+		if recipe.has(field) and (not recipe[field] is String or not String(recipe[field]).contains(":")): errors.append(prefix + field + ": namespaced id required")
+	var grants: Variant = recipe.get("unlocks", [])
+	if not grants is Array:
+		errors.append(prefix + "unlocks: array required")
+	else:
+		var seen := {}
+		for id: Variant in grants:
+			if not id is String or not String(id).contains(":") or seen.has(id): errors.append(prefix + "unlocks: unique namespaced ids required")
+			seen[id] = true
+	var inputs: Variant = recipe.get("inputs")
+	var outputs: Variant = recipe.get("outputs")
+	if inputs is Dictionary and outputs is Dictionary and (inputs.is_empty() or (outputs.is_empty() and (not grants is Array or grants.is_empty()))): errors.append(prefix + "inputs/outputs: work must consume input and produce an item or unlock")
+	return errors
 
 
 static func _positive_item_amounts(value: Variant) -> Dictionary:

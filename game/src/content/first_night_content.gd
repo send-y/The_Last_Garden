@@ -154,8 +154,8 @@ static func validate_item_schema(data: Dictionary) -> Array[String]:
 		var food_version: Variant = data.get("food_schema_version", 0)
 		if not _is_finite_integer(food_version) or int(food_version) != 1:
 			errors.append("food_schema_version: supported food version is 1")
-	if int(version) == 5 and (not _is_finite_integer(data.get("tool_schema_version")) or data.get("tool_schema_version") != 1):
-		errors.append("tool_schema_version: supported tool version is 1")
+	if int(version) == 5 and (not _is_finite_integer(data.get("tool_schema_version")) or int(data.get("tool_schema_version")) not in [1, 2]):
+		errors.append("tool_schema_version: supported tool versions are 1 and 2")
 	var seen_ids: Dictionary = {}
 	for item: Variant in items:
 		if not item is Dictionary:
@@ -168,8 +168,15 @@ static func validate_item_schema(data: Dictionary) -> Array[String]:
 			seen_ids[item_id] = true
 		if int(version) < 5 and (item.has("tool") or item.has("deprecated")):
 			errors.append("Item %s tool/deprecated: requires item schema_version 5" % item_id)
+		if data.get("tool_schema_version", 1) == 1 and item.get("tool") is Dictionary:
+			for field: String in ["work_rate", "till_energy_multiplier"]:
+				if item.tool.has(field): errors.append("Item %s tool.%s: requires tool_schema_version 2" % [item_id, field])
+			if "build" in item.tool.get("actions", []): errors.append("Item %s tool.actions build: requires tool_schema_version 2" % item_id)
 		if int(version) == 3 and item.has("food"):
 			errors.append("Item %s food: requires item schema_version 4" % item_id)
+		for field: String in ["icon_inventory_flip_x", "icon_inventory_flip_y"]:
+			if item.has(field) and typeof(item[field]) != TYPE_BOOL:
+				errors.append("Item %s %s: expected bool" % [item_id, field])
 	return errors
 
 
@@ -187,6 +194,17 @@ func item_tool_capacity(item_id: String) -> int:
 
 func item_tool_grip(item_id: String) -> String:
 	return String((_item_tool_profiles.get(normalize_item_id(item_id), {}) as Dictionary).get("grip", "carry"))
+
+func item_tool_work_rate(item_id: String) -> float:
+	return float((_item_tool_profiles.get(normalize_item_id(item_id), {}) as Dictionary).get("work_rate", 1.0))
+
+func item_tool_energy_multiplier(item_id: String) -> float:
+	return float((_item_tool_profiles.get(normalize_item_id(item_id), {}) as Dictionary).get("till_energy_multiplier", 1.0))
+
+func item_inventory_icon_scale(item_id: String) -> Vector2:
+	var definition: Dictionary = _item_defs.get(normalize_item_id(item_id), {})
+	var legacy_hoe := String(definition.get("icon_path", "")) == "res://assets/sprites/items/hoe_n.png"
+	return Vector2(-1 if definition.get("icon_inventory_flip_x", false) else 1, -1 if definition.get("icon_inventory_flip_y", legacy_hoe) else 1)
 
 func item_is_deprecated(item_id: String) -> bool:
 	return (_item_defs.get(normalize_item_id(item_id), {}) as Dictionary).get("deprecated", false) == true
