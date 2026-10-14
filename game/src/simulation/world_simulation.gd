@@ -805,6 +805,12 @@ func get_npc_facing(npc_id: String) -> Vector2:
 func is_npc_moving(npc_id: String) -> bool:
 	return SettlementNpcsSystem.is_npc_moving(self, npc_id)
 
+func get_presentation_game_time() -> float:
+	return WorldCalendarSystem.get_presentation_game_time(self)
+
+func get_next_npc_update_game_time(npc_id: String) -> float:
+	return WorldCalendarSystem.get_next_npc_update_game_time(self,npc_id)
+
 
 func _resolve_interaction_target(target_id: String) -> Dictionary:
 	return OpeningScenarioSystem._resolve_interaction_target(self, target_id)

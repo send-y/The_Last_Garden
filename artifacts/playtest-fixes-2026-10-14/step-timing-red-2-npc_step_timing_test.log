@@ -1,0 +1,19 @@
+Godot Engine v4.7.stable.mono.official.5b4e0cb0f - https://godotengine.org
+
+FAIL: Step reaches its deadline without accumulated lag at x1.000
+FAIL: Step reaches its deadline without accumulated lag at x1.000
+FAIL: Step reaches its deadline without accumulated lag at x1.000
+FAIL: Step reaches its deadline without accumulated lag at x1.000
+FAIL: Step reaches its deadline without accumulated lag at x1.000
+FAIL: Continuous walk has no idle longer than 50ms at x1.000: 1.333
+STEP_TIMING_SAMPLE: scale=1.0 max_idle_ms=1333.33333332369
+FAIL: Redirect finishes at new deadline
+FAIL: Step reaches its deadline without accumulated lag at x2.000
+FAIL: Step reaches its deadline without accumulated lag at x2.000
+FAIL: Step reaches its deadline without accumulated lag at x2.000
+FAIL: Step reaches its deadline without accumulated lag at x2.000
+FAIL: Step reaches its deadline without accumulated lag at x2.000
+FAIL: Continuous walk has no idle longer than 50ms at x2.000: 0.650
+STEP_TIMING_SAMPLE: scale=2.0 max_idle_ms=649.99999999521
+FAIL: Redirect finishes at new deadline
+NPC_STEP_TIMING: 14 failures

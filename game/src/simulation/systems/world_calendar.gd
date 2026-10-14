@@ -2,6 +2,15 @@ extends "res://src/simulation/world_rules.gd"
 
 const Diagnostic := preload("res://src/dev/diagnostic_trace.gd")
 
+# NPC autonomy currently advances once per whole calendar minute. Presentation
+# consumes this scheduler deadline; a future per-resident schedule belongs here,
+# not in a guessed speed in the sprite.
+static func get_next_npc_update_game_time(sim, _npc_id: String) -> float:
+	return float(sim.get_elapsed_game_minutes()+1)
+
+static func get_presentation_game_time(sim) -> float:
+	return float(sim.get_elapsed_game_minutes())+sim._minute_accumulator
+
 # Operates on the authoritative WorldSimulation state; owns no copy.
 
 static func tick(sim, real_delta: float) -> bool:

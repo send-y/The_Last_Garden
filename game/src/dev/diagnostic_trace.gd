@@ -17,14 +17,19 @@ static func reset() -> void:
 	motion.clear()
 	slow_frames.clear()
 
-static func motion_sample(id: String, moving: bool, distance: float, delta: float) -> void:
+static func motion_sample(id: String, moving: bool, displacement: float, delta: float) -> void:
 	if not enabled: return
-	if not motion.has(id): motion[id] = {"samples":0,"moving_seconds":0.0,"waiting_while_moving_seconds":0.0}
+	if not motion.has(id): motion[id] = {"samples":0,"moving_seconds":0.0,"waiting_while_moving_seconds":0.0,"max_wait_seconds":0.0,"current_wait_seconds":0.0}
 	var row: Dictionary = motion[id]
 	row.samples += 1
 	if moving:
 		row.moving_seconds += delta
-		if distance <= 0.25: row.waiting_while_moving_seconds += delta
+		if displacement <= 0.00001:
+			row.waiting_while_moving_seconds += delta
+			row.current_wait_seconds += delta
+			row.max_wait_seconds = maxf(row.max_wait_seconds,row.current_wait_seconds)
+		else: row.current_wait_seconds = 0.0
+	else: row.current_wait_seconds = 0.0
 
 static func frame_sample(ms: float, minute: int) -> void:
 	if not enabled or ms <= 50: return

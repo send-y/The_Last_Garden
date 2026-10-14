@@ -18,9 +18,13 @@ func run() -> void:
 	add_child(view)
 	view.set_physics_process(false)
 	var idle_frames := 0
+	var now: float = Session.simulation.get_presentation_game_time()
 	for step: int in range(4):
-		view._target_position = Vector2(560+32*(step+1),976)
+		view.set_motion_target(Vector2(560+32*(step+1),976),now,now+1.0)
 		for frame: int in range(80):
+			now += (1.0/60.0)*World.GAME_MINUTES_PER_SECOND
+			Session.simulation.state.elapsed_game_minutes = floori(now)
+			Session.simulation._minute_accumulator = now-floorf(now)
 			var before := view.position
 			view._physics_process(1.0/60.0)
 			if before.is_equal_approx(view.position): idle_frames += 1

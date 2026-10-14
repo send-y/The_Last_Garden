@@ -2,7 +2,7 @@ class_name InteractableView
 extends Area2D
 
 const CharacterVisualScene := preload("res://src/characters/character_visual.gd")
-const NPC_PRESENTATION_SPEED: float = FirstNightContent.CELL_SIZE * preload("res://src/simulation/world_rules.gd").GAME_MINUTES_PER_SECOND
+const Motion := preload("res://src/world/npc_motion_interpolation.gd")
 const NPC_SNAP_DISTANCE: float = 96.0
 const Localized := preload(
 	"res://src/localization/localized_text.gd"
@@ -35,6 +35,7 @@ var _is_selected: bool = false
 var _character_visual
 var _held_icon_cache: Dictionary = {}
 var _target_position: Vector2
+var _motion := Motion.new()
 var _walk_time: float = 0.0
 var _walk_frame: int = 0
 var _selection_collision: CollisionShape2D
@@ -109,21 +110,21 @@ func configure(definition: Dictionary) -> void:
 func _physics_process(delta: float) -> void:
 	if kind != "npc" or not visible or Session.is_paused():
 		return
+	var previous := position
+	position = _motion.sample(Session.simulation.get_presentation_game_time())
 	var distance: float = position.distance_to(_target_position)
 	if preload("res://src/dev/diagnostic_trace.gd").enabled:
-		preload("res://src/dev/diagnostic_trace.gd").motion_sample(object_id,Session.simulation.is_npc_moving(object_id),distance,delta)
+		preload("res://src/dev/diagnostic_trace.gd").motion_sample(object_id,Session.simulation.is_npc_moving(object_id),previous.distance_to(position),delta/maxf(Engine.time_scale,0.000001))
 	if _character_visual != null:
 		_character_visual.set_sitting(distance <= 0.25 and not Session.simulation.furniture.comfort(Session.simulation,object_id).is_empty())
-	if distance <= 0.25:
-		position = _target_position
+	if previous.distance_squared_to(position) <= 0.0000000001:
 		_walk_time = 0.0
 		_walk_frame = 0
 		if _character_visual != null:
 			_character_visual.set_pose(Session.get_npc_facing(object_id), 0, false)
 		return
 
-	var direction: Vector2 = position.direction_to(_target_position)
-	position = position.move_toward(_target_position, NPC_PRESENTATION_SPEED * delta)
+	var direction: Vector2 = previous.direction_to(position)
 	_walk_time += delta
 	if _walk_time >= 0.16:
 		_walk_time -= 0.16
@@ -132,12 +133,18 @@ func _physics_process(delta: float) -> void:
 		_character_visual.set_pose(direction, _walk_frame, true)
 
 
+func set_motion_target(point: Vector2, now: float, deadline: float, snap: bool = false) -> void:
+	_target_position = point
+	_motion.retarget(point,now,deadline,snap)
+	if snap: position = point
+
 func refresh_from_state(snap: bool = false) -> void:
 	if kind == "npc":
 		visible = Session.is_npc_visible(object_id)
-		_target_position = Session.get_npc_position(object_id, position)
-		if snap or position.distance_to(_target_position) > NPC_SNAP_DISTANCE:
-			position = _target_position
+		var point := Session.get_npc_position(object_id, position)
+		set_motion_target(point,Session.simulation.get_presentation_game_time(),
+			Session.simulation.get_next_npc_update_game_time(object_id),
+			snap or position.distance_to(point) > NPC_SNAP_DISTANCE)
 		if _character_visual != null:
 			_character_visual.set_appearance(Session.get_npc_appearance(object_id))
 			var tool: Dictionary = Session.simulation.get_actor_tool(object_id)
