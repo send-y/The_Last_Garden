@@ -810,7 +810,7 @@ func _on_inventory_layout_changed(layout: Array[Dictionary]) -> void:
 	if not bool(result.get("success", false)):
 		return
 	_refresh_inventory_panel()
-	_inventory_panel.cancel_held_item()
+	if not _inventory_panel._inventory_grid.is_swapping(): _inventory_panel.cancel_held_item()
 
 
 func _on_inventory_drop_requested(placement: Dictionary) -> void:
@@ -901,7 +901,7 @@ func _on_storage_transfer_requested(
 			int(placement.get("rotation", 0))
 		)
 	if bool(result.get("success", false)):
-		_storage_panel.return_held_items()
+		if int(result.get("remaining_source",0)) == 0: _storage_panel.return_held_items()
 		_storage_panel.refresh(_storage_cell)
 
 

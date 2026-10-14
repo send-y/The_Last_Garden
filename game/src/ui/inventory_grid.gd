@@ -321,6 +321,29 @@ func _hotbar_slot_at_global_position(global_position: Vector2) -> int:
 
 func _finish_drag(target_cell: Vector2i) -> void:
 	var dragged := _placements[_dragged_placement_index]
+	var swapped_index := _swap_target_index(target_cell)
+	if swapped_index >= 0:
+		var displaced := _placements[swapped_index].duplicate(true)
+		var old_origin: Vector2i = dragged.origin
+		var original_grab := _drag_grab_cell
+		var original_offset := _drag_grab_offset
+		var candidate: Array[Dictionary] = []
+		for index: int in range(_placements.size()):
+			var entry := _layout_entry(_placements[index])
+			if index == _dragged_placement_index:
+				entry.origin = [target_cell.x,target_cell.y]
+				entry.rotation = _drag_rotation
+			elif index == swapped_index: entry.origin = [old_origin.x,old_origin.y]
+			candidate.append(entry)
+		_swap_in_flight = true
+		layout_changed.emit(candidate)
+		_swap_in_flight = false
+		# Re-presentation comes only after simulation accepts both placements.
+		for index: int in range(_placements.size()):
+			if _placement_key(_placements[index]) == _placement_key(displaced) and _placements[index].origin == old_origin:
+				_begin_hand(index,Vector2(old_origin+original_grab)*CELL_SIZE+original_offset)
+				return
+		return
 	var candidate_layout: Array[Dictionary] = []
 	for index: int in range(_placements.size()):
 		if index == _dragged_placement_index:
@@ -353,6 +376,7 @@ func _is_drag_target_valid(target_cell: Vector2i) -> bool:
 		or target_cell.x < 0 or target_cell.y < 0
 	):
 		return false
+	if _swap_target_index(target_cell) >= 0: return true
 	var occupied: Dictionary = {}
 	for index: int in range(_placements.size()):
 		if index == _dragged_placement_index:
@@ -365,6 +389,31 @@ func _is_drag_target_valid(target_cell: Vector2i) -> bool:
 		_dragged_footprint(), target_cell, occupied,
 		grid_columns, grid_rows
 	)
+
+
+var _swap_in_flight := false
+func is_swapping() -> bool: return _swap_in_flight
+
+func _swap_target_index(target_cell: Vector2i) -> int:
+	if _dragged_placement_index < 0: return -1
+	var dragged := _placements[_dragged_placement_index]
+	var candidate_index := int(_cell_to_placement.get(target_cell+_drag_grab_cell,-1))
+	if candidate_index < 0 or candidate_index == _dragged_placement_index: return -1
+	var displaced := _placements[candidate_index]
+	var shape := _dragged_footprint()
+	var other_shape: Array = displaced.footprint
+	if shape.size() != other_shape.size(): return -1
+	for cell: Vector2i in shape:
+		if not other_shape.has(cell): return -1
+	var used := {}
+	for index: int in range(_placements.size()):
+		if index == candidate_index or index == _dragged_placement_index: continue
+		for cell: Vector2i in _placement_cells(_placements[index]): used[cell] = true
+	var old_origin: Vector2i = dragged.origin
+	if not PlacementRules.can_place(shape,target_cell,used,grid_columns,grid_rows): return -1
+	for cell: Vector2i in shape: used[target_cell+cell] = true
+	if not PlacementRules.can_place(_content.item_footprint(String(displaced.item_id),int(displaced.rotation)),old_origin,used,grid_columns,grid_rows): return -1
+	return candidate_index
 
 
 func _dragged_footprint() -> Array[Vector2i]:

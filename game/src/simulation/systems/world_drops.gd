@@ -96,7 +96,8 @@ static func drop_inventory_stack(sim, item_id: String, stack_index: int) -> Dict
 		sim._clear_hotbar_instance(dropped_instance_id)
 	(state["world_drops"] as Array).append(new_drop)
 	state["inventory_layout"] = InventoryPackerScript.pack_with_layout(
-		sim.get_inventory(), content, [], 4, 4
+		sim.get_inventory(), content,
+		preload("res://src/inventory/inventory_layout_changes.gd").without_stack(packed.layout, normalized_id, stack_index), 4, 4
 	).get("layout", [])
 	return sim._emit_result(
 		true,
@@ -141,7 +142,16 @@ static func try_pickup_world_drop(sim, drop_id: String) -> Dictionary:
 			"world.pickup.failure.invalid_item"
 		)
 
-	if not sim._can_add_item(item_id, amount):
+	var pickup_amount := amount
+	if not content.item_is_instance_based(item_id):
+		var low := 0
+		var high := amount
+		while low < high:
+			var middle := ceili(float(low + high + 1) * 0.5)
+			if sim._can_add_item(item_id, middle): low = middle
+			else: high = middle - 1
+		pickup_amount = low
+	if pickup_amount <= 0 or not sim._can_add_item(item_id, pickup_amount):
 		return sim._emit_result(
 			false,
 			"world.pickup.failure.inventory_full"
@@ -153,8 +163,9 @@ static func try_pickup_world_drop(sim, drop_id: String) -> Dictionary:
 			return sim._emit_result(false, "world.pickup.failure.invalid_item")
 		sim._set_instance_location(instance_id, "inventory")
 	else:
-		sim._add_item(item_id, amount)
-	drops.remove_at(drop_index)
+		sim._add_item(item_id, pickup_amount)
+	if pickup_amount == amount: drops.remove_at(drop_index)
+	else: drop.amount = amount - pickup_amount
 	var result: Dictionary = sim._emit_result(
 		true,
 		"world.pickup.success",
@@ -164,12 +175,12 @@ static func try_pickup_world_drop(sim, drop_id: String) -> Dictionary:
 			"item": Localized.resolve(
 				content.item_label_key(item_id)
 			),
-			"amount": amount,
+			"amount": pickup_amount,
 		}
 	)
 	result["drop_id"] = drop_id
 	result["item_id"] = item_id
-	result["amount"] = amount
+	result["amount"] = pickup_amount
 	return result
 
 

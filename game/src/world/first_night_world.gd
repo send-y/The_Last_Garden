@@ -738,6 +738,7 @@ func _build_presentation_layers() -> void:
 		layer.name = "Presentation_" + order[i]
 		layer.draw_callback = methods[i]
 		layer.trace_label = "scene.world_%s_draw" % order[i]
+		if order[i] == "storage": layer.z_index = 1
 		add_child(layer)
 		move_child(layer,i)
 		_presentation_layers[order[i]] = layer
@@ -895,8 +896,6 @@ func _draw_storage_items(canvas: Node2D) -> void:
 					Vector2(max_cell + Vector2i.ONE) * mini_slot
 				)
 				IconPresentation.draw_icon(canvas, icon, icon_rect, int(placement.get("rotation", 0)), 0.0, Color.WHITE, _content.item_inventory_icon_scale(item_id))
-				if int(placement.get("amount", 1)) > 1:
-					canvas.draw_string(ThemeDB.fallback_font, icon_rect.end + Vector2(1.0, 0.0), str(placement.amount), HORIZONTAL_ALIGNMENT_RIGHT, 12.0, 7, Color.WHITE)
 
 
 

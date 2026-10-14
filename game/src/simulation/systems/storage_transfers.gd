@@ -24,6 +24,8 @@ static func transfer_inventory_stack_to_storage(sim,
 			break
 	if selected.is_empty():
 		return sim._emit_result(false, "ui.storage.failure.none_to_store")
+	if not content.item_is_instance_based(normalized_id):
+		return preload("res://src/inventory/storage_stack_transfer.gd").store_stack(sim,cell,selected,packed.layout,destination_origin,destination_rotation)
 	var used: Dictionary = {}
 	var grid_size: Vector2i = sim.get_storage_grid_size(cell)
 	var next_index := 0
@@ -60,7 +62,7 @@ static func transfer_inventory_stack_to_storage(sim,
 	var inventory: Dictionary = sim._inventory_mutable()
 	inventory[normalized_id] = maxi(0, int(inventory.get(normalized_id, 0)) - amount)
 	var remaining_layout: Array[Dictionary] = []
-	for layout_value: Variant in state.get("inventory_layout", []):
+	for layout_value: Variant in packed.layout:
 		if typeof(layout_value) != TYPE_DICTIONARY:
 			continue
 		var layout_entry := (layout_value as Dictionary).duplicate(true)
@@ -71,10 +73,9 @@ static func transfer_inventory_stack_to_storage(sim,
 			if layout_stack_index > stack_index:
 				layout_entry["stack_index"] = layout_stack_index - 1
 		remaining_layout.append(layout_entry)
-	var repacked_inventory := InventoryPackerScript.pack_with_layout(
-		inventory, content, remaining_layout, 4, 4
-	)
-	state["inventory_layout"] = repacked_inventory.get("layout", [])
+	# The raw resource dictionary excludes physical tools. Repack only after the
+	# selected instance changes ownership, using the actual remaining inventory.
+	state["inventory_layout"] = remaining_layout
 	var rotation := int(fit.get("rotation", 0))
 	var placement_id := "%s:%d" % [normalized_id, next_index]
 	var stored_item := {
@@ -300,54 +301,16 @@ static func store_item_in_storage(sim, cell: Vector2i, item_id: String) -> Dicti
 	var available := int(inventory.get(normalized_item_id, 0))
 	if available <= 0:
 		return sim._emit_result(false, "ui.storage.failure.none_to_store")
-	var storage_items: Array = state["storage_items"] as Array
-	var max_stack := content.item_max_stack(normalized_item_id)
-	var cell_key: String = sim._storage_cell_key([cell.x, cell.y])
-	var grid_size: Vector2i = sim.get_storage_grid_size(cell)
-	var used: Dictionary = {}
-	var max_stack_index := -1
-	for item: Dictionary in storage_items:
-		if sim._storage_cell_key(item.get("cell", [])) != cell_key:
-			continue
-		var origin_data: Array = item.get("origin", [0, 0]) as Array
-		var origin := Vector2i(int(origin_data[0]), int(origin_data[1]))
-		var rotation := posmod(int(item.get("rotation", 0)), 4)
-		var footprint := content.item_footprint(String(item.get("item_id", "")), rotation)
-		InventoryPlacementRulesScript.occupy(footprint, origin, used, String(item.get("placement_id", "")))
-		if String(item.get("item_id", "")) == normalized_item_id:
-			max_stack_index = maxi(max_stack_index, int(item.get("stack_index", 0)))
-	var available_slots := 0
-	var next_placements: Array[Dictionary] = []
-	var remaining_to_fit := available
-	var stack_index := max_stack_index + 1
-	while remaining_to_fit > 0:
-		var fit := InventoryPlacementRulesScript.find_first_fit(
-			content.item_footprint(normalized_item_id), used, grid_size.x, grid_size.y
-		)
-		var origin: Vector2i = fit.get("origin", InventoryPlacementRulesScript.INVALID_ORIGIN)
-		if origin == InventoryPlacementRulesScript.INVALID_ORIGIN:
-			break
-		var amount := mini(remaining_to_fit, max_stack)
-		var placement_id := "%s:%d" % [normalized_item_id, stack_index]
-		var footprint := content.item_footprint(normalized_item_id, int(fit.get("rotation", 0)))
-		InventoryPlacementRulesScript.occupy(footprint, origin, used, placement_id)
-		next_placements.append({
-			"cell": [cell.x, cell.y], "item_id": normalized_item_id,
-			"amount": amount, "origin": [origin.x, origin.y],
-			"rotation": int(fit.get("rotation", 0)), "stack_index": stack_index,
-			"placement_id": placement_id,
-		})
-		remaining_to_fit -= amount
-		stack_index += 1
-	var moved := available - remaining_to_fit
-	if moved <= 0:
-		return sim._emit_result(false, "ui.storage.failure.no_capacity")
-	storage_items.append_array(next_placements)
-	inventory[normalized_item_id] = available - moved
-	return sim._emit_result(true, "ui.storage.transfer.stored", true, true, {
-		"item": Localized.resolve(content.item_label_key(normalized_item_id)),
-		"amount": moved,
-	})
+	var moved := 0
+	while sim.get_item_count(normalized_item_id) > 0:
+		var result: Dictionary = transfer_inventory_stack_to_storage(sim,cell,normalized_item_id,0)
+		if not bool(result.get("success",false)): break
+		var amount := int(result.get("amount",0))
+		if amount <= 0: break
+		moved += amount
+	if moved <= 0: return sim._emit_result(false,"ui.storage.failure.no_capacity")
+	return sim._emit_result(true,"ui.storage.transfer.stored",true,true,{
+		"item":Localized.resolve(content.item_label_key(normalized_item_id)),"amount":moved})
 
 
 static func take_item_from_storage(sim, cell: Vector2i, item_id: String) -> Dictionary:

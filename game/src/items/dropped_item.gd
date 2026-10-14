@@ -10,6 +10,7 @@ var drop_id: String = ""
 @export_range(1, 999, 1) var amount: int = 1
 @export var icon: Texture2D
 @export_range(0.1, 1.0, 0.05) var visual_scale: float = 0.5
+@export_range(8, 32, 1) var maximum_world_size: float = 24.0
 @onready var _icon: Sprite2D = $Icon as Sprite2D
 
 
@@ -42,7 +43,8 @@ func configure(
 
 func _refresh_visual() -> void:
 	_icon.texture = icon if icon != null else PlaceholderIcon.texture_for(item_id)
-	_icon.scale = Vector2.ONE * visual_scale
+	var extent := _icon.texture.get_size()
+	_icon.scale = Vector2.ONE * minf(visual_scale, maximum_world_size / maxf(extent.x,extent.y))
 
 
 func _on_body_entered(body: Node2D) -> void:
