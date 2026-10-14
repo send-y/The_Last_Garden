@@ -54,6 +54,15 @@ func refresh() -> void:
 	if bed.is_empty():
 		close_requested.emit()
 		return
+	var shared := CheckButton.new()
+	shared.name = "SharedHarvestPermission"
+	shared.text = Localized.resolve("farming.shared.button")
+	shared.tooltip_text = Localized.resolve("farming.shared.hint")
+	shared.set_pressed_no_signal(bool(bed.get("shared_harvest",false)))
+	shared.toggled.connect(func(enabled: bool) -> void:
+		Session.execute_farming_command({"actor_id":"core:player","action_id":"set_shared_harvest","cell":[cell.x,cell.y],"enabled":enabled})
+	)
+	_column.add_child(shared)
 	var crop := _crops.find(String(bed.crop_id))
 	if crop.is_empty():
 		for definition: Dictionary in _crops.crops:

@@ -228,6 +228,10 @@ farming.failure.seeds,Нет семян этой культуры.
 farming.failure.water,Выберите наполненное ведро в хотбаре.
 farming.failure.already_wet,Полив ещё действует.
 farming.failure.unripe,Урожай ещё не готов.
+farming.failure.shared,Для сбора нужна общая грядка и разрешение жителя.
+farming.shared.button,Общий урожай
+farming.shared.hint,Жители с разрешением сбора могут отнести урожай на склад или взять его для еды.
+farming.shared.changed,Разрешение общего урожая изменено.
 farming.failure.action,Неизвестное действие с грядкой.
 farming.failure.product,Выберите ягоду или готовый продукт.
 farming.failure.study,Постройте стол изучений для семян из урожая.

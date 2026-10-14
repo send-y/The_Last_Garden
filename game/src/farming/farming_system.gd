@@ -39,6 +39,7 @@ func normalize(sim) -> void:
 			var crop := catalog.find_saved(String(value.get("crop_id", "")))
 			var bed: Dictionary = {"cell": [cell.x, cell.y], "crop_id": String(crop.get("id", "")),
 				"growth": 0, "wet_until": 0, "last_update": now, "harvests": 0}
+			bed.shared_harvest = value.get("shared_harvest", false) is bool and value.get("shared_harvest", false)
 			bed["harvests"] = clampi(_number(value.get("harvests"), 0), 0, 100000000)
 			bed["wet_until"] = clampi(_number(value.get("wet_until"), 0), 0, now + int(catalog.settings.water_duration_minutes))
 			bed["last_update"] = clampi(_number(value.get("last_update"), now), 0, now)
@@ -114,6 +115,12 @@ func execute(sim, command: Dictionary) -> Dictionary:
 	var cell := Vector2i(int(cell_value[0]), int(cell_value[1]))
 	if sim.get_player_position().distance_to(Content.cell_center(cell.x, cell.y)) > Content.INTERACTION_RANGE:
 		return _result(sim, false, "interaction.failure.too_far")
+	if action == "set_shared_harvest":
+		var shared_bed := bed_at(sim,cell)
+		if shared_bed.is_empty() or not command.get("enabled") is bool:
+			return _result(sim,false,"farming.failure.action")
+		shared_bed.shared_harvest = command.enabled
+		return _result(sim,true,"farming.shared.changed")
 	# Refusals must not interrupt a seated/resting actor or consume a charge.
 	if action == "till" and not sim.actor_tool_supports("core:player", "till"):
 		return _result(sim, false, "farming.failure.hoe")
@@ -141,7 +148,7 @@ func execute(sim, command: Dictionary) -> Dictionary:
 			if not bed.is_empty() or not _soil_allowed(sim, cell):
 				return _result(sim, false, "farming.failure.soil")
 			sim.state.farming.beds.append({"cell": [cell.x, cell.y], "crop_id": "", "growth": 0,
-				"wet_until": 0, "last_update": sim.get_elapsed_game_minutes(), "harvests": 0})
+				"wet_until": 0, "last_update": sim.get_elapsed_game_minutes(), "harvests": 0, "shared_harvest": false})
 			sim._spend_player_work_energy(sim.content.item_tool_energy_multiplier(String(sim.get_actor_tool("core:player").get("item_id", ""))))
 			return _result(sim, true, "farming.tilled")
 		"plant":
@@ -159,23 +166,49 @@ func execute(sim, command: Dictionary) -> Dictionary:
 		"water":
 			return water_for_actor(sim, "core:player", cell)
 		"harvest":
-			var crop := catalog.find(String(bed.get("crop_id", "")))
-			if crop.is_empty() or int(bed.growth) < _required_growth(bed, crop):
-				return _result(sim, false, "farming.failure.unripe")
-			sim._create_resource_drops("farming:%s" % crop.id, String(crop.product_id), int(crop.yield), Content.cell_center(cell.x, cell.y))
-			bed.harvests = int(bed.harvests) + 1
-			bed.growth = 0
-			bed.last_update = sim.get_elapsed_game_minutes()
-			if String(crop.harvest_mode) != "perennial":
-				bed.crop_id = ""
-			sim.state.farming.harvest_count = int(sim.state.farming.harvest_count) + 1
-			return _result(sim, true, "farming.harvested", {"amount": int(crop.yield)})
+			var harvested := harvest_for_actor(sim,"core:player",cell)
+			var response := _result(sim,bool(harvested.success), "farming.harvested" if harvested.success else String(harvested.reason_id), {"amount":int(harvested.get("amount",0))})
+			response.merge(harvested,true)
+			return response
 		"remove":
 			if bed.is_empty():
 				return _result(sim, false, "farming.failure.plant")
 			sim.state.farming.beds.erase(bed)
 			return _result(sim, true, "farming.removed")
 	return _result(sim, false, "farming.failure.action")
+
+
+func harvest_ready(sim, cell: Vector2i) -> bool:
+	var bed := bed_at(sim,cell)
+	var crop := catalog.find(String(bed.get("crop_id","")))
+	return not crop.is_empty() and int(bed.get("growth",0)) >= _required_growth(bed,crop)
+
+
+func harvest_for_actor(sim, actor_id: String, cell: Vector2i) -> Dictionary:
+	var actor: Dictionary = sim._get_resource_actor_position(actor_id)
+	if not bool(actor.get("found",false)):
+		return {"success":false,"reason_id":"farming.failure.actor"}
+	if Vector2(actor.position).distance_to(Content.cell_center(cell.x,cell.y)) > Content.INTERACTION_RANGE:
+		return {"success":false,"reason_id":"interaction.failure.too_far"}
+	var bed := bed_at(sim,cell)
+	if actor_id != "core:player":
+		var npc: Dictionary = sim.state.npcs.get(actor_id,{})
+		if npc.is_empty() or not bool(npc.get("active",false)) or not bool(npc.get("known",false)) or not bool(npc.get("work_options",{}).get("harvest",false)) or not bool(bed.get("shared_harvest",false)):
+			return {"success":false,"reason_id":"farming.failure.shared"}
+	if not harvest_ready(sim,cell):
+		return {"success":false,"reason_id":"farming.failure.unripe"}
+	var crop := catalog.find(String(bed.crop_id))
+	var ids: Array[String] = sim._create_resource_drops("farming:%s" % crop.id if actor_id == "core:player" else actor_id, String(crop.product_id),int(crop.yield),Content.cell_center(cell.x,cell.y))
+	if actor_id != "core:player":
+		for drop: Dictionary in sim.state.world_drops:
+			if ids.has(String(drop.drop_id)): drop.npc_recovery = true
+		sim.needs.spend_work(sim.state.npcs[actor_id].needs)
+	bed.harvests = int(bed.harvests)+1
+	bed.growth = 0
+	bed.last_update = sim.get_elapsed_game_minutes()
+	if String(crop.harvest_mode) != "perennial": bed.crop_id = ""
+	sim.state.farming.harvest_count = int(sim.state.farming.harvest_count)+1
+	return {"success":true,"reason_id":"farming.harvested","item_id":String(crop.product_id),"amount":int(crop.yield),"created_drop_ids":ids}
 
 
 func can_extract_seeds(item_id: String) -> bool:
