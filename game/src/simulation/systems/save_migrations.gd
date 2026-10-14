@@ -123,7 +123,7 @@ static func _normalize_state(sim) -> void:
 		raw_storage_items,
 		state["storage_items"] as Array
 	)
-	state["npcs"] = npc_catalog.normalize_states(_as_dictionary(state.get("npcs")), seed_value)
+	state["npcs"] = npc_catalog.normalize_states(_as_dictionary(state.get("npcs")), seed_value, content)
 	state["next_npc_serial"] = maxi(1, preload("res://src/npc_work/npc_work_state.gd").number(state.get("next_npc_serial", 1)))
 	sim._reconcile_item_instance_locations()
 	sim._normalize_hotbar_state()

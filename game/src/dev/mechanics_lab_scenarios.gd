@@ -31,6 +31,7 @@ const PREPARED_MINUTE: int = 17 * 60 + 50
 
 static func definitions(include_historical: bool = false) -> Array[Dictionary]:
 	var all: Array[Dictionary] = [
+		{"id":&"shared_crop_harvest","label":"Общий урожай","description":"Искусственный старт: спелые грядки.\nМорковь личная; картофель и клубника общие."},
 		{"id":&"day_three","label":"День 3: готовый склад 3×3","description":"Искусственный старт, не копия сейва.\nСклад, верстак и два жителя."},
 		{"id":&"first_meeting_hungry","label":"Первая встреча: оба голодны","description":"Незнакомая Мира с припасами.\nПроверь разговор и передачу еды."},
 		{"id":&"communal_production","label":"Доски для общей стены","description":"Есть древесина и верстак.\nМира делает доски и строит стену."},
@@ -96,6 +97,11 @@ static func get_definition(scenario_id: StringName) -> Dictionary:
 
 
 static func build(scenario_id: StringName, stress_count: int = 30) -> Dictionary:
+	if scenario_id==&"shared_crop_harvest":
+		var harvest := preload("res://src/dev/npc_crop_harvest_scenario.gd").build()
+		harvest.scenario_id = scenario_id
+		harvest.definition = get_definition(scenario_id)
+		return harvest
 	var definition: Dictionary = get_definition(scenario_id)
 	if definition.is_empty():
 		return {

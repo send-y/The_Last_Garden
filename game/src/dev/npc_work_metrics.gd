@@ -6,6 +6,28 @@ signal minute_observed
 var _days: Dictionary = {}
 var _last_kind: Dictionary = {}
 var _food_days: Dictionary = {}
+var _farming_days: Dictionary = {}
+
+func record_farming(sim, actor_id: String, kind: String, item_id: String, amount: int) -> void:
+	if not enabled or amount<=0: return
+	var day: int = sim.get_day()
+	if not _farming_days.has(day): _farming_days[day] = {}
+	if not _farming_days[day].has(actor_id): _farming_days[day][actor_id] = {}
+	var row: Dictionary = _farming_days[day][actor_id]
+	if not row.has(kind): row[kind] = {}
+	row[kind][item_id] = int(row[kind].get(item_id,0))+amount
+
+func record_harvest(sim, actor_id: String, item_id: String, amount: int) -> void:
+	record_farming(sim,actor_id,"harvested",item_id,amount)
+
+func farming_snapshot(day: int) -> Dictionary:
+	return _farming_days.get(day,{}).duplicate(true)
+
+func harvest_snapshot(day: int) -> Dictionary:
+	var result: Dictionary = {}
+	for actor: String in _farming_days.get(day,{}):
+		result[actor] = _farming_days[day][actor].get("harvested",{}).duplicate()
+	return result
 
 func record_meal(sim, actor_id: String, item_id: String) -> void:
 	if not enabled: return

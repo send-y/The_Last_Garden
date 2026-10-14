@@ -81,7 +81,7 @@ func create_initial_states(world_seed: int) -> Dictionary:
 	return npcs
 
 
-func normalize_states(raw_npcs: Dictionary, world_seed: int) -> Dictionary:
+func normalize_states(raw_npcs: Dictionary, world_seed: int, item_content: FirstNightContent = null) -> Dictionary:
 	var defaults: Dictionary = create_initial_states(world_seed)
 	var normalized: Dictionary = {}
 	for raw_id_variant: Variant in raw_npcs.keys():
@@ -214,7 +214,7 @@ func normalize_states(raw_npcs: Dictionary, world_seed: int) -> Dictionary:
 			npc_state.get("memories", [])
 		)
 
-		preload("res://src/npc_work/npc_work_state.gd").normalize(npc_state, preload("res://src/content/first_night_content.gd").new())
+		preload("res://src/npc_work/npc_work_state.gd").normalize(npc_state, item_content if item_content!=null else preload("res://src/content/first_night_content.gd").new())
 		preload("res://src/npc_work/npc_home_projects.gd").normalize(npc_state)
 		normalized[npc_id] = npc_state
 	return normalized

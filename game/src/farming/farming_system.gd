@@ -166,6 +166,7 @@ func execute(sim, command: Dictionary) -> Dictionary:
 			bed.growth = 0
 			bed.harvests = 0
 			bed.last_update = sim.get_elapsed_game_minutes()
+			sim.work_metrics.record_farming(sim,"core:player","planted",seed_id,1)
 			return _result(sim, true, "farming.planted")
 		"water":
 			return water_for_actor(sim, "core:player", cell)
@@ -212,6 +213,7 @@ func harvest_for_actor(sim, actor_id: String, cell: Vector2i) -> Dictionary:
 	bed.last_update = sim.get_elapsed_game_minutes()
 	if String(crop.harvest_mode) != "perennial": bed.crop_id = ""
 	sim.state.farming.harvest_count = int(sim.state.farming.harvest_count)+1
+	sim.work_metrics.record_harvest(sim,actor_id,String(crop.product_id),int(crop.yield))
 	return {"success":true,"reason_id":"farming.harvested","item_id":String(crop.product_id),"amount":int(crop.yield),"created_drop_ids":ids}
 
 
@@ -255,6 +257,8 @@ func _extract(sim, item_id: String) -> Dictionary:
 	sim.state.farming.extraction_count = int(sim.state.farming.extraction_count) + 1
 	if not special:
 		sim.state.farming.crop_extraction_count = int(sim.state.farming.crop_extraction_count) + 1
+	sim.work_metrics.record_farming(sim,"core:player","extracted",seed_id,amount)
+	sim.work_metrics.record_farming(sim,"core:player","extraction_inputs",item_id,1)
 	return _result(sim, true, "farming.extracted", {"amount": amount, "crop": Localized.text_reference(String(crop.name_key))})
 
 

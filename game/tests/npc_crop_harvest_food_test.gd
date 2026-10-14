@@ -116,5 +116,10 @@ func run() -> void:
 	for drop: Dictionary in sim.state.world_drops:
 		if drop.item_id=="core:potato": total += int(drop.amount)
 	check(total==3,"Autonomous route conserves all harvested and eaten potatoes")
+	var custom_state := sim.export_state()
+	custom_state.npcs[ID].work_cargo = {"test:ration":2}
+	custom_state.npcs[ID].crop_food_trip = {"cell":[cell.x,cell.y],"crop_id":"carrot","item_id":"test:ration","phase":"delivery","drops":[]}
+	var custom = World.new(custom_state,preload("res://tests/fixtures/item_food_fixture.gd").catalog())
+	check(int(custom.state.npcs[ID].work_cargo.get("test:ration",0))==2 and custom.state.npcs[ID].crop_food_trip.get("item_id","")=="test:ration","Pending cargo/trip normalization uses the actual live item catalog")
 	print("PASS: crop food, rest priority, retained work and physical leftovers" if failures==0 else "FAIL: crop food")
 	quit(0 if failures==0 else 1)
