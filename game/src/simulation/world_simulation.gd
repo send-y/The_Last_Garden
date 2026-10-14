@@ -174,6 +174,11 @@ func acknowledge_npc_utterance(npc_id: String, utterance_id: String, page_index:
 	return preload("res://src/characters/npc_conversation.gd").acknowledge(self,npc_id,utterance_id,page_index)
 
 func close_npc_conversation() -> void:
+	var id := String(_npc_conversation_pending.get("npc_id",""))
+	var npc: Dictionary = state.npcs.get(id,{})
+	if not npc.is_empty() and bool(npc.get("first_meeting_complete",false)) and not bool(npc.get("first_meeting_closed",true)):
+		npc.first_meeting_closed = true
+		event_emitted.emit({"type":"state_changed"})
 	_npc_conversation_pending = {"serial":int(_npc_conversation_pending.get("serial",0))}
 
 

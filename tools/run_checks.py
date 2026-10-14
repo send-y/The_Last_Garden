@@ -32,7 +32,7 @@ def main():
             cmd = [args.godot, "--path", str(ROOT / "game")]
             cmd += ["--rendering-method", "gl_compatibility"] if graphic else ["--headless"]
             cmd += ["--script", "res://tests/" + name] if name.endswith(".gd") else ["res://tests/" + name]
-            cmd += ["--", "--test-save-path=" + str(pathlib.Path(isolated) / "session.json")]
+            cmd += ["--", "--test-save-path=" + str(pathlib.Path(isolated) / "session.json"), "--test-artifact-dir=" + str(out)]
             log_path = out / (pathlib.Path(name).stem + ("-graphic" if graphic else "") + ".log")
             with log_path.open("wb") as log:
                 process = subprocess.Popen(cmd, stdout=log, stderr=subprocess.STDOUT)

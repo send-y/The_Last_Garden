@@ -4,6 +4,7 @@ const Introduction := preload("res://src/characters/npc_introduction.gd")
 const Knowledge := preload("res://src/characters/npc_knowledge.gd")
 const Localized := preload("res://src/localization/localized_text.gd")
 const PATH := "res://content/core/npc_conversations.json"
+const Meeting := preload("res://src/characters/npc_first_meeting.gd")
 
 static func definitions() -> Array:
 	var data: Variant = JSON.parse_string(FileAccess.get_file_as_string(PATH))
@@ -11,7 +12,11 @@ static func definitions() -> Array:
 
 static func available(sim, npc: Dictionary, topic: Dictionary) -> bool:
 	if String(topic.id) == "greeting":
-		return not bool(npc.get("known",false)) or (not sim.npc_catalog.get_profile(String(npc.id)).is_empty() and not npc.get("known_facts",{}).has("experience_id"))
+		return not Meeting.complete(npc)
+	if not Meeting.complete(npc): return false
+	if String(topic.id) == "overview": return true
+	if String(topic.id) in ["take_supplies","decline_supplies"]: return Meeting.gift_available(npc)
+	if String(topic.id) in ["chat","home","past","values","heritage"] and not bool(npc.get("first_meeting_closed",true)): return false
 	if not bool(npc.get("known",false)): return false
 	if String(topic.id) == "stay" and String(npc.get("residency","resident")) != "visitor": return false
 	if sim.npc_catalog.get_profile(String(npc.id)).is_empty(): return String(topic.id) in ["home","chat"]
@@ -25,7 +30,7 @@ static func get_topics(sim, npc_id: String) -> Array[Dictionary]:
 	var npc: Dictionary = sim.state.npcs.get(npc_id,{})
 	if npc.is_empty() or not in_range(sim,npc_id): return result
 	for topic: Dictionary in definitions():
-		if available(sim,npc,topic): result.append({"topic_id":String(topic.id),"label_key":String(topic.label_key)})
+		if not bool(topic.get("hidden",false)) and available(sim,npc,topic): result.append({"topic_id":String(topic.id),"label_key":String(topic.label_key)})
 	return result
 
 static func choose(sim, npc_id: String, topic_id: String) -> Dictionary:
@@ -35,12 +40,18 @@ static func choose(sim, npc_id: String, topic_id: String) -> Dictionary:
 	for topic: Dictionary in definitions():
 		if String(topic.id) == topic_id: chosen = topic
 	if chosen.is_empty() or not available(sim,npc,chosen): return {"ok":false,"reason_key":"conversation.refuse.context"}
-	if float(npc.needs.hunger) < 25 or float(npc.needs.energy) < 18:
+	if topic_id not in ["greeting","overview","take_supplies","decline_supplies"] and (float(npc.needs.hunger) < 25 or float(npc.needs.energy) < 18):
 		return {"ok":false,"reason_key":"conversation.refuse.needs"}
 	var profile: Dictionary = sim.npc_catalog.get_profile(npc_id)
 	var pages: Array[Dictionary] = []
 	var discussed_memory := ""
-	if profile.is_empty():
+	if topic_id == "greeting":
+		pages = Meeting.pages(sim,npc)
+	elif topic_id == "overview":
+		pages.append({"text_key":"meeting.overview", "text_args":{}, "facts":[]})
+	elif topic_id in ["take_supplies","decline_supplies"]:
+		pages.append(Meeting.receive(sim,npc,topic_id == "decline_supplies"))
+	elif profile.is_empty():
 		var definition: Dictionary = sim.npc_catalog.get_definition(npc_id)
 		pages.append({"text_key":String(definition.get("greeting_key","conversation.home")) if topic_id == "greeting" else "conversation.home",
 			"text_args":{},"facts":["name"] if topic_id == "greeting" else []})
@@ -103,6 +114,9 @@ static func acknowledge(sim, npc_id: String, utterance_id: String, page_index: i
 	changed = true
 	if pending.acknowledged.size() == pending.pages.size() and not pending.complete:
 		pending.complete = true
+		if String(pending.topic_id) == "greeting":
+			npc.first_meeting_complete = true
+			npc.first_meeting_closed = false
 		npc.talk_count = int(npc.get("talk_count",0))+1
 		sim.needs.add_effect(npc,"conversation",sim.get_elapsed_game_minutes())
 		if String(pending.topic_id) == "stay": sim.set_npc_resident(npc_id,true)

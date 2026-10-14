@@ -18,7 +18,8 @@
       "autonomy": {
         "initial_hunger": 72.0,
         "initial_energy": 82.0,
-        "personal_food": 2,
+        "personal_food": 18,
+        "welcome_gift": {"item_id": "core:food", "amount": 10, "keep": 8},
         "meal_cell": [20, 28],
         "rest_cell": [25, 23],
         "morning_cell": [24, 29],

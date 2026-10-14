@@ -1,6 +1,9 @@
 {
   "schema_version": 1,
   "topics": [
+	{"id":"overview","label_key":"meeting.overview","hidden":true,"pages":[]},
+	{"id":"take_supplies","label_key":"meeting.action.take","pages":[]},
+	{"id":"decline_supplies","label_key":"meeting.action.decline","pages":[]},
 	{"id":"greeting","label_key":"conversation.topic.greeting","min_talks":0,"wait_minutes":0,"pages":[
 	  {"text_key":"conversation.introduction","args":{"name":"name"},"facts":["name"]},
 	  {"text_key":"conversation.experience","args":{"experience":"experience_id"},"facts":["experience_id"]}]},

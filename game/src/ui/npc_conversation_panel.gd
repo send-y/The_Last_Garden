@@ -15,6 +15,7 @@ var _page := 0
 var _chunk := 0
 var _chunks: Array[String] = []
 var _page_complete := false
+var _completion_reported := false
 var _display_generation := 0
 var _history_open := false
 var _title: Label
@@ -130,6 +131,7 @@ func fit_to_viewport(dimensions: Vector2) -> void:
 
 func present(view_model: Dictionary) -> void:
 	_view = view_model.duplicate(true)
+	_completion_reported = false
 	npc_id = String(_view.get("npc_id",""))
 	_page = 0
 	_chunk = 0
@@ -195,7 +197,9 @@ func _show_chunk() -> void:
 		_title.text = Localized.resolve(Session.simulation.npc_catalog.get_label_key(Session.simulation.state.npcs,npc_id,"npc.generic.traveler.name"))
 		if _page == _view.pages.size()-1:
 			_next_button.hide()
-			utterance_completed.emit()
+			if not _completion_reported:
+				_completion_reported = true
+				utterance_completed.emit()
 
 func _next() -> void:
 	if _history_open or _chunks.is_empty(): return

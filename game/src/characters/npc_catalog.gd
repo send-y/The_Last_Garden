@@ -56,6 +56,8 @@ func create_initial_states(world_seed: int) -> Dictionary:
 			"known": false,
 			"known_facts": {},
 			"talk_count": 0,
+			"first_meeting_complete": false,
+			"welcome_gift": _initial_gift(autonomy.get("welcome_gift", {})),
 			"position": _cell_center_array(int(cell[0]), int(cell[1])),
 			"appearance_seed": world_seed + seed_offset,
 			"appearance": _appearance_catalog.generate_npc_appearance(world_seed + seed_offset),
@@ -182,6 +184,17 @@ func normalize_states(raw_npcs: Dictionary, world_seed: int) -> Dictionary:
 		if not inventory.has("core:food"):
 			inventory["core:food"] = int(default_inventory.get("core:food", 0))
 		npc_state["personal_inventory"] = inventory
+		npc_state["first_meeting_complete"] = _safe_bool(raw_state.get("first_meeting_complete"), bool(raw_state.get("known",false)))
+		var gift_config: Dictionary = get_definition(npc_id).get("autonomy",{}).get("welcome_gift",{})
+		if not gift_config.is_empty():
+			if not raw_state.is_empty() and not raw_state.has("welcome_gift"):
+				# Additive one-time stock migration, leaving all existing knowledge intact.
+				var gift_id := String(gift_config.item_id)
+				inventory[gift_id] = int(inventory.get(gift_id,0)) + int(gift_config.amount) + int(gift_config.keep)
+			var saved_gift: Dictionary = raw_state.get("welcome_gift",{}) if raw_state.get("welcome_gift",{}) is Dictionary else {}
+			npc_state["welcome_gift"] = _initial_gift(gift_config)
+			npc_state.welcome_gift.remaining = clampi(_safe_int(saved_gift.get("remaining"),int(gift_config.amount)),0,int(gift_config.amount))
+			npc_state.welcome_gift.declined = _safe_bool(saved_gift.get("declined"),false)
 
 		npc_state["facing"] = _normalize_facing(
 			npc_state.get("facing"),
@@ -469,6 +482,10 @@ func _normalize_work_commitment(value: Variant) -> Dictionary:
 	}
 
 
+func _initial_gift(config: Dictionary) -> Dictionary:
+	if config.is_empty(): return {}
+	return {"item_id":String(config.item_id),"remaining":int(config.amount),"keep":int(config.keep),"declined":false}
+
 func _is_valid_cell(value: Variant) -> bool:
 	if typeof(value) != TYPE_ARRAY:
 		return false
@@ -510,6 +527,7 @@ func _load() -> void:
 
 
 func _validate_content() -> void:
+	preload("res://src/characters/npc_first_meeting.gd").catalog()
 	for npc_id: String in _definition_order:
 		if not npc_id.contains(":"):
 			push_error("NPC id should be namespaced: %s." % npc_id)
@@ -537,6 +555,18 @@ func _validate_content() -> void:
 		if cell.size() < 2:
 			push_error("NPC %s has invalid position_cell." % npc_id)
 		var autonomy: Dictionary = definition.get("autonomy", {}) as Dictionary
+		if autonomy.has("welcome_gift"):
+			var gift: Variant = autonomy.welcome_gift
+			if not gift is Dictionary:
+				push_error("NPC %s has invalid welcome_gift." % npc_id)
+			else:
+				for field: String in gift:
+					if field not in ["item_id","amount","keep"]: push_error("Unsupported welcome_gift field: " + field)
+				for field: String in ["amount","keep"]:
+					var amount: Variant = gift.get(field)
+					if not (amount is int or amount is float) or not is_finite(float(amount)) or float(amount) != floor(float(amount)) or float(amount) < 0: push_error("Invalid welcome_gift " + field)
+				var items := FirstNightContentScript.new()
+				if items.item_food_profile(String(gift.get("item_id",""))).is_empty(): push_error("Welcome gift must reference edible content")
 		for cell_key: String in [
 			"meal_cell",
 			"rest_cell",

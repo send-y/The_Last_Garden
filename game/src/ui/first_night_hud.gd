@@ -968,7 +968,10 @@ func open_npc_conversation(npc_id: String) -> void:
 	_close_npc_conversation()
 	_conversation_was_paused = Session.is_paused()
 	Session.set_paused(true,false)
-	_choose_conversation_topic(String(topics[0].topic_id),npc_id)
+	var opening := "overview"
+	for topic: Dictionary in topics:
+		if String(topic.topic_id) == "greeting": opening = "greeting"
+	_choose_conversation_topic(opening,npc_id)
 	if _conversation_panel.visible:
 		npc_conversation_opened.emit(npc_id)
 

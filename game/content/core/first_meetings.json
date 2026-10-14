@@ -1,0 +1,15 @@
+{
+  "schema_version": 1,
+  "default_tone": "meeting.introduce.open",
+  "habit_tones": {
+    "core:habit_quiet": "meeting.introduce.quiet",
+    "core:habit_prepare": "meeting.introduce.careful",
+    "core:habit_try": "meeting.introduce.direct"
+  },
+  "world_lines": {
+    "roof_food": "meeting.world.roof_food",
+    "roof_hungry": "meeting.world.roof_hungry",
+    "open_food": "meeting.world.open_food",
+    "open_hungry": "meeting.world.open_hungry"
+  }
+}
