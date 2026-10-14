@@ -272,7 +272,7 @@ func _advance_npc_minute(
 		and minute < REST_START
 		and energy < RESTED_THRESHOLD
 	)
-	var urgent_meal := hunger <= 35 and food_count > 0
+	var urgent_meal := hunger <= 35 and food_count > 0 and not bool(meal.get("acquiring",false))
 	if String(furniture.get("kind","")) == "meal":
 		target_cell = Vector2i(int(furniture.target_cell[0]),int(furniture.target_cell[1]))
 		travel_activity = ACTIVITY_GOING_TO_MEAL

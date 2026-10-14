@@ -23,7 +23,8 @@ static func find_meal(sim, npc: Dictionary) -> Dictionary:
 			var seat: Dictionary = sim.furniture.find_seat(sim,String(npc.id),true)
 			return {"source": "storage", "item_id": id, "cell": stored.cell.duplicate(),
 				"placement_id": stored.placement_id, "target_cell": [target.x, target.y],"seat":seat,"carry":not seat.is_empty()}
-	return _wild_meal(sim,npc,npc_cell,player_cell)
+	var wild := _wild_meal(sim,npc,npc_cell,player_cell)
+	return wild if not wild.is_empty() else preload("res://src/npc_work/npc_crop_harvest.gd").find_meal(sim,npc)
 
 static func _wild_meal(sim, npc: Dictionary, from: Vector2i, player_cell: Vector2i) -> Dictionary:
 	var bushes: Array[Dictionary] = sim.get_surface_berry_bushes()
@@ -70,6 +71,8 @@ static func fulfil(sim, effect: Dictionary) -> bool:
 	var profile: Dictionary = sim.needs.food_profile(id, sim.content)
 	if profile.is_empty():
 		return false
+	if String(meal.get("source",""))=="crop":
+		return preload("res://src/npc_work/npc_crop_harvest.gd").fulfil_meal(sim,npc,meal)
 	if String(meal.get("source","")) == "wild":
 		return bool(preload("res://src/needs/wild_food_harvest.gd").harvest(sim,String(npc.id),String(meal.get("object_id",""))).success)
 	if String(meal.get("source", "")) == "personal":

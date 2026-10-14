@@ -25,7 +25,7 @@ static func status(sim, npc_id: String) -> Dictionary:
 	if npc.is_empty():
 		return {}
 	return {"options": npc.work_options.duplicate(), "job": npc.initiative_job.duplicate(true),
-		"cargo": npc.work_cargo.duplicate(), "tool_instance_id": String(npc.carried_instance_id)}
+		"cargo": npc.work_cargo.duplicate(), "tool_instance_id": String(npc.carried_instance_id), "crop_food_trip":npc.get("crop_food_trip",{}).duplicate(true)}
 
 static func cancel(npc: Dictionary) -> void:
 	if String(npc.initiative_job.get("kind",""))=="harvest" and not npc.initiative_job.get("drops",[]).is_empty():
@@ -54,8 +54,12 @@ static func prepare(sim) -> Dictionary:
 			npc.initiative_job = {"kind":"build", "phase":"build", "cell":npc.work_commitment.target_cell.duplicate(), "drops":[]}
 			job = npc.initiative_job
 		var urgent_need: bool = float(npc.needs.hunger) <= 55 or float(npc.needs.energy) <= 18 or sim.get_minute_of_day() >= 21 * 60 or sim.get_minute_of_day() < 7 * 60
-		if urgent_need and (not job.is_empty() or not String(npc.carried_instance_id).is_empty() or not npc.work_cargo.is_empty()):
+		if urgent_need and (not job.is_empty() or not String(npc.carried_instance_id).is_empty() or not npc.work_cargo.is_empty() or not npc.get("crop_food_trip",{}).is_empty()):
 			# Eating/resting outranks work. Keep its real tool and paid cargo for resumption.
+			continue
+		var crop_context := CropHarvest.prepare_delivery(sim,npc)
+		if not crop_context.is_empty():
+			contexts[String(npc.id)] = crop_context
 			continue
 		if not requested and not job.is_empty() and String(job.phase) != "return" and not bool(npc.work_options.get(String(job.kind), false)):
 			cancel(npc)
@@ -242,6 +246,9 @@ static func fulfil(sim, effect: Dictionary) -> bool:
 	var npc: Dictionary = sim.state.npcs.get(String(effect.get("npc_id", "")), {})
 	var context: Dictionary = effect.get("context", {})
 	if not npc.is_empty() and bool(context.get("workbench_request",false)): return WorkshopRequest.fulfil(sim,npc)
+	if not npc.is_empty() and bool(npc.get("active",false)) and context.has("crop_supply"):
+		if context.get("target_cell",[]) != [Supply.cell_of(sim,npc).x,Supply.cell_of(sim,npc).y]: return false
+		return CropHarvest.fulfil_delivery(sim,npc,context)
 	if npc.is_empty() or not bool(npc.active) or npc.initiative_job.is_empty() or context.is_empty():
 		return false
 	var current := Supply.cell_of(sim, npc)

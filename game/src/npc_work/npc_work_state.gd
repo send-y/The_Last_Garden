@@ -20,6 +20,7 @@ static func normalize(npc: Dictionary, content) -> void:
 			if content.has_item(id) and not content.item_is_instance_based(id) and number(raw[id]) > 0:
 				cargo[id] = number(raw[id])
 	npc.work_cargo = cargo
+	npc.crop_food_trip = normalize_crop_trip(npc.get("crop_food_trip",{}),content)
 	raw = npc.get("initiative_job", {})
 	var job: Dictionary = {}
 	if raw is Dictionary and KINDS.has(String(raw.get("kind", ""))) and PHASES.has(String(raw.get("phase", ""))):
@@ -55,6 +56,17 @@ static func normalize(npc: Dictionary, content) -> void:
 					if id is String and not job.drops.has(id):
 						job.drops.append(id)
 	npc.initiative_job = job
+
+static func normalize_crop_trip(raw: Variant, content) -> Dictionary:
+	if not raw is Dictionary or not ["harvest","collect","delivery"].has(String(raw.get("phase",""))): return {}
+	var cell: Variant = raw.get("cell",[])
+	if not cell is Array or cell.size()!=2 or not valid_cell_coordinate(cell[0]) or not valid_cell_coordinate(cell[1]) or not content.has_item(String(raw.get("item_id",""))): return {}
+	var trip := {"cell":[int(cell[0]),int(cell[1])],"crop_id":String(raw.get("crop_id","")),"planting_id":number(raw.get("planting_id")),"item_id":String(raw.item_id),"phase":String(raw.phase),"drops":[]}
+	if raw.get("drops",[]) is Array:
+		for id: Variant in raw.get("drops",[]):
+			if id is String and not trip.drops.has(id): trip.drops.append(id)
+	if String(raw.get("blocked_reason",""))=="storage_full_or_unreachable": trip.blocked_reason = "storage_full_or_unreachable"
+	return trip
 
 static func number(value: Variant) -> int:
 	if not (value is int or value is float) or not is_finite(float(value)):
