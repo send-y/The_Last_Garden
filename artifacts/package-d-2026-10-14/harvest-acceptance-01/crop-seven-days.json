@@ -1,0 +1,2057 @@
+{
+	"crop_meals": 11,
+	"days": [
+		{
+			"crops": {
+				"cabbage": {
+					"extraction_unlocked": true,
+					"flags": [
+						"no_seeds",
+						"no_product_for_extraction"
+					],
+					"living_beds": 2,
+					"perennial_beds": 0,
+					"product_id": "core:cabbage",
+					"products_by_location": {
+						"npc_cargo": 0,
+						"npc_personal": 0,
+						"player": 0,
+						"storage": 0,
+						"world_drops": 0
+					},
+					"products_eaten_by_actor": {},
+					"products_harvested": 0,
+					"products_total": 0,
+					"products_used_for_seeds": 0,
+					"seed_id": "core:cabbage_seed",
+					"seeds_by_location": {
+						"npc_cargo": 0,
+						"npc_personal": 0,
+						"player": 0,
+						"storage": 0,
+						"world_drops": 0
+					},
+					"seeds_extracted": 2,
+					"seeds_planted": 2,
+					"seeds_total": 0,
+					"start": {
+						"extraction_unlocked": false,
+						"flags": [
+							"no_seeds",
+							"no_product_for_extraction",
+							"extraction_unavailable"
+						],
+						"living_beds": 0,
+						"perennial_beds": 0,
+						"product_id": "core:cabbage",
+						"products_by_location": {
+							"npc_cargo": 0,
+							"npc_personal": 0,
+							"player": 0,
+							"storage": 0,
+							"world_drops": 0
+						},
+						"products_total": 0,
+						"seed_id": "core:cabbage_seed",
+						"seeds_by_location": {
+							"npc_cargo": 0,
+							"npc_personal": 0,
+							"player": 0,
+							"storage": 0,
+							"world_drops": 0
+						},
+						"seeds_total": 0
+					},
+					"unexplained_product_delta": 0,
+					"unexplained_seed_delta": 0
+				},
+				"carrot": {
+					"extraction_unlocked": true,
+					"flags": [
+						"no_seeds",
+						"no_product_for_extraction"
+					],
+					"living_beds": 0,
+					"perennial_beds": 0,
+					"product_id": "core:carrot",
+					"products_by_location": {
+						"npc_cargo": 0,
+						"npc_personal": 0,
+						"player": 0,
+						"storage": 0,
+						"world_drops": 0
+					},
+					"products_eaten_by_actor": {},
+					"products_harvested": 0,
+					"products_total": 0,
+					"products_used_for_seeds": 0,
+					"seed_id": "core:carrot_seed",
+					"seeds_by_location": {
+						"npc_cargo": 0,
+						"npc_personal": 0,
+						"player": 0,
+						"storage": 0,
+						"world_drops": 0
+					},
+					"seeds_extracted": 0,
+					"seeds_planted": 0,
+					"seeds_total": 0,
+					"start": {
+						"extraction_unlocked": false,
+						"flags": [
+							"no_seeds",
+							"no_product_for_extraction",
+							"extraction_unavailable"
+						],
+						"living_beds": 0,
+						"perennial_beds": 0,
+						"product_id": "core:carrot",
+						"products_by_location": {
+							"npc_cargo": 0,
+							"npc_personal": 0,
+							"player": 0,
+							"storage": 0,
+							"world_drops": 0
+						},
+						"products_total": 0,
+						"seed_id": "core:carrot_seed",
+						"seeds_by_location": {
+							"npc_cargo": 0,
+							"npc_personal": 0,
+							"player": 0,
+							"storage": 0,
+							"world_drops": 0
+						},
+						"seeds_total": 0
+					},
+					"unexplained_product_delta": 0,
+					"unexplained_seed_delta": 0
+				},
+				"potato": {
+					"extraction_unlocked": true,
+					"flags": [
+						"no_seeds",
+						"no_product_for_extraction"
+					],
+					"living_beds": 2,
+					"perennial_beds": 0,
+					"product_id": "core:potato",
+					"products_by_location": {
+						"npc_cargo": 0,
+						"npc_personal": 0,
+						"player": 0,
+						"storage": 0,
+						"world_drops": 0
+					},
+					"products_eaten_by_actor": {},
+					"products_harvested": 0,
+					"products_total": 0,
+					"products_used_for_seeds": 0,
+					"seed_id": "core:potato_seed",
+					"seeds_by_location": {
+						"npc_cargo": 0,
+						"npc_personal": 0,
+						"player": 0,
+						"storage": 0,
+						"world_drops": 0
+					},
+					"seeds_extracted": 2,
+					"seeds_planted": 2,
+					"seeds_total": 0,
+					"start": {
+						"extraction_unlocked": false,
+						"flags": [
+							"no_seeds",
+							"no_product_for_extraction",
+							"extraction_unavailable"
+						],
+						"living_beds": 0,
+						"perennial_beds": 0,
+						"product_id": "core:potato",
+						"products_by_location": {
+							"npc_cargo": 0,
+							"npc_personal": 0,
+							"player": 0,
+							"storage": 0,
+							"world_drops": 0
+						},
+						"products_total": 0,
+						"seed_id": "core:potato_seed",
+						"seeds_by_location": {
+							"npc_cargo": 0,
+							"npc_personal": 0,
+							"player": 0,
+							"storage": 0,
+							"world_drops": 0
+						},
+						"seeds_total": 0
+					},
+					"unexplained_product_delta": 0,
+					"unexplained_seed_delta": 0
+				},
+				"strawberry": {
+					"extraction_unlocked": true,
+					"flags": [
+						"no_seeds",
+						"no_product_for_extraction"
+					],
+					"living_beds": 0,
+					"perennial_beds": 0,
+					"product_id": "core:strawberry",
+					"products_by_location": {
+						"npc_cargo": 0,
+						"npc_personal": 0,
+						"player": 0,
+						"storage": 0,
+						"world_drops": 0
+					},
+					"products_eaten_by_actor": {},
+					"products_harvested": 0,
+					"products_total": 0,
+					"products_used_for_seeds": 0,
+					"seed_id": "core:strawberry_seed",
+					"seeds_by_location": {
+						"npc_cargo": 0,
+						"npc_personal": 0,
+						"player": 0,
+						"storage": 0,
+						"world_drops": 0
+					},
+					"seeds_extracted": 0,
+					"seeds_planted": 0,
+					"seeds_total": 0,
+					"start": {
+						"extraction_unlocked": false,
+						"flags": [
+							"no_seeds",
+							"no_product_for_extraction",
+							"extraction_unavailable"
+						],
+						"living_beds": 0,
+						"perennial_beds": 0,
+						"product_id": "core:strawberry",
+						"products_by_location": {
+							"npc_cargo": 0,
+							"npc_personal": 0,
+							"player": 0,
+							"storage": 0,
+							"world_drops": 0
+						},
+						"products_total": 0,
+						"seed_id": "core:strawberry_seed",
+						"seeds_by_location": {
+							"npc_cargo": 0,
+							"npc_personal": 0,
+							"player": 0,
+							"storage": 0,
+							"world_drops": 0
+						},
+						"seeds_total": 0
+					},
+					"unexplained_product_delta": 0,
+					"unexplained_seed_delta": 0
+				}
+			},
+			"day": 1,
+			"farming_events": {
+				"core:player": {
+					"extracted": {
+						"core:cabbage_seed": 2,
+						"core:potato_seed": 2
+					},
+					"extraction_inputs": {
+						"core:food": 2
+					},
+					"planted": {
+						"core:cabbage_seed": 2,
+						"core:potato_seed": 2
+					}
+				}
+			},
+			"meals": {
+				"core:player": {
+					"core:food": 2
+				}
+			},
+			"work": {}
+		},
+		{
+			"crops": {
+				"cabbage": {
+					"extraction_unlocked": true,
+					"flags": [
+						"no_seeds",
+						"no_product_for_extraction"
+					],
+					"living_beds": 2,
+					"perennial_beds": 0,
+					"product_id": "core:cabbage",
+					"products_by_location": {
+						"npc_cargo": 0,
+						"npc_personal": 0,
+						"player": 0,
+						"storage": 0,
+						"world_drops": 0
+					},
+					"products_eaten_by_actor": {},
+					"products_harvested": 0,
+					"products_total": 0,
+					"products_used_for_seeds": 0,
+					"seed_id": "core:cabbage_seed",
+					"seeds_by_location": {
+						"npc_cargo": 0,
+						"npc_personal": 0,
+						"player": 0,
+						"storage": 0,
+						"world_drops": 0
+					},
+					"seeds_extracted": 0,
+					"seeds_planted": 0,
+					"seeds_total": 0,
+					"start": {
+						"extraction_unlocked": true,
+						"flags": [
+							"no_seeds",
+							"no_product_for_extraction"
+						],
+						"living_beds": 2,
+						"perennial_beds": 0,
+						"product_id": "core:cabbage",
+						"products_by_location": {
+							"npc_cargo": 0,
+							"npc_personal": 0,
+							"player": 0,
+							"storage": 0,
+							"world_drops": 0
+						},
+						"products_total": 0,
+						"seed_id": "core:cabbage_seed",
+						"seeds_by_location": {
+							"npc_cargo": 0,
+							"npc_personal": 0,
+							"player": 0,
+							"storage": 0,
+							"world_drops": 0
+						},
+						"seeds_total": 0
+					},
+					"unexplained_product_delta": 0,
+					"unexplained_seed_delta": 0
+				},
+				"carrot": {
+					"extraction_unlocked": true,
+					"flags": [
+						"no_seeds",
+						"no_product_for_extraction"
+					],
+					"living_beds": 0,
+					"perennial_beds": 0,
+					"product_id": "core:carrot",
+					"products_by_location": {
+						"npc_cargo": 0,
+						"npc_personal": 0,
+						"player": 0,
+						"storage": 0,
+						"world_drops": 0
+					},
+					"products_eaten_by_actor": {},
+					"products_harvested": 0,
+					"products_total": 0,
+					"products_used_for_seeds": 0,
+					"seed_id": "core:carrot_seed",
+					"seeds_by_location": {
+						"npc_cargo": 0,
+						"npc_personal": 0,
+						"player": 0,
+						"storage": 0,
+						"world_drops": 0
+					},
+					"seeds_extracted": 0,
+					"seeds_planted": 0,
+					"seeds_total": 0,
+					"start": {
+						"extraction_unlocked": true,
+						"flags": [
+							"no_seeds",
+							"no_product_for_extraction"
+						],
+						"living_beds": 0,
+						"perennial_beds": 0,
+						"product_id": "core:carrot",
+						"products_by_location": {
+							"npc_cargo": 0,
+							"npc_personal": 0,
+							"player": 0,
+							"storage": 0,
+							"world_drops": 0
+						},
+						"products_total": 0,
+						"seed_id": "core:carrot_seed",
+						"seeds_by_location": {
+							"npc_cargo": 0,
+							"npc_personal": 0,
+							"player": 0,
+							"storage": 0,
+							"world_drops": 0
+						},
+						"seeds_total": 0
+					},
+					"unexplained_product_delta": 0,
+					"unexplained_seed_delta": 0
+				},
+				"potato": {
+					"extraction_unlocked": true,
+					"flags": [
+						"no_seeds",
+						"no_product_for_extraction"
+					],
+					"living_beds": 2,
+					"perennial_beds": 0,
+					"product_id": "core:potato",
+					"products_by_location": {
+						"npc_cargo": 0,
+						"npc_personal": 0,
+						"player": 0,
+						"storage": 0,
+						"world_drops": 0
+					},
+					"products_eaten_by_actor": {},
+					"products_harvested": 0,
+					"products_total": 0,
+					"products_used_for_seeds": 0,
+					"seed_id": "core:potato_seed",
+					"seeds_by_location": {
+						"npc_cargo": 0,
+						"npc_personal": 0,
+						"player": 0,
+						"storage": 0,
+						"world_drops": 0
+					},
+					"seeds_extracted": 0,
+					"seeds_planted": 0,
+					"seeds_total": 0,
+					"start": {
+						"extraction_unlocked": true,
+						"flags": [
+							"no_seeds",
+							"no_product_for_extraction"
+						],
+						"living_beds": 2,
+						"perennial_beds": 0,
+						"product_id": "core:potato",
+						"products_by_location": {
+							"npc_cargo": 0,
+							"npc_personal": 0,
+							"player": 0,
+							"storage": 0,
+							"world_drops": 0
+						},
+						"products_total": 0,
+						"seed_id": "core:potato_seed",
+						"seeds_by_location": {
+							"npc_cargo": 0,
+							"npc_personal": 0,
+							"player": 0,
+							"storage": 0,
+							"world_drops": 0
+						},
+						"seeds_total": 0
+					},
+					"unexplained_product_delta": 0,
+					"unexplained_seed_delta": 0
+				},
+				"strawberry": {
+					"extraction_unlocked": true,
+					"flags": [
+						"no_seeds",
+						"no_product_for_extraction"
+					],
+					"living_beds": 0,
+					"perennial_beds": 0,
+					"product_id": "core:strawberry",
+					"products_by_location": {
+						"npc_cargo": 0,
+						"npc_personal": 0,
+						"player": 0,
+						"storage": 0,
+						"world_drops": 0
+					},
+					"products_eaten_by_actor": {},
+					"products_harvested": 0,
+					"products_total": 0,
+					"products_used_for_seeds": 0,
+					"seed_id": "core:strawberry_seed",
+					"seeds_by_location": {
+						"npc_cargo": 0,
+						"npc_personal": 0,
+						"player": 0,
+						"storage": 0,
+						"world_drops": 0
+					},
+					"seeds_extracted": 0,
+					"seeds_planted": 0,
+					"seeds_total": 0,
+					"start": {
+						"extraction_unlocked": true,
+						"flags": [
+							"no_seeds",
+							"no_product_for_extraction"
+						],
+						"living_beds": 0,
+						"perennial_beds": 0,
+						"product_id": "core:strawberry",
+						"products_by_location": {
+							"npc_cargo": 0,
+							"npc_personal": 0,
+							"player": 0,
+							"storage": 0,
+							"world_drops": 0
+						},
+						"products_total": 0,
+						"seed_id": "core:strawberry_seed",
+						"seeds_by_location": {
+							"npc_cargo": 0,
+							"npc_personal": 0,
+							"player": 0,
+							"storage": 0,
+							"world_drops": 0
+						},
+						"seeds_total": 0
+					},
+					"unexplained_product_delta": 0,
+					"unexplained_seed_delta": 0
+				}
+			},
+			"day": 2,
+			"farming_events": {},
+			"meals": {
+				"core:first_neighbor": {
+					"core:food": 3
+				},
+				"core:player": {
+					"core:food": 5
+				}
+			},
+			"work": {
+				"core:first_neighbor": {
+					"blocked_minutes": 0,
+					"food_wait_minutes": 0,
+					"idle_minutes": 823,
+					"needs_minutes": 196,
+					"sample_minutes": 1019,
+					"task_changes": 0,
+					"travel_minutes": 0,
+					"work_units": 0.0
+				}
+			}
+		},
+		{
+			"crops": {
+				"cabbage": {
+					"extraction_unlocked": true,
+					"flags": [
+						"no_product_for_extraction"
+					],
+					"living_beds": 2,
+					"perennial_beds": 0,
+					"product_id": "core:cabbage",
+					"products_by_location": {
+						"npc_cargo": 0,
+						"npc_personal": 0,
+						"player": 0,
+						"storage": 0,
+						"world_drops": 0
+					},
+					"products_eaten_by_actor": {
+						"core:resident_1": 1
+					},
+					"products_harvested": 2,
+					"products_total": 0,
+					"products_used_for_seeds": 1,
+					"seed_id": "core:cabbage_seed",
+					"seeds_by_location": {
+						"npc_cargo": 0,
+						"npc_personal": 0,
+						"player": 2,
+						"storage": 0,
+						"world_drops": 0
+					},
+					"seeds_extracted": 4,
+					"seeds_planted": 2,
+					"seeds_total": 2,
+					"start": {
+						"extraction_unlocked": true,
+						"flags": [
+							"no_seeds",
+							"no_product_for_extraction"
+						],
+						"living_beds": 2,
+						"perennial_beds": 0,
+						"product_id": "core:cabbage",
+						"products_by_location": {
+							"npc_cargo": 0,
+							"npc_personal": 0,
+							"player": 0,
+							"storage": 0,
+							"world_drops": 0
+						},
+						"products_total": 0,
+						"seed_id": "core:cabbage_seed",
+						"seeds_by_location": {
+							"npc_cargo": 0,
+							"npc_personal": 0,
+							"player": 0,
+							"storage": 0,
+							"world_drops": 0
+						},
+						"seeds_total": 0
+					},
+					"unexplained_product_delta": 0,
+					"unexplained_seed_delta": 0
+				},
+				"carrot": {
+					"extraction_unlocked": true,
+					"flags": [
+						"no_seeds",
+						"no_product_for_extraction"
+					],
+					"living_beds": 0,
+					"perennial_beds": 0,
+					"product_id": "core:carrot",
+					"products_by_location": {
+						"npc_cargo": 0,
+						"npc_personal": 0,
+						"player": 0,
+						"storage": 0,
+						"world_drops": 0
+					},
+					"products_eaten_by_actor": {},
+					"products_harvested": 0,
+					"products_total": 0,
+					"products_used_for_seeds": 0,
+					"seed_id": "core:carrot_seed",
+					"seeds_by_location": {
+						"npc_cargo": 0,
+						"npc_personal": 0,
+						"player": 0,
+						"storage": 0,
+						"world_drops": 0
+					},
+					"seeds_extracted": 0,
+					"seeds_planted": 0,
+					"seeds_total": 0,
+					"start": {
+						"extraction_unlocked": true,
+						"flags": [
+							"no_seeds",
+							"no_product_for_extraction"
+						],
+						"living_beds": 0,
+						"perennial_beds": 0,
+						"product_id": "core:carrot",
+						"products_by_location": {
+							"npc_cargo": 0,
+							"npc_personal": 0,
+							"player": 0,
+							"storage": 0,
+							"world_drops": 0
+						},
+						"products_total": 0,
+						"seed_id": "core:carrot_seed",
+						"seeds_by_location": {
+							"npc_cargo": 0,
+							"npc_personal": 0,
+							"player": 0,
+							"storage": 0,
+							"world_drops": 0
+						},
+						"seeds_total": 0
+					},
+					"unexplained_product_delta": 0,
+					"unexplained_seed_delta": 0
+				},
+				"potato": {
+					"extraction_unlocked": true,
+					"flags": [
+						"no_seeds",
+						"no_product_for_extraction"
+					],
+					"living_beds": 2,
+					"perennial_beds": 0,
+					"product_id": "core:potato",
+					"products_by_location": {
+						"npc_cargo": 0,
+						"npc_personal": 0,
+						"player": 0,
+						"storage": 0,
+						"world_drops": 0
+					},
+					"products_eaten_by_actor": {},
+					"products_harvested": 0,
+					"products_total": 0,
+					"products_used_for_seeds": 0,
+					"seed_id": "core:potato_seed",
+					"seeds_by_location": {
+						"npc_cargo": 0,
+						"npc_personal": 0,
+						"player": 0,
+						"storage": 0,
+						"world_drops": 0
+					},
+					"seeds_extracted": 0,
+					"seeds_planted": 0,
+					"seeds_total": 0,
+					"start": {
+						"extraction_unlocked": true,
+						"flags": [
+							"no_seeds",
+							"no_product_for_extraction"
+						],
+						"living_beds": 2,
+						"perennial_beds": 0,
+						"product_id": "core:potato",
+						"products_by_location": {
+							"npc_cargo": 0,
+							"npc_personal": 0,
+							"player": 0,
+							"storage": 0,
+							"world_drops": 0
+						},
+						"products_total": 0,
+						"seed_id": "core:potato_seed",
+						"seeds_by_location": {
+							"npc_cargo": 0,
+							"npc_personal": 0,
+							"player": 0,
+							"storage": 0,
+							"world_drops": 0
+						},
+						"seeds_total": 0
+					},
+					"unexplained_product_delta": 0,
+					"unexplained_seed_delta": 0
+				},
+				"strawberry": {
+					"extraction_unlocked": true,
+					"flags": [
+						"no_seeds",
+						"no_product_for_extraction"
+					],
+					"living_beds": 0,
+					"perennial_beds": 0,
+					"product_id": "core:strawberry",
+					"products_by_location": {
+						"npc_cargo": 0,
+						"npc_personal": 0,
+						"player": 0,
+						"storage": 0,
+						"world_drops": 0
+					},
+					"products_eaten_by_actor": {},
+					"products_harvested": 0,
+					"products_total": 0,
+					"products_used_for_seeds": 0,
+					"seed_id": "core:strawberry_seed",
+					"seeds_by_location": {
+						"npc_cargo": 0,
+						"npc_personal": 0,
+						"player": 0,
+						"storage": 0,
+						"world_drops": 0
+					},
+					"seeds_extracted": 0,
+					"seeds_planted": 0,
+					"seeds_total": 0,
+					"start": {
+						"extraction_unlocked": true,
+						"flags": [
+							"no_seeds",
+							"no_product_for_extraction"
+						],
+						"living_beds": 0,
+						"perennial_beds": 0,
+						"product_id": "core:strawberry",
+						"products_by_location": {
+							"npc_cargo": 0,
+							"npc_personal": 0,
+							"player": 0,
+							"storage": 0,
+							"world_drops": 0
+						},
+						"products_total": 0,
+						"seed_id": "core:strawberry_seed",
+						"seeds_by_location": {
+							"npc_cargo": 0,
+							"npc_personal": 0,
+							"player": 0,
+							"storage": 0,
+							"world_drops": 0
+						},
+						"seeds_total": 0
+					},
+					"unexplained_product_delta": 0,
+					"unexplained_seed_delta": 0
+				}
+			},
+			"day": 3,
+			"farming_events": {
+				"core:first_neighbor": {
+					"harvested": {
+						"core:cabbage": 1
+					}
+				},
+				"core:player": {
+					"extracted": {
+						"core:cabbage_seed": 4
+					},
+					"extraction_inputs": {
+						"core:cabbage": 1
+					},
+					"harvested": {
+						"core:cabbage": 1
+					},
+					"planted": {
+						"core:cabbage_seed": 2
+					}
+				}
+			},
+			"meals": {
+				"core:first_neighbor": {
+					"core:food": 5
+				},
+				"core:player": {
+					"core:food": 4
+				},
+				"core:resident_1": {
+					"core:cabbage": 1,
+					"core:food": 2
+				}
+			},
+			"work": {
+				"core:first_neighbor": {
+					"blocked_minutes": 0,
+					"food_wait_minutes": 0,
+					"idle_minutes": 747,
+					"needs_minutes": 663,
+					"sample_minutes": 1440,
+					"task_changes": 0,
+					"travel_minutes": 28,
+					"work_units": 1.0
+				},
+				"core:resident_1": {
+					"blocked_minutes": 0,
+					"food_wait_minutes": 0,
+					"idle_minutes": 755,
+					"needs_minutes": 264,
+					"sample_minutes": 1019,
+					"task_changes": 0,
+					"travel_minutes": 0,
+					"work_units": 0.0
+				}
+			}
+		},
+		{
+			"crops": {
+				"cabbage": {
+					"extraction_unlocked": true,
+					"flags": [
+						"no_seeds",
+						"no_product_for_extraction"
+					],
+					"living_beds": 4,
+					"perennial_beds": 0,
+					"product_id": "core:cabbage",
+					"products_by_location": {
+						"npc_cargo": 0,
+						"npc_personal": 0,
+						"player": 0,
+						"storage": 0,
+						"world_drops": 0
+					},
+					"products_eaten_by_actor": {},
+					"products_harvested": 0,
+					"products_total": 0,
+					"products_used_for_seeds": 0,
+					"seed_id": "core:cabbage_seed",
+					"seeds_by_location": {
+						"npc_cargo": 0,
+						"npc_personal": 0,
+						"player": 0,
+						"storage": 0,
+						"world_drops": 0
+					},
+					"seeds_extracted": 0,
+					"seeds_planted": 2,
+					"seeds_total": 0,
+					"start": {
+						"extraction_unlocked": true,
+						"flags": [
+							"no_product_for_extraction"
+						],
+						"living_beds": 2,
+						"perennial_beds": 0,
+						"product_id": "core:cabbage",
+						"products_by_location": {
+							"npc_cargo": 0,
+							"npc_personal": 0,
+							"player": 0,
+							"storage": 0,
+							"world_drops": 0
+						},
+						"products_total": 0,
+						"seed_id": "core:cabbage_seed",
+						"seeds_by_location": {
+							"npc_cargo": 0,
+							"npc_personal": 0,
+							"player": 2,
+							"storage": 0,
+							"world_drops": 0
+						},
+						"seeds_total": 2
+					},
+					"unexplained_product_delta": 0,
+					"unexplained_seed_delta": 0
+				},
+				"carrot": {
+					"extraction_unlocked": true,
+					"flags": [
+						"no_seeds",
+						"no_product_for_extraction"
+					],
+					"living_beds": 0,
+					"perennial_beds": 0,
+					"product_id": "core:carrot",
+					"products_by_location": {
+						"npc_cargo": 0,
+						"npc_personal": 0,
+						"player": 0,
+						"storage": 0,
+						"world_drops": 0
+					},
+					"products_eaten_by_actor": {},
+					"products_harvested": 0,
+					"products_total": 0,
+					"products_used_for_seeds": 0,
+					"seed_id": "core:carrot_seed",
+					"seeds_by_location": {
+						"npc_cargo": 0,
+						"npc_personal": 0,
+						"player": 0,
+						"storage": 0,
+						"world_drops": 0
+					},
+					"seeds_extracted": 0,
+					"seeds_planted": 0,
+					"seeds_total": 0,
+					"start": {
+						"extraction_unlocked": true,
+						"flags": [
+							"no_seeds",
+							"no_product_for_extraction"
+						],
+						"living_beds": 0,
+						"perennial_beds": 0,
+						"product_id": "core:carrot",
+						"products_by_location": {
+							"npc_cargo": 0,
+							"npc_personal": 0,
+							"player": 0,
+							"storage": 0,
+							"world_drops": 0
+						},
+						"products_total": 0,
+						"seed_id": "core:carrot_seed",
+						"seeds_by_location": {
+							"npc_cargo": 0,
+							"npc_personal": 0,
+							"player": 0,
+							"storage": 0,
+							"world_drops": 0
+						},
+						"seeds_total": 0
+					},
+					"unexplained_product_delta": 0,
+					"unexplained_seed_delta": 0
+				},
+				"potato": {
+					"extraction_unlocked": true,
+					"flags": [
+						"no_seeds"
+					],
+					"living_beds": 0,
+					"perennial_beds": 0,
+					"product_id": "core:potato",
+					"products_by_location": {
+						"npc_cargo": 0,
+						"npc_personal": 0,
+						"player": 0,
+						"storage": 4,
+						"world_drops": 0
+					},
+					"products_eaten_by_actor": {
+						"core:first_neighbor": 1,
+						"core:resident_1": 1
+					},
+					"products_harvested": 6,
+					"products_total": 4,
+					"products_used_for_seeds": 0,
+					"seed_id": "core:potato_seed",
+					"seeds_by_location": {
+						"npc_cargo": 0,
+						"npc_personal": 0,
+						"player": 0,
+						"storage": 0,
+						"world_drops": 0
+					},
+					"seeds_extracted": 0,
+					"seeds_planted": 0,
+					"seeds_total": 0,
+					"start": {
+						"extraction_unlocked": true,
+						"flags": [
+							"no_seeds",
+							"no_product_for_extraction"
+						],
+						"living_beds": 2,
+						"perennial_beds": 0,
+						"product_id": "core:potato",
+						"products_by_location": {
+							"npc_cargo": 0,
+							"npc_personal": 0,
+							"player": 0,
+							"storage": 0,
+							"world_drops": 0
+						},
+						"products_total": 0,
+						"seed_id": "core:potato_seed",
+						"seeds_by_location": {
+							"npc_cargo": 0,
+							"npc_personal": 0,
+							"player": 0,
+							"storage": 0,
+							"world_drops": 0
+						},
+						"seeds_total": 0
+					},
+					"unexplained_product_delta": 0,
+					"unexplained_seed_delta": 0
+				},
+				"strawberry": {
+					"extraction_unlocked": true,
+					"flags": [
+						"no_seeds",
+						"no_product_for_extraction"
+					],
+					"living_beds": 0,
+					"perennial_beds": 0,
+					"product_id": "core:strawberry",
+					"products_by_location": {
+						"npc_cargo": 0,
+						"npc_personal": 0,
+						"player": 0,
+						"storage": 0,
+						"world_drops": 0
+					},
+					"products_eaten_by_actor": {},
+					"products_harvested": 0,
+					"products_total": 0,
+					"products_used_for_seeds": 0,
+					"seed_id": "core:strawberry_seed",
+					"seeds_by_location": {
+						"npc_cargo": 0,
+						"npc_personal": 0,
+						"player": 0,
+						"storage": 0,
+						"world_drops": 0
+					},
+					"seeds_extracted": 0,
+					"seeds_planted": 0,
+					"seeds_total": 0,
+					"start": {
+						"extraction_unlocked": true,
+						"flags": [
+							"no_seeds",
+							"no_product_for_extraction"
+						],
+						"living_beds": 0,
+						"perennial_beds": 0,
+						"product_id": "core:strawberry",
+						"products_by_location": {
+							"npc_cargo": 0,
+							"npc_personal": 0,
+							"player": 0,
+							"storage": 0,
+							"world_drops": 0
+						},
+						"products_total": 0,
+						"seed_id": "core:strawberry_seed",
+						"seeds_by_location": {
+							"npc_cargo": 0,
+							"npc_personal": 0,
+							"player": 0,
+							"storage": 0,
+							"world_drops": 0
+						},
+						"seeds_total": 0
+					},
+					"unexplained_product_delta": 0,
+					"unexplained_seed_delta": 0
+				}
+			},
+			"day": 4,
+			"farming_events": {
+				"core:first_neighbor": {
+					"harvested": {
+						"core:potato": 6
+					}
+				},
+				"core:player": {
+					"planted": {
+						"core:cabbage_seed": 2
+					}
+				}
+			},
+			"meals": {
+				"core:first_neighbor": {
+					"core:food": 2,
+					"core:potato": 1
+				},
+				"core:player": {
+					"core:food": 5
+				},
+				"core:resident_1": {
+					"core:potato": 1
+				}
+			},
+			"work": {
+				"core:first_neighbor": {
+					"blocked_minutes": 0,
+					"food_wait_minutes": 12,
+					"idle_minutes": 655,
+					"needs_minutes": 751,
+					"sample_minutes": 1440,
+					"task_changes": 0,
+					"travel_minutes": 30,
+					"work_units": 2.0
+				},
+				"core:resident_1": {
+					"blocked_minutes": 0,
+					"food_wait_minutes": 70,
+					"idle_minutes": 725,
+					"needs_minutes": 715,
+					"sample_minutes": 1440,
+					"task_changes": 0,
+					"travel_minutes": 0,
+					"work_units": 0.0
+				}
+			}
+		},
+		{
+			"crops": {
+				"cabbage": {
+					"extraction_unlocked": true,
+					"flags": [
+						"no_seeds",
+						"no_product_for_extraction"
+					],
+					"living_beds": 4,
+					"perennial_beds": 0,
+					"product_id": "core:cabbage",
+					"products_by_location": {
+						"npc_cargo": 0,
+						"npc_personal": 0,
+						"player": 0,
+						"storage": 0,
+						"world_drops": 0
+					},
+					"products_eaten_by_actor": {
+						"core:resident_1": 1
+					},
+					"products_harvested": 2,
+					"products_total": 0,
+					"products_used_for_seeds": 1,
+					"seed_id": "core:cabbage_seed",
+					"seeds_by_location": {
+						"npc_cargo": 0,
+						"npc_personal": 0,
+						"player": 0,
+						"storage": 0,
+						"world_drops": 0
+					},
+					"seeds_extracted": 2,
+					"seeds_planted": 2,
+					"seeds_total": 0,
+					"start": {
+						"extraction_unlocked": true,
+						"flags": [
+							"no_seeds",
+							"no_product_for_extraction"
+						],
+						"living_beds": 4,
+						"perennial_beds": 0,
+						"product_id": "core:cabbage",
+						"products_by_location": {
+							"npc_cargo": 0,
+							"npc_personal": 0,
+							"player": 0,
+							"storage": 0,
+							"world_drops": 0
+						},
+						"products_total": 0,
+						"seed_id": "core:cabbage_seed",
+						"seeds_by_location": {
+							"npc_cargo": 0,
+							"npc_personal": 0,
+							"player": 0,
+							"storage": 0,
+							"world_drops": 0
+						},
+						"seeds_total": 0
+					},
+					"unexplained_product_delta": 0,
+					"unexplained_seed_delta": 0
+				},
+				"carrot": {
+					"extraction_unlocked": true,
+					"flags": [
+						"no_seeds",
+						"no_product_for_extraction"
+					],
+					"living_beds": 0,
+					"perennial_beds": 0,
+					"product_id": "core:carrot",
+					"products_by_location": {
+						"npc_cargo": 0,
+						"npc_personal": 0,
+						"player": 0,
+						"storage": 0,
+						"world_drops": 0
+					},
+					"products_eaten_by_actor": {},
+					"products_harvested": 0,
+					"products_total": 0,
+					"products_used_for_seeds": 0,
+					"seed_id": "core:carrot_seed",
+					"seeds_by_location": {
+						"npc_cargo": 0,
+						"npc_personal": 0,
+						"player": 0,
+						"storage": 0,
+						"world_drops": 0
+					},
+					"seeds_extracted": 0,
+					"seeds_planted": 0,
+					"seeds_total": 0,
+					"start": {
+						"extraction_unlocked": true,
+						"flags": [
+							"no_seeds",
+							"no_product_for_extraction"
+						],
+						"living_beds": 0,
+						"perennial_beds": 0,
+						"product_id": "core:carrot",
+						"products_by_location": {
+							"npc_cargo": 0,
+							"npc_personal": 0,
+							"player": 0,
+							"storage": 0,
+							"world_drops": 0
+						},
+						"products_total": 0,
+						"seed_id": "core:carrot_seed",
+						"seeds_by_location": {
+							"npc_cargo": 0,
+							"npc_personal": 0,
+							"player": 0,
+							"storage": 0,
+							"world_drops": 0
+						},
+						"seeds_total": 0
+					},
+					"unexplained_product_delta": 0,
+					"unexplained_seed_delta": 0
+				},
+				"potato": {
+					"extraction_unlocked": true,
+					"flags": [
+						"no_seeds",
+						"no_product_for_extraction"
+					],
+					"living_beds": 0,
+					"perennial_beds": 0,
+					"product_id": "core:potato",
+					"products_by_location": {
+						"npc_cargo": 0,
+						"npc_personal": 0,
+						"player": 0,
+						"storage": 0,
+						"world_drops": 0
+					},
+					"products_eaten_by_actor": {
+						"core:first_neighbor": 2,
+						"core:resident_1": 2
+					},
+					"products_harvested": 0,
+					"products_total": 0,
+					"products_used_for_seeds": 0,
+					"seed_id": "core:potato_seed",
+					"seeds_by_location": {
+						"npc_cargo": 0,
+						"npc_personal": 0,
+						"player": 0,
+						"storage": 0,
+						"world_drops": 0
+					},
+					"seeds_extracted": 0,
+					"seeds_planted": 0,
+					"seeds_total": 0,
+					"start": {
+						"extraction_unlocked": true,
+						"flags": [
+							"no_seeds"
+						],
+						"living_beds": 0,
+						"perennial_beds": 0,
+						"product_id": "core:potato",
+						"products_by_location": {
+							"npc_cargo": 0,
+							"npc_personal": 0,
+							"player": 0,
+							"storage": 4,
+							"world_drops": 0
+						},
+						"products_total": 4,
+						"seed_id": "core:potato_seed",
+						"seeds_by_location": {
+							"npc_cargo": 0,
+							"npc_personal": 0,
+							"player": 0,
+							"storage": 0,
+							"world_drops": 0
+						},
+						"seeds_total": 0
+					},
+					"unexplained_product_delta": 0,
+					"unexplained_seed_delta": 0
+				},
+				"strawberry": {
+					"extraction_unlocked": true,
+					"flags": [
+						"no_seeds",
+						"no_product_for_extraction"
+					],
+					"living_beds": 0,
+					"perennial_beds": 0,
+					"product_id": "core:strawberry",
+					"products_by_location": {
+						"npc_cargo": 0,
+						"npc_personal": 0,
+						"player": 0,
+						"storage": 0,
+						"world_drops": 0
+					},
+					"products_eaten_by_actor": {},
+					"products_harvested": 0,
+					"products_total": 0,
+					"products_used_for_seeds": 0,
+					"seed_id": "core:strawberry_seed",
+					"seeds_by_location": {
+						"npc_cargo": 0,
+						"npc_personal": 0,
+						"player": 0,
+						"storage": 0,
+						"world_drops": 0
+					},
+					"seeds_extracted": 0,
+					"seeds_planted": 0,
+					"seeds_total": 0,
+					"start": {
+						"extraction_unlocked": true,
+						"flags": [
+							"no_seeds",
+							"no_product_for_extraction"
+						],
+						"living_beds": 0,
+						"perennial_beds": 0,
+						"product_id": "core:strawberry",
+						"products_by_location": {
+							"npc_cargo": 0,
+							"npc_personal": 0,
+							"player": 0,
+							"storage": 0,
+							"world_drops": 0
+						},
+						"products_total": 0,
+						"seed_id": "core:strawberry_seed",
+						"seeds_by_location": {
+							"npc_cargo": 0,
+							"npc_personal": 0,
+							"player": 0,
+							"storage": 0,
+							"world_drops": 0
+						},
+						"seeds_total": 0
+					},
+					"unexplained_product_delta": 0,
+					"unexplained_seed_delta": 0
+				}
+			},
+			"day": 5,
+			"farming_events": {
+				"core:first_neighbor": {
+					"harvested": {
+						"core:cabbage": 1
+					}
+				},
+				"core:player": {
+					"extracted": {
+						"core:cabbage_seed": 2
+					},
+					"extraction_inputs": {
+						"core:cabbage": 1
+					},
+					"harvested": {
+						"core:cabbage": 1
+					},
+					"planted": {
+						"core:cabbage_seed": 2
+					}
+				}
+			},
+			"meals": {
+				"core:first_neighbor": {
+					"core:potato": 2
+				},
+				"core:player": {
+					"core:food": 4
+				},
+				"core:resident_1": {
+					"core:cabbage": 1,
+					"core:potato": 2
+				}
+			},
+			"work": {
+				"core:first_neighbor": {
+					"blocked_minutes": 0,
+					"food_wait_minutes": 9,
+					"idle_minutes": 749,
+					"needs_minutes": 661,
+					"sample_minutes": 1440,
+					"task_changes": 0,
+					"travel_minutes": 28,
+					"work_units": 1.0
+				},
+				"core:resident_1": {
+					"blocked_minutes": 0,
+					"food_wait_minutes": 0,
+					"idle_minutes": 780,
+					"needs_minutes": 660,
+					"sample_minutes": 1440,
+					"task_changes": 0,
+					"travel_minutes": 0,
+					"work_units": 0.0
+				}
+			}
+		},
+		{
+			"crops": {
+				"cabbage": {
+					"extraction_unlocked": true,
+					"flags": [
+						"no_seeds",
+						"no_product_for_extraction"
+					],
+					"living_beds": 2,
+					"perennial_beds": 0,
+					"product_id": "core:cabbage",
+					"products_by_location": {
+						"npc_cargo": 0,
+						"npc_personal": 0,
+						"player": 0,
+						"storage": 0,
+						"world_drops": 0
+					},
+					"products_eaten_by_actor": {
+						"core:first_neighbor": 2
+					},
+					"products_harvested": 2,
+					"products_total": 0,
+					"products_used_for_seeds": 0,
+					"seed_id": "core:cabbage_seed",
+					"seeds_by_location": {
+						"npc_cargo": 0,
+						"npc_personal": 0,
+						"player": 0,
+						"storage": 0,
+						"world_drops": 0
+					},
+					"seeds_extracted": 0,
+					"seeds_planted": 0,
+					"seeds_total": 0,
+					"start": {
+						"extraction_unlocked": true,
+						"flags": [
+							"no_seeds",
+							"no_product_for_extraction"
+						],
+						"living_beds": 4,
+						"perennial_beds": 0,
+						"product_id": "core:cabbage",
+						"products_by_location": {
+							"npc_cargo": 0,
+							"npc_personal": 0,
+							"player": 0,
+							"storage": 0,
+							"world_drops": 0
+						},
+						"products_total": 0,
+						"seed_id": "core:cabbage_seed",
+						"seeds_by_location": {
+							"npc_cargo": 0,
+							"npc_personal": 0,
+							"player": 0,
+							"storage": 0,
+							"world_drops": 0
+						},
+						"seeds_total": 0
+					},
+					"unexplained_product_delta": 0,
+					"unexplained_seed_delta": 0
+				},
+				"carrot": {
+					"extraction_unlocked": true,
+					"flags": [
+						"no_seeds",
+						"no_product_for_extraction"
+					],
+					"living_beds": 0,
+					"perennial_beds": 0,
+					"product_id": "core:carrot",
+					"products_by_location": {
+						"npc_cargo": 0,
+						"npc_personal": 0,
+						"player": 0,
+						"storage": 0,
+						"world_drops": 0
+					},
+					"products_eaten_by_actor": {},
+					"products_harvested": 0,
+					"products_total": 0,
+					"products_used_for_seeds": 0,
+					"seed_id": "core:carrot_seed",
+					"seeds_by_location": {
+						"npc_cargo": 0,
+						"npc_personal": 0,
+						"player": 0,
+						"storage": 0,
+						"world_drops": 0
+					},
+					"seeds_extracted": 0,
+					"seeds_planted": 0,
+					"seeds_total": 0,
+					"start": {
+						"extraction_unlocked": true,
+						"flags": [
+							"no_seeds",
+							"no_product_for_extraction"
+						],
+						"living_beds": 0,
+						"perennial_beds": 0,
+						"product_id": "core:carrot",
+						"products_by_location": {
+							"npc_cargo": 0,
+							"npc_personal": 0,
+							"player": 0,
+							"storage": 0,
+							"world_drops": 0
+						},
+						"products_total": 0,
+						"seed_id": "core:carrot_seed",
+						"seeds_by_location": {
+							"npc_cargo": 0,
+							"npc_personal": 0,
+							"player": 0,
+							"storage": 0,
+							"world_drops": 0
+						},
+						"seeds_total": 0
+					},
+					"unexplained_product_delta": 0,
+					"unexplained_seed_delta": 0
+				},
+				"potato": {
+					"extraction_unlocked": true,
+					"flags": [
+						"no_seeds",
+						"no_product_for_extraction"
+					],
+					"living_beds": 0,
+					"perennial_beds": 0,
+					"product_id": "core:potato",
+					"products_by_location": {
+						"npc_cargo": 0,
+						"npc_personal": 0,
+						"player": 0,
+						"storage": 0,
+						"world_drops": 0
+					},
+					"products_eaten_by_actor": {},
+					"products_harvested": 0,
+					"products_total": 0,
+					"products_used_for_seeds": 0,
+					"seed_id": "core:potato_seed",
+					"seeds_by_location": {
+						"npc_cargo": 0,
+						"npc_personal": 0,
+						"player": 0,
+						"storage": 0,
+						"world_drops": 0
+					},
+					"seeds_extracted": 0,
+					"seeds_planted": 0,
+					"seeds_total": 0,
+					"start": {
+						"extraction_unlocked": true,
+						"flags": [
+							"no_seeds",
+							"no_product_for_extraction"
+						],
+						"living_beds": 0,
+						"perennial_beds": 0,
+						"product_id": "core:potato",
+						"products_by_location": {
+							"npc_cargo": 0,
+							"npc_personal": 0,
+							"player": 0,
+							"storage": 0,
+							"world_drops": 0
+						},
+						"products_total": 0,
+						"seed_id": "core:potato_seed",
+						"seeds_by_location": {
+							"npc_cargo": 0,
+							"npc_personal": 0,
+							"player": 0,
+							"storage": 0,
+							"world_drops": 0
+						},
+						"seeds_total": 0
+					},
+					"unexplained_product_delta": 0,
+					"unexplained_seed_delta": 0
+				},
+				"strawberry": {
+					"extraction_unlocked": true,
+					"flags": [
+						"no_seeds",
+						"no_product_for_extraction"
+					],
+					"living_beds": 0,
+					"perennial_beds": 0,
+					"product_id": "core:strawberry",
+					"products_by_location": {
+						"npc_cargo": 0,
+						"npc_personal": 0,
+						"player": 0,
+						"storage": 0,
+						"world_drops": 0
+					},
+					"products_eaten_by_actor": {},
+					"products_harvested": 0,
+					"products_total": 0,
+					"products_used_for_seeds": 0,
+					"seed_id": "core:strawberry_seed",
+					"seeds_by_location": {
+						"npc_cargo": 0,
+						"npc_personal": 0,
+						"player": 0,
+						"storage": 0,
+						"world_drops": 0
+					},
+					"seeds_extracted": 0,
+					"seeds_planted": 0,
+					"seeds_total": 0,
+					"start": {
+						"extraction_unlocked": true,
+						"flags": [
+							"no_seeds",
+							"no_product_for_extraction"
+						],
+						"living_beds": 0,
+						"perennial_beds": 0,
+						"product_id": "core:strawberry",
+						"products_by_location": {
+							"npc_cargo": 0,
+							"npc_personal": 0,
+							"player": 0,
+							"storage": 0,
+							"world_drops": 0
+						},
+						"products_total": 0,
+						"seed_id": "core:strawberry_seed",
+						"seeds_by_location": {
+							"npc_cargo": 0,
+							"npc_personal": 0,
+							"player": 0,
+							"storage": 0,
+							"world_drops": 0
+						},
+						"seeds_total": 0
+					},
+					"unexplained_product_delta": 0,
+					"unexplained_seed_delta": 0
+				}
+			},
+			"day": 6,
+			"farming_events": {
+				"core:first_neighbor": {
+					"harvested": {
+						"core:cabbage": 2
+					}
+				}
+			},
+			"meals": {
+				"core:first_neighbor": {
+					"core:cabbage": 2
+				},
+				"core:player": {
+					"core:food": 4
+				}
+			},
+			"work": {
+				"core:first_neighbor": {
+					"blocked_minutes": 0,
+					"food_wait_minutes": 443,
+					"idle_minutes": 306,
+					"needs_minutes": 1134,
+					"sample_minutes": 1440,
+					"task_changes": 0,
+					"travel_minutes": 0,
+					"work_units": 2.0
+				},
+				"core:resident_1": {
+					"blocked_minutes": 0,
+					"food_wait_minutes": 373,
+					"idle_minutes": 432,
+					"needs_minutes": 1008,
+					"sample_minutes": 1440,
+					"task_changes": 0,
+					"travel_minutes": 0,
+					"work_units": 0.0
+				}
+			}
+		},
+		{
+			"crops": {
+				"cabbage": {
+					"extraction_unlocked": true,
+					"flags": [
+						"no_seeds",
+						"no_product_for_extraction"
+					],
+					"living_beds": 4,
+					"perennial_beds": 0,
+					"product_id": "core:cabbage",
+					"products_by_location": {
+						"npc_cargo": 0,
+						"npc_personal": 0,
+						"player": 0,
+						"storage": 0,
+						"world_drops": 0
+					},
+					"products_eaten_by_actor": {
+						"core:resident_1": 1
+					},
+					"products_harvested": 2,
+					"products_total": 0,
+					"products_used_for_seeds": 1,
+					"seed_id": "core:cabbage_seed",
+					"seeds_by_location": {
+						"npc_cargo": 0,
+						"npc_personal": 0,
+						"player": 0,
+						"storage": 0,
+						"world_drops": 0
+					},
+					"seeds_extracted": 4,
+					"seeds_planted": 4,
+					"seeds_total": 0,
+					"start": {
+						"extraction_unlocked": true,
+						"flags": [
+							"no_seeds",
+							"no_product_for_extraction"
+						],
+						"living_beds": 2,
+						"perennial_beds": 0,
+						"product_id": "core:cabbage",
+						"products_by_location": {
+							"npc_cargo": 0,
+							"npc_personal": 0,
+							"player": 0,
+							"storage": 0,
+							"world_drops": 0
+						},
+						"products_total": 0,
+						"seed_id": "core:cabbage_seed",
+						"seeds_by_location": {
+							"npc_cargo": 0,
+							"npc_personal": 0,
+							"player": 0,
+							"storage": 0,
+							"world_drops": 0
+						},
+						"seeds_total": 0
+					},
+					"unexplained_product_delta": 0,
+					"unexplained_seed_delta": 0
+				},
+				"carrot": {
+					"extraction_unlocked": true,
+					"flags": [
+						"no_seeds",
+						"no_product_for_extraction"
+					],
+					"living_beds": 0,
+					"perennial_beds": 0,
+					"product_id": "core:carrot",
+					"products_by_location": {
+						"npc_cargo": 0,
+						"npc_personal": 0,
+						"player": 0,
+						"storage": 0,
+						"world_drops": 0
+					},
+					"products_eaten_by_actor": {},
+					"products_harvested": 0,
+					"products_total": 0,
+					"products_used_for_seeds": 0,
+					"seed_id": "core:carrot_seed",
+					"seeds_by_location": {
+						"npc_cargo": 0,
+						"npc_personal": 0,
+						"player": 0,
+						"storage": 0,
+						"world_drops": 0
+					},
+					"seeds_extracted": 0,
+					"seeds_planted": 0,
+					"seeds_total": 0,
+					"start": {
+						"extraction_unlocked": true,
+						"flags": [
+							"no_seeds",
+							"no_product_for_extraction"
+						],
+						"living_beds": 0,
+						"perennial_beds": 0,
+						"product_id": "core:carrot",
+						"products_by_location": {
+							"npc_cargo": 0,
+							"npc_personal": 0,
+							"player": 0,
+							"storage": 0,
+							"world_drops": 0
+						},
+						"products_total": 0,
+						"seed_id": "core:carrot_seed",
+						"seeds_by_location": {
+							"npc_cargo": 0,
+							"npc_personal": 0,
+							"player": 0,
+							"storage": 0,
+							"world_drops": 0
+						},
+						"seeds_total": 0
+					},
+					"unexplained_product_delta": 0,
+					"unexplained_seed_delta": 0
+				},
+				"potato": {
+					"extraction_unlocked": true,
+					"flags": [
+						"no_seeds",
+						"no_product_for_extraction"
+					],
+					"living_beds": 0,
+					"perennial_beds": 0,
+					"product_id": "core:potato",
+					"products_by_location": {
+						"npc_cargo": 0,
+						"npc_personal": 0,
+						"player": 0,
+						"storage": 0,
+						"world_drops": 0
+					},
+					"products_eaten_by_actor": {},
+					"products_harvested": 0,
+					"products_total": 0,
+					"products_used_for_seeds": 0,
+					"seed_id": "core:potato_seed",
+					"seeds_by_location": {
+						"npc_cargo": 0,
+						"npc_personal": 0,
+						"player": 0,
+						"storage": 0,
+						"world_drops": 0
+					},
+					"seeds_extracted": 0,
+					"seeds_planted": 0,
+					"seeds_total": 0,
+					"start": {
+						"extraction_unlocked": true,
+						"flags": [
+							"no_seeds",
+							"no_product_for_extraction"
+						],
+						"living_beds": 0,
+						"perennial_beds": 0,
+						"product_id": "core:potato",
+						"products_by_location": {
+							"npc_cargo": 0,
+							"npc_personal": 0,
+							"player": 0,
+							"storage": 0,
+							"world_drops": 0
+						},
+						"products_total": 0,
+						"seed_id": "core:potato_seed",
+						"seeds_by_location": {
+							"npc_cargo": 0,
+							"npc_personal": 0,
+							"player": 0,
+							"storage": 0,
+							"world_drops": 0
+						},
+						"seeds_total": 0
+					},
+					"unexplained_product_delta": 0,
+					"unexplained_seed_delta": 0
+				},
+				"strawberry": {
+					"extraction_unlocked": true,
+					"flags": [
+						"no_seeds",
+						"no_product_for_extraction"
+					],
+					"living_beds": 0,
+					"perennial_beds": 0,
+					"product_id": "core:strawberry",
+					"products_by_location": {
+						"npc_cargo": 0,
+						"npc_personal": 0,
+						"player": 0,
+						"storage": 0,
+						"world_drops": 0
+					},
+					"products_eaten_by_actor": {},
+					"products_harvested": 0,
+					"products_total": 0,
+					"products_used_for_seeds": 0,
+					"seed_id": "core:strawberry_seed",
+					"seeds_by_location": {
+						"npc_cargo": 0,
+						"npc_personal": 0,
+						"player": 0,
+						"storage": 0,
+						"world_drops": 0
+					},
+					"seeds_extracted": 0,
+					"seeds_planted": 0,
+					"seeds_total": 0,
+					"start": {
+						"extraction_unlocked": true,
+						"flags": [
+							"no_seeds",
+							"no_product_for_extraction"
+						],
+						"living_beds": 0,
+						"perennial_beds": 0,
+						"product_id": "core:strawberry",
+						"products_by_location": {
+							"npc_cargo": 0,
+							"npc_personal": 0,
+							"player": 0,
+							"storage": 0,
+							"world_drops": 0
+						},
+						"products_total": 0,
+						"seed_id": "core:strawberry_seed",
+						"seeds_by_location": {
+							"npc_cargo": 0,
+							"npc_personal": 0,
+							"player": 0,
+							"storage": 0,
+							"world_drops": 0
+						},
+						"seeds_total": 0
+					},
+					"unexplained_product_delta": 0,
+					"unexplained_seed_delta": 0
+				}
+			},
+			"day": 7,
+			"farming_events": {
+				"core:first_neighbor": {
+					"harvested": {
+						"core:cabbage": 1
+					}
+				},
+				"core:player": {
+					"extracted": {
+						"core:cabbage_seed": 4
+					},
+					"extraction_inputs": {
+						"core:cabbage": 1
+					},
+					"harvested": {
+						"core:cabbage": 1
+					},
+					"planted": {
+						"core:cabbage_seed": 4
+					}
+				}
+			},
+			"meals": {
+				"core:first_neighbor": {
+					"core:food": 2
+				},
+				"core:player": {
+					"core:food": 5
+				},
+				"core:resident_1": {
+					"core:cabbage": 1,
+					"core:food": 2
+				}
+			},
+			"work": {
+				"core:first_neighbor": {
+					"blocked_minutes": 0,
+					"food_wait_minutes": 234,
+					"idle_minutes": 474,
+					"needs_minutes": 758,
+					"sample_minutes": 1262,
+					"task_changes": 0,
+					"travel_minutes": 28,
+					"work_units": 1.0
+				},
+				"core:resident_1": {
+					"blocked_minutes": 0,
+					"food_wait_minutes": 663,
+					"idle_minutes": 62,
+					"needs_minutes": 1200,
+					"sample_minutes": 1262,
+					"task_changes": 0,
+					"travel_minutes": 0,
+					"work_units": 0.0
+				}
+			}
+		}
+	],
+	"different_resident_ate_crop": true,
+	"failures": 0,
+	"harvested_units": 14,
+	"limits": "Scripted farm route with earned tools/table, random seeds, real growth, player watering and NPC harvest. No replenishment or food protection. Daily snapshots at last observed minute; test ends at day 7 evening. Hunger/seed shortage can remain.",
+	"seed": 1337
+}
