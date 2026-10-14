@@ -16,7 +16,7 @@ var _activity: Label
 var _rows: Dictionary = {}
 var _reasons: Label
 var _rest: Button
-var _work_controls: HBoxContainer
+var _work_controls: GridContainer
 var _work_buttons: Dictionary = {}
 var _work_hint: Label
 var _housing: Button
@@ -100,10 +100,11 @@ func _ready() -> void:
 		row.add_child(bar)
 		row.tooltip_text = Localized.resolve("needs.hint." + key)
 		_rows[key] = {"row": row, "text": text, "bar": bar}
-	_work_controls = HBoxContainer.new()
+	_work_controls = GridContainer.new()
+	_work_controls.columns = 2
 	_work_controls.name = "WorkPermissions"
 	_stats_content.add_child(_work_controls)
-	for kind: String in ["water", "gather", "build"]:
+	for kind: String in ["water", "gather", "build", "harvest"]:
 		var button := CheckButton.new()
 		button.name = kind.capitalize() + "Permission"
 		button.text = Localized.resolve("npc.work." + kind)

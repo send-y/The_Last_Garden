@@ -62,6 +62,11 @@ static func choose(sim, npc: Dictionary) -> Dictionary:
 			if not production.is_empty():
 				choices.append(production)
 				break
+	if bool(npc.work_options.get("harvest",false)):
+		var crop: Dictionary = preload("res://src/npc_work/npc_crop_harvest.gd").choose(sim,npc)
+		if not crop.is_empty():
+			crop.kind = "harvest"; crop.phase = "work"; crop.drops = []
+			choices.append(crop)
 	if choices.is_empty():
 		return {}
 	var rng := RandomNumberGenerator.new()

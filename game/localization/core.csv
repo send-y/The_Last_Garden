@@ -681,6 +681,8 @@ needs.refusal.unwell,Житель сейчас не готов брать доп
 npc.work.water,Полив
 npc.work.gather,Ресурсы
 npc.work.build,Стройка
+npc.work.harvest,Сбор урожая
+npc.activity.work_harvesting,Собирает общий урожай
 npc.work.permissions_hint,Разрешённая помощь. Житель сам выбирает дело; еда и отдых важнее.
 npc.work.meet_first,Познакомьтесь с жителем прежде чем обсуждать помощь.
 npc.activity.work_travel,Идёт по своему делу

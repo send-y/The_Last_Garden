@@ -9,6 +9,12 @@ static func next_target(sim, npc: Dictionary) -> bool:
 	var kind := String(job.get("kind",""))
 	if not bool(npc.work_options.get(kind,false)): return false
 	var candidates: Array[Dictionary] = []
+	if kind == "harvest":
+		var crop: Dictionary = preload("res://src/npc_work/npc_crop_harvest.gd").choose(sim,npc)
+		if crop.is_empty(): return false
+		job.cell = crop.cell; job.crop_id = crop.crop_id; job.planting_id = crop.planting_id
+		job.phase = "work"; job.drops = []
+		return true
 	if kind == "water":
 		for bed: Dictionary in sim.get_farm_beds():
 			if String(bed.crop_id).is_empty() or int(bed.wet_until) > sim.get_elapsed_game_minutes() or Planner.reserved(sim,npc,"water",bed.cell): continue

@@ -6,11 +6,12 @@ const Water := preload("res://src/world/water_map.gd")
 const Diagnostic := preload("res://src/dev/diagnostic_trace.gd")
 const WorkSession := preload("res://src/npc_work/npc_work_session.gd")
 const WorkshopRequest := preload("res://src/npc_work/npc_workbench_request.gd")
+const CropHarvest := preload("res://src/npc_work/npc_crop_harvest.gd")
 const INVALID := Vector2i(-1, -1)
 
 static func set_enabled(sim, npc_id: String, kind: String, enabled: bool) -> Dictionary:
 	var npc: Dictionary = sim.state.npcs.get(npc_id, {})
-	if npc.is_empty() or not bool(npc.get("active", false)) or not bool(npc.get("known", false)) or not ["water", "gather", "build"].has(kind):
+	if npc.is_empty() or not bool(npc.get("active", false)) or not bool(npc.get("known", false)) or not preload("res://src/npc_work/npc_work_state.gd").KINDS.has(kind):
 		return {"success": false}
 	npc.work_options[kind] = enabled
 	npc.next_initiative_minute = 0
@@ -27,6 +28,9 @@ static func status(sim, npc_id: String) -> Dictionary:
 		"cargo": npc.work_cargo.duplicate(), "tool_instance_id": String(npc.carried_instance_id)}
 
 static func cancel(npc: Dictionary) -> void:
+	if String(npc.initiative_job.get("kind",""))=="harvest" and not npc.initiative_job.get("drops",[]).is_empty():
+		npc.initiative_job.phase = "collect"
+		return
 	if not String(npc.carried_instance_id).is_empty() or not npc.work_cargo.is_empty():
 		npc.initiative_job = {"kind": String(npc.initiative_job.get("kind", "gather")), "phase": "return", "cell": [0, 0], "drops": []}
 	else:
@@ -96,6 +100,10 @@ static func _context_for(sim, npc: Dictionary) -> Dictionary:
 		cancel(npc)
 		return context_for(sim,npc) if not npc.initiative_job.is_empty() else {}
 	var phase := String(job.phase)
+	if String(job.kind)=="harvest" and phase=="work" and not CropHarvest.target_available(sim,npc,job):
+		if WorkSession.next_target(sim,npc): return context_for(sim,npc)
+		cancel(npc)
+		return context_for(sim,npc) if not npc.initiative_job.is_empty() else {}
 	if String(job.kind) in ["water","gather"] and phase in ["borrow","work","refill"] and not WorkSession.target_available(sim,job):
 		if WorkSession.next_target(sim,npc): return context_for(sim,npc)
 		cancel(npc)
@@ -178,6 +186,12 @@ static func _context_for(sim, npc: Dictionary) -> Dictionary:
 					context.drop = drop
 					break
 			if target == INVALID or Supply.cargo_size(npc) >= Supply.CARRY_LIMIT:
+				if String(job.kind)=="harvest" and target==INVALID and not job.drops.is_empty() and npc.work_cargo.is_empty():
+					job.blocked_reason = "harvest_unreachable"
+					return {}
+				if String(job.kind)=="harvest" and not job.drops.is_empty():
+					job.phase = "return"
+					return context_for(sim,npc)
 				if target == INVALID and WorkSession.next_target(sim,npc): return context_for(sim,npc)
 				job.phase = "return"
 				return context_for(sim, npc)
@@ -189,6 +203,9 @@ static func _context_for(sim, npc: Dictionary) -> Dictionary:
 				if int(npc.work_cargo[id]) > 0:
 					wanted.append(id)
 			if wanted.is_empty():
+				if String(job.kind)=="harvest" and not job.get("drops",[]).is_empty():
+					job.phase = "collect"
+					return context_for(sim,npc)
 				finish(sim, npc)
 				return {}
 			for zone: Dictionary in sim.state.storage_zones:
@@ -218,7 +235,7 @@ static func _context_for(sim, npc: Dictionary) -> Dictionary:
 	context.travel_activity = "core:work_travel"
 	context.arrival_activity = "core:work_" + phase
 	if phase == "work":
-		context.arrival_activity = "core:work_watering" if String(job.kind) == "water" else ("core:work_chopping" if String(job.resource_item) == "core:wood" else "core:work_mining")
+		context.arrival_activity = "core:work_harvesting" if String(job.kind)=="harvest" else ("core:work_watering" if String(job.kind) == "water" else ("core:work_chopping" if String(job.resource_item) == "core:wood" else "core:work_mining"))
 	return context
 
 static func fulfil(sim, effect: Dictionary) -> bool:
@@ -258,7 +275,17 @@ static func fulfil(sim, effect: Dictionary) -> bool:
 			else:
 				cancel(npc)
 		"work":
-			if String(job.kind) == "water":
+			if String(job.kind)=="harvest":
+				if not CropHarvest.target_available(sim,npc,job):
+					cancel(npc)
+					return false
+				var crop_result: Dictionary = sim.farming.harvest_for_actor(sim,String(npc.id),cell)
+				if bool(crop_result.success):
+					job.drops = crop_result.created_drop_ids.duplicate()
+					job.phase = "collect"
+					sim.work_metrics.record_work(sim,String(npc.id),1.0)
+				else: cancel(npc)
+			elif String(job.kind) == "water":
 				if sim.farming.water_for_actor(sim, String(npc.id), cell).success:
 					sim.needs.spend_work(npc.needs)
 					sim.work_metrics.record_work(sim,String(npc.id),1.0)
@@ -321,7 +348,8 @@ static func fulfil(sim, effect: Dictionary) -> bool:
 				for value: Array in zone.cells:
 					Supply.deposit_at(sim, npc, Vector2i(int(value[0]), int(value[1])))
 			if npc.work_cargo.is_empty() and String(npc.carried_instance_id).is_empty():
-				finish(sim, npc)
+				if String(job.kind)=="harvest" and not job.get("drops",[]).is_empty(): job.phase = "collect"
+				else: finish(sim, npc)
 	return true
 
 static func find_drop(sim, id: String) -> Dictionary:

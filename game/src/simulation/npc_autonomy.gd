@@ -18,6 +18,7 @@ const ACTIVITY_SLEEPING: String = "core:sleeping"
 const ACTIVITY_CHAIR_RESTING := "core:chair_resting"
 const ACTIVITY_TABLE_EATING := "core:table_eating"
 const ACTIVITY_COLLECTING_MEAL := "core:collecting_meal"
+const ACTIVITY_HARVESTING := "core:work_harvesting"
 const ACTIVITY_BLOCKED: String = "core:blocked"
 const ACTIVITY_GOING_TO_BUILD: String = "core:going_to_build"
 const ACTIVITY_BUILDING: String = "core:building"
@@ -62,6 +63,7 @@ const ACTIVITY_KEYS: Dictionary = {
 	ACTIVITY_CHAIR_RESTING: "npc.activity.chair_resting",
 	ACTIVITY_TABLE_EATING: "npc.activity.table_eating",
 	ACTIVITY_COLLECTING_MEAL: "npc.activity.collecting_meal",
+	ACTIVITY_HARVESTING: "npc.activity.work_harvesting",
 	ACTIVITY_BLOCKED: "npc.activity.blocked",
 	ACTIVITY_GOING_TO_BUILD: "npc.activity.going_to_build",
 	ACTIVITY_BUILDING: "npc.activity.building",

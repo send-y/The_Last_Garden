@@ -1,6 +1,6 @@
 extends RefCounted
 
-const KINDS := ["water", "gather", "build"]
+const KINDS := ["water", "gather", "build", "harvest"]
 const PHASES := ["borrow", "refill", "work", "collect", "take_materials", "deliver", "build", "return", "switch_on", "craft_take", "craft"]
 
 static func normalize(npc: Dictionary, content) -> void:
@@ -25,7 +25,7 @@ static func normalize(npc: Dictionary, content) -> void:
 	if raw is Dictionary and KINDS.has(String(raw.get("kind", ""))) and PHASES.has(String(raw.get("phase", ""))):
 		job = {"kind": String(raw.kind), "phase": String(raw.phase)}
 		if String(raw.get("production_scope","")) == "communal" and String(raw.kind) == "build": job.production_scope = "communal"
-		for key: String in ["tool_id", "target_id", "resource_item"]:
+		for key: String in ["tool_id", "target_id", "resource_item", "crop_id"]:
 			if raw.has(key):
 				job[key] = String(raw[key])
 		var cell: Variant = raw.get("cell", [])
@@ -34,6 +34,7 @@ static func normalize(npc: Dictionary, content) -> void:
 		else:
 			job = {}
 		if not job.is_empty():
+			if String(job.kind)=="harvest": job.planting_id = number(raw.get("planting_id"))
 			if String(raw.get("blocked_reason","")) == "storage_full_or_unreachable": job.blocked_reason = "storage_full_or_unreachable"
 			if String(job.phase) in ["craft_take", "craft"]:
 				var station: Variant = raw.get("station_cell", [])

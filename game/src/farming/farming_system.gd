@@ -13,7 +13,7 @@ func _init(item_content: FirstNightContent = null) -> void:
 
 
 static func empty_state() -> Dictionary:
-	return {"beds": [], "berry_ready_at": {}, "roll_index": 0, "harvest_count": 0, "extraction_count": 0, "crop_extraction_count": 0}
+	return {"beds": [], "berry_ready_at": {}, "roll_index": 0, "harvest_count": 0, "extraction_count": 0, "crop_extraction_count": 0, "planting_serial": 0}
 
 
 func normalize(sim) -> void:
@@ -21,7 +21,7 @@ func normalize(sim) -> void:
 	var farm: Dictionary = raw if raw is Dictionary else {}
 	var normalized := empty_state()
 	var now: int = sim.get_elapsed_game_minutes()
-	for key: String in ["roll_index", "harvest_count", "extraction_count", "crop_extraction_count"]:
+	for key: String in ["roll_index", "harvest_count", "extraction_count", "crop_extraction_count", "planting_serial"]:
 		normalized[key] = clampi(_number(farm.get(key), 0), 0, 100000000)
 	var used: Dictionary = {}
 	var beds: Variant = farm.get("beds", [])
@@ -40,6 +40,8 @@ func normalize(sim) -> void:
 			var bed: Dictionary = {"cell": [cell.x, cell.y], "crop_id": String(crop.get("id", "")),
 				"growth": 0, "wet_until": 0, "last_update": now, "harvests": 0}
 			bed.shared_harvest = value.get("shared_harvest", false) is bool and value.get("shared_harvest", false)
+			bed.planting_id = clampi(_number(value.get("planting_id"),0),0,100000000)
+			normalized.planting_serial = maxi(int(normalized.planting_serial),int(bed.planting_id))
 			bed["harvests"] = clampi(_number(value.get("harvests"), 0), 0, 100000000)
 			bed["wet_until"] = clampi(_number(value.get("wet_until"), 0), 0, now + int(catalog.settings.water_duration_minutes))
 			bed["last_update"] = clampi(_number(value.get("last_update"), now), 0, now)
@@ -159,6 +161,8 @@ func execute(sim, command: Dictionary) -> Dictionary:
 			if not sim._consume_items({seed_id: 1}):
 				return _result(sim, false, "farming.failure.seeds")
 			bed.crop_id = crop.id
+			sim.state.farming.planting_serial = int(sim.state.farming.get("planting_serial",0))+1
+			bed.planting_id = int(sim.state.farming.planting_serial)
 			bed.growth = 0
 			bed.harvests = 0
 			bed.last_update = sim.get_elapsed_game_minutes()
