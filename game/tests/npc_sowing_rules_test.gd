@@ -38,5 +38,20 @@ func run() -> void:
 	check(not npc.work_cargo.has("core:food"),"Extraction consumes real product")
 	before = JSON.stringify(sim.export_state())
 	check(not bool(sim.farming.extract_for_worker(sim,ID,"core:food").success) and before==JSON.stringify(sim.export_state()),"No duplicated extraction")
+	npc.work_cargo["core:potato"] = 1
+	before = JSON.stringify(sim.export_state())
+	check(not bool(sim.farming.extract_for_worker(sim,ID,"core:potato").success) and before==JSON.stringify(sim.export_state()),"Crop extraction needs a real nearby study table")
+	sim.add_structure({"building_id":"core:study_table","cell":[22,20],"stage_id":"core:complete"})
+	check(not bool(sim.farming.extract_for_worker(sim,ID,"core:potato").success),"Distant study table insufficient")
+	npc.position = [Content.cell_center(22,20).x,Content.cell_center(22,20).y]
+	result = sim.farming.extract_for_worker(sim,ID,"core:potato")
+	check(bool(result.success) and result.seed_id=="core:potato_seed","Crop extraction preserves same culture")
+	npc.work_cargo = {"core:wood":19,"core:food":1}
+	before = JSON.stringify(sim.export_state())
+	check(not bool(sim.farming.extract_for_worker(sim,ID,"core:food").success) and before==JSON.stringify(sim.export_state()),"Full cargo refusal preserves food and random stream")
+	var legacy = fixture(); var legacy_cell := soil(legacy)
+	legacy.state.farming.beds.append({"cell":[legacy_cell.x,legacy_cell.y],"crop_id":"potato","growth":123,"wet_until":0,"last_update":0,"harvests":0})
+	legacy = World.new(legacy.export_state())
+	check(not legacy.get_farm_bed(legacy_cell).maintain_crop and not legacy.state.npcs[ID].work_options.sow,"Old saves do not authorize sowing")
 	print("PASS: sowing authority and persisted plan" if failures==0 else "FAIL: sowing rules")
 	quit(0 if failures==0 else 1)

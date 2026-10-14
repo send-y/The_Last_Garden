@@ -682,6 +682,17 @@ npc.work.water,Полив
 npc.work.gather,Ресурсы
 npc.work.build,Стройка
 npc.work.harvest,Сбор урожая
+npc.work.sow,Посев
+npc.activity.work_take_seed,Берёт семена на общем складе
+npc.activity.work_sow,Сеет общую грядку
+npc.activity.work_seed_forage,Собирает еду для получения семян
+npc.activity.work_seed_collect,Подбирает еду для получения семян
+npc.activity.work_seed_extract,Получает семена из еды
+farming.maintain.button,Поддерживать культуру
+farming.maintain.choose,Выберите культуру для посева
+farming.maintain.changed,План посева обновлён.
+farming.maintain.no_seeds,Нужных семян на общем складе нет. Житель с разрешением «Посев» ищет еду для получения семян; результат может быть другой культуры.
+farming.maintain.wait_worker,Семена есть на складе. Посев ждёт доступного жителя с разрешением «Посев» и пути к семенам.
 npc.activity.work_harvesting,Собирает общий урожай
 npc.work.permissions_hint,Разрешённая помощь. Житель сам выбирает дело; еда и отдых важнее.
 npc.work.meet_first,Познакомьтесь с жителем прежде чем обсуждать помощь.

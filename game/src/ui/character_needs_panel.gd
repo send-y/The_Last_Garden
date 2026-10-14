@@ -104,7 +104,7 @@ func _ready() -> void:
 	_work_controls.columns = 2
 	_work_controls.name = "WorkPermissions"
 	_stats_content.add_child(_work_controls)
-	for kind: String in ["water", "gather", "build", "harvest"]:
+	for kind: String in ["water", "gather", "build", "harvest", "sow"]:
 		var button := CheckButton.new()
 		button.name = kind.capitalize() + "Permission"
 		button.text = Localized.resolve("npc.work." + kind)

@@ -63,6 +63,39 @@ func refresh() -> void:
 		Session.execute_farming_command({"actor_id":"core:player","action_id":"set_shared_harvest","cell":[cell.x,cell.y],"enabled":enabled})
 	)
 	_column.add_child(shared)
+	var maintain := CheckButton.new()
+	maintain.name = "MaintainCropPermission"
+	maintain.text = Localized.resolve("farming.maintain.button")
+	maintain.disabled = not bool(bed.get("shared_harvest",false))
+	maintain.set_pressed_no_signal(bool(bed.get("maintain_crop",false)))
+	var plan := String(bed.get("planned_crop_id",bed.get("crop_id","")))
+	if plan.is_empty(): plan = String(bed.get("crop_id",""))
+	var selection := OptionButton.new()
+	selection.name = "MaintainedCropChoice"
+	selection.add_item(Localized.resolve("farming.maintain.choose"))
+	for definition: Dictionary in _crops.crops:
+		selection.add_item(Localized.resolve(String(definition.name_key)))
+		selection.set_item_metadata(selection.item_count-1,String(definition.id))
+		if String(definition.id)==plan: selection.select(selection.item_count-1)
+	selection.disabled = not bool(bed.get("shared_harvest",false))
+	selection.item_selected.connect(func(index: int) -> void:
+		if index>0:
+			Session.execute_farming_command({"actor_id":"core:player","action_id":"set_maintained_crop","cell":[cell.x,cell.y],"crop_id":String(selection.get_item_metadata(index)),"enabled":bool(bed.get("maintain_crop",false))})
+	)
+	maintain.toggled.connect(func(enabled: bool) -> void:
+		Session.execute_farming_command({"actor_id":"core:player","action_id":"set_maintained_crop","cell":[cell.x,cell.y],"crop_id":String(selection.get_item_metadata(selection.selected)) if selection.selected>0 else "","enabled":enabled})
+	)
+	_column.add_child(maintain)
+	_column.add_child(selection)
+	var reason := preload("res://src/npc_work/npc_sowing.gd").waiting_reason(Session.simulation,bed)
+	if not reason.is_empty():
+		var waiting := Label.new()
+		waiting.name = "SowingWaitingReason"
+		waiting.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		waiting.custom_minimum_size.x = 260
+		waiting.add_theme_font_size_override("font_size",11)
+		waiting.text = Localized.resolve(reason)
+		_column.add_child(waiting)
 	var crop := _crops.find(String(bed.crop_id))
 	if crop.is_empty():
 		for definition: Dictionary in _crops.crops:

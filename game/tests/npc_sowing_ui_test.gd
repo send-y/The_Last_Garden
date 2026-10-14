@@ -1,0 +1,41 @@
+extends "res://tests/package_d_meeting_ui_test.gd"
+const Lab := preload("res://src/dev/mechanics_lab.tscn")
+func _ready() -> void:
+	get_tree().create_timer(45).timeout.connect(func() -> void: get_tree().quit(1))
+	TranslationServer.set_locale("ru")
+	var lab := Lab.instantiate(); add_child(lab)
+	await frames(); lab._load_scenario(&"shared_crop_harvest"); await frames()
+	var sim = Session.simulation
+	var game = lab.get_node("Game")
+	game.get_node("Player").set_physics_process(false)
+	var hud = game.get_node("Hud/HudRoot")
+	lab._set_lab_panel_open(false)
+	var bed: Dictionary = sim.state.farming.beds[1]
+	bed.crop_id = ""; bed.planned_crop_id = "potato"
+	var cell := Vector2i(int(bed.cell[0]),int(bed.cell[1]))
+	sim.set_player_position(sim.content.cell_center(cell.x,cell.y))
+	hud.open_farming(cell); await frames()
+	var toggle = hud._farming_panel.find_child("MaintainCropPermission",true,false)
+	check(toggle!=null and toggle.text=="Поддерживать культуру","Maintain permission translated")
+	if toggle!=null:
+		await click(toggle)
+		check(bool(sim.get_farm_bed(cell).maintain_crop),"Actual click enables maintained crop")
+	var choice = hud._farming_panel.find_child("MaintainedCropChoice",true,false)
+	check(choice!=null and choice.item_count==sim.farming.catalog.crops.size()+1,"Live catalog choices")
+	var waiting = hud._farming_panel.find_child("SowingWaitingReason",true,false)
+	check(waiting!=null and waiting.text.contains("семян"),"Missing seed reason visible")
+	var panel_rect: Rect2 = hud._farming_panel.get_global_rect()
+	check(get_viewport().get_visible_rect().encloses(panel_rect),"Whole farming panel fits viewport")
+	await screenshot("maintained-crop-permission.png")
+	hud._set_farming_open(false); hud.open_character_needs("core:first_neighbor"); await frames()
+	toggle = hud._needs_panel.find_child("SowPermission",true,false)
+	check(toggle!=null and toggle.text=="Посев","Resident sow permission translated")
+	if toggle!=null:
+		hud._needs_panel._body_scroll.ensure_control_visible(toggle)
+		await frames()
+		check(hud._needs_panel.get_global_rect().encloses(toggle.get_global_rect()),"Sowing button fits resident panel")
+		await click(toggle)
+		check(bool(sim.state.npcs["core:first_neighbor"].work_options.sow),"Actual resident click enables sowing")
+	await screenshot("resident-sowing-permission.png")
+	print("PASS: actual sowing UI and screenshots" if failures==0 else "FAIL: sowing UI")
+	get_tree().quit(0 if failures==0 else 1)

@@ -12,6 +12,12 @@ static func find_meal(sim, npc: Dictionary) -> Dictionary:
 	for id: String in npc.personal_inventory:
 		if int(npc.personal_inventory[id]) > 0 and not sim.needs.food_profile(id, sim.content).is_empty():
 			return _personal_meal(sim,npc,id)
+	if String(npc.get("initiative_job",{}).get("kind",""))=="sow":
+		for id: String in npc.get("work_cargo",{}):
+			if int(npc.work_cargo[id])>0 and not sim.needs.food_profile(id,sim.content).is_empty():
+				var carried_meal := _personal_meal(sim,npc,id)
+				carried_meal.source = "work_cargo"
+				return carried_meal
 	var npc_cell: Vector2i = sim._world_position_to_cell(sim.get_npc_position(String(npc.id), Vector2.ZERO))
 	var player_cell: Vector2i = sim._world_position_to_cell(sim.get_player_position())
 	for stored: Dictionary in sim.state.storage_items:
@@ -83,6 +89,10 @@ static func fulfil(sim, effect: Dictionary) -> bool:
 		if int(npc.personal_inventory.get(id, 0)) <= 0:
 			return false
 		npc.personal_inventory[id] = int(npc.personal_inventory[id]) - 1
+	elif String(meal.get("source",""))=="work_cargo":
+		if String(npc.get("initiative_job",{}).get("kind",""))!="sow" or int(npc.get("work_cargo",{}).get(id,0))<=0: return false
+		npc.work_cargo[id] = int(npc.work_cargo[id])-1
+		if int(npc.work_cargo[id])==0: npc.work_cargo.erase(id)
 	elif String(meal.get("source", "")) == "storage":
 		var source: Array = meal.get("cell", [])
 		if source.size() != 2 or current_cell.distance_to(Vector2i(int(source[0]), int(source[1]))) > 1.0:
