@@ -68,10 +68,10 @@ var _inventory_layout_snapshot: Array = []
 var _inventory_layout_synced := false
 
 
-func _init(initial_state: Dictionary = {}, item_content: FirstNightContent = null) -> void:
+func _init(initial_state: Dictionary = {}, item_content: FirstNightContent = null, recipes_path: String = CraftingCatalogScript.RECIPES_PATH) -> void:
 	building_catalog = BuildingCatalogScript.new()
 	content = item_content if item_content != null else Content.new()
-	crafting_catalog = CraftingCatalogScript.new(content)
+	crafting_catalog = CraftingCatalogScript.new(content, recipes_path)
 	farming = FarmingScript.new(content)
 	npc_catalog = Npcs.new()
 	npc_autonomy = NpcAutonomyScript.new(npc_catalog)

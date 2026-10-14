@@ -14,6 +14,7 @@ const STRESS_PRODUCTION: StringName = &"stress_production"
 const STRESS_GATHER: StringName = &"stress_gather"
 
 const FRESH_START: StringName = &"fresh_start"
+const PLAYER_CHECKPOINT: StringName = &"player_checkpoint"
 const RESIDENT_HOMES: StringName = &"resident_homes"
 const HOME_PRODUCTION: StringName = &"home_production"
 const GENERATED_RESIDENTS: StringName = &"generated_residents"
@@ -29,6 +30,7 @@ const PREPARED_MINUTE: int = 17 * 60 + 50
 
 static func definitions() -> Array[Dictionary]:
 	return [
+		{"id": PLAYER_CHECKPOINT, "label": "Архив плейтеста: день 5", "description": "Реальная копия мира 14 октября.\nПауза; обычный сейв защищён."},
 		{"id": SETTLEMENT_STRESS, "label": "30 жителей: стресс поселения", "description": "30 домов · 60 грядок · все работы.\nСклад пополняется. Пробел — пауза."},
 		{"id": STRESS_PRODUCTION, "label": "30 жителей: нужны доски", "description": "30 домов · нужны доски для мебели.\nСырьё и еда пополняются."},
 		{"id": STRESS_GATHER, "label": "30 жителей: добыча и полив", "description": "30 домов уже обустроены.\nДобыча сырья и полив; еда пополняется."},
@@ -102,6 +104,16 @@ static func build(scenario_id: StringName, stress_count: int = 30) -> Dictionary
 		stress.definition = definition
 		stress.steps = []
 		return stress
+	if scenario_id == PLAYER_CHECKPOINT:
+		var base := "res://tests/fixtures/package_d/"
+		var manifest: Variant = JSON.parse_string(FileAccess.get_file_as_string(base + "manifest.json"))
+		if not manifest is Dictionary: return {"success": false}
+		var path := base + String(manifest.file)
+		if FileAccess.get_sha256(path) != String(manifest.sha256): return {"success": false, "message": "Контрольная сумма архива не совпала."}
+		var saved: Variant = JSON.parse_string(FileAccess.get_file_as_string(path))
+		if not saved is Dictionary or not bool(Simulation.validate_save_header(saved).get("success", false)): return {"success": false}
+		var checkpoint := Simulation.new(saved)
+		return {"success": true, "scenario_id": scenario_id, "definition": definition, "simulation": checkpoint, "state": checkpoint.export_state(), "steps": []}
 	var initial_state: Dictionary = Simulation.create_new_state()
 	if scenario_id in [RESIDENT_HOMES,HOME_PRODUCTION]: initial_state = ResidentHomes.initial_state()
 	if scenario_id == HOME_PRODUCTION:

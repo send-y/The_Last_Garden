@@ -5,6 +5,19 @@ var _save_path: String
 var _temp_path: String
 var _backup_path: String
 
+static func session_path() -> String:
+	# Only debug check runners opt into another Session path. Ordinary play keeps
+	# its existing save; the temporary directory is prepared by the runner.
+	if OS.is_debug_build():
+		for argument: String in OS.get_cmdline_user_args():
+			if argument.begins_with("--test-save-path="):
+				var path := argument.trim_prefix("--test-save-path=").replace("\\", "/")
+				if path.is_absolute_path() and path != ProjectSettings.globalize_path("user://first_night_save.json").replace("\\", "/"):
+					return path
+				push_error("Test Session save path must be absolute and separate from ordinary play.")
+				return "user://rejected_test_session.json"
+	return "user://first_night_save.json"
+
 
 func _init(save_path: String) -> void:
 	_save_path = save_path

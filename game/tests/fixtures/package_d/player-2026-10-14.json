@@ -1,0 +1,5208 @@
+{
+	"active_hotbar_slot": -1,
+	"blueprints": [
+		{
+			"building_id": "core:wood_floor",
+			"cell": [
+				32,
+				24
+			],
+			"delivered_materials": {
+				"core:plank": 5
+			},
+			"required_materials": {
+				"core:plank": 10
+			},
+			"required_work_minutes": 4,
+			"stage_id": "core:blueprint",
+			"work_progress_minutes": 0
+		},
+		{
+			"building_id": "core:wood_wall",
+			"cell": [
+				35,
+				27
+			],
+			"delivered_materials": {
+				"core:plank": 0
+			},
+			"required_materials": {
+				"core:plank": 20
+			},
+			"required_work_minutes": 25,
+			"stage_id": "core:blueprint",
+			"work_progress_minutes": 0
+		},
+		{
+			"building_id": "core:wood_wall",
+			"cell": [
+				37,
+				27
+			],
+			"delivered_materials": {
+				"core:plank": 0
+			},
+			"required_materials": {
+				"core:plank": 20
+			},
+			"required_work_minutes": 25,
+			"stage_id": "core:blueprint",
+			"work_progress_minutes": 0
+		},
+		{
+			"building_id": "core:wood_wall",
+			"cell": [
+				36,
+				27
+			],
+			"delivered_materials": {
+				"core:plank": 0
+			},
+			"required_materials": {
+				"core:plank": 20
+			},
+			"required_work_minutes": 25,
+			"stage_id": "core:blueprint",
+			"work_progress_minutes": 0
+		},
+		{
+			"building_id": "core:wood_wall",
+			"cell": [
+				37,
+				28
+			],
+			"delivered_materials": {
+				"core:plank": 0
+			},
+			"required_materials": {
+				"core:plank": 20
+			},
+			"required_work_minutes": 25,
+			"stage_id": "core:blueprint",
+			"work_progress_minutes": 0
+		},
+		{
+			"building_id": "core:wood_wall",
+			"cell": [
+				37,
+				29
+			],
+			"delivered_materials": {
+				"core:plank": 0
+			},
+			"required_materials": {
+				"core:plank": 20
+			},
+			"required_work_minutes": 25,
+			"stage_id": "core:blueprint",
+			"work_progress_minutes": 0
+		},
+		{
+			"building_id": "core:wood_wall",
+			"cell": [
+				37,
+				30
+			],
+			"delivered_materials": {
+				"core:plank": 0
+			},
+			"required_materials": {
+				"core:plank": 20
+			},
+			"required_work_minutes": 25,
+			"stage_id": "core:blueprint",
+			"work_progress_minutes": 0
+		},
+		{
+			"building_id": "core:wood_wall",
+			"cell": [
+				36,
+				30
+			],
+			"delivered_materials": {
+				"core:plank": 0
+			},
+			"required_materials": {
+				"core:plank": 20
+			},
+			"required_work_minutes": 25,
+			"stage_id": "core:blueprint",
+			"work_progress_minutes": 0
+		},
+		{
+			"building_id": "core:wood_wall",
+			"cell": [
+				35,
+				30
+			],
+			"delivered_materials": {
+				"core:plank": 0
+			},
+			"required_materials": {
+				"core:plank": 20
+			},
+			"required_work_minutes": 25,
+			"stage_id": "core:blueprint",
+			"work_progress_minutes": 0
+		},
+		{
+			"building_id": "core:wood_wall",
+			"cell": [
+				34,
+				30
+			],
+			"delivered_materials": {
+				"core:plank": 0
+			},
+			"required_materials": {
+				"core:plank": 20
+			},
+			"required_work_minutes": 25,
+			"stage_id": "core:blueprint",
+			"work_progress_minutes": 0
+		},
+		{
+			"building_id": "core:wood_wall",
+			"cell": [
+				33,
+				30
+			],
+			"delivered_materials": {
+				"core:plank": 0
+			},
+			"required_materials": {
+				"core:plank": 20
+			},
+			"required_work_minutes": 25,
+			"stage_id": "core:blueprint",
+			"work_progress_minutes": 0
+		},
+		{
+			"building_id": "core:wood_wall",
+			"cell": [
+				34,
+				27
+			],
+			"delivered_materials": {
+				"core:plank": 0
+			},
+			"required_materials": {
+				"core:plank": 20
+			},
+			"required_work_minutes": 25,
+			"stage_id": "core:blueprint",
+			"work_progress_minutes": 0
+		},
+		{
+			"building_id": "core:wood_wall",
+			"cell": [
+				33,
+				27
+			],
+			"delivered_materials": {
+				"core:plank": 0
+			},
+			"required_materials": {
+				"core:plank": 20
+			},
+			"required_work_minutes": 25,
+			"stage_id": "core:blueprint",
+			"work_progress_minutes": 0
+		},
+		{
+			"building_id": "core:wood_wall",
+			"cell": [
+				33,
+				28
+			],
+			"delivered_materials": {
+				"core:plank": 0
+			},
+			"required_materials": {
+				"core:plank": 20
+			},
+			"required_work_minutes": 25,
+			"stage_id": "core:blueprint",
+			"work_progress_minutes": 0
+		},
+		{
+			"building_id": "core:wood_door",
+			"cell": [
+				33,
+				29
+			],
+			"delivered_materials": {
+				"core:plank": 0
+			},
+			"required_materials": {
+				"core:plank": 15
+			},
+			"required_work_minutes": 15,
+			"stage_id": "core:blueprint",
+			"work_progress_minutes": 0
+		},
+		{
+			"building_id": "core:wood_floor",
+			"cell": [
+				33,
+				29
+			],
+			"delivered_materials": {
+				"core:plank": 0
+			},
+			"required_materials": {
+				"core:plank": 10
+			},
+			"required_work_minutes": 4,
+			"stage_id": "core:blueprint",
+			"work_progress_minutes": 0
+		},
+		{
+			"building_id": "core:wood_floor",
+			"cell": [
+				34,
+				28
+			],
+			"delivered_materials": {
+				"core:plank": 0
+			},
+			"required_materials": {
+				"core:plank": 10
+			},
+			"required_work_minutes": 4,
+			"stage_id": "core:blueprint",
+			"work_progress_minutes": 0
+		},
+		{
+			"building_id": "core:wood_floor",
+			"cell": [
+				34,
+				29
+			],
+			"delivered_materials": {
+				"core:plank": 0
+			},
+			"required_materials": {
+				"core:plank": 10
+			},
+			"required_work_minutes": 4,
+			"stage_id": "core:blueprint",
+			"work_progress_minutes": 0
+		},
+		{
+			"building_id": "core:wood_floor",
+			"cell": [
+				35,
+				28
+			],
+			"delivered_materials": {
+				"core:plank": 0
+			},
+			"required_materials": {
+				"core:plank": 10
+			},
+			"required_work_minutes": 4,
+			"stage_id": "core:blueprint",
+			"work_progress_minutes": 0
+		},
+		{
+			"building_id": "core:wood_floor",
+			"cell": [
+				35,
+				29
+			],
+			"delivered_materials": {
+				"core:plank": 0
+			},
+			"required_materials": {
+				"core:plank": 10
+			},
+			"required_work_minutes": 4,
+			"stage_id": "core:blueprint",
+			"work_progress_minutes": 0
+		},
+		{
+			"building_id": "core:wood_floor",
+			"cell": [
+				36,
+				28
+			],
+			"delivered_materials": {
+				"core:plank": 0
+			},
+			"required_materials": {
+				"core:plank": 10
+			},
+			"required_work_minutes": 4,
+			"stage_id": "core:blueprint",
+			"work_progress_minutes": 0
+		},
+		{
+			"building_id": "core:wood_floor",
+			"cell": [
+				36,
+				29
+			],
+			"delivered_materials": {
+				"core:plank": 0
+			},
+			"required_materials": {
+				"core:plank": 10
+			},
+			"required_work_minutes": 4,
+			"stage_id": "core:blueprint",
+			"work_progress_minutes": 0
+		},
+		{
+			"building_id": "core:bed",
+			"cell": [
+				35,
+				28
+			],
+			"delivered_materials": {
+				"core:plank": 0
+			},
+			"required_materials": {
+				"core:plank": 50
+			},
+			"required_work_minutes": 20,
+			"stage_id": "core:blueprint",
+			"work_progress_minutes": 0
+		},
+		{
+			"building_id": "core:torch",
+			"cell": [
+				34,
+				28
+			],
+			"delivered_materials": {
+				"core:plank": 0
+			},
+			"required_materials": {
+				"core:plank": 10
+			},
+			"required_work_minutes": 5,
+			"stage_id": "core:blueprint",
+			"work_progress_minutes": 0
+		}
+	],
+	"collected": {
+		"core:old_tools": true,
+		"core:surface_boulder_01": true,
+		"core:surface_boulder_02": true,
+		"core:surface_boulder_06": true,
+		"core:surface_tree_01": true,
+		"core:surface_tree_02": true,
+		"core:surface_tree_03": true,
+		"core:surface_tree_04": true,
+		"core:surface_tree_05": true,
+		"core:surface_tree_06": true,
+		"core:surface_tree_07": true,
+		"core:surface_tree_08": true,
+		"core:surface_tree_09": true,
+		"core:surface_tree_10": true,
+		"core:surface_tree_11": true,
+		"core:surface_tree_12": true,
+		"core:surface_tree_13": true,
+		"core:surface_tree_14": true,
+		"core:surface_tree_15": true,
+		"core:surface_tree_16": true
+	},
+	"crafting_projects": [],
+	"day": 5,
+	"elapsed_game_minutes": 6180,
+	"farming": {
+		"beds": [
+			{
+				"cell": [
+					11,
+					29
+				],
+				"crop_id": "strawberry",
+				"growth": 1440,
+				"harvests": 1,
+				"last_update": 6180,
+				"wet_until": 5545
+			},
+			{
+				"cell": [
+					11,
+					28
+				],
+				"crop_id": "",
+				"growth": 0,
+				"harvests": 1,
+				"last_update": 6180,
+				"wet_until": 2305
+			},
+			{
+				"cell": [
+					11,
+					27
+				],
+				"crop_id": "potato",
+				"growth": 4320,
+				"harvests": 0,
+				"last_update": 6180,
+				"wet_until": 5546
+			},
+			{
+				"cell": [
+					11,
+					26
+				],
+				"crop_id": "potato",
+				"growth": 4272,
+				"harvests": 0,
+				"last_update": 6180,
+				"wet_until": 6228
+			},
+			{
+				"cell": [
+					10,
+					26
+				],
+				"crop_id": "potato",
+				"growth": 4270,
+				"harvests": 0,
+				"last_update": 6180,
+				"wet_until": 6230
+			},
+			{
+				"cell": [
+					10,
+					27
+				],
+				"crop_id": "",
+				"growth": 0,
+				"harvests": 1,
+				"last_update": 6180,
+				"wet_until": 2300
+			},
+			{
+				"cell": [
+					10,
+					28
+				],
+				"crop_id": "",
+				"growth": 0,
+				"harvests": 1,
+				"last_update": 6180,
+				"wet_until": 2304
+			},
+			{
+				"cell": [
+					10,
+					29
+				],
+				"crop_id": "strawberry",
+				"growth": 1440,
+				"harvests": 1,
+				"last_update": 6180,
+				"wet_until": 5555
+			},
+			{
+				"cell": [
+					9,
+					29
+				],
+				"crop_id": "strawberry",
+				"growth": 1440,
+				"harvests": 1,
+				"last_update": 6180,
+				"wet_until": 5557
+			},
+			{
+				"cell": [
+					9,
+					28
+				],
+				"crop_id": "",
+				"growth": 0,
+				"harvests": 1,
+				"last_update": 6180,
+				"wet_until": 2298
+			},
+			{
+				"cell": [
+					9,
+					27
+				],
+				"crop_id": "",
+				"growth": 0,
+				"harvests": 1,
+				"last_update": 6180,
+				"wet_until": 2298
+			},
+			{
+				"cell": [
+					9,
+					26
+				],
+				"crop_id": "potato",
+				"growth": 4263,
+				"harvests": 0,
+				"last_update": 6180,
+				"wet_until": 6237
+			},
+			{
+				"cell": [
+					12,
+					26
+				],
+				"crop_id": "potato",
+				"growth": 4320,
+				"harvests": 0,
+				"last_update": 6180,
+				"wet_until": 5570
+			},
+			{
+				"cell": [
+					12,
+					27
+				],
+				"crop_id": "potato",
+				"growth": 4320,
+				"harvests": 0,
+				"last_update": 6180,
+				"wet_until": 5568
+			},
+			{
+				"cell": [
+					12,
+					28
+				],
+				"crop_id": "",
+				"growth": 0,
+				"harvests": 1,
+				"last_update": 6180,
+				"wet_until": 2310
+			},
+			{
+				"cell": [
+					12,
+					29
+				],
+				"crop_id": "",
+				"growth": 0,
+				"harvests": 1,
+				"last_update": 6180,
+				"wet_until": 3977
+			},
+			{
+				"cell": [
+					13,
+					29
+				],
+				"crop_id": "",
+				"growth": 0,
+				"harvests": 1,
+				"last_update": 6180,
+				"wet_until": 3978
+			},
+			{
+				"cell": [
+					14,
+					29
+				],
+				"crop_id": "",
+				"growth": 0,
+				"harvests": 1,
+				"last_update": 6180,
+				"wet_until": 3978
+			}
+		],
+		"berry_ready_at": {
+			"core:berry_bush_15": 5043,
+			"core:berry_bush_16": 5042,
+			"core:berry_bush_17": 5041
+		},
+		"crop_extraction_count": 0,
+		"extraction_count": 6,
+		"harvest_count": 12,
+		"roll_index": 6
+	},
+	"flags": {
+		"bed_ready": true,
+		"campfire_stage": 0,
+		"comfortable_sleep_completed": true,
+		"dusk_warned": false,
+		"first_night_complete": true,
+		"house_inspected": true,
+		"late_warned": false,
+		"repair_stage": 3,
+		"tools_found": true,
+		"water_boiled": false
+	},
+	"home_policies": {
+		"core:base_house": "settlement"
+	},
+	"hotbar_slots": [
+		"",
+		"",
+		"",
+		"",
+		""
+	],
+	"inventory": {
+		"core:axe": 0,
+		"core:axe_copper": 0,
+		"core:axe_steel": 0,
+		"core:axe_stone": 0,
+		"core:boiled_water": 0,
+		"core:brick": 0,
+		"core:bucket": 0,
+		"core:cabbage": 0,
+		"core:cabbage_seed": 0,
+		"core:carrot": 0,
+		"core:carrot_seed": 0,
+		"core:firewood": 0,
+		"core:food": 0,
+		"core:hoe": 0,
+		"core:hoe_copper": 0,
+		"core:hoe_steel": 0,
+		"core:hoe_stone": 0,
+		"core:mallet": 0,
+		"core:mallet_copper": 0,
+		"core:mallet_steel": 0,
+		"core:mallet_stone": 0,
+		"core:pickaxe": 0,
+		"core:pickaxe_copper": 0,
+		"core:pickaxe_steel": 0,
+		"core:pickaxe_stone": 0,
+		"core:pinecone": 0,
+		"core:plank": 0,
+		"core:potato": 0,
+		"core:potato_seed": 0,
+		"core:raw_water": 0,
+		"core:stone": 0,
+		"core:strawberry": 0,
+		"core:strawberry_seed": 0,
+		"core:wood": 0
+	},
+	"inventory_layout": [],
+	"item_instances": [
+		{
+			"instance_id": "core:item_instance_000002",
+			"item_id": "core:axe",
+			"location": {
+				"id": "core:axe:0",
+				"kind": "storage"
+			},
+			"state": {}
+		},
+		{
+			"instance_id": "core:item_instance_000003",
+			"item_id": "core:mallet",
+			"location": {
+				"id": "core:mallet:0",
+				"kind": "storage"
+			},
+			"state": {}
+		},
+		{
+			"instance_id": "core:item_instance_000004",
+			"item_id": "core:hoe",
+			"location": {
+				"id": "core:hoe:0",
+				"kind": "storage"
+			},
+			"state": {}
+		},
+		{
+			"instance_id": "core:item_instance_000005",
+			"item_id": "core:bucket",
+			"location": {
+				"id": "core:bucket:1",
+				"kind": "storage"
+			},
+			"state": {
+				"charges": 0
+			}
+		},
+		{
+			"instance_id": "core:item_instance_000006",
+			"item_id": "core:bucket",
+			"location": {
+				"id": "core:bucket:0",
+				"kind": "storage"
+			},
+			"state": {
+				"charges": 1
+			}
+		},
+		{
+			"instance_id": "core:item_instance_000007",
+			"item_id": "core:bucket",
+			"location": {
+				"id": "core:bucket:0",
+				"kind": "storage"
+			},
+			"state": {
+				"charges": 0
+			}
+		},
+		{
+			"instance_id": "core:item_instance_000008",
+			"item_id": "core:pickaxe",
+			"location": {
+				"id": "core:pickaxe:0",
+				"kind": "storage"
+			},
+			"state": {}
+		},
+		{
+			"instance_id": "core:item_instance_000009",
+			"item_id": "core:axe_stone",
+			"location": {
+				"id": "core:axe_stone:0",
+				"kind": "storage"
+			},
+			"state": {}
+		},
+		{
+			"instance_id": "core:item_instance_000010",
+			"item_id": "core:pickaxe_stone",
+			"location": {
+				"id": "core:pickaxe_stone:0",
+				"kind": "storage"
+			},
+			"state": {}
+		},
+		{
+			"instance_id": "core:item_instance_000011",
+			"item_id": "core:mallet_stone",
+			"location": {
+				"id": "core:mallet_stone:0",
+				"kind": "storage"
+			},
+			"state": {}
+		}
+	],
+	"learning": {
+		"discovered_items": {
+			"core:axe": true,
+			"core:axe_stone": true,
+			"core:bucket": true,
+			"core:cabbage": true,
+			"core:cabbage_seed": true,
+			"core:carrot": true,
+			"core:carrot_seed": true,
+			"core:food": true,
+			"core:hoe": true,
+			"core:mallet": true,
+			"core:mallet_stone": true,
+			"core:pickaxe": true,
+			"core:pickaxe_stone": true,
+			"core:pinecone": true,
+			"core:plank": true,
+			"core:potato_seed": true,
+			"core:stone": true,
+			"core:strawberry": true,
+			"core:strawberry_seed": true,
+			"core:wood": true
+		},
+		"unlocks": {
+			"core:stone_tools": true
+		}
+	},
+	"markers": [],
+	"minute_of_day": 420,
+	"next_drop_serial": 774,
+	"next_item_instance_serial": 12,
+	"next_marker_serial": 1,
+	"next_npc_serial": 2,
+	"next_room_serial": 2,
+	"next_storage_zone_serial": 3,
+	"npc_profiles": {
+		"core:resident_1": {
+			"age_years": 45,
+			"appearance": {
+				"body": "core:body_warm",
+				"boots": "core:boots_dark",
+				"cloak": "core:cloak_charcoal",
+				"hair": "core:hair_short_dark",
+				"held_item": "core:held_none",
+				"pants": "core:pants_dark",
+				"scarf": "core:scarf_ochre",
+				"shirt": "core:shirt_moss"
+			},
+			"aspiration_id": "core:asp_common",
+			"beliefs": [],
+			"birthplace_id": "core:river_households",
+			"childhood_id": "core:child_common",
+			"community_id": "core:river_households",
+			"component_labels": {
+				"core:asp_common": "npc.gen.asp_common",
+				"core:asp_garden": "npc.gen.asp_garden",
+				"core:asp_travel": "npc.gen.asp_travel",
+				"core:asp_workshop": "npc.gen.asp_workshop",
+				"core:belonging": "npc.gen.belonging",
+				"core:care": "npc.gen.care",
+				"core:child_common": "npc.gen.child_common",
+				"core:child_garden": "npc.gen.child_garden",
+				"core:child_river": "npc.gen.child_river",
+				"core:child_road": "npc.gen.child_road",
+				"core:child_workshop": "npc.gen.child_workshop",
+				"core:climate_family": "npc.gen.climate_family",
+				"core:curiosity": "npc.gen.curiosity",
+				"core:disease_family": "npc.gen.disease_family",
+				"core:exp_apprentice": "npc.gen.exp_apprentice",
+				"core:exp_builder": "npc.gen.exp_builder",
+				"core:exp_gatherer": "npc.gen.exp_gatherer",
+				"core:exp_grower": "npc.gen.exp_grower",
+				"core:exp_repairer": "npc.gen.exp_repairer",
+				"core:habit_prepare": "npc.gen.habit_prepare",
+				"core:habit_quiet": "npc.gen.habit_quiet",
+				"core:habit_together": "npc.gen.habit_together",
+				"core:habit_try": "npc.gen.habit_try",
+				"core:independence": "npc.gen.independence",
+				"core:leave_independent": "npc.gen.leave_independent",
+				"core:leave_new_home": "npc.gen.leave_new_home",
+				"core:leave_new_work": "npc.gen.leave_new_work",
+				"core:leave_travel": "npc.gen.leave_travel",
+				"core:name_dan": "npc.gen.name_dan",
+				"core:name_ilya": "npc.gen.name_ilya",
+				"core:name_lada": "npc.gen.name_lada",
+				"core:name_lev": "npc.gen.name_lev",
+				"core:name_mark": "npc.gen.name_mark",
+				"core:name_marta": "npc.gen.name_marta",
+				"core:name_nina": "npc.gen.name_nina",
+				"core:name_savva": "npc.gen.name_savva",
+				"core:name_sonya": "npc.gen.name_sonya",
+				"core:name_taya": "npc.gen.name_taya",
+				"core:name_tim": "npc.gen.name_tim",
+				"core:name_vera": "npc.gen.name_vera",
+				"core:order": "npc.gen.order",
+				"core:reliability": "npc.gen.reliability",
+				"core:river_households": "npc.gen.river_households",
+				"core:road_households": "npc.gen.road_households",
+				"core:rural_households": "npc.gen.rural_households",
+				"core:war_family_a": "npc.gen.war_family_a",
+				"core:war_family_b": "npc.gen.war_family_b"
+			},
+			"departure_id": "core:leave_travel",
+			"experience_id": "core:exp_grower",
+			"generator_version": 1,
+			"habit_ids": [
+				"core:habit_quiet"
+			],
+			"heritage_ids": [
+				"core:war_family_b"
+			],
+			"history_facts": [
+				{
+					"id": "core:child_common",
+					"kind": "personal",
+					"source": "self"
+				},
+				{
+					"id": "core:exp_grower",
+					"kind": "personal",
+					"source": "self"
+				},
+				{
+					"id": "core:leave_travel",
+					"kind": "personal",
+					"source": "self"
+				},
+				{
+					"historical": true,
+					"id": "core:war_family_b",
+					"kind": "family_account",
+					"source": "family"
+				}
+			],
+			"id": "core:resident_1",
+			"interests": [
+				"water",
+				"build"
+			],
+			"name": "Дан",
+			"name_key": "npc.gen.name_dan",
+			"seed": 270818,
+			"skills": {
+				"build": 1.0,
+				"gather": 1.0,
+				"water": 3.0
+			},
+			"starting_items": {},
+			"technology": "craft",
+			"value_ids": [
+				"core:order",
+				"core:independence"
+			]
+		}
+	},
+	"npcs": {
+		"core:first_neighbor": {
+			"active": true,
+			"activity_id": "core:resting",
+			"activity_started_minute": 1269,
+			"appearance": {
+				"body": "core:body_warm",
+				"boots": "core:boots_brown",
+				"cloak": "core:cloak_none",
+				"hair": "core:hair_short_dark",
+				"held_item": "core:held_tool_bundle",
+				"pants": "core:pants_dark",
+				"scarf": "core:scarf_none",
+				"shirt": "core:shirt_moss"
+			},
+			"appearance_seed": 256162,
+			"carried_instance_id": "",
+			"conversation_history": [
+				{
+					"complete": true,
+					"minute": 1862,
+					"pages": [
+						{
+							"text_args": {},
+							"text_key": "dialogue.core.first_neighbor.greeting"
+						}
+					],
+					"topic_id": "greeting"
+				},
+				{
+					"complete": true,
+					"minute": 1862,
+					"pages": [
+						{
+							"text_args": {},
+							"text_key": "conversation.home.missing"
+						}
+					],
+					"topic_id": "home"
+				},
+				{
+					"complete": true,
+					"minute": 1862,
+					"pages": [
+						{
+							"text_args": {},
+							"text_key": "dialogue.core.first_neighbor.repeat"
+						}
+					],
+					"topic_id": "chat"
+				},
+				{
+					"complete": true,
+					"minute": 1906,
+					"pages": [
+						{
+							"text_args": {},
+							"text_key": "dialogue.core.first_neighbor.repeat"
+						}
+					],
+					"topic_id": "chat"
+				},
+				{
+					"complete": true,
+					"minute": 3673,
+					"pages": [
+						{
+							"text_args": {},
+							"text_key": "dialogue.core.first_neighbor.shared_wall"
+						}
+					],
+					"topic_id": "chat"
+				},
+				{
+					"complete": true,
+					"minute": 3968,
+					"pages": [
+						{
+							"text_args": {},
+							"text_key": "dialogue.core.first_neighbor.repeat"
+						}
+					],
+					"topic_id": "chat"
+				}
+			],
+			"facing": [
+				1.0,
+				0.0
+			],
+			"furniture_target": [],
+			"furniture_use": {},
+			"home_expansion": {},
+			"home_goal": {},
+			"home_goals_completed": [],
+			"home_goals_declined": [],
+			"id": "core:first_neighbor",
+			"initiative_choice_index": 5,
+			"initiative_job": {},
+			"known": true,
+			"known_facts": {
+				"name": {
+					"account_kind": "self_report",
+					"minute": 1862,
+					"source": "conversation",
+					"speaker_id": "core:first_neighbor",
+					"utterance_id": "core:first_neighbor:1"
+				}
+			},
+			"meal_trip": {},
+			"memories": [
+				{
+					"acknowledged": true,
+					"day": 2,
+					"event_id": "core:shared_wall_completed",
+					"kind_id": "core:shared_experience",
+					"memory_id": "core:first_shared_wall",
+					"minute": 731,
+					"relationship_effects": {
+						"respect": 1.0,
+						"trust": 1.0,
+						"warmth": 2.0
+					},
+					"salience": 1.0,
+					"source_id": "core:personal_experience",
+					"subject_id": "core:player",
+					"target_cell": [
+						30,
+						24
+					],
+					"valence_id": "core:positive"
+				}
+			],
+			"moving": false,
+			"needs": {
+				"energy": 60.4,
+				"hunger": 43.75,
+				"restedness": 59.94
+			},
+			"next_home_goal_minute": 5340,
+			"next_initiative_minute": 5340,
+			"personal_inventory": {
+				"core:food": 0
+			},
+			"position": [
+				816.0,
+				752.0
+			],
+			"psychology": {
+				"effects": [],
+				"mood": 55.196,
+				"wellbeing": 61.3169
+			},
+			"talk_count": 6,
+			"target_cell": [
+				25,
+				23
+			],
+			"work_cargo": {},
+			"work_commitment": {},
+			"work_options": {
+				"build": true,
+				"gather": false,
+				"water": false
+			}
+		},
+		"core:resident_1": {
+			"active": true,
+			"activity_id": "core:resting",
+			"activity_started_minute": 1270,
+			"appearance": {
+				"body": "core:body_warm",
+				"boots": "core:boots_dark",
+				"cloak": "core:cloak_charcoal",
+				"hair": "core:hair_short_dark",
+				"held_item": "core:held_none",
+				"pants": "core:pants_dark",
+				"scarf": "core:scarf_ochre",
+				"shirt": "core:shirt_moss"
+			},
+			"appearance_seed": 270818,
+			"arrival_minute": 3300,
+			"carried_instance_id": "",
+			"conversation_history": [
+				{
+					"complete": true,
+					"minute": 3318,
+					"pages": [
+						{
+							"text_args": {
+								"name": {
+									"text_args": {},
+									"text_key": "npc.gen.name_dan"
+								}
+							},
+							"text_key": "conversation.introduction"
+						},
+						{
+							"text_args": {
+								"experience": {
+									"separator": "; ",
+									"text_keys": [
+										"npc.gen.exp_grower"
+									]
+								}
+							},
+							"text_key": "conversation.experience"
+						}
+					],
+					"topic_id": "greeting"
+				},
+				{
+					"complete": true,
+					"minute": 3318,
+					"pages": [
+						{
+							"text_args": {},
+							"text_key": "npc.generated.repeat"
+						}
+					],
+					"topic_id": "chat"
+				},
+				{
+					"complete": true,
+					"minute": 3318,
+					"pages": [
+						{
+							"text_args": {
+								"aspiration": {
+									"separator": "; ",
+									"text_keys": [
+										"npc.gen.asp_common"
+									]
+								}
+							},
+							"text_key": "conversation.aspiration"
+						}
+					],
+					"topic_id": "work"
+				},
+				{
+					"complete": true,
+					"minute": 3318,
+					"pages": [
+						{
+							"text_args": {},
+							"text_key": "conversation.home.missing"
+						}
+					],
+					"topic_id": "home"
+				},
+				{
+					"complete": true,
+					"minute": 3318,
+					"pages": [
+						{
+							"text_args": {},
+							"text_key": "conversation.stay"
+						}
+					],
+					"topic_id": "stay"
+				}
+			],
+			"facing": [
+				1.0,
+				0.0
+			],
+			"furniture_target": [],
+			"furniture_use": {},
+			"home_expansion": {},
+			"home_goal": {},
+			"home_goals_completed": [],
+			"home_goals_declined": [],
+			"id": "core:resident_1",
+			"initiative_choice_index": 3,
+			"initiative_job": {},
+			"known": true,
+			"known_facts": {
+				"aspiration_id": {
+					"account_kind": "self_report",
+					"minute": 3318,
+					"source": "conversation",
+					"speaker_id": "core:resident_1",
+					"utterance_id": "core:resident_1:7"
+				},
+				"experience_id": {
+					"account_kind": "self_report",
+					"minute": 3318,
+					"source": "conversation",
+					"speaker_id": "core:resident_1",
+					"utterance_id": "core:resident_1:5"
+				},
+				"name": {
+					"account_kind": "self_report",
+					"minute": 3318,
+					"source": "conversation",
+					"speaker_id": "core:resident_1",
+					"utterance_id": "core:resident_1:5"
+				}
+			},
+			"meal_trip": {},
+			"memories": [],
+			"moving": false,
+			"needs": {
+				"energy": 60.4,
+				"hunger": 78.045,
+				"restedness": 59.94
+			},
+			"next_home_goal_minute": 0,
+			"next_initiative_minute": 5340,
+			"personal_inventory": {
+				"core:food": 0
+			},
+			"position": [
+				880.0,
+				752.0
+			],
+			"psychology": {
+				"effects": [],
+				"mood": 62.975,
+				"wellbeing": 60.203
+			},
+			"residency": "resident",
+			"talk_count": 5,
+			"target_cell": [
+				27,
+				23
+			],
+			"work_cargo": {},
+			"work_commitment": {},
+			"work_options": {
+				"build": false,
+				"gather": true,
+				"water": true
+			}
+		}
+	},
+	"outcomes": [
+		"core:dry_room",
+		"core:hungry_sleep"
+	],
+	"player_energy": 100.0,
+	"player_furniture_use": {},
+	"player_needs": {
+		"hunger": 0.0,
+		"restedness": 100.0
+	},
+	"player_position": [
+		825.909606933594,
+		734.21630859375
+	],
+	"removed_bushes": {},
+	"resource_generation_version": 3,
+	"resource_nodes": [
+		{
+			"cell": [
+				32,
+				28
+			],
+			"id": "core:surface_boulder_01",
+			"kind": "stone",
+			"label_key": "object.core.surface_boulder.name",
+			"yield_amount": 9
+		},
+		{
+			"cell": [
+				34,
+				28
+			],
+			"id": "core:surface_boulder_02",
+			"kind": "stone",
+			"label_key": "object.core.surface_boulder.name",
+			"yield_amount": 9
+		},
+		{
+			"cell": [
+				37,
+				25
+			],
+			"id": "core:surface_boulder_03",
+			"kind": "stone",
+			"label_key": "object.core.surface_boulder.name",
+			"yield_amount": 11
+		},
+		{
+			"cell": [
+				43,
+				23
+			],
+			"id": "core:surface_boulder_04",
+			"kind": "stone",
+			"label_key": "object.core.surface_boulder.name",
+			"yield_amount": 9
+		},
+		{
+			"cell": [
+				38,
+				22
+			],
+			"id": "core:surface_boulder_05",
+			"kind": "stone",
+			"label_key": "object.core.surface_boulder.name",
+			"yield_amount": 10
+		},
+		{
+			"cell": [
+				39,
+				28
+			],
+			"id": "core:surface_boulder_06",
+			"kind": "stone",
+			"label_key": "object.core.surface_boulder.name",
+			"yield_amount": 9
+		},
+		{
+			"cell": [
+				40,
+				24
+			],
+			"id": "core:surface_boulder_07",
+			"kind": "stone",
+			"label_key": "object.core.surface_boulder.name",
+			"yield_amount": 9
+		},
+		{
+			"cell": [
+				39,
+				26
+			],
+			"id": "core:surface_boulder_08",
+			"kind": "stone",
+			"label_key": "object.core.surface_boulder.name",
+			"yield_amount": 9
+		},
+		{
+			"cell": [
+				11,
+				42
+			],
+			"id": "core:surface_boulder_09",
+			"kind": "stone",
+			"label_key": "object.core.surface_boulder.name",
+			"yield_amount": 10
+		},
+		{
+			"cell": [
+				9,
+				40
+			],
+			"id": "core:surface_boulder_10",
+			"kind": "stone",
+			"label_key": "object.core.surface_boulder.name",
+			"yield_amount": 9
+		},
+		{
+			"cell": [
+				13,
+				36
+			],
+			"id": "core:surface_boulder_11",
+			"kind": "stone",
+			"label_key": "object.core.surface_boulder.name",
+			"yield_amount": 10
+		},
+		{
+			"cell": [
+				8,
+				41
+			],
+			"id": "core:surface_boulder_12",
+			"kind": "stone",
+			"label_key": "object.core.surface_boulder.name",
+			"yield_amount": 12
+		},
+		{
+			"cell": [
+				13,
+				38
+			],
+			"id": "core:surface_boulder_13",
+			"kind": "stone",
+			"label_key": "object.core.surface_boulder.name",
+			"yield_amount": 9
+		},
+		{
+			"cell": [
+				12,
+				41
+			],
+			"id": "core:surface_boulder_14",
+			"kind": "stone",
+			"label_key": "object.core.surface_boulder.name",
+			"yield_amount": 12
+		},
+		{
+			"cell": [
+				11,
+				36
+			],
+			"id": "core:surface_boulder_15",
+			"kind": "stone",
+			"label_key": "object.core.surface_boulder.name",
+			"yield_amount": 10
+		},
+		{
+			"cell": [
+				86,
+				108
+			],
+			"id": "core:surface_boulder_16",
+			"kind": "stone",
+			"label_key": "object.core.surface_boulder.name",
+			"yield_amount": 11
+		},
+		{
+			"cell": [
+				84,
+				103
+			],
+			"id": "core:surface_boulder_17",
+			"kind": "stone",
+			"label_key": "object.core.surface_boulder.name",
+			"yield_amount": 12
+		},
+		{
+			"cell": [
+				82,
+				104
+			],
+			"id": "core:surface_boulder_18",
+			"kind": "stone",
+			"label_key": "object.core.surface_boulder.name",
+			"yield_amount": 11
+		},
+		{
+			"cell": [
+				88,
+				105
+			],
+			"id": "core:surface_boulder_19",
+			"kind": "stone",
+			"label_key": "object.core.surface_boulder.name",
+			"yield_amount": 12
+		},
+		{
+			"cell": [
+				87,
+				103
+			],
+			"id": "core:surface_boulder_20",
+			"kind": "stone",
+			"label_key": "object.core.surface_boulder.name",
+			"yield_amount": 9
+		},
+		{
+			"cell": [
+				87,
+				107
+			],
+			"id": "core:surface_boulder_21",
+			"kind": "stone",
+			"label_key": "object.core.surface_boulder.name",
+			"yield_amount": 11
+		},
+		{
+			"cell": [
+				98,
+				80
+			],
+			"id": "core:surface_boulder_22",
+			"kind": "stone",
+			"label_key": "object.core.surface_boulder.name",
+			"yield_amount": 12
+		},
+		{
+			"cell": [
+				97,
+				74
+			],
+			"id": "core:surface_boulder_23",
+			"kind": "stone",
+			"label_key": "object.core.surface_boulder.name",
+			"yield_amount": 10
+		},
+		{
+			"cell": [
+				99,
+				76
+			],
+			"id": "core:surface_boulder_24",
+			"kind": "stone",
+			"label_key": "object.core.surface_boulder.name",
+			"yield_amount": 9
+		},
+		{
+			"cell": [
+				96,
+				78
+			],
+			"id": "core:surface_boulder_25",
+			"kind": "stone",
+			"label_key": "object.core.surface_boulder.name",
+			"yield_amount": 10
+		},
+		{
+			"cell": [
+				100,
+				75
+			],
+			"id": "core:surface_boulder_26",
+			"kind": "stone",
+			"label_key": "object.core.surface_boulder.name",
+			"yield_amount": 9
+		},
+		{
+			"cell": [
+				95,
+				79
+			],
+			"id": "core:surface_boulder_27",
+			"kind": "stone",
+			"label_key": "object.core.surface_boulder.name",
+			"yield_amount": 9
+		},
+		{
+			"cell": [
+				94,
+				77
+			],
+			"id": "core:surface_boulder_28",
+			"kind": "stone",
+			"label_key": "object.core.surface_boulder.name",
+			"yield_amount": 11
+		},
+		{
+			"cell": [
+				96,
+				80
+			],
+			"id": "core:surface_boulder_29",
+			"kind": "stone",
+			"label_key": "object.core.surface_boulder.name",
+			"yield_amount": 9
+		},
+		{
+			"cell": [
+				94,
+				74
+			],
+			"id": "core:surface_boulder_30",
+			"kind": "stone",
+			"label_key": "object.core.surface_boulder.name",
+			"yield_amount": 9
+		},
+		{
+			"cell": [
+				114,
+				7
+			],
+			"id": "core:surface_boulder_31",
+			"kind": "stone",
+			"label_key": "object.core.surface_boulder.name",
+			"yield_amount": 10
+		},
+		{
+			"cell": [
+				109,
+				6
+			],
+			"id": "core:surface_boulder_32",
+			"kind": "stone",
+			"label_key": "object.core.surface_boulder.name",
+			"yield_amount": 11
+		},
+		{
+			"cell": [
+				113,
+				5
+			],
+			"id": "core:surface_boulder_33",
+			"kind": "stone",
+			"label_key": "object.core.surface_boulder.name",
+			"yield_amount": 10
+		},
+		{
+			"cell": [
+				113,
+				10
+			],
+			"id": "core:surface_boulder_34",
+			"kind": "stone",
+			"label_key": "object.core.surface_boulder.name",
+			"yield_amount": 10
+		},
+		{
+			"cell": [
+				109,
+				4
+			],
+			"id": "core:surface_boulder_35",
+			"kind": "stone",
+			"label_key": "object.core.surface_boulder.name",
+			"yield_amount": 11
+		},
+		{
+			"cell": [
+				114,
+				9
+			],
+			"id": "core:surface_boulder_36",
+			"kind": "stone",
+			"label_key": "object.core.surface_boulder.name",
+			"yield_amount": 10
+		},
+		{
+			"cell": [
+				111,
+				8
+			],
+			"id": "core:surface_boulder_37",
+			"kind": "stone",
+			"label_key": "object.core.surface_boulder.name",
+			"yield_amount": 12
+		},
+		{
+			"cell": [
+				108,
+				10
+			],
+			"id": "core:surface_boulder_38",
+			"kind": "stone",
+			"label_key": "object.core.surface_boulder.name",
+			"yield_amount": 10
+		},
+		{
+			"cell": [
+				110,
+				10
+			],
+			"id": "core:surface_boulder_39",
+			"kind": "stone",
+			"label_key": "object.core.surface_boulder.name",
+			"yield_amount": 9
+		},
+		{
+			"cell": [
+				103,
+				3
+			],
+			"id": "core:surface_boulder_40",
+			"kind": "stone",
+			"label_key": "object.core.surface_boulder.name",
+			"yield_amount": 10
+		},
+		{
+			"cell": [
+				98,
+				5
+			],
+			"id": "core:surface_boulder_41",
+			"kind": "stone",
+			"label_key": "object.core.surface_boulder.name",
+			"yield_amount": 10
+		},
+		{
+			"cell": [
+				99,
+				3
+			],
+			"id": "core:surface_boulder_42",
+			"kind": "stone",
+			"label_key": "object.core.surface_boulder.name",
+			"yield_amount": 12
+		},
+		{
+			"cell": [
+				101,
+				3
+			],
+			"id": "core:surface_boulder_43",
+			"kind": "stone",
+			"label_key": "object.core.surface_boulder.name",
+			"yield_amount": 11
+		},
+		{
+			"cell": [
+				97,
+				4
+			],
+			"id": "core:surface_boulder_44",
+			"kind": "stone",
+			"label_key": "object.core.surface_boulder.name",
+			"yield_amount": 9
+		},
+		{
+			"cell": [
+				98,
+				2
+			],
+			"id": "core:surface_boulder_45",
+			"kind": "stone",
+			"label_key": "object.core.surface_boulder.name",
+			"yield_amount": 10
+		},
+		{
+			"cell": [
+				102,
+				2
+			],
+			"id": "core:surface_boulder_46",
+			"kind": "stone",
+			"label_key": "object.core.surface_boulder.name",
+			"yield_amount": 11
+		},
+		{
+			"cell": [
+				97,
+				60
+			],
+			"id": "core:surface_boulder_47",
+			"kind": "stone",
+			"label_key": "object.core.surface_boulder.name",
+			"yield_amount": 11
+		},
+		{
+			"cell": [
+				99,
+				61
+			],
+			"id": "core:surface_boulder_48",
+			"kind": "stone",
+			"label_key": "object.core.surface_boulder.name",
+			"yield_amount": 10
+		},
+		{
+			"cell": [
+				95,
+				62
+			],
+			"id": "core:surface_boulder_49",
+			"kind": "stone",
+			"label_key": "object.core.surface_boulder.name",
+			"yield_amount": 9
+		},
+		{
+			"cell": [
+				95,
+				64
+			],
+			"id": "core:surface_boulder_50",
+			"kind": "stone",
+			"label_key": "object.core.surface_boulder.name",
+			"yield_amount": 10
+		},
+		{
+			"cell": [
+				93,
+				63
+			],
+			"id": "core:surface_boulder_51",
+			"kind": "stone",
+			"label_key": "object.core.surface_boulder.name",
+			"yield_amount": 11
+		},
+		{
+			"cell": [
+				93,
+				65
+			],
+			"id": "core:surface_boulder_52",
+			"kind": "stone",
+			"label_key": "object.core.surface_boulder.name",
+			"yield_amount": 9
+		},
+		{
+			"cell": [
+				98,
+				66
+			],
+			"id": "core:surface_boulder_53",
+			"kind": "stone",
+			"label_key": "object.core.surface_boulder.name",
+			"yield_amount": 12
+		},
+		{
+			"cell": [
+				97,
+				63
+			],
+			"id": "core:surface_boulder_54",
+			"kind": "stone",
+			"label_key": "object.core.surface_boulder.name",
+			"yield_amount": 9
+		},
+		{
+			"cell": [
+				98,
+				64
+			],
+			"id": "core:surface_boulder_55",
+			"kind": "stone",
+			"label_key": "object.core.surface_boulder.name",
+			"yield_amount": 11
+		},
+		{
+			"cell": [
+				96,
+				66
+			],
+			"id": "core:surface_boulder_56",
+			"kind": "stone",
+			"label_key": "object.core.surface_boulder.name",
+			"yield_amount": 10
+		},
+		{
+			"cell": [
+				61,
+				106
+			],
+			"id": "core:surface_boulder_57",
+			"kind": "stone",
+			"label_key": "object.core.surface_boulder.name",
+			"yield_amount": 12
+		},
+		{
+			"cell": [
+				58,
+				101
+			],
+			"id": "core:surface_boulder_58",
+			"kind": "stone",
+			"label_key": "object.core.surface_boulder.name",
+			"yield_amount": 9
+		},
+		{
+			"cell": [
+				59,
+				104
+			],
+			"id": "core:surface_boulder_59",
+			"kind": "stone",
+			"label_key": "object.core.surface_boulder.name",
+			"yield_amount": 10
+		},
+		{
+			"cell": [
+				59,
+				100
+			],
+			"id": "core:surface_boulder_60",
+			"kind": "stone",
+			"label_key": "object.core.surface_boulder.name",
+			"yield_amount": 11
+		},
+		{
+			"cell": [
+				63,
+				106
+			],
+			"id": "core:surface_boulder_61",
+			"kind": "stone",
+			"label_key": "object.core.surface_boulder.name",
+			"yield_amount": 10
+		},
+		{
+			"cell": [
+				64,
+				105
+			],
+			"id": "core:surface_boulder_62",
+			"kind": "stone",
+			"label_key": "object.core.surface_boulder.name",
+			"yield_amount": 10
+		},
+		{
+			"cell": [
+				4,
+				68
+			],
+			"id": "core:surface_boulder_63",
+			"kind": "stone",
+			"label_key": "object.core.surface_boulder.name",
+			"yield_amount": 12
+		},
+		{
+			"cell": [
+				2,
+				71
+			],
+			"id": "core:surface_boulder_64",
+			"kind": "stone",
+			"label_key": "object.core.surface_boulder.name",
+			"yield_amount": 11
+		},
+		{
+			"cell": [
+				2,
+				68
+			],
+			"id": "core:surface_boulder_65",
+			"kind": "stone",
+			"label_key": "object.core.surface_boulder.name",
+			"yield_amount": 9
+		},
+		{
+			"cell": [
+				3,
+				66
+			],
+			"id": "core:surface_boulder_66",
+			"kind": "stone",
+			"label_key": "object.core.surface_boulder.name",
+			"yield_amount": 12
+		},
+		{
+			"cell": [
+				4,
+				70
+			],
+			"id": "core:surface_boulder_67",
+			"kind": "stone",
+			"label_key": "object.core.surface_boulder.name",
+			"yield_amount": 12
+		},
+		{
+			"cell": [
+				6,
+				70
+			],
+			"id": "core:surface_boulder_68",
+			"kind": "stone",
+			"label_key": "object.core.surface_boulder.name",
+			"yield_amount": 10
+		},
+		{
+			"cell": [
+				5,
+				66
+			],
+			"id": "core:surface_boulder_69",
+			"kind": "stone",
+			"label_key": "object.core.surface_boulder.name",
+			"yield_amount": 9
+		},
+		{
+			"cell": [
+				7,
+				68
+			],
+			"id": "core:surface_boulder_70",
+			"kind": "stone",
+			"label_key": "object.core.surface_boulder.name",
+			"yield_amount": 10
+		},
+		{
+			"cell": [
+				4,
+				65
+			],
+			"id": "core:surface_boulder_71",
+			"kind": "stone",
+			"label_key": "object.core.surface_boulder.name",
+			"yield_amount": 10
+		},
+		{
+			"cell": [
+				5,
+				69
+			],
+			"id": "core:surface_boulder_72",
+			"kind": "stone",
+			"label_key": "object.core.surface_boulder.name",
+			"yield_amount": 9
+		},
+		{
+			"cell": [
+				86,
+				88
+			],
+			"id": "core:surface_boulder_73",
+			"kind": "stone",
+			"label_key": "object.core.surface_boulder.name",
+			"yield_amount": 11
+		},
+		{
+			"cell": [
+				87,
+				90
+			],
+			"id": "core:surface_boulder_74",
+			"kind": "stone",
+			"label_key": "object.core.surface_boulder.name",
+			"yield_amount": 9
+		},
+		{
+			"cell": [
+				87,
+				87
+			],
+			"id": "core:surface_boulder_75",
+			"kind": "stone",
+			"label_key": "object.core.surface_boulder.name",
+			"yield_amount": 10
+		},
+		{
+			"cell": [
+				90,
+				88
+			],
+			"id": "core:surface_boulder_76",
+			"kind": "stone",
+			"label_key": "object.core.surface_boulder.name",
+			"yield_amount": 9
+		},
+		{
+			"cell": [
+				86,
+				85
+			],
+			"id": "core:surface_boulder_77",
+			"kind": "stone",
+			"label_key": "object.core.surface_boulder.name",
+			"yield_amount": 9
+		},
+		{
+			"cell": [
+				84,
+				90
+			],
+			"id": "core:surface_boulder_78",
+			"kind": "stone",
+			"label_key": "object.core.surface_boulder.name",
+			"yield_amount": 9
+		},
+		{
+			"cell": [
+				89,
+				91
+			],
+			"id": "core:surface_boulder_79",
+			"kind": "stone",
+			"label_key": "object.core.surface_boulder.name",
+			"yield_amount": 11
+		},
+		{
+			"cell": [
+				82,
+				25
+			],
+			"id": "core:surface_boulder_80",
+			"kind": "stone",
+			"label_key": "object.core.surface_boulder.name",
+			"yield_amount": 12
+		},
+		{
+			"cell": [
+				83,
+				23
+			],
+			"id": "core:surface_boulder_81",
+			"kind": "stone",
+			"label_key": "object.core.surface_boulder.name",
+			"yield_amount": 9
+		},
+		{
+			"cell": [
+				88,
+				21
+			],
+			"id": "core:surface_boulder_82",
+			"kind": "stone",
+			"label_key": "object.core.surface_boulder.name",
+			"yield_amount": 11
+		},
+		{
+			"cell": [
+				86,
+				22
+			],
+			"id": "core:surface_boulder_83",
+			"kind": "stone",
+			"label_key": "object.core.surface_boulder.name",
+			"yield_amount": 11
+		},
+		{
+			"cell": [
+				87,
+				20
+			],
+			"id": "core:surface_boulder_84",
+			"kind": "stone",
+			"label_key": "object.core.surface_boulder.name",
+			"yield_amount": 12
+		},
+		{
+			"cell": [
+				82,
+				22
+			],
+			"id": "core:surface_boulder_85",
+			"kind": "stone",
+			"label_key": "object.core.surface_boulder.name",
+			"yield_amount": 11
+		},
+		{
+			"cell": [
+				85,
+				26
+			],
+			"id": "core:surface_boulder_86",
+			"kind": "stone",
+			"label_key": "object.core.surface_boulder.name",
+			"yield_amount": 12
+		},
+		{
+			"cell": [
+				25,
+				111
+			],
+			"id": "core:surface_boulder_87",
+			"kind": "stone",
+			"label_key": "object.core.surface_boulder.name",
+			"yield_amount": 9
+		},
+		{
+			"cell": [
+				20,
+				107
+			],
+			"id": "core:surface_boulder_88",
+			"kind": "stone",
+			"label_key": "object.core.surface_boulder.name",
+			"yield_amount": 10
+		},
+		{
+			"cell": [
+				24,
+				106
+			],
+			"id": "core:surface_boulder_89",
+			"kind": "stone",
+			"label_key": "object.core.surface_boulder.name",
+			"yield_amount": 9
+		},
+		{
+			"cell": [
+				22,
+				105
+			],
+			"id": "core:surface_boulder_90",
+			"kind": "stone",
+			"label_key": "object.core.surface_boulder.name",
+			"yield_amount": 10
+		},
+		{
+			"cell": [
+				21,
+				109
+			],
+			"id": "core:surface_boulder_91",
+			"kind": "stone",
+			"label_key": "object.core.surface_boulder.name",
+			"yield_amount": 12
+		},
+		{
+			"cell": [
+				26,
+				107
+			],
+			"id": "core:surface_boulder_92",
+			"kind": "stone",
+			"label_key": "object.core.surface_boulder.name",
+			"yield_amount": 9
+		},
+		{
+			"cell": [
+				20,
+				111
+			],
+			"id": "core:surface_boulder_93",
+			"kind": "stone",
+			"label_key": "object.core.surface_boulder.name",
+			"yield_amount": 10
+		}
+	],
+	"resource_work": {},
+	"resource_work_tool_instances": {},
+	"room_assignments": [
+		{
+			"cells": [
+				[
+					32,
+					22
+				],
+				[
+					31,
+					22
+				],
+				[
+					33,
+					22
+				],
+				[
+					32,
+					21
+				],
+				[
+					32,
+					23
+				],
+				[
+					31,
+					21
+				],
+				[
+					31,
+					23
+				],
+				[
+					33,
+					21
+				],
+				[
+					33,
+					23
+				]
+			],
+			"id": "core:room_0001",
+			"room_type_id": "core:storage_room"
+		}
+	],
+	"seed": 247061,
+	"selected_inventory_item": {},
+	"sleep_assignments": {
+		"core:first_neighbor": "",
+		"core:player": "core:starter_bedroll",
+		"core:resident_1": ""
+	},
+	"stock_reserves": {},
+	"storage_items": [
+		{
+			"amount": 3,
+			"cell": [
+				31,
+				23
+			],
+			"item_id": "core:stone",
+			"origin": [
+				2,
+				0
+			],
+			"placement_id": "core:stone:0",
+			"rotation": 0,
+			"stack_index": 0
+		},
+		{
+			"amount": 3,
+			"cell": [
+				31,
+				23
+			],
+			"item_id": "core:stone",
+			"origin": [
+				3,
+				0
+			],
+			"placement_id": "core:stone:1",
+			"rotation": 0,
+			"stack_index": 1
+		},
+		{
+			"amount": 3,
+			"cell": [
+				31,
+				23
+			],
+			"item_id": "core:stone",
+			"origin": [
+				0,
+				1
+			],
+			"placement_id": "core:stone:2",
+			"rotation": 0,
+			"stack_index": 2
+		},
+		{
+			"amount": 3,
+			"cell": [
+				31,
+				23
+			],
+			"item_id": "core:stone",
+			"origin": [
+				2,
+				1
+			],
+			"placement_id": "core:stone:3",
+			"rotation": 0,
+			"stack_index": 3
+		},
+		{
+			"amount": 3,
+			"cell": [
+				31,
+				23
+			],
+			"item_id": "core:stone",
+			"origin": [
+				3,
+				1
+			],
+			"placement_id": "core:stone:4",
+			"rotation": 0,
+			"stack_index": 4
+		},
+		{
+			"amount": 2,
+			"cell": [
+				31,
+				23
+			],
+			"item_id": "core:stone",
+			"origin": [
+				0,
+				2
+			],
+			"placement_id": "core:stone:5",
+			"rotation": 0,
+			"stack_index": 5
+		},
+		{
+			"amount": 3,
+			"cell": [
+				32,
+				23
+			],
+			"item_id": "core:wood",
+			"origin": [
+				0,
+				0
+			],
+			"placement_id": "core:wood:0",
+			"rotation": 0,
+			"stack_index": 0
+		},
+		{
+			"amount": 1,
+			"cell": [
+				32,
+				22
+			],
+			"instance_id": "core:item_instance_000008",
+			"item_id": "core:pickaxe",
+			"origin": [
+				0,
+				0
+			],
+			"placement_id": "core:pickaxe:0",
+			"rotation": 0,
+			"stack_index": 0
+		},
+		{
+			"amount": 1,
+			"cell": [
+				32,
+				22
+			],
+			"instance_id": "core:item_instance_000004",
+			"item_id": "core:hoe",
+			"origin": [
+				0,
+				1
+			],
+			"placement_id": "core:hoe:0",
+			"rotation": 0,
+			"stack_index": 0
+		},
+		{
+			"amount": 1,
+			"cell": [
+				32,
+				22
+			],
+			"instance_id": "core:item_instance_000007",
+			"item_id": "core:bucket",
+			"origin": [
+				3,
+				0
+			],
+			"placement_id": "core:bucket:0",
+			"rotation": 0,
+			"stack_index": 0
+		},
+		{
+			"amount": 1,
+			"cell": [
+				32,
+				22
+			],
+			"instance_id": "core:item_instance_000005",
+			"item_id": "core:bucket",
+			"origin": [
+				2,
+				1
+			],
+			"placement_id": "core:bucket:1",
+			"rotation": 0,
+			"stack_index": 1
+		},
+		{
+			"amount": 1,
+			"cell": [
+				32,
+				22
+			],
+			"item_id": "core:pinecone",
+			"origin": [
+				3,
+				2
+			],
+			"placement_id": "core:pinecone:0",
+			"rotation": 0,
+			"stack_index": 0
+		},
+		{
+			"amount": 1,
+			"cell": [
+				33,
+				22
+			],
+			"instance_id": "core:item_instance_000010",
+			"item_id": "core:pickaxe_stone",
+			"origin": [
+				0,
+				0
+			],
+			"placement_id": "core:pickaxe_stone:0",
+			"rotation": 0,
+			"stack_index": 0
+		},
+		{
+			"amount": 1,
+			"cell": [
+				33,
+				22
+			],
+			"instance_id": "core:item_instance_000003",
+			"item_id": "core:mallet",
+			"origin": [
+				2,
+				1
+			],
+			"placement_id": "core:mallet:0",
+			"rotation": 0,
+			"stack_index": 0
+		},
+		{
+			"amount": 1,
+			"cell": [
+				33,
+				23
+			],
+			"instance_id": "core:item_instance_000002",
+			"item_id": "core:axe",
+			"origin": [
+				0,
+				0
+			],
+			"placement_id": "core:axe:0",
+			"rotation": 0,
+			"stack_index": 0
+		},
+		{
+			"amount": 5,
+			"cell": [
+				33,
+				23
+			],
+			"item_id": "core:pinecone",
+			"origin": [
+				2,
+				0
+			],
+			"placement_id": "core:pinecone:0",
+			"rotation": 0,
+			"stack_index": 0
+		},
+		{
+			"amount": 1,
+			"cell": [
+				22,
+				22
+			],
+			"instance_id": "core:item_instance_000011",
+			"item_id": "core:mallet_stone",
+			"origin": [
+				0,
+				0
+			],
+			"placement_id": "core:mallet_stone:0",
+			"rotation": 0,
+			"stack_index": 0
+		},
+		{
+			"amount": 1,
+			"cell": [
+				22,
+				22
+			],
+			"instance_id": "core:item_instance_000009",
+			"item_id": "core:axe_stone",
+			"origin": [
+				2,
+				0
+			],
+			"placement_id": "core:axe_stone:0",
+			"rotation": 0,
+			"stack_index": 0
+		},
+		{
+			"amount": 5,
+			"cell": [
+				22,
+				22
+			],
+			"item_id": "core:wood",
+			"origin": [
+				0,
+				1
+			],
+			"placement_id": "core:wood:0",
+			"rotation": 0,
+			"stack_index": 0
+		},
+		{
+			"amount": 5,
+			"cell": [
+				22,
+				22
+			],
+			"item_id": "core:wood",
+			"origin": [
+				0,
+				2
+			],
+			"placement_id": "core:wood:1",
+			"rotation": 0,
+			"stack_index": 1
+		},
+		{
+			"amount": 5,
+			"cell": [
+				22,
+				22
+			],
+			"item_id": "core:wood",
+			"origin": [
+				3,
+				2
+			],
+			"placement_id": "core:wood:2",
+			"rotation": 0,
+			"stack_index": 2
+		},
+		{
+			"amount": 5,
+			"cell": [
+				22,
+				22
+			],
+			"item_id": "core:wood",
+			"origin": [
+				0,
+				3
+			],
+			"placement_id": "core:wood:3",
+			"rotation": 0,
+			"stack_index": 3
+		},
+		{
+			"amount": 1,
+			"cell": [
+				22,
+				22
+			],
+			"instance_id": "core:item_instance_000006",
+			"item_id": "core:bucket",
+			"origin": [
+				1,
+				3
+			],
+			"placement_id": "core:bucket:0",
+			"rotation": 1,
+			"stack_index": 0
+		}
+	],
+	"storage_zones": [
+		{
+			"cells": [
+				[
+					22,
+					22
+				],
+				[
+					23,
+					22
+				],
+				[
+					22,
+					23
+				],
+				[
+					23,
+					23
+				]
+			],
+			"id": "core:storage_zone_0001"
+		},
+		{
+			"cells": [
+				[
+					32,
+					22
+				],
+				[
+					31,
+					22
+				],
+				[
+					33,
+					22
+				],
+				[
+					32,
+					21
+				],
+				[
+					32,
+					23
+				],
+				[
+					31,
+					21
+				],
+				[
+					31,
+					23
+				],
+				[
+					33,
+					21
+				],
+				[
+					33,
+					23
+				]
+			],
+			"id": "core:storage_zone_0002",
+			"room_id": "core:room_0001",
+			"room_type_id": "core:storage_room"
+		}
+	],
+	"structures": [
+		{
+			"building_id": "core:wood_floor",
+			"cell": [
+				22,
+				22
+			],
+			"stage_id": "core:complete"
+		},
+		{
+			"building_id": "core:wood_floor",
+			"cell": [
+				23,
+				22
+			],
+			"stage_id": "core:complete"
+		},
+		{
+			"building_id": "core:wood_floor",
+			"cell": [
+				22,
+				23
+			],
+			"stage_id": "core:complete"
+		},
+		{
+			"building_id": "core:wood_floor",
+			"cell": [
+				23,
+				23
+			],
+			"stage_id": "core:complete"
+		},
+		{
+			"building_id": "core:workbench",
+			"cell": [
+				27,
+				26
+			],
+			"stage_id": "core:complete"
+		},
+		{
+			"building_id": "core:study_table",
+			"cell": [
+				25,
+				26
+			],
+			"stage_id": "core:complete"
+		},
+		{
+			"building_id": "core:wood_wall",
+			"cell": [
+				30,
+				24
+			],
+			"stage_id": "core:complete"
+		},
+		{
+			"building_id": "core:wood_wall",
+			"cell": [
+				30,
+				23
+			],
+			"stage_id": "core:complete"
+		},
+		{
+			"building_id": "core:wood_wall",
+			"cell": [
+				30,
+				22
+			],
+			"stage_id": "core:complete"
+		},
+		{
+			"building_id": "core:wood_wall",
+			"cell": [
+				30,
+				21
+			],
+			"stage_id": "core:complete"
+		},
+		{
+			"building_id": "core:wood_wall",
+			"cell": [
+				30,
+				20
+			],
+			"stage_id": "core:complete"
+		},
+		{
+			"building_id": "core:wood_wall",
+			"cell": [
+				31,
+				20
+			],
+			"stage_id": "core:complete"
+		},
+		{
+			"building_id": "core:wood_door",
+			"cell": [
+				32,
+				24
+			],
+			"open": true,
+			"stage_id": "core:complete"
+		},
+		{
+			"building_id": "core:wood_wall",
+			"cell": [
+				31,
+				24
+			],
+			"stage_id": "core:complete"
+		},
+		{
+			"building_id": "core:wood_wall",
+			"cell": [
+				33,
+				24
+			],
+			"stage_id": "core:complete"
+		},
+		{
+			"building_id": "core:wood_wall",
+			"cell": [
+				34,
+				24
+			],
+			"stage_id": "core:complete"
+		},
+		{
+			"building_id": "core:wood_wall",
+			"cell": [
+				34,
+				23
+			],
+			"stage_id": "core:complete"
+		},
+		{
+			"building_id": "core:wood_wall",
+			"cell": [
+				34,
+				22
+			],
+			"stage_id": "core:complete"
+		},
+		{
+			"building_id": "core:wood_wall",
+			"cell": [
+				34,
+				21
+			],
+			"stage_id": "core:complete"
+		},
+		{
+			"building_id": "core:wood_wall",
+			"cell": [
+				33,
+				20
+			],
+			"stage_id": "core:complete"
+		},
+		{
+			"building_id": "core:wood_wall",
+			"cell": [
+				34,
+				20
+			],
+			"stage_id": "core:complete"
+		},
+		{
+			"building_id": "core:wood_wall",
+			"cell": [
+				32,
+				20
+			],
+			"stage_id": "core:complete"
+		},
+		{
+			"building_id": "core:wood_floor",
+			"cell": [
+				32,
+				22
+			],
+			"stage_id": "core:complete"
+		},
+		{
+			"building_id": "core:wood_floor",
+			"cell": [
+				32,
+				23
+			],
+			"stage_id": "core:complete"
+		},
+		{
+			"building_id": "core:wood_floor",
+			"cell": [
+				31,
+				23
+			],
+			"stage_id": "core:complete"
+		},
+		{
+			"building_id": "core:wood_floor",
+			"cell": [
+				33,
+				23
+			],
+			"stage_id": "core:complete"
+		},
+		{
+			"building_id": "core:wood_floor",
+			"cell": [
+				31,
+				22
+			],
+			"stage_id": "core:complete"
+		},
+		{
+			"building_id": "core:wood_floor",
+			"cell": [
+				32,
+				21
+			],
+			"stage_id": "core:complete"
+		},
+		{
+			"building_id": "core:wood_floor",
+			"cell": [
+				31,
+				21
+			],
+			"stage_id": "core:complete"
+		},
+		{
+			"building_id": "core:wood_floor",
+			"cell": [
+				33,
+				22
+			],
+			"stage_id": "core:complete"
+		},
+		{
+			"building_id": "core:wood_floor",
+			"cell": [
+				33,
+				21
+			],
+			"stage_id": "core:complete"
+		}
+	],
+	"tree_nodes": [
+		{
+			"cell": [
+				32,
+				33
+			],
+			"id": "core:surface_tree_01",
+			"kind": "wood",
+			"label_key": "object.core.surface_tree.name",
+			"stage_id": "stump",
+			"yield_amount": 12
+		},
+		{
+			"cell": [
+				39,
+				38
+			],
+			"id": "core:surface_tree_02",
+			"kind": "wood",
+			"label_key": "object.core.surface_tree.name",
+			"stage_id": "stump",
+			"yield_amount": 12
+		},
+		{
+			"cell": [
+				42,
+				38
+			],
+			"id": "core:surface_tree_03",
+			"kind": "wood",
+			"label_key": "object.core.surface_tree.name",
+			"stage_id": "stump",
+			"yield_amount": 12
+		},
+		{
+			"cell": [
+				36,
+				34
+			],
+			"id": "core:surface_tree_04",
+			"kind": "wood",
+			"label_key": "object.core.surface_tree.name",
+			"stage_id": "stump",
+			"yield_amount": 13
+		},
+		{
+			"cell": [
+				40,
+				34
+			],
+			"id": "core:surface_tree_05",
+			"kind": "wood",
+			"label_key": "object.core.surface_tree.name",
+			"stage_id": "stump",
+			"yield_amount": 13
+		},
+		{
+			"cell": [
+				39,
+				32
+			],
+			"id": "core:surface_tree_06",
+			"kind": "wood",
+			"label_key": "object.core.surface_tree.name",
+			"stage_id": "stump",
+			"yield_amount": 13
+		},
+		{
+			"cell": [
+				32,
+				40
+			],
+			"id": "core:surface_tree_07",
+			"kind": "wood",
+			"label_key": "object.core.surface_tree.name",
+			"stage_id": "stump",
+			"yield_amount": 13
+		},
+		{
+			"cell": [
+				39,
+				42
+			],
+			"id": "core:surface_tree_08",
+			"kind": "wood",
+			"label_key": "object.core.surface_tree.name",
+			"stage_id": "stump",
+			"yield_amount": 13
+		},
+		{
+			"cell": [
+				33,
+				38
+			],
+			"id": "core:surface_tree_09",
+			"kind": "wood",
+			"label_key": "object.core.surface_tree.name",
+			"stage_id": "stump",
+			"yield_amount": 13
+		},
+		{
+			"cell": [
+				35,
+				37
+			],
+			"id": "core:surface_tree_10",
+			"kind": "wood",
+			"label_key": "object.core.surface_tree.name",
+			"stage_id": "stump",
+			"yield_amount": 13
+		},
+		{
+			"cell": [
+				44,
+				36
+			],
+			"id": "core:surface_tree_11",
+			"kind": "wood",
+			"label_key": "object.core.surface_tree.name",
+			"stage_id": "stump",
+			"yield_amount": 13
+		},
+		{
+			"cell": [
+				36,
+				41
+			],
+			"id": "core:surface_tree_12",
+			"kind": "wood",
+			"label_key": "object.core.surface_tree.name",
+			"stage_id": "stump",
+			"yield_amount": 12
+		},
+		{
+			"cell": [
+				43,
+				40
+			],
+			"id": "core:surface_tree_13",
+			"kind": "wood",
+			"label_key": "object.core.surface_tree.name",
+			"stage_id": "stump",
+			"yield_amount": 13
+		},
+		{
+			"cell": [
+				41,
+				41
+			],
+			"id": "core:surface_tree_14",
+			"kind": "wood",
+			"label_key": "object.core.surface_tree.name",
+			"stage_id": "stump",
+			"yield_amount": 13
+		},
+		{
+			"cell": [
+				44,
+				31
+			],
+			"id": "core:surface_tree_15",
+			"kind": "wood",
+			"label_key": "object.core.surface_tree.name",
+			"stage_id": "stump",
+			"yield_amount": 13
+		},
+		{
+			"cell": [
+				33,
+				42
+			],
+			"id": "core:surface_tree_16",
+			"kind": "wood",
+			"label_key": "object.core.surface_tree.name",
+			"stage_id": "stump",
+			"yield_amount": 12
+		},
+		{
+			"cell": [
+				107,
+				71
+			],
+			"id": "core:surface_tree_17",
+			"kind": "wood",
+			"label_key": "object.core.surface_tree.name",
+			"stage_id": "tree",
+			"yield_amount": 13
+		},
+		{
+			"cell": [
+				110,
+				67
+			],
+			"id": "core:surface_tree_18",
+			"kind": "wood",
+			"label_key": "object.core.surface_tree.name",
+			"stage_id": "tree",
+			"yield_amount": 13
+		},
+		{
+			"cell": [
+				108,
+				69
+			],
+			"id": "core:surface_tree_19",
+			"kind": "wood",
+			"label_key": "object.core.surface_tree.name",
+			"stage_id": "tree",
+			"yield_amount": 12
+		},
+		{
+			"cell": [
+				111,
+				68
+			],
+			"id": "core:surface_tree_20",
+			"kind": "wood",
+			"label_key": "object.core.surface_tree.name",
+			"stage_id": "tree",
+			"yield_amount": 13
+		},
+		{
+			"cell": [
+				108,
+				67
+			],
+			"id": "core:surface_tree_21",
+			"kind": "wood",
+			"label_key": "object.core.surface_tree.name",
+			"stage_id": "tree",
+			"yield_amount": 12
+		},
+		{
+			"cell": [
+				109,
+				70
+			],
+			"id": "core:surface_tree_22",
+			"kind": "wood",
+			"label_key": "object.core.surface_tree.name",
+			"stage_id": "tree",
+			"yield_amount": 13
+		},
+		{
+			"cell": [
+				105,
+				67
+			],
+			"id": "core:surface_tree_23",
+			"kind": "wood",
+			"label_key": "object.core.surface_tree.name",
+			"stage_id": "tree",
+			"yield_amount": 13
+		},
+		{
+			"cell": [
+				110,
+				71
+			],
+			"id": "core:surface_tree_24",
+			"kind": "wood",
+			"label_key": "object.core.surface_tree.name",
+			"stage_id": "tree",
+			"yield_amount": 12
+		},
+		{
+			"cell": [
+				105,
+				73
+			],
+			"id": "core:surface_tree_25",
+			"kind": "wood",
+			"label_key": "object.core.surface_tree.name",
+			"stage_id": "tree",
+			"yield_amount": 12
+		},
+		{
+			"cell": [
+				106,
+				69
+			],
+			"id": "core:surface_tree_26",
+			"kind": "wood",
+			"label_key": "object.core.surface_tree.name",
+			"stage_id": "tree",
+			"yield_amount": 13
+		},
+		{
+			"cell": [
+				107,
+				73
+			],
+			"id": "core:surface_tree_27",
+			"kind": "wood",
+			"label_key": "object.core.surface_tree.name",
+			"stage_id": "tree",
+			"yield_amount": 13
+		},
+		{
+			"cell": [
+				109,
+				68
+			],
+			"id": "core:surface_tree_28",
+			"kind": "wood",
+			"label_key": "object.core.surface_tree.name",
+			"stage_id": "tree",
+			"yield_amount": 13
+		},
+		{
+			"cell": [
+				109,
+				72
+			],
+			"id": "core:surface_tree_29",
+			"kind": "wood",
+			"label_key": "object.core.surface_tree.name",
+			"stage_id": "tree",
+			"yield_amount": 13
+		},
+		{
+			"cell": [
+				110,
+				73
+			],
+			"id": "core:surface_tree_30",
+			"kind": "wood",
+			"label_key": "object.core.surface_tree.name",
+			"stage_id": "tree",
+			"yield_amount": 13
+		},
+		{
+			"cell": [
+				110,
+				69
+			],
+			"id": "core:surface_tree_31",
+			"kind": "wood",
+			"label_key": "object.core.surface_tree.name",
+			"stage_id": "tree",
+			"yield_amount": 12
+		},
+		{
+			"cell": [
+				105,
+				70
+			],
+			"id": "core:surface_tree_32",
+			"kind": "wood",
+			"label_key": "object.core.surface_tree.name",
+			"stage_id": "tree",
+			"yield_amount": 13
+		},
+		{
+			"cell": [
+				111,
+				72
+			],
+			"id": "core:surface_tree_33",
+			"kind": "wood",
+			"label_key": "object.core.surface_tree.name",
+			"stage_id": "tree",
+			"yield_amount": 13
+		},
+		{
+			"cell": [
+				39,
+				73
+			],
+			"id": "core:surface_tree_34",
+			"kind": "wood",
+			"label_key": "object.core.surface_tree.name",
+			"stage_id": "tree",
+			"yield_amount": 13
+		},
+		{
+			"cell": [
+				37,
+				72
+			],
+			"id": "core:surface_tree_35",
+			"kind": "wood",
+			"label_key": "object.core.surface_tree.name",
+			"stage_id": "tree",
+			"yield_amount": 13
+		},
+		{
+			"cell": [
+				41,
+				68
+			],
+			"id": "core:surface_tree_36",
+			"kind": "wood",
+			"label_key": "object.core.surface_tree.name",
+			"stage_id": "tree",
+			"yield_amount": 13
+		},
+		{
+			"cell": [
+				43,
+				70
+			],
+			"id": "core:surface_tree_37",
+			"kind": "wood",
+			"label_key": "object.core.surface_tree.name",
+			"stage_id": "tree",
+			"yield_amount": 12
+		},
+		{
+			"cell": [
+				38,
+				68
+			],
+			"id": "core:surface_tree_38",
+			"kind": "wood",
+			"label_key": "object.core.surface_tree.name",
+			"stage_id": "stump",
+			"yield_amount": 12
+		},
+		{
+			"cell": [
+				39,
+				67
+			],
+			"id": "core:surface_tree_39",
+			"kind": "wood",
+			"label_key": "object.core.surface_tree.name",
+			"stage_id": "stump",
+			"yield_amount": 13
+		},
+		{
+			"cell": [
+				41,
+				72
+			],
+			"id": "core:surface_tree_40",
+			"kind": "wood",
+			"label_key": "object.core.surface_tree.name",
+			"stage_id": "tree",
+			"yield_amount": 12
+		},
+		{
+			"cell": [
+				40,
+				70
+			],
+			"id": "core:surface_tree_41",
+			"kind": "wood",
+			"label_key": "object.core.surface_tree.name",
+			"stage_id": "tree",
+			"yield_amount": 12
+		},
+		{
+			"cell": [
+				43,
+				68
+			],
+			"id": "core:surface_tree_42",
+			"kind": "wood",
+			"label_key": "object.core.surface_tree.name",
+			"stage_id": "tree",
+			"yield_amount": 12
+		},
+		{
+			"cell": [
+				37,
+				69
+			],
+			"id": "core:surface_tree_43",
+			"kind": "wood",
+			"label_key": "object.core.surface_tree.name",
+			"stage_id": "tree",
+			"yield_amount": 12
+		},
+		{
+			"cell": [
+				39,
+				71
+			],
+			"id": "core:surface_tree_44",
+			"kind": "wood",
+			"label_key": "object.core.surface_tree.name",
+			"stage_id": "tree",
+			"yield_amount": 13
+		},
+		{
+			"cell": [
+				39,
+				69
+			],
+			"id": "core:surface_tree_45",
+			"kind": "wood",
+			"label_key": "object.core.surface_tree.name",
+			"stage_id": "tree",
+			"yield_amount": 13
+		},
+		{
+			"cell": [
+				37,
+				67
+			],
+			"id": "core:surface_tree_46",
+			"kind": "wood",
+			"label_key": "object.core.surface_tree.name",
+			"stage_id": "stump",
+			"yield_amount": 13
+		},
+		{
+			"cell": [
+				42,
+				67
+			],
+			"id": "core:surface_tree_47",
+			"kind": "wood",
+			"label_key": "object.core.surface_tree.name",
+			"stage_id": "tree",
+			"yield_amount": 13
+		},
+		{
+			"cell": [
+				42,
+				73
+			],
+			"id": "core:surface_tree_48",
+			"kind": "wood",
+			"label_key": "object.core.surface_tree.name",
+			"stage_id": "tree",
+			"yield_amount": 13
+		},
+		{
+			"cell": [
+				33,
+				114
+			],
+			"id": "core:surface_tree_49",
+			"kind": "wood",
+			"label_key": "object.core.surface_tree.name",
+			"stage_id": "tree",
+			"yield_amount": 13
+		},
+		{
+			"cell": [
+				31,
+				114
+			],
+			"id": "core:surface_tree_50",
+			"kind": "wood",
+			"label_key": "object.core.surface_tree.name",
+			"stage_id": "tree",
+			"yield_amount": 12
+		},
+		{
+			"cell": [
+				32,
+				116
+			],
+			"id": "core:surface_tree_51",
+			"kind": "wood",
+			"label_key": "object.core.surface_tree.name",
+			"stage_id": "tree",
+			"yield_amount": 13
+		},
+		{
+			"cell": [
+				35,
+				110
+			],
+			"id": "core:surface_tree_52",
+			"kind": "wood",
+			"label_key": "object.core.surface_tree.name",
+			"stage_id": "tree",
+			"yield_amount": 13
+		},
+		{
+			"cell": [
+				37,
+				111
+			],
+			"id": "core:surface_tree_53",
+			"kind": "wood",
+			"label_key": "object.core.surface_tree.name",
+			"stage_id": "tree",
+			"yield_amount": 12
+		},
+		{
+			"cell": [
+				31,
+				111
+			],
+			"id": "core:surface_tree_54",
+			"kind": "wood",
+			"label_key": "object.core.surface_tree.name",
+			"stage_id": "tree",
+			"yield_amount": 13
+		},
+		{
+			"cell": [
+				37,
+				116
+			],
+			"id": "core:surface_tree_55",
+			"kind": "wood",
+			"label_key": "object.core.surface_tree.name",
+			"stage_id": "tree",
+			"yield_amount": 13
+		},
+		{
+			"cell": [
+				35,
+				115
+			],
+			"id": "core:surface_tree_56",
+			"kind": "wood",
+			"label_key": "object.core.surface_tree.name",
+			"stage_id": "tree",
+			"yield_amount": 12
+		},
+		{
+			"cell": [
+				34,
+				111
+			],
+			"id": "core:surface_tree_57",
+			"kind": "wood",
+			"label_key": "object.core.surface_tree.name",
+			"stage_id": "tree",
+			"yield_amount": 13
+		},
+		{
+			"cell": [
+				35,
+				112
+			],
+			"id": "core:surface_tree_58",
+			"kind": "wood",
+			"label_key": "object.core.surface_tree.name",
+			"stage_id": "tree",
+			"yield_amount": 13
+		},
+		{
+			"cell": [
+				34,
+				116
+			],
+			"id": "core:surface_tree_59",
+			"kind": "wood",
+			"label_key": "object.core.surface_tree.name",
+			"stage_id": "tree",
+			"yield_amount": 13
+		},
+		{
+			"cell": [
+				32,
+				110
+			],
+			"id": "core:surface_tree_60",
+			"kind": "wood",
+			"label_key": "object.core.surface_tree.name",
+			"stage_id": "tree",
+			"yield_amount": 12
+		},
+		{
+			"cell": [
+				32,
+				112
+			],
+			"id": "core:surface_tree_61",
+			"kind": "wood",
+			"label_key": "object.core.surface_tree.name",
+			"stage_id": "tree",
+			"yield_amount": 13
+		},
+		{
+			"cell": [
+				37,
+				114
+			],
+			"id": "core:surface_tree_62",
+			"kind": "wood",
+			"label_key": "object.core.surface_tree.name",
+			"stage_id": "tree",
+			"yield_amount": 13
+		},
+		{
+			"cell": [
+				102,
+				89
+			],
+			"id": "core:surface_tree_63",
+			"kind": "wood",
+			"label_key": "object.core.surface_tree.name",
+			"stage_id": "tree",
+			"yield_amount": 12
+		},
+		{
+			"cell": [
+				103,
+				88
+			],
+			"id": "core:surface_tree_64",
+			"kind": "wood",
+			"label_key": "object.core.surface_tree.name",
+			"stage_id": "tree",
+			"yield_amount": 13
+		},
+		{
+			"cell": [
+				101,
+				91
+			],
+			"id": "core:surface_tree_65",
+			"kind": "wood",
+			"label_key": "object.core.surface_tree.name",
+			"stage_id": "tree",
+			"yield_amount": 13
+		},
+		{
+			"cell": [
+				101,
+				88
+			],
+			"id": "core:surface_tree_66",
+			"kind": "wood",
+			"label_key": "object.core.surface_tree.name",
+			"stage_id": "tree",
+			"yield_amount": 13
+		},
+		{
+			"cell": [
+				99,
+				88
+			],
+			"id": "core:surface_tree_67",
+			"kind": "wood",
+			"label_key": "object.core.surface_tree.name",
+			"stage_id": "tree",
+			"yield_amount": 13
+		},
+		{
+			"cell": [
+				100,
+				89
+			],
+			"id": "core:surface_tree_68",
+			"kind": "wood",
+			"label_key": "object.core.surface_tree.name",
+			"stage_id": "tree",
+			"yield_amount": 12
+		},
+		{
+			"cell": [
+				98,
+				89
+			],
+			"id": "core:surface_tree_69",
+			"kind": "wood",
+			"label_key": "object.core.surface_tree.name",
+			"stage_id": "tree",
+			"yield_amount": 13
+		},
+		{
+			"cell": [
+				98,
+				92
+			],
+			"id": "core:surface_tree_70",
+			"kind": "wood",
+			"label_key": "object.core.surface_tree.name",
+			"stage_id": "tree",
+			"yield_amount": 13
+		},
+		{
+			"cell": [
+				104,
+				89
+			],
+			"id": "core:surface_tree_71",
+			"kind": "wood",
+			"label_key": "object.core.surface_tree.name",
+			"stage_id": "tree",
+			"yield_amount": 13
+		},
+		{
+			"cell": [
+				104,
+				93
+			],
+			"id": "core:surface_tree_72",
+			"kind": "wood",
+			"label_key": "object.core.surface_tree.name",
+			"stage_id": "tree",
+			"yield_amount": 12
+		},
+		{
+			"cell": [
+				99,
+				91
+			],
+			"id": "core:surface_tree_73",
+			"kind": "wood",
+			"label_key": "object.core.surface_tree.name",
+			"stage_id": "tree",
+			"yield_amount": 13
+		},
+		{
+			"cell": [
+				100,
+				92
+			],
+			"id": "core:surface_tree_74",
+			"kind": "wood",
+			"label_key": "object.core.surface_tree.name",
+			"stage_id": "tree",
+			"yield_amount": 12
+		},
+		{
+			"cell": [
+				104,
+				87
+			],
+			"id": "core:surface_tree_75",
+			"kind": "wood",
+			"label_key": "object.core.surface_tree.name",
+			"stage_id": "tree",
+			"yield_amount": 12
+		},
+		{
+			"cell": [
+				102,
+				87
+			],
+			"id": "core:surface_tree_76",
+			"kind": "wood",
+			"label_key": "object.core.surface_tree.name",
+			"stage_id": "tree",
+			"yield_amount": 12
+		},
+		{
+			"cell": [
+				85,
+				42
+			],
+			"id": "core:surface_tree_77",
+			"kind": "wood",
+			"label_key": "object.core.surface_tree.name",
+			"stage_id": "tree",
+			"yield_amount": 12
+		},
+		{
+			"cell": [
+				85,
+				48
+			],
+			"id": "core:surface_tree_78",
+			"kind": "wood",
+			"label_key": "object.core.surface_tree.name",
+			"stage_id": "tree",
+			"yield_amount": 12
+		},
+		{
+			"cell": [
+				82,
+				48
+			],
+			"id": "core:surface_tree_79",
+			"kind": "wood",
+			"label_key": "object.core.surface_tree.name",
+			"stage_id": "tree",
+			"yield_amount": 12
+		},
+		{
+			"cell": [
+				84,
+				47
+			],
+			"id": "core:surface_tree_80",
+			"kind": "wood",
+			"label_key": "object.core.surface_tree.name",
+			"stage_id": "tree",
+			"yield_amount": 12
+		},
+		{
+			"cell": [
+				86,
+				43
+			],
+			"id": "core:surface_tree_81",
+			"kind": "wood",
+			"label_key": "object.core.surface_tree.name",
+			"stage_id": "tree",
+			"yield_amount": 13
+		},
+		{
+			"cell": [
+				83,
+				45
+			],
+			"id": "core:surface_tree_82",
+			"kind": "wood",
+			"label_key": "object.core.surface_tree.name",
+			"stage_id": "tree",
+			"yield_amount": 12
+		},
+		{
+			"cell": [
+				83,
+				42
+			],
+			"id": "core:surface_tree_83",
+			"kind": "wood",
+			"label_key": "object.core.surface_tree.name",
+			"stage_id": "tree",
+			"yield_amount": 13
+		},
+		{
+			"cell": [
+				85,
+				46
+			],
+			"id": "core:surface_tree_84",
+			"kind": "wood",
+			"label_key": "object.core.surface_tree.name",
+			"stage_id": "tree",
+			"yield_amount": 13
+		},
+		{
+			"cell": [
+				88,
+				44
+			],
+			"id": "core:surface_tree_85",
+			"kind": "wood",
+			"label_key": "object.core.surface_tree.name",
+			"stage_id": "tree",
+			"yield_amount": 12
+		},
+		{
+			"cell": [
+				87,
+				47
+			],
+			"id": "core:surface_tree_86",
+			"kind": "wood",
+			"label_key": "object.core.surface_tree.name",
+			"stage_id": "tree",
+			"yield_amount": 12
+		},
+		{
+			"cell": [
+				85,
+				44
+			],
+			"id": "core:surface_tree_87",
+			"kind": "wood",
+			"label_key": "object.core.surface_tree.name",
+			"stage_id": "tree",
+			"yield_amount": 13
+		},
+		{
+			"cell": [
+				87,
+				42
+			],
+			"id": "core:surface_tree_88",
+			"kind": "wood",
+			"label_key": "object.core.surface_tree.name",
+			"stage_id": "tree",
+			"yield_amount": 12
+		},
+		{
+			"cell": [
+				88,
+				46
+			],
+			"id": "core:surface_tree_89",
+			"kind": "wood",
+			"label_key": "object.core.surface_tree.name",
+			"stage_id": "tree",
+			"yield_amount": 13
+		},
+		{
+			"cell": [
+				82,
+				46
+			],
+			"id": "core:surface_tree_90",
+			"kind": "wood",
+			"label_key": "object.core.surface_tree.name",
+			"stage_id": "tree",
+			"yield_amount": 13
+		},
+		{
+			"cell": [
+				86,
+				45
+			],
+			"id": "core:surface_tree_91",
+			"kind": "wood",
+			"label_key": "object.core.surface_tree.name",
+			"stage_id": "tree",
+			"yield_amount": 13
+		},
+		{
+			"cell": [
+				82,
+				43
+			],
+			"id": "core:surface_tree_92",
+			"kind": "wood",
+			"label_key": "object.core.surface_tree.name",
+			"stage_id": "tree",
+			"yield_amount": 12
+		},
+		{
+			"cell": [
+				110,
+				14
+			],
+			"id": "core:surface_tree_93",
+			"kind": "wood",
+			"label_key": "object.core.surface_tree.name",
+			"stage_id": "tree",
+			"yield_amount": 13
+		},
+		{
+			"cell": [
+				105,
+				14
+			],
+			"id": "core:surface_tree_94",
+			"kind": "wood",
+			"label_key": "object.core.surface_tree.name",
+			"stage_id": "tree",
+			"yield_amount": 13
+		},
+		{
+			"cell": [
+				106,
+				15
+			],
+			"id": "core:surface_tree_95",
+			"kind": "wood",
+			"label_key": "object.core.surface_tree.name",
+			"stage_id": "tree",
+			"yield_amount": 13
+		},
+		{
+			"cell": [
+				107,
+				17
+			],
+			"id": "core:surface_tree_96",
+			"kind": "wood",
+			"label_key": "object.core.surface_tree.name",
+			"stage_id": "tree",
+			"yield_amount": 13
+		},
+		{
+			"cell": [
+				109,
+				17
+			],
+			"id": "core:surface_tree_97",
+			"kind": "wood",
+			"label_key": "object.core.surface_tree.name",
+			"stage_id": "tree",
+			"yield_amount": 13
+		},
+		{
+			"cell": [
+				111,
+				15
+			],
+			"id": "core:surface_tree_98",
+			"kind": "wood",
+			"label_key": "object.core.surface_tree.name",
+			"stage_id": "tree",
+			"yield_amount": 12
+		},
+		{
+			"cell": [
+				105,
+				12
+			],
+			"id": "core:surface_tree_99",
+			"kind": "wood",
+			"label_key": "object.core.surface_tree.name",
+			"stage_id": "tree",
+			"yield_amount": 13
+		},
+		{
+			"cell": [
+				108,
+				15
+			],
+			"id": "core:surface_tree_100",
+			"kind": "wood",
+			"label_key": "object.core.surface_tree.name",
+			"stage_id": "tree",
+			"yield_amount": 13
+		},
+		{
+			"cell": [
+				107,
+				14
+			],
+			"id": "core:surface_tree_101",
+			"kind": "wood",
+			"label_key": "object.core.surface_tree.name",
+			"stage_id": "tree",
+			"yield_amount": 13
+		},
+		{
+			"cell": [
+				111,
+				13
+			],
+			"id": "core:surface_tree_102",
+			"kind": "wood",
+			"label_key": "object.core.surface_tree.name",
+			"stage_id": "tree",
+			"yield_amount": 13
+		},
+		{
+			"cell": [
+				105,
+				16
+			],
+			"id": "core:surface_tree_103",
+			"kind": "wood",
+			"label_key": "object.core.surface_tree.name",
+			"stage_id": "tree",
+			"yield_amount": 12
+		},
+		{
+			"cell": [
+				110,
+				12
+			],
+			"id": "core:surface_tree_104",
+			"kind": "wood",
+			"label_key": "object.core.surface_tree.name",
+			"stage_id": "tree",
+			"yield_amount": 13
+		},
+		{
+			"cell": [
+				111,
+				17
+			],
+			"id": "core:surface_tree_105",
+			"kind": "wood",
+			"label_key": "object.core.surface_tree.name",
+			"stage_id": "tree",
+			"yield_amount": 13
+		},
+		{
+			"cell": [
+				108,
+				111
+			],
+			"id": "core:surface_tree_106",
+			"kind": "wood",
+			"label_key": "object.core.surface_tree.name",
+			"stage_id": "tree",
+			"yield_amount": 13
+		},
+		{
+			"cell": [
+				106,
+				111
+			],
+			"id": "core:surface_tree_107",
+			"kind": "wood",
+			"label_key": "object.core.surface_tree.name",
+			"stage_id": "tree",
+			"yield_amount": 12
+		},
+		{
+			"cell": [
+				112,
+				109
+			],
+			"id": "core:surface_tree_108",
+			"kind": "wood",
+			"label_key": "object.core.surface_tree.name",
+			"stage_id": "tree",
+			"yield_amount": 13
+		},
+		{
+			"cell": [
+				107,
+				112
+			],
+			"id": "core:surface_tree_109",
+			"kind": "wood",
+			"label_key": "object.core.surface_tree.name",
+			"stage_id": "tree",
+			"yield_amount": 13
+		},
+		{
+			"cell": [
+				112,
+				106
+			],
+			"id": "core:surface_tree_110",
+			"kind": "wood",
+			"label_key": "object.core.surface_tree.name",
+			"stage_id": "tree",
+			"yield_amount": 13
+		},
+		{
+			"cell": [
+				110,
+				109
+			],
+			"id": "core:surface_tree_111",
+			"kind": "wood",
+			"label_key": "object.core.surface_tree.name",
+			"stage_id": "tree",
+			"yield_amount": 12
+		},
+		{
+			"cell": [
+				111,
+				107
+			],
+			"id": "core:surface_tree_112",
+			"kind": "wood",
+			"label_key": "object.core.surface_tree.name",
+			"stage_id": "tree",
+			"yield_amount": 13
+		},
+		{
+			"cell": [
+				111,
+				112
+			],
+			"id": "core:surface_tree_113",
+			"kind": "wood",
+			"label_key": "object.core.surface_tree.name",
+			"stage_id": "tree",
+			"yield_amount": 12
+		},
+		{
+			"cell": [
+				106,
+				109
+			],
+			"id": "core:surface_tree_114",
+			"kind": "wood",
+			"label_key": "object.core.surface_tree.name",
+			"stage_id": "tree",
+			"yield_amount": 12
+		},
+		{
+			"cell": [
+				109,
+				110
+			],
+			"id": "core:surface_tree_115",
+			"kind": "wood",
+			"label_key": "object.core.surface_tree.name",
+			"stage_id": "tree",
+			"yield_amount": 12
+		},
+		{
+			"cell": [
+				110,
+				106
+			],
+			"id": "core:surface_tree_116",
+			"kind": "wood",
+			"label_key": "object.core.surface_tree.name",
+			"stage_id": "tree",
+			"yield_amount": 13
+		},
+		{
+			"cell": [
+				108,
+				109
+			],
+			"id": "core:surface_tree_117",
+			"kind": "wood",
+			"label_key": "object.core.surface_tree.name",
+			"stage_id": "tree",
+			"yield_amount": 13
+		},
+		{
+			"cell": [
+				111,
+				110
+			],
+			"id": "core:surface_tree_118",
+			"kind": "wood",
+			"label_key": "object.core.surface_tree.name",
+			"stage_id": "tree",
+			"yield_amount": 13
+		},
+		{
+			"cell": [
+				3,
+				73
+			],
+			"id": "core:surface_tree_119",
+			"kind": "wood",
+			"label_key": "object.core.surface_tree.name",
+			"stage_id": "tree",
+			"yield_amount": 12
+		},
+		{
+			"cell": [
+				8,
+				71
+			],
+			"id": "core:surface_tree_120",
+			"kind": "wood",
+			"label_key": "object.core.surface_tree.name",
+			"stage_id": "tree",
+			"yield_amount": 12
+		},
+		{
+			"cell": [
+				4,
+				77
+			],
+			"id": "core:surface_tree_121",
+			"kind": "wood",
+			"label_key": "object.core.surface_tree.name",
+			"stage_id": "tree",
+			"yield_amount": 13
+		},
+		{
+			"cell": [
+				6,
+				75
+			],
+			"id": "core:surface_tree_122",
+			"kind": "wood",
+			"label_key": "object.core.surface_tree.name",
+			"stage_id": "tree",
+			"yield_amount": 12
+		},
+		{
+			"cell": [
+				8,
+				75
+			],
+			"id": "core:surface_tree_123",
+			"kind": "wood",
+			"label_key": "object.core.surface_tree.name",
+			"stage_id": "tree",
+			"yield_amount": 12
+		},
+		{
+			"cell": [
+				4,
+				75
+			],
+			"id": "core:surface_tree_124",
+			"kind": "wood",
+			"label_key": "object.core.surface_tree.name",
+			"stage_id": "tree",
+			"yield_amount": 13
+		},
+		{
+			"cell": [
+				7,
+				74
+			],
+			"id": "core:surface_tree_125",
+			"kind": "wood",
+			"label_key": "object.core.surface_tree.name",
+			"stage_id": "tree",
+			"yield_amount": 13
+		},
+		{
+			"cell": [
+				9,
+				72
+			],
+			"id": "core:surface_tree_126",
+			"kind": "wood",
+			"label_key": "object.core.surface_tree.name",
+			"stage_id": "tree",
+			"yield_amount": 12
+		},
+		{
+			"cell": [
+				5,
+				72
+			],
+			"id": "core:surface_tree_127",
+			"kind": "wood",
+			"label_key": "object.core.surface_tree.name",
+			"stage_id": "tree",
+			"yield_amount": 12
+		},
+		{
+			"cell": [
+				7,
+				72
+			],
+			"id": "core:surface_tree_128",
+			"kind": "wood",
+			"label_key": "object.core.surface_tree.name",
+			"stage_id": "tree",
+			"yield_amount": 12
+		},
+		{
+			"cell": [
+				6,
+				77
+			],
+			"id": "core:surface_tree_129",
+			"kind": "wood",
+			"label_key": "object.core.surface_tree.name",
+			"stage_id": "tree",
+			"yield_amount": 12
+		},
+		{
+			"cell": [
+				9,
+				74
+			],
+			"id": "core:surface_tree_130",
+			"kind": "wood",
+			"label_key": "object.core.surface_tree.name",
+			"stage_id": "tree",
+			"yield_amount": 13
+		},
+		{
+			"cell": [
+				5,
+				76
+			],
+			"id": "core:surface_tree_131",
+			"kind": "wood",
+			"label_key": "object.core.surface_tree.name",
+			"stage_id": "tree",
+			"yield_amount": 12
+		},
+		{
+			"cell": [
+				85,
+				115
+			],
+			"id": "core:surface_tree_132",
+			"kind": "wood",
+			"label_key": "object.core.surface_tree.name",
+			"stage_id": "tree",
+			"yield_amount": 12
+		},
+		{
+			"cell": [
+				83,
+				115
+			],
+			"id": "core:surface_tree_133",
+			"kind": "wood",
+			"label_key": "object.core.surface_tree.name",
+			"stage_id": "tree",
+			"yield_amount": 12
+		},
+		{
+			"cell": [
+				86,
+				118
+			],
+			"id": "core:surface_tree_134",
+			"kind": "wood",
+			"label_key": "object.core.surface_tree.name",
+			"stage_id": "tree",
+			"yield_amount": 13
+		},
+		{
+			"cell": [
+				84,
+				117
+			],
+			"id": "core:surface_tree_135",
+			"kind": "wood",
+			"label_key": "object.core.surface_tree.name",
+			"stage_id": "tree",
+			"yield_amount": 12
+		},
+		{
+			"cell": [
+				81,
+				115
+			],
+			"id": "core:surface_tree_136",
+			"kind": "wood",
+			"label_key": "object.core.surface_tree.name",
+			"stage_id": "tree",
+			"yield_amount": 12
+		},
+		{
+			"cell": [
+				81,
+				117
+			],
+			"id": "core:surface_tree_137",
+			"kind": "wood",
+			"label_key": "object.core.surface_tree.name",
+			"stage_id": "tree",
+			"yield_amount": 12
+		},
+		{
+			"cell": [
+				82,
+				118
+			],
+			"id": "core:surface_tree_138",
+			"kind": "wood",
+			"label_key": "object.core.surface_tree.name",
+			"stage_id": "tree",
+			"yield_amount": 12
+		},
+		{
+			"cell": [
+				86,
+				116
+			],
+			"id": "core:surface_tree_139",
+			"kind": "wood",
+			"label_key": "object.core.surface_tree.name",
+			"stage_id": "tree",
+			"yield_amount": 13
+		},
+		{
+			"cell": [
+				86,
+				120
+			],
+			"id": "core:surface_tree_140",
+			"kind": "wood",
+			"label_key": "object.core.surface_tree.name",
+			"stage_id": "tree",
+			"yield_amount": 13
+		},
+		{
+			"cell": [
+				84,
+				120
+			],
+			"id": "core:surface_tree_141",
+			"kind": "wood",
+			"label_key": "object.core.surface_tree.name",
+			"stage_id": "tree",
+			"yield_amount": 12
+		},
+		{
+			"cell": [
+				82,
+				114
+			],
+			"id": "core:surface_tree_142",
+			"kind": "wood",
+			"label_key": "object.core.surface_tree.name",
+			"stage_id": "tree",
+			"yield_amount": 12
+		},
+		{
+			"cell": [
+				87,
+				117
+			],
+			"id": "core:surface_tree_143",
+			"kind": "wood",
+			"label_key": "object.core.surface_tree.name",
+			"stage_id": "tree",
+			"yield_amount": 13
+		},
+		{
+			"cell": [
+				64,
+				88
+			],
+			"id": "core:surface_tree_144",
+			"kind": "wood",
+			"label_key": "object.core.surface_tree.name",
+			"stage_id": "tree",
+			"yield_amount": 13
+		},
+		{
+			"cell": [
+				59,
+				90
+			],
+			"id": "core:surface_tree_145",
+			"kind": "wood",
+			"label_key": "object.core.surface_tree.name",
+			"stage_id": "tree",
+			"yield_amount": 12
+		},
+		{
+			"cell": [
+				63,
+				89
+			],
+			"id": "core:surface_tree_146",
+			"kind": "wood",
+			"label_key": "object.core.surface_tree.name",
+			"stage_id": "tree",
+			"yield_amount": 12
+		},
+		{
+			"cell": [
+				61,
+				90
+			],
+			"id": "core:surface_tree_147",
+			"kind": "wood",
+			"label_key": "object.core.surface_tree.name",
+			"stage_id": "tree",
+			"yield_amount": 12
+		},
+		{
+			"cell": [
+				60,
+				88
+			],
+			"id": "core:surface_tree_148",
+			"kind": "wood",
+			"label_key": "object.core.surface_tree.name",
+			"stage_id": "tree",
+			"yield_amount": 12
+		},
+		{
+			"cell": [
+				63,
+				91
+			],
+			"id": "core:surface_tree_149",
+			"kind": "wood",
+			"label_key": "object.core.surface_tree.name",
+			"stage_id": "tree",
+			"yield_amount": 12
+		},
+		{
+			"cell": [
+				59,
+				94
+			],
+			"id": "core:surface_tree_150",
+			"kind": "wood",
+			"label_key": "object.core.surface_tree.name",
+			"stage_id": "tree",
+			"yield_amount": 12
+		},
+		{
+			"cell": [
+				60,
+				93
+			],
+			"id": "core:surface_tree_151",
+			"kind": "wood",
+			"label_key": "object.core.surface_tree.name",
+			"stage_id": "tree",
+			"yield_amount": 12
+		},
+		{
+			"cell": [
+				65,
+				93
+			],
+			"id": "core:surface_tree_152",
+			"kind": "wood",
+			"label_key": "object.core.surface_tree.name",
+			"stage_id": "tree",
+			"yield_amount": 12
+		},
+		{
+			"cell": [
+				61,
+				94
+			],
+			"id": "core:surface_tree_153",
+			"kind": "wood",
+			"label_key": "object.core.surface_tree.name",
+			"stage_id": "tree",
+			"yield_amount": 12
+		},
+		{
+			"cell": [
+				64,
+				90
+			],
+			"id": "core:surface_tree_154",
+			"kind": "wood",
+			"label_key": "object.core.surface_tree.name",
+			"stage_id": "tree",
+			"yield_amount": 12
+		},
+		{
+			"cell": [
+				62,
+				93
+			],
+			"id": "core:surface_tree_155",
+			"kind": "wood",
+			"label_key": "object.core.surface_tree.name",
+			"stage_id": "tree",
+			"yield_amount": 13
+		},
+		{
+			"cell": [
+				60,
+				91
+			],
+			"id": "core:surface_tree_156",
+			"kind": "wood",
+			"label_key": "object.core.surface_tree.name",
+			"stage_id": "tree",
+			"yield_amount": 12
+		},
+		{
+			"cell": [
+				61,
+				92
+			],
+			"id": "core:surface_tree_157",
+			"kind": "wood",
+			"label_key": "object.core.surface_tree.name",
+			"stage_id": "tree",
+			"yield_amount": 13
+		},
+		{
+			"cell": [
+				63,
+				94
+			],
+			"id": "core:surface_tree_158",
+			"kind": "wood",
+			"label_key": "object.core.surface_tree.name",
+			"stage_id": "tree",
+			"yield_amount": 13
+		},
+		{
+			"cell": [
+				64,
+				92
+			],
+			"id": "core:surface_tree_159",
+			"kind": "wood",
+			"label_key": "object.core.surface_tree.name",
+			"stage_id": "tree",
+			"yield_amount": 13
+		},
+		{
+			"cell": [
+				86,
+				10
+			],
+			"id": "core:surface_tree_160",
+			"kind": "wood",
+			"label_key": "object.core.surface_tree.name",
+			"stage_id": "tree",
+			"yield_amount": 12
+		},
+		{
+			"cell": [
+				88,
+				16
+			],
+			"id": "core:surface_tree_161",
+			"kind": "wood",
+			"label_key": "object.core.surface_tree.name",
+			"stage_id": "tree",
+			"yield_amount": 12
+		},
+		{
+			"cell": [
+				85,
+				16
+			],
+			"id": "core:surface_tree_162",
+			"kind": "wood",
+			"label_key": "object.core.surface_tree.name",
+			"stage_id": "tree",
+			"yield_amount": 13
+		},
+		{
+			"cell": [
+				84,
+				13
+			],
+			"id": "core:surface_tree_163",
+			"kind": "wood",
+			"label_key": "object.core.surface_tree.name",
+			"stage_id": "tree",
+			"yield_amount": 13
+		},
+		{
+			"cell": [
+				85,
+				11
+			],
+			"id": "core:surface_tree_164",
+			"kind": "wood",
+			"label_key": "object.core.surface_tree.name",
+			"stage_id": "tree",
+			"yield_amount": 13
+		},
+		{
+			"cell": [
+				90,
+				11
+			],
+			"id": "core:surface_tree_165",
+			"kind": "wood",
+			"label_key": "object.core.surface_tree.name",
+			"stage_id": "tree",
+			"yield_amount": 13
+		},
+		{
+			"cell": [
+				84,
+				10
+			],
+			"id": "core:surface_tree_166",
+			"kind": "wood",
+			"label_key": "object.core.surface_tree.name",
+			"stage_id": "tree",
+			"yield_amount": 13
+		},
+		{
+			"cell": [
+				86,
+				12
+			],
+			"id": "core:surface_tree_167",
+			"kind": "wood",
+			"label_key": "object.core.surface_tree.name",
+			"stage_id": "tree",
+			"yield_amount": 12
+		},
+		{
+			"cell": [
+				89,
+				12
+			],
+			"id": "core:surface_tree_168",
+			"kind": "wood",
+			"label_key": "object.core.surface_tree.name",
+			"stage_id": "tree",
+			"yield_amount": 12
+		},
+		{
+			"cell": [
+				84,
+				15
+			],
+			"id": "core:surface_tree_169",
+			"kind": "wood",
+			"label_key": "object.core.surface_tree.name",
+			"stage_id": "tree",
+			"yield_amount": 12
+		},
+		{
+			"cell": [
+				86,
+				15
+			],
+			"id": "core:surface_tree_170",
+			"kind": "wood",
+			"label_key": "object.core.surface_tree.name",
+			"stage_id": "tree",
+			"yield_amount": 12
+		},
+		{
+			"cell": [
+				87,
+				11
+			],
+			"id": "core:surface_tree_171",
+			"kind": "wood",
+			"label_key": "object.core.surface_tree.name",
+			"stage_id": "tree",
+			"yield_amount": 13
+		},
+		{
+			"cell": [
+				88,
+				10
+			],
+			"id": "core:surface_tree_172",
+			"kind": "wood",
+			"label_key": "object.core.surface_tree.name",
+			"stage_id": "tree",
+			"yield_amount": 13
+		},
+		{
+			"cell": [
+				107,
+				60
+			],
+			"id": "core:surface_tree_173",
+			"kind": "wood",
+			"label_key": "object.core.surface_tree.name",
+			"stage_id": "tree",
+			"yield_amount": 13
+		},
+		{
+			"cell": [
+				108,
+				62
+			],
+			"id": "core:surface_tree_174",
+			"kind": "wood",
+			"label_key": "object.core.surface_tree.name",
+			"stage_id": "tree",
+			"yield_amount": 13
+		},
+		{
+			"cell": [
+				105,
+				58
+			],
+			"id": "core:surface_tree_175",
+			"kind": "wood",
+			"label_key": "object.core.surface_tree.name",
+			"stage_id": "tree",
+			"yield_amount": 12
+		},
+		{
+			"cell": [
+				106,
+				57
+			],
+			"id": "core:surface_tree_176",
+			"kind": "wood",
+			"label_key": "object.core.surface_tree.name",
+			"stage_id": "tree",
+			"yield_amount": 13
+		},
+		{
+			"cell": [
+				102,
+				59
+			],
+			"id": "core:surface_tree_177",
+			"kind": "wood",
+			"label_key": "object.core.surface_tree.name",
+			"stage_id": "tree",
+			"yield_amount": 13
+		},
+		{
+			"cell": [
+				105,
+				60
+			],
+			"id": "core:surface_tree_178",
+			"kind": "wood",
+			"label_key": "object.core.surface_tree.name",
+			"stage_id": "tree",
+			"yield_amount": 13
+		},
+		{
+			"cell": [
+				103,
+				61
+			],
+			"id": "core:surface_tree_179",
+			"kind": "wood",
+			"label_key": "object.core.surface_tree.name",
+			"stage_id": "tree",
+			"yield_amount": 13
+		},
+		{
+			"cell": [
+				106,
+				61
+			],
+			"id": "core:surface_tree_180",
+			"kind": "wood",
+			"label_key": "object.core.surface_tree.name",
+			"stage_id": "tree",
+			"yield_amount": 13
+		},
+		{
+			"cell": [
+				108,
+				59
+			],
+			"id": "core:surface_tree_181",
+			"kind": "wood",
+			"label_key": "object.core.surface_tree.name",
+			"stage_id": "tree",
+			"yield_amount": 13
+		},
+		{
+			"cell": [
+				102,
+				62
+			],
+			"id": "core:surface_tree_182",
+			"kind": "wood",
+			"label_key": "object.core.surface_tree.name",
+			"stage_id": "tree",
+			"yield_amount": 13
+		},
+		{
+			"cell": [
+				107,
+				58
+			],
+			"id": "core:surface_tree_183",
+			"kind": "wood",
+			"label_key": "object.core.surface_tree.name",
+			"stage_id": "tree",
+			"yield_amount": 13
+		},
+		{
+			"cell": [
+				102,
+				56
+			],
+			"id": "core:surface_tree_184",
+			"kind": "wood",
+			"label_key": "object.core.surface_tree.name",
+			"stage_id": "tree",
+			"yield_amount": 12
+		},
+		{
+			"cell": [
+				104,
+				57
+			],
+			"id": "core:surface_tree_185",
+			"kind": "wood",
+			"label_key": "object.core.surface_tree.name",
+			"stage_id": "tree",
+			"yield_amount": 12
+		},
+		{
+			"cell": [
+				108,
+				56
+			],
+			"id": "core:surface_tree_186",
+			"kind": "wood",
+			"label_key": "object.core.surface_tree.name",
+			"stage_id": "tree",
+			"yield_amount": 12
+		},
+		{
+			"cell": [
+				105,
+				62
+			],
+			"id": "core:surface_tree_187",
+			"kind": "wood",
+			"label_key": "object.core.surface_tree.name",
+			"stage_id": "tree",
+			"yield_amount": 13
+		},
+		{
+			"cell": [
+				104,
+				59
+			],
+			"id": "core:surface_tree_188",
+			"kind": "wood",
+			"label_key": "object.core.surface_tree.name",
+			"stage_id": "tree",
+			"yield_amount": 12
+		},
+		{
+			"cell": [
+				106,
+				59
+			],
+			"id": "core:surface_tree_189",
+			"kind": "wood",
+			"label_key": "object.core.surface_tree.name",
+			"stage_id": "tree",
+			"yield_amount": 12
+		},
+		{
+			"cell": [
+				103,
+				58
+			],
+			"id": "core:surface_tree_190",
+			"kind": "wood",
+			"label_key": "object.core.surface_tree.name",
+			"stage_id": "tree",
+			"yield_amount": 13
+		},
+		{
+			"cell": [
+				125,
+				2
+			],
+			"id": "core:surface_tree_191",
+			"kind": "wood",
+			"label_key": "object.core.surface_tree.name",
+			"stage_id": "tree",
+			"yield_amount": 12
+		},
+		{
+			"cell": [
+				122,
+				2
+			],
+			"id": "core:surface_tree_192",
+			"kind": "wood",
+			"label_key": "object.core.surface_tree.name",
+			"stage_id": "tree",
+			"yield_amount": 12
+		},
+		{
+			"cell": [
+				122,
+				4
+			],
+			"id": "core:surface_tree_193",
+			"kind": "wood",
+			"label_key": "object.core.surface_tree.name",
+			"stage_id": "tree",
+			"yield_amount": 12
+		},
+		{
+			"cell": [
+				121,
+				3
+			],
+			"id": "core:surface_tree_194",
+			"kind": "wood",
+			"label_key": "object.core.surface_tree.name",
+			"stage_id": "tree",
+			"yield_amount": 12
+		},
+		{
+			"cell": [
+				125,
+				4
+			],
+			"id": "core:surface_tree_195",
+			"kind": "wood",
+			"label_key": "object.core.surface_tree.name",
+			"stage_id": "tree",
+			"yield_amount": 12
+		},
+		{
+			"cell": [
+				124,
+				3
+			],
+			"id": "core:surface_tree_196",
+			"kind": "wood",
+			"label_key": "object.core.surface_tree.name",
+			"stage_id": "tree",
+			"yield_amount": 12
+		},
+		{
+			"cell": [
+				123,
+				5
+			],
+			"id": "core:surface_tree_197",
+			"kind": "wood",
+			"label_key": "object.core.surface_tree.name",
+			"stage_id": "tree",
+			"yield_amount": 12
+		},
+		{
+			"cell": [
+				74,
+				65
+			],
+			"id": "core:surface_tree_198",
+			"kind": "wood",
+			"label_key": "object.core.surface_tree.name",
+			"stage_id": "tree",
+			"yield_amount": 12
+		},
+		{
+			"cell": [
+				74,
+				69
+			],
+			"id": "core:surface_tree_199",
+			"kind": "wood",
+			"label_key": "object.core.surface_tree.name",
+			"stage_id": "tree",
+			"yield_amount": 12
+		},
+		{
+			"cell": [
+				74,
+				67
+			],
+			"id": "core:surface_tree_200",
+			"kind": "wood",
+			"label_key": "object.core.surface_tree.name",
+			"stage_id": "tree",
+			"yield_amount": 12
+		},
+		{
+			"cell": [
+				70,
+				69
+			],
+			"id": "core:surface_tree_201",
+			"kind": "wood",
+			"label_key": "object.core.surface_tree.name",
+			"stage_id": "tree",
+			"yield_amount": 13
+		},
+		{
+			"cell": [
+				73,
+				66
+			],
+			"id": "core:surface_tree_202",
+			"kind": "wood",
+			"label_key": "object.core.surface_tree.name",
+			"stage_id": "tree",
+			"yield_amount": 12
+		},
+		{
+			"cell": [
+				72,
+				68
+			],
+			"id": "core:surface_tree_203",
+			"kind": "wood",
+			"label_key": "object.core.surface_tree.name",
+			"stage_id": "tree",
+			"yield_amount": 13
+		},
+		{
+			"cell": [
+				72,
+				65
+			],
+			"id": "core:surface_tree_204",
+			"kind": "wood",
+			"label_key": "object.core.surface_tree.name",
+			"stage_id": "tree",
+			"yield_amount": 12
+		},
+		{
+			"cell": [
+				69,
+				71
+			],
+			"id": "core:surface_tree_205",
+			"kind": "wood",
+			"label_key": "object.core.surface_tree.name",
+			"stage_id": "tree",
+			"yield_amount": 13
+		}
+	],
+	"version": 38,
+	"world_drops": []
+}

@@ -15,9 +15,11 @@ func has_unlock(id: String) -> bool:
 
 var content: FirstNightContent
 var reference_errors: Array[String] = []
+var _recipes_path: String = RECIPES_PATH
 
-func _init(item_content: FirstNightContent = null) -> void:
+func _init(item_content: FirstNightContent = null, recipes_path: String = RECIPES_PATH) -> void:
 	content = item_content if item_content != null else FirstNightContent.new()
+	_recipes_path = recipes_path
 	_load_definitions()
 
 
@@ -59,9 +61,9 @@ func get_work_minutes(recipe_id: String) -> int:
 
 
 func _load_definitions() -> void:
-	var file := FileAccess.open(RECIPES_PATH, FileAccess.READ)
+	var file := FileAccess.open(_recipes_path, FileAccess.READ)
 	if file == null:
-		push_error("Crafting catalog could not open %s." % RECIPES_PATH)
+		push_error("Crafting catalog could not open %s." % _recipes_path)
 		return
 	var parsed: Variant = JSON.parse_string(file.get_as_text())
 	if typeof(parsed) != TYPE_DICTIONARY:

@@ -14,7 +14,7 @@ const SAVE_PATH: String = "user://first_night_save.json"
 var simulation: Simulation
 var _is_paused: bool = false
 var _mechanics_lab_active: bool = false
-var _save_store := SaveStore.new(SAVE_PATH)
+var _save_store := SaveStore.new(SaveStore.session_path())
 
 
 func _ready() -> void:
