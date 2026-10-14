@@ -1,35 +1,26 @@
 {
     "feature":  "NPC shared crop harvest",
     "base":  "d2c5021",
-    "feature_head":  "1107267",
+    "feature_head":  "c797389",
+    "reviewed_range":  "d2c5021..72a2d52",
+    "review_fixes_verified":  "harvest-review-green-01",
     "runs":  [
                  {
-                     "run":  "harvest-core-final-01",
+                     "run":  "harvest-reviewed-final-01",
                      "result":  {
                                     "checks":  [
                                                    {
                                                        "check":  "run_tests.gd",
                                                        "exit":  0,
                                                        "passed":  true
-                                                   }
-                                               ],
-                                    "save_before":  {
-                                                        "C:\\Users\\Bohdan\\AppData\\Roaming\\Godot\\app_userdata\\The Last Garden\\first_night_save.json":  "0b36a8a08c4bf70881460e7b222a8ca9d7570a808e2524521e724d338d6de7e8",
-                                                        "C:\\Users\\Bohdan\\AppData\\Roaming\\Godot\\app_userdata\\The Last Garden\\first_night_save.json.bak":  "cf0266280171625f3036026913812bffd2ff8f5600b18aff6737e0a528817dc0"
-                                                    },
-                                    "save_after":  {
-                                                       "C:\\Users\\Bohdan\\AppData\\Roaming\\Godot\\app_userdata\\The Last Garden\\first_night_save.json":  "0b36a8a08c4bf70881460e7b222a8ca9d7570a808e2524521e724d338d6de7e8",
-                                                       "C:\\Users\\Bohdan\\AppData\\Roaming\\Godot\\app_userdata\\The Last Garden\\first_night_save.json.bak":  "cf0266280171625f3036026913812bffd2ff8f5600b18aff6737e0a528817dc0"
-                                                   }
-                                },
-                     "result_sha256":  "5f371d6b78d557bce76373f6629de263dd52b49dca8a1566631705954ceb4d4b"
-                 },
-                 {
-                     "run":  "harvest-integration-01",
-                     "result":  {
-                                    "checks":  [
+                                                   },
                                                    {
-                                                       "check":  "run_tests.gd",
+                                                       "check":  "npc_crop_harvest_seven_days.gd",
+                                                       "exit":  0,
+                                                       "passed":  true
+                                                   },
+                                                   {
+                                                       "check":  "graphic:npc_crop_harvest_ui_test.tscn",
                                                        "exit":  0,
                                                        "passed":  true
                                                    },
@@ -42,9 +33,25 @@
                                                        "check":  "storage_integration_test.tscn",
                                                        "exit":  0,
                                                        "passed":  true
-                                                   },
+                                                   }
+                                               ],
+                                    "save_before":  {
+                                                        "C:\\Users\\Bohdan\\AppData\\Roaming\\Godot\\app_userdata\\The Last Garden\\first_night_save.json":  "0b36a8a08c4bf70881460e7b222a8ca9d7570a808e2524521e724d338d6de7e8",
+                                                        "C:\\Users\\Bohdan\\AppData\\Roaming\\Godot\\app_userdata\\The Last Garden\\first_night_save.json.bak":  "cf0266280171625f3036026913812bffd2ff8f5600b18aff6737e0a528817dc0"
+                                                    },
+                                    "save_after":  {
+                                                       "C:\\Users\\Bohdan\\AppData\\Roaming\\Godot\\app_userdata\\The Last Garden\\first_night_save.json":  "0b36a8a08c4bf70881460e7b222a8ca9d7570a808e2524521e724d338d6de7e8",
+                                                       "C:\\Users\\Bohdan\\AppData\\Roaming\\Godot\\app_userdata\\The Last Garden\\first_night_save.json.bak":  "cf0266280171625f3036026913812bffd2ff8f5600b18aff6737e0a528817dc0"
+                                                   }
+                                },
+                     "result_sha256":  "c9b9c07a6387128c45c43a7cf4110375d86d4173089bcd5e7eb1474600f57006"
+                 },
+                 {
+                     "run":  "harvest-review-green-01",
+                     "result":  {
+                                    "checks":  [
                                                    {
-                                                       "check":  "npc_crop_harvest_rules_test.gd",
+                                                       "check":  "npc_crop_harvest_food_test.gd",
                                                        "exit":  0,
                                                        "passed":  true
                                                    },
@@ -54,12 +61,17 @@
                                                        "passed":  true
                                                    },
                                                    {
-                                                       "check":  "npc_crop_harvest_food_test.gd",
+                                                       "check":  "npc_crop_harvest_rules_test.gd",
                                                        "exit":  0,
                                                        "passed":  true
                                                    },
                                                    {
-                                                       "check":  "npc_crop_harvest_seed_report_test.gd",
+                                                       "check":  "playtest_npc_food_test.gd",
+                                                       "exit":  0,
+                                                       "passed":  true
+                                                   },
+                                                   {
+                                                       "check":  "item_food_actions_test.tscn",
                                                        "exit":  0,
                                                        "passed":  true
                                                    }
@@ -73,7 +85,33 @@
                                                        "C:\\Users\\Bohdan\\AppData\\Roaming\\Godot\\app_userdata\\The Last Garden\\first_night_save.json.bak":  "cf0266280171625f3036026913812bffd2ff8f5600b18aff6737e0a528817dc0"
                                                    }
                                 },
-                     "result_sha256":  "dd93d11362feec8de5f488183e3f547ec2bb4517b8a36329afea7eeed063051b"
+                     "result_sha256":  "614867fdf194a4d8b6fede71d26f6459024e2553cdbc15caca0dcfc470fb7209"
+                 },
+                 {
+                     "run":  "harvest-live-catalog-green-02",
+                     "result":  {
+                                    "checks":  [
+                                                   {
+                                                       "check":  "item_food_actions_test.tscn",
+                                                       "exit":  0,
+                                                       "passed":  true
+                                                   },
+                                                   {
+                                                       "check":  "npc_crop_harvest_food_test.gd",
+                                                       "exit":  0,
+                                                       "passed":  true
+                                                   }
+                                               ],
+                                    "save_before":  {
+                                                        "C:\\Users\\Bohdan\\AppData\\Roaming\\Godot\\app_userdata\\The Last Garden\\first_night_save.json":  "0b36a8a08c4bf70881460e7b222a8ca9d7570a808e2524521e724d338d6de7e8",
+                                                        "C:\\Users\\Bohdan\\AppData\\Roaming\\Godot\\app_userdata\\The Last Garden\\first_night_save.json.bak":  "cf0266280171625f3036026913812bffd2ff8f5600b18aff6737e0a528817dc0"
+                                                    },
+                                    "save_after":  {
+                                                       "C:\\Users\\Bohdan\\AppData\\Roaming\\Godot\\app_userdata\\The Last Garden\\first_night_save.json":  "0b36a8a08c4bf70881460e7b222a8ca9d7570a808e2524521e724d338d6de7e8",
+                                                       "C:\\Users\\Bohdan\\AppData\\Roaming\\Godot\\app_userdata\\The Last Garden\\first_night_save.json.bak":  "cf0266280171625f3036026913812bffd2ff8f5600b18aff6737e0a528817dc0"
+                                                   }
+                                },
+                     "result_sha256":  "2c5d74caf98487711f0fefab01fe2c27c5e401a5610660901cff09d46e2e6d85"
                  },
                  {
                      "run":  "harvest-acceptance-01",
@@ -110,32 +148,6 @@
                                                    }
                                 },
                      "result_sha256":  "d7e93830008ef31e76c56d42e529ea93a3ad443fe22fdf5424b21c22f216081e"
-                 },
-                 {
-                     "run":  "harvest-live-catalog-green-02",
-                     "result":  {
-                                    "checks":  [
-                                                   {
-                                                       "check":  "item_food_actions_test.tscn",
-                                                       "exit":  0,
-                                                       "passed":  true
-                                                   },
-                                                   {
-                                                       "check":  "npc_crop_harvest_food_test.gd",
-                                                       "exit":  0,
-                                                       "passed":  true
-                                                   }
-                                               ],
-                                    "save_before":  {
-                                                        "C:\\Users\\Bohdan\\AppData\\Roaming\\Godot\\app_userdata\\The Last Garden\\first_night_save.json":  "0b36a8a08c4bf70881460e7b222a8ca9d7570a808e2524521e724d338d6de7e8",
-                                                        "C:\\Users\\Bohdan\\AppData\\Roaming\\Godot\\app_userdata\\The Last Garden\\first_night_save.json.bak":  "cf0266280171625f3036026913812bffd2ff8f5600b18aff6737e0a528817dc0"
-                                                    },
-                                    "save_after":  {
-                                                       "C:\\Users\\Bohdan\\AppData\\Roaming\\Godot\\app_userdata\\The Last Garden\\first_night_save.json":  "0b36a8a08c4bf70881460e7b222a8ca9d7570a808e2524521e724d338d6de7e8",
-                                                       "C:\\Users\\Bohdan\\AppData\\Roaming\\Godot\\app_userdata\\The Last Garden\\first_night_save.json.bak":  "cf0266280171625f3036026913812bffd2ff8f5600b18aff6737e0a528817dc0"
-                                                   }
-                                },
-                     "result_sha256":  "2c5d74caf98487711f0fefab01fe2c27c5e401a5610660901cff09d46e2e6d85"
                  },
                  {
                      "run":  "harvest-work-green-02",
@@ -195,6 +207,6 @@
                      "result_sha256":  "6a6fc34864635b790a6b9babdb02bfdccf2606037565db9b20ffd1a591daa54e"
                  }
              ],
-    "seven_day_report":  "harvest-acceptance-01/crop-seven-days.json",
+    "seven_day_report":  "harvest-reviewed-final-01/crop-seven-days.json",
     "scope":  "contracts and scripted route, not balanced food supply or manual playtest"
 }
