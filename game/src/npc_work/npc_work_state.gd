@@ -1,7 +1,7 @@
 extends RefCounted
 
-const KINDS := ["water", "gather", "build", "harvest"]
-const PHASES := ["borrow", "refill", "work", "collect", "take_materials", "deliver", "build", "return", "switch_on", "craft_take", "craft"]
+const KINDS := ["water", "gather", "build", "harvest", "sow"]
+const PHASES := ["borrow", "refill", "work", "collect", "take_materials", "deliver", "build", "return", "switch_on", "craft_take", "craft", "take_seed", "sow", "seed_forage", "seed_collect", "seed_extract"]
 
 static func normalize(npc: Dictionary, content) -> void:
 	preload("res://src/npc_work/npc_workbench_request.gd").normalize(npc)
@@ -26,7 +26,7 @@ static func normalize(npc: Dictionary, content) -> void:
 	if raw is Dictionary and KINDS.has(String(raw.get("kind", ""))) and PHASES.has(String(raw.get("phase", ""))):
 		job = {"kind": String(raw.kind), "phase": String(raw.phase)}
 		if String(raw.get("production_scope","")) == "communal" and String(raw.kind) == "build": job.production_scope = "communal"
-		for key: String in ["tool_id", "target_id", "resource_item", "crop_id"]:
+		for key: String in ["tool_id", "target_id", "resource_item", "crop_id", "seed_id", "food_id", "drop_id"]:
 			if raw.has(key):
 				job[key] = String(raw[key])
 		var cell: Variant = raw.get("cell", [])

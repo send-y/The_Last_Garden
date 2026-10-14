@@ -40,6 +40,8 @@ func normalize(sim) -> void:
 			var bed: Dictionary = {"cell": [cell.x, cell.y], "crop_id": String(crop.get("id", "")),
 				"growth": 0, "wet_until": 0, "last_update": now, "harvests": 0}
 			bed.shared_harvest = value.get("shared_harvest", false) is bool and value.get("shared_harvest", false)
+			bed.maintain_crop = value.get("maintain_crop",false) is bool and value.get("maintain_crop",false)
+			bed.planned_crop_id = String(catalog.find_saved(String(value.get("planned_crop_id",""))).get("id",""))
 			bed.planting_id = clampi(_number(value.get("planting_id"),0),0,100000000)
 			normalized.planting_serial = maxi(int(normalized.planting_serial),int(bed.planting_id))
 			bed["harvests"] = clampi(_number(value.get("harvests"), 0), 0, 100000000)
@@ -123,6 +125,14 @@ func execute(sim, command: Dictionary) -> Dictionary:
 			return _result(sim,false,"farming.failure.action")
 		shared_bed.shared_harvest = command.enabled
 		return _result(sim,true,"farming.shared.changed")
+	if action == "set_maintained_crop":
+		var planned_bed := bed_at(sim,cell)
+		var planned := catalog.find(String(command.get("crop_id","")))
+		if planned_bed.is_empty() or not command.get("enabled") is bool or (bool(command.enabled) and (planned.is_empty() or not bool(planned_bed.get("shared_harvest",false)))):
+			return _result(sim,false,"farming.failure.action")
+		planned_bed.maintain_crop = command.enabled
+		if not planned.is_empty(): planned_bed.planned_crop_id = String(planned.id)
+		return _result(sim,true,"farming.maintain.changed")
 	# Refusals must not interrupt a seated/resting actor or consume a charge.
 	if action == "till" and not sim.actor_tool_supports("core:player", "till"):
 		return _result(sim, false, "farming.failure.hoe")
@@ -160,13 +170,8 @@ func execute(sim, command: Dictionary) -> Dictionary:
 				return _result(sim, false, "farming.failure.plant")
 			if not sim._consume_items({seed_id: 1}):
 				return _result(sim, false, "farming.failure.seeds")
-			bed.crop_id = crop.id
-			sim.state.farming.planting_serial = int(sim.state.farming.get("planting_serial",0))+1
-			bed.planting_id = int(sim.state.farming.planting_serial)
-			bed.growth = 0
-			bed.harvests = 0
-			bed.last_update = sim.get_elapsed_game_minutes()
-			sim.work_metrics.record_farming(sim,"core:player","planted",seed_id,1)
+			_apply_plant(sim,bed,crop,"core:player")
+			bed.planned_crop_id = String(crop.id)
 			return _result(sim, true, "farming.planted")
 		"water":
 			return water_for_actor(sim, "core:player", cell)
@@ -224,6 +229,70 @@ func can_extract_seeds(item_id: String) -> bool:
 	return not crop.is_empty() and item_id == String(crop.product_id)
 
 
+func _apply_plant(sim, bed: Dictionary, crop: Dictionary, actor_id: String) -> void:
+	bed.crop_id = crop.id
+	sim.state.farming.planting_serial = int(sim.state.farming.get("planting_serial",0))+1
+	bed.planting_id = int(sim.state.farming.planting_serial)
+	bed.growth = 0
+	bed.harvests = 0
+	bed.last_update = sim.get_elapsed_game_minutes()
+	sim.work_metrics.record_farming(sim,actor_id,"planted",String(crop.seed_id),1)
+
+
+func plant_for_actor(sim, actor_id: String, cell: Vector2i, seed_id: String) -> Dictionary:
+	var npc: Dictionary = sim.state.npcs.get(actor_id,{})
+	var bed := bed_at(sim,cell)
+	var crop := catalog.find(seed_id)
+	if npc.is_empty() or not bool(npc.get("active",false)) or not bool(npc.get("known",false)) or not bool(npc.get("work_options",{}).get("sow",false)):
+		return {"success":false,"reason_id":"farming.failure.actor"}
+	if not preload("res://src/npc_work/npc_work_supplies.gd").nearby(sim,npc,cell):
+		return {"success":false,"reason_id":"interaction.failure.too_far"}
+	if bed.is_empty() or not bool(bed.get("shared_harvest",false)) or not bool(bed.get("maintain_crop",false)) or not String(bed.get("crop_id","")).is_empty() or crop.is_empty() or String(crop.seed_id)!=seed_id or String(bed.get("planned_crop_id",""))!=String(crop.id):
+		return {"success":false,"reason_id":"farming.failure.plant"}
+	if int(npc.work_cargo.get(seed_id,0))<1:
+		return {"success":false,"reason_id":"farming.failure.seeds"}
+	npc.work_cargo[seed_id] = int(npc.work_cargo[seed_id])-1
+	if int(npc.work_cargo[seed_id])==0: npc.work_cargo.erase(seed_id)
+	_apply_plant(sim,bed,crop,actor_id)
+	sim.needs.spend_work(npc.needs)
+	return {"success":true}
+
+
+func _seed_roll(sim, item_id: String) -> Dictionary:
+	var crop := catalog.find(item_id)
+	var rng := RandomNumberGenerator.new()
+	rng.seed = int(sim.state.seed) ^ (int(sim.state.farming.roll_index)*104729+57391)
+	if item_id==Content.FOOD_ID:
+		if catalog.crops.is_empty(): return {}
+		crop = catalog.crops[rng.randi_range(0,catalog.crops.size()-1)]
+	if crop.is_empty(): return {}
+	return {"seed_id":String(crop.seed_id),"amount":rng.randi_range(2,4) if item_id==Content.FOOD_ID else rng.randi_range(1,5),"crop":crop}
+
+
+func extract_for_worker(sim, actor_id: String, item_id: String) -> Dictionary:
+	var npc: Dictionary = sim.state.npcs.get(actor_id,{})
+	if npc.is_empty() or not bool(npc.get("active",false)) or not bool(npc.get("known",false)) or not bool(npc.get("work_options",{}).get("sow",false)) or not can_extract_seeds(item_id) or int(npc.get("work_cargo",{}).get(item_id,0))<1:
+		return {"success":false}
+	if item_id!=Content.FOOD_ID:
+		var nearby_table := false
+		for structure: Dictionary in sim.get_structures():
+			if String(structure.get("building_id",""))=="core:study_table" and preload("res://src/npc_work/npc_work_supplies.gd").nearby(sim,npc,Vector2i(int(structure.cell[0]),int(structure.cell[1]))): nearby_table = true
+		if not nearby_table: return {"success":false}
+	var result := _seed_roll(sim,item_id)
+	if result.is_empty() or preload("res://src/npc_work/npc_work_supplies.gd").cargo_size(npc)-1+int(result.amount)>preload("res://src/npc_work/npc_work_supplies.gd").CARRY_LIMIT: return {"success":false}
+	npc.work_cargo[item_id] = int(npc.work_cargo[item_id])-1
+	if int(npc.work_cargo[item_id])==0: npc.work_cargo.erase(item_id)
+	npc.work_cargo[result.seed_id] = int(npc.work_cargo.get(result.seed_id,0))+int(result.amount)
+	sim.state.farming.roll_index = int(sim.state.farming.roll_index)+1
+	sim.state.farming.extraction_count = int(sim.state.farming.extraction_count)+1
+	if item_id!=Content.FOOD_ID: sim.state.farming.crop_extraction_count = int(sim.state.farming.crop_extraction_count)+1
+	sim.work_metrics.record_farming(sim,actor_id,"extracted",String(result.seed_id),int(result.amount))
+	sim.work_metrics.record_farming(sim,actor_id,"extraction_inputs",item_id,1)
+	sim.needs.spend_work(npc.needs)
+	result.success = true
+	return result
+
+
 func _extract(sim, item_id: String) -> Dictionary:
 	var special := item_id == Content.FOOD_ID
 	var crop := catalog.find(item_id)
@@ -235,14 +304,12 @@ func _extract(sim, item_id: String) -> Dictionary:
 		return _result(sim, false, "farming.failure.product")
 	if special and catalog.crops.is_empty():
 		return _result(sim, false, "farming.failure.product")
-	var rng := RandomNumberGenerator.new()
 	var serial: int = int(sim.state.farming.roll_index)
 	# The stream advances only when the entire inventory transaction commits.
 	# Save/load and failed capacity checks retain the same next result.
-	rng.seed = int(sim.state.seed) ^ (serial * 104729 + 57391)
-	if special:
-		crop = catalog.crops[rng.randi_range(0, catalog.crops.size() - 1)]
-	var amount := rng.randi_range(2, 4) if special else rng.randi_range(1, 5)
+	var roll := _seed_roll(sim,item_id)
+	crop = roll.crop
+	var amount := int(roll.amount)
 	var inventory: Dictionary = sim.get_inventory()
 	inventory[item_id] = int(inventory.get(item_id, 0)) - 1
 	var seed_id := String(crop.seed_id)
