@@ -1,0 +1,1347 @@
+{
+	"comparisons": [
+		{
+			"checkpoints": [
+				{
+					"day": 1,
+					"energy": 100.0,
+					"food": {
+						"player": 0,
+						"residents": {
+							"core:first_neighbor": 18
+						},
+						"storage": 0
+					},
+					"satiety": 90.0,
+					"time": "11:00"
+				},
+				{
+					"day": 1,
+					"energy": 63.0,
+					"food": {
+						"player": 0,
+						"residents": {
+							"core:first_neighbor": 18
+						},
+						"storage": 0
+					},
+					"satiety": 75.6,
+					"time": "15:00"
+				},
+				{
+					"day": 1,
+					"energy": 20.0,
+					"food": {
+						"player": 1,
+						"residents": {
+							"core:first_neighbor": 18
+						},
+						"storage": 0
+					},
+					"satiety": 68.0,
+					"time": "21:00"
+				},
+				{
+					"day": 2,
+					"energy": 92.0,
+					"food": {
+						"player": 9,
+						"residents": {
+							"core:first_neighbor": 8
+						},
+						"storage": 0
+					},
+					"satiety": 65.865,
+					"time": "11:00"
+				},
+				{
+					"day": 2,
+					"energy": 85.0,
+					"food": {
+						"player": 8,
+						"residents": {
+							"core:first_neighbor": 7
+						},
+						"storage": 0
+					},
+					"satiety": 65.465,
+					"time": "15:00"
+				},
+				{
+					"day": 2,
+					"energy": 95.0,
+					"food": {
+						"player": 6,
+						"residents": {
+							"core:first_neighbor": 5
+						},
+						"storage": 0
+					},
+					"satiety": 71.865,
+					"time": "21:00"
+				},
+				{
+					"day": 3,
+					"energy": 100.0,
+					"food": {
+						"player": 4,
+						"residents": {
+							"core:first_neighbor": 3,
+							"core:resident_1": 0
+						},
+						"storage": 0
+					},
+					"satiety": 70.465,
+					"time": "11:00"
+				},
+				{
+					"day": 3,
+					"energy": 100.0,
+					"food": {
+						"player": 3,
+						"residents": {
+							"core:first_neighbor": 2,
+							"core:resident_1": 0
+						},
+						"storage": 0
+					},
+					"satiety": 70.065,
+					"time": "15:00"
+				},
+				{
+					"day": 3,
+					"energy": 100.0,
+					"food": {
+						"player": 2,
+						"residents": {
+							"core:first_neighbor": 0,
+							"core:resident_1": 0
+						},
+						"storage": 0
+					},
+					"satiety": 62.465,
+					"time": "21:00"
+				},
+				{
+					"day": 4,
+					"energy": 100.0,
+					"food": {
+						"player": 0,
+						"residents": {
+							"core:first_neighbor": 0,
+							"core:resident_1": 0
+						},
+						"storage": 0
+					},
+					"satiety": 61.065,
+					"time": "11:00"
+				},
+				{
+					"day": 4,
+					"energy": 100.0,
+					"food": {
+						"player": 1,
+						"residents": {
+							"core:first_neighbor": 0,
+							"core:resident_1": 0
+						},
+						"storage": 0
+					},
+					"satiety": 60.665,
+					"time": "15:00"
+				},
+				{
+					"day": 4,
+					"energy": 100.0,
+					"food": {
+						"player": 1,
+						"residents": {
+							"core:first_neighbor": 0,
+							"core:resident_1": 2
+						},
+						"storage": 0
+					},
+					"satiety": 67.065,
+					"time": "21:00"
+				},
+				{
+					"day": 5,
+					"energy": 100.0,
+					"food": {
+						"player": 1,
+						"residents": {
+							"core:first_neighbor": 0,
+							"core:resident_1": 0
+						},
+						"storage": 0
+					},
+					"satiety": 65.63,
+					"time": "11:00"
+				},
+				{
+					"day": 5,
+					"energy": 100.0,
+					"food": {
+						"player": 0,
+						"residents": {
+							"core:first_neighbor": 0,
+							"core:resident_1": 0
+						},
+						"storage": 0
+					},
+					"satiety": 65.23,
+					"time": "15:00"
+				},
+				{
+					"day": 5,
+					"energy": 100.0,
+					"food": {
+						"player": 0,
+						"residents": {
+							"core:first_neighbor": 0,
+							"core:resident_1": 0
+						},
+						"storage": 0
+					},
+					"satiety": 71.63,
+					"time": "21:00"
+				},
+				{
+					"day": 6,
+					"energy": 100.0,
+					"food": {
+						"player": 0,
+						"residents": {
+							"core:first_neighbor": 0,
+							"core:resident_1": 0
+						},
+						"storage": 0
+					},
+					"satiety": 70.23,
+					"time": "11:00"
+				},
+				{
+					"day": 6,
+					"energy": 100.0,
+					"food": {
+						"player": 1,
+						"residents": {
+							"core:first_neighbor": 0,
+							"core:resident_1": 0
+						},
+						"storage": 0
+					},
+					"satiety": 69.83,
+					"time": "15:00"
+				},
+				{
+					"day": 6,
+					"energy": 100.0,
+					"food": {
+						"player": 0,
+						"residents": {
+							"core:first_neighbor": 0,
+							"core:resident_1": 0
+						},
+						"storage": 0
+					},
+					"satiety": 62.23,
+					"time": "21:00"
+				},
+				{
+					"day": 7,
+					"energy": 100.0,
+					"food": {
+						"player": 0,
+						"residents": {
+							"core:first_neighbor": 0,
+							"core:resident_1": 0
+						},
+						"storage": 0
+					},
+					"satiety": 60.795,
+					"time": "11:00"
+				},
+				{
+					"day": 7,
+					"energy": 100.0,
+					"food": {
+						"player": 1,
+						"residents": {
+							"core:first_neighbor": 0,
+							"core:resident_1": 0
+						},
+						"storage": 0
+					},
+					"satiety": 60.395,
+					"time": "15:00"
+				},
+				{
+					"day": 7,
+					"energy": 100.0,
+					"food": {
+						"player": 1,
+						"residents": {
+							"core:first_neighbor": 2,
+							"core:resident_1": 2
+						},
+						"storage": 0
+					},
+					"satiety": 66.795,
+					"time": "21:00"
+				}
+			],
+			"days": [
+				{
+					"consumed_portions": {
+						"core:player": {
+							"core:food": 1
+						}
+					},
+					"day": 1,
+					"energy": 18.0,
+					"food": {
+						"player": 1,
+						"residents": {
+							"core:first_neighbor": 18
+						},
+						"storage": 0
+					},
+					"needs": {
+						"energy": 18.0,
+						"hunger": 67.16,
+						"restedness": 63.16
+					},
+					"resident_work": {},
+					"rooms": 0,
+					"structures": 5,
+					"summary": {
+						"changes_per_hour": 0.0,
+						"idle_percent": 0.0,
+						"residents": 0,
+						"sample_minutes": 0,
+						"work_per_resident": 0.0
+					}
+				},
+				{
+					"consumed_portions": {
+						"core:first_neighbor": {
+							"core:food": 3
+						},
+						"core:player": {
+							"core:food": 4
+						}
+					},
+					"day": 2,
+					"energy": 95.0,
+					"food": {
+						"player": 6,
+						"residents": {
+							"core:first_neighbor": 5
+						},
+						"storage": 0
+					},
+					"needs": {
+						"energy": 95.0,
+						"hunger": 71.865,
+						"restedness": 49.6
+					},
+					"resident_work": {
+						"core:first_neighbor": {
+							"blocked_minutes": 461,
+							"food_wait_minutes": 0,
+							"idle_minutes": 119,
+							"needs_minutes": 20,
+							"sample_minutes": 840,
+							"task_changes": 0,
+							"travel_minutes": 167,
+							"work_units": 48.0
+						}
+					},
+					"rooms": 0,
+					"structures": 17,
+					"summary": {
+						"changes_per_hour": 0.0,
+						"idle_percent": 14.1666666666667,
+						"residents": 1,
+						"sample_minutes": 840,
+						"work_per_resident": 48.0
+					}
+				},
+				{
+					"consumed_portions": {
+						"core:first_neighbor": {
+							"core:food": 5
+						},
+						"core:player": {
+							"core:food": 3
+						}
+					},
+					"day": 3,
+					"energy": 100.0,
+					"food": {
+						"player": 2,
+						"residents": {
+							"core:first_neighbor": 0,
+							"core:resident_1": 0
+						},
+						"storage": 0
+					},
+					"needs": {
+						"energy": 100.0,
+						"hunger": 62.465,
+						"restedness": 49.6
+					},
+					"resident_work": {
+						"core:first_neighbor": {
+							"blocked_minutes": 777,
+							"food_wait_minutes": 0,
+							"idle_minutes": 0,
+							"needs_minutes": 484,
+							"sample_minutes": 1261,
+							"task_changes": 0,
+							"travel_minutes": 0,
+							"work_units": 0.0
+						},
+						"core:resident_1": {
+							"blocked_minutes": 0,
+							"food_wait_minutes": 550,
+							"idle_minutes": 283,
+							"needs_minutes": 557,
+							"sample_minutes": 840,
+							"task_changes": 0,
+							"travel_minutes": 0,
+							"work_units": 0.0
+						}
+					},
+					"rooms": 0,
+					"structures": 17,
+					"summary": {
+						"changes_per_hour": 0.0,
+						"idle_percent": 13.4697762970014,
+						"residents": 2,
+						"sample_minutes": 2101,
+						"work_per_resident": 0.0
+					}
+				},
+				{
+					"consumed_portions": {
+						"core:first_neighbor": {
+							"core:food": 2
+						},
+						"core:player": {
+							"core:food": 4
+						}
+					},
+					"day": 4,
+					"energy": 100.0,
+					"food": {
+						"player": 1,
+						"residents": {
+							"core:first_neighbor": 0,
+							"core:resident_1": 2
+						},
+						"storage": 0
+					},
+					"needs": {
+						"energy": 100.0,
+						"hunger": 67.065,
+						"restedness": 49.6
+					},
+					"resident_work": {
+						"core:first_neighbor": {
+							"blocked_minutes": 0,
+							"food_wait_minutes": 738,
+							"idle_minutes": 0,
+							"needs_minutes": 1261,
+							"sample_minutes": 1261,
+							"task_changes": 0,
+							"travel_minutes": 0,
+							"work_units": 0.0
+						},
+						"core:resident_1": {
+							"blocked_minutes": 0,
+							"food_wait_minutes": 757,
+							"idle_minutes": 0,
+							"needs_minutes": 1261,
+							"sample_minutes": 1261,
+							"task_changes": 0,
+							"travel_minutes": 0,
+							"work_units": 0.0
+						}
+					},
+					"rooms": 0,
+					"structures": 17,
+					"summary": {
+						"changes_per_hour": 0.0,
+						"idle_percent": 0.0,
+						"residents": 2,
+						"sample_minutes": 2522,
+						"work_per_resident": 0.0
+					}
+				},
+				{
+					"consumed_portions": {
+						"core:player": {
+							"core:food": 4
+						}
+					},
+					"day": 5,
+					"energy": 100.0,
+					"food": {
+						"player": 0,
+						"residents": {
+							"core:first_neighbor": 0,
+							"core:resident_1": 0
+						},
+						"storage": 0
+					},
+					"needs": {
+						"energy": 100.0,
+						"hunger": 71.63,
+						"restedness": 49.6
+					},
+					"resident_work": {
+						"core:first_neighbor": {
+							"blocked_minutes": 0,
+							"food_wait_minutes": 801,
+							"idle_minutes": 0,
+							"needs_minutes": 1261,
+							"sample_minutes": 1261,
+							"task_changes": 0,
+							"travel_minutes": 0,
+							"work_units": 0.0
+						},
+						"core:resident_1": {
+							"blocked_minutes": 0,
+							"food_wait_minutes": 801,
+							"idle_minutes": 0,
+							"needs_minutes": 1261,
+							"sample_minutes": 1261,
+							"task_changes": 0,
+							"travel_minutes": 0,
+							"work_units": 0.0
+						}
+					},
+					"rooms": 0,
+					"structures": 17,
+					"summary": {
+						"changes_per_hour": 0.0,
+						"idle_percent": 0.0,
+						"residents": 2,
+						"sample_minutes": 2522,
+						"work_per_resident": 0.0
+					}
+				},
+				{
+					"consumed_portions": {
+						"core:player": {
+							"core:food": 4
+						}
+					},
+					"day": 6,
+					"energy": 100.0,
+					"food": {
+						"player": 0,
+						"residents": {
+							"core:first_neighbor": 0,
+							"core:resident_1": 0
+						},
+						"storage": 0
+					},
+					"needs": {
+						"energy": 100.0,
+						"hunger": 62.23,
+						"restedness": 49.6
+					},
+					"resident_work": {
+						"core:first_neighbor": {
+							"blocked_minutes": 0,
+							"food_wait_minutes": 801,
+							"idle_minutes": 0,
+							"needs_minutes": 1261,
+							"sample_minutes": 1261,
+							"task_changes": 0,
+							"travel_minutes": 0,
+							"work_units": 0.0
+						},
+						"core:resident_1": {
+							"blocked_minutes": 0,
+							"food_wait_minutes": 801,
+							"idle_minutes": 0,
+							"needs_minutes": 1261,
+							"sample_minutes": 1261,
+							"task_changes": 0,
+							"travel_minutes": 0,
+							"work_units": 0.0
+						}
+					},
+					"rooms": 0,
+					"structures": 17,
+					"summary": {
+						"changes_per_hour": 0.0,
+						"idle_percent": 0.0,
+						"residents": 2,
+						"sample_minutes": 2522,
+						"work_per_resident": 0.0
+					}
+				},
+				{
+					"consumed_portions": {
+						"core:player": {
+							"core:food": 5
+						}
+					},
+					"day": 7,
+					"energy": 100.0,
+					"food": {
+						"player": 1,
+						"residents": {
+							"core:first_neighbor": 2,
+							"core:resident_1": 2
+						},
+						"storage": 0
+					},
+					"needs": {
+						"energy": 100.0,
+						"hunger": 66.795,
+						"restedness": 49.6
+					},
+					"resident_work": {
+						"core:first_neighbor": {
+							"blocked_minutes": 0,
+							"food_wait_minutes": 754,
+							"idle_minutes": 0,
+							"needs_minutes": 1261,
+							"sample_minutes": 1261,
+							"task_changes": 0,
+							"travel_minutes": 0,
+							"work_units": 0.0
+						},
+						"core:resident_1": {
+							"blocked_minutes": 0,
+							"food_wait_minutes": 754,
+							"idle_minutes": 0,
+							"needs_minutes": 1261,
+							"sample_minutes": 1261,
+							"task_changes": 0,
+							"travel_minutes": 0,
+							"work_units": 0.0
+						}
+					},
+					"rooms": 0,
+					"structures": 17,
+					"summary": {
+						"changes_per_hour": 0.0,
+						"idle_percent": 0.0,
+						"residents": 2,
+						"sample_minutes": 2522,
+						"work_per_resident": 0.0
+					}
+				}
+			],
+			"first_meeting": [
+				{
+					"text_args": {
+						"name": {
+							"text_args": {},
+							"text_key": "npc.core.first_neighbor.name"
+						}
+					},
+					"text_key": "meeting.introduce.open"
+				},
+				{
+					"text_args": {},
+					"text_key": "meeting.world.roof_hungry"
+				},
+				{
+					"text_args": {},
+					"text_key": "meeting.offer_food"
+				}
+			],
+			"first_roof_elapsed_minutes": 710,
+			"food_start": {
+				"player": 0,
+				"residents": {
+					"core:first_neighbor": 18
+				},
+				"storage": 0
+			},
+			"work_energy_cost": 0.25
+		},
+		{
+			"checkpoints": [
+				{
+					"day": 1,
+					"energy": 100.0,
+					"food": {
+						"player": 0,
+						"residents": {
+							"core:first_neighbor": 18
+						},
+						"storage": 0
+					},
+					"satiety": 90.0,
+					"time": "11:00"
+				},
+				{
+					"day": 1,
+					"energy": 51.16,
+					"food": {
+						"player": 0,
+						"residents": {
+							"core:first_neighbor": 18
+						},
+						"storage": 0
+					},
+					"satiety": 75.6,
+					"time": "15:00"
+				},
+				{
+					"day": 1,
+					"energy": 19.92,
+					"food": {
+						"player": 1,
+						"residents": {
+							"core:first_neighbor": 18
+						},
+						"storage": 0
+					},
+					"satiety": 68.0,
+					"time": "21:00"
+				},
+				{
+					"day": 2,
+					"energy": 86.52,
+					"food": {
+						"player": 9,
+						"residents": {
+							"core:first_neighbor": 8
+						},
+						"storage": 0
+					},
+					"satiety": 66.145,
+					"time": "11:00"
+				},
+				{
+					"day": 2,
+					"energy": 73.04,
+					"food": {
+						"player": 8,
+						"residents": {
+							"core:first_neighbor": 7
+						},
+						"storage": 0
+					},
+					"satiety": 65.745,
+					"time": "15:00"
+				},
+				{
+					"day": 2,
+					"energy": 61.92,
+					"food": {
+						"player": 6,
+						"residents": {
+							"core:first_neighbor": 5
+						},
+						"storage": 0
+					},
+					"satiety": 72.145,
+					"time": "21:00"
+				},
+				{
+					"day": 3,
+					"energy": 100.0,
+					"food": {
+						"player": 4,
+						"residents": {
+							"core:first_neighbor": 3,
+							"core:resident_1": 0
+						},
+						"storage": 0
+					},
+					"satiety": 70.745,
+					"time": "11:00"
+				},
+				{
+					"day": 3,
+					"energy": 100.0,
+					"food": {
+						"player": 3,
+						"residents": {
+							"core:first_neighbor": 2,
+							"core:resident_1": 0
+						},
+						"storage": 0
+					},
+					"satiety": 70.345,
+					"time": "15:00"
+				},
+				{
+					"day": 3,
+					"energy": 100.0,
+					"food": {
+						"player": 2,
+						"residents": {
+							"core:first_neighbor": 0,
+							"core:resident_1": 0
+						},
+						"storage": 0
+					},
+					"satiety": 62.745,
+					"time": "21:00"
+				},
+				{
+					"day": 4,
+					"energy": 100.0,
+					"food": {
+						"player": 0,
+						"residents": {
+							"core:first_neighbor": 0,
+							"core:resident_1": 0
+						},
+						"storage": 0
+					},
+					"satiety": 61.31,
+					"time": "11:00"
+				},
+				{
+					"day": 4,
+					"energy": 100.0,
+					"food": {
+						"player": 1,
+						"residents": {
+							"core:first_neighbor": 0,
+							"core:resident_1": 0
+						},
+						"storage": 0
+					},
+					"satiety": 60.91,
+					"time": "15:00"
+				},
+				{
+					"day": 4,
+					"energy": 100.0,
+					"food": {
+						"player": 1,
+						"residents": {
+							"core:first_neighbor": 0,
+							"core:resident_1": 0
+						},
+						"storage": 0
+					},
+					"satiety": 67.31,
+					"time": "21:00"
+				},
+				{
+					"day": 5,
+					"energy": 100.0,
+					"food": {
+						"player": 1,
+						"residents": {
+							"core:first_neighbor": 0,
+							"core:resident_1": 0
+						},
+						"storage": 0
+					},
+					"satiety": 65.91,
+					"time": "11:00"
+				},
+				{
+					"day": 5,
+					"energy": 100.0,
+					"food": {
+						"player": 0,
+						"residents": {
+							"core:first_neighbor": 0,
+							"core:resident_1": 0
+						},
+						"storage": 0
+					},
+					"satiety": 65.51,
+					"time": "15:00"
+				},
+				{
+					"day": 5,
+					"energy": 100.0,
+					"food": {
+						"player": 0,
+						"residents": {
+							"core:first_neighbor": 0,
+							"core:resident_1": 0
+						},
+						"storage": 0
+					},
+					"satiety": 71.91,
+					"time": "21:00"
+				},
+				{
+					"day": 6,
+					"energy": 100.0,
+					"food": {
+						"player": 0,
+						"residents": {
+							"core:first_neighbor": 0,
+							"core:resident_1": 0
+						},
+						"storage": 0
+					},
+					"satiety": 70.475,
+					"time": "11:00"
+				},
+				{
+					"day": 6,
+					"energy": 100.0,
+					"food": {
+						"player": 1,
+						"residents": {
+							"core:first_neighbor": 0,
+							"core:resident_1": 0
+						},
+						"storage": 0
+					},
+					"satiety": 70.075,
+					"time": "15:00"
+				},
+				{
+					"day": 6,
+					"energy": 100.0,
+					"food": {
+						"player": 0,
+						"residents": {
+							"core:first_neighbor": 0,
+							"core:resident_1": 0
+						},
+						"storage": 0
+					},
+					"satiety": 62.475,
+					"time": "21:00"
+				},
+				{
+					"day": 7,
+					"energy": 100.0,
+					"food": {
+						"player": 0,
+						"residents": {
+							"core:first_neighbor": 0,
+							"core:resident_1": 0
+						},
+						"storage": 0
+					},
+					"satiety": 61.04,
+					"time": "11:00"
+				},
+				{
+					"day": 7,
+					"energy": 100.0,
+					"food": {
+						"player": 1,
+						"residents": {
+							"core:first_neighbor": 0,
+							"core:resident_1": 0
+						},
+						"storage": 0
+					},
+					"satiety": 60.64,
+					"time": "15:00"
+				},
+				{
+					"day": 7,
+					"energy": 100.0,
+					"food": {
+						"player": 1,
+						"residents": {
+							"core:first_neighbor": 2,
+							"core:resident_1": 2
+						},
+						"storage": 0
+					},
+					"satiety": 67.04,
+					"time": "21:00"
+				}
+			],
+			"days": [
+				{
+					"consumed_portions": {
+						"core:player": {
+							"core:food": 1
+						}
+					},
+					"day": 1,
+					"energy": 24.72,
+					"food": {
+						"player": 1,
+						"residents": {
+							"core:first_neighbor": 18
+						},
+						"storage": 0
+					},
+					"needs": {
+						"energy": 24.72,
+						"hunger": 67.28,
+						"restedness": 63.28
+					},
+					"resident_work": {},
+					"rooms": 0,
+					"structures": 5,
+					"summary": {
+						"changes_per_hour": 0.0,
+						"idle_percent": 0.0,
+						"residents": 0,
+						"sample_minutes": 0,
+						"work_per_resident": 0.0
+					}
+				},
+				{
+					"consumed_portions": {
+						"core:first_neighbor": {
+							"core:food": 3
+						},
+						"core:player": {
+							"core:food": 4
+						}
+					},
+					"day": 2,
+					"energy": 61.92,
+					"food": {
+						"player": 6,
+						"residents": {
+							"core:first_neighbor": 5
+						},
+						"storage": 0
+					},
+					"needs": {
+						"energy": 61.92,
+						"hunger": 72.145,
+						"restedness": 49.6
+					},
+					"resident_work": {
+						"core:first_neighbor": {
+							"blocked_minutes": 192,
+							"food_wait_minutes": 0,
+							"idle_minutes": 134,
+							"needs_minutes": 17,
+							"sample_minutes": 840,
+							"task_changes": 0,
+							"travel_minutes": 351,
+							"work_units": 96.0
+						}
+					},
+					"rooms": 0,
+					"structures": 29,
+					"summary": {
+						"changes_per_hour": 0.0,
+						"idle_percent": 15.952380952381,
+						"residents": 1,
+						"sample_minutes": 840,
+						"work_per_resident": 96.0
+					}
+				},
+				{
+					"consumed_portions": {
+						"core:first_neighbor": {
+							"core:food": 5
+						},
+						"core:player": {
+							"core:food": 3
+						}
+					},
+					"day": 3,
+					"energy": 100.0,
+					"food": {
+						"player": 2,
+						"residents": {
+							"core:first_neighbor": 0,
+							"core:resident_1": 0
+						},
+						"storage": 0
+					},
+					"needs": {
+						"energy": 100.0,
+						"hunger": 62.745,
+						"restedness": 49.6
+					},
+					"resident_work": {
+						"core:first_neighbor": {
+							"blocked_minutes": 777,
+							"food_wait_minutes": 0,
+							"idle_minutes": 0,
+							"needs_minutes": 484,
+							"sample_minutes": 1261,
+							"task_changes": 0,
+							"travel_minutes": 0,
+							"work_units": 0.0
+						},
+						"core:resident_1": {
+							"blocked_minutes": 0,
+							"food_wait_minutes": 550,
+							"idle_minutes": 283,
+							"needs_minutes": 557,
+							"sample_minutes": 840,
+							"task_changes": 0,
+							"travel_minutes": 0,
+							"work_units": 0.0
+						}
+					},
+					"rooms": 0,
+					"structures": 29,
+					"summary": {
+						"changes_per_hour": 0.0,
+						"idle_percent": 13.4697762970014,
+						"residents": 2,
+						"sample_minutes": 2101,
+						"work_per_resident": 0.0
+					}
+				},
+				{
+					"consumed_portions": {
+						"core:first_neighbor": {
+							"core:food": 2
+						},
+						"core:player": {
+							"core:food": 4
+						},
+						"core:resident_1": {
+							"core:food": 2
+						}
+					},
+					"day": 4,
+					"energy": 100.0,
+					"food": {
+						"player": 1,
+						"residents": {
+							"core:first_neighbor": 0,
+							"core:resident_1": 0
+						},
+						"storage": 0
+					},
+					"needs": {
+						"energy": 100.0,
+						"hunger": 67.31,
+						"restedness": 49.6
+					},
+					"resident_work": {
+						"core:first_neighbor": {
+							"blocked_minutes": 0,
+							"food_wait_minutes": 738,
+							"idle_minutes": 0,
+							"needs_minutes": 1261,
+							"sample_minutes": 1261,
+							"task_changes": 0,
+							"travel_minutes": 0,
+							"work_units": 0.0
+						},
+						"core:resident_1": {
+							"blocked_minutes": 0,
+							"food_wait_minutes": 753,
+							"idle_minutes": 0,
+							"needs_minutes": 1261,
+							"sample_minutes": 1261,
+							"task_changes": 0,
+							"travel_minutes": 0,
+							"work_units": 0.0
+						}
+					},
+					"rooms": 0,
+					"structures": 29,
+					"summary": {
+						"changes_per_hour": 0.0,
+						"idle_percent": 0.0,
+						"residents": 2,
+						"sample_minutes": 2522,
+						"work_per_resident": 0.0
+					}
+				},
+				{
+					"consumed_portions": {
+						"core:player": {
+							"core:food": 4
+						}
+					},
+					"day": 5,
+					"energy": 100.0,
+					"food": {
+						"player": 0,
+						"residents": {
+							"core:first_neighbor": 0,
+							"core:resident_1": 0
+						},
+						"storage": 0
+					},
+					"needs": {
+						"energy": 100.0,
+						"hunger": 71.91,
+						"restedness": 49.6
+					},
+					"resident_work": {
+						"core:first_neighbor": {
+							"blocked_minutes": 0,
+							"food_wait_minutes": 801,
+							"idle_minutes": 0,
+							"needs_minutes": 1261,
+							"sample_minutes": 1261,
+							"task_changes": 0,
+							"travel_minutes": 0,
+							"work_units": 0.0
+						},
+						"core:resident_1": {
+							"blocked_minutes": 0,
+							"food_wait_minutes": 801,
+							"idle_minutes": 0,
+							"needs_minutes": 1261,
+							"sample_minutes": 1261,
+							"task_changes": 0,
+							"travel_minutes": 0,
+							"work_units": 0.0
+						}
+					},
+					"rooms": 0,
+					"structures": 29,
+					"summary": {
+						"changes_per_hour": 0.0,
+						"idle_percent": 0.0,
+						"residents": 2,
+						"sample_minutes": 2522,
+						"work_per_resident": 0.0
+					}
+				},
+				{
+					"consumed_portions": {
+						"core:player": {
+							"core:food": 4
+						}
+					},
+					"day": 6,
+					"energy": 100.0,
+					"food": {
+						"player": 0,
+						"residents": {
+							"core:first_neighbor": 0,
+							"core:resident_1": 0
+						},
+						"storage": 0
+					},
+					"needs": {
+						"energy": 100.0,
+						"hunger": 62.475,
+						"restedness": 49.6
+					},
+					"resident_work": {
+						"core:first_neighbor": {
+							"blocked_minutes": 0,
+							"food_wait_minutes": 801,
+							"idle_minutes": 0,
+							"needs_minutes": 1261,
+							"sample_minutes": 1261,
+							"task_changes": 0,
+							"travel_minutes": 0,
+							"work_units": 0.0
+						},
+						"core:resident_1": {
+							"blocked_minutes": 0,
+							"food_wait_minutes": 801,
+							"idle_minutes": 0,
+							"needs_minutes": 1261,
+							"sample_minutes": 1261,
+							"task_changes": 0,
+							"travel_minutes": 0,
+							"work_units": 0.0
+						}
+					},
+					"rooms": 0,
+					"structures": 29,
+					"summary": {
+						"changes_per_hour": 0.0,
+						"idle_percent": 0.0,
+						"residents": 2,
+						"sample_minutes": 2522,
+						"work_per_resident": 0.0
+					}
+				},
+				{
+					"consumed_portions": {
+						"core:player": {
+							"core:food": 5
+						}
+					},
+					"day": 7,
+					"energy": 100.0,
+					"food": {
+						"player": 1,
+						"residents": {
+							"core:first_neighbor": 2,
+							"core:resident_1": 2
+						},
+						"storage": 0
+					},
+					"needs": {
+						"energy": 100.0,
+						"hunger": 67.04,
+						"restedness": 49.6
+					},
+					"resident_work": {
+						"core:first_neighbor": {
+							"blocked_minutes": 0,
+							"food_wait_minutes": 739,
+							"idle_minutes": 0,
+							"needs_minutes": 1261,
+							"sample_minutes": 1261,
+							"task_changes": 0,
+							"travel_minutes": 0,
+							"work_units": 0.0
+						},
+						"core:resident_1": {
+							"blocked_minutes": 0,
+							"food_wait_minutes": 739,
+							"idle_minutes": 0,
+							"needs_minutes": 1261,
+							"sample_minutes": 1261,
+							"task_changes": 0,
+							"travel_minutes": 0,
+							"work_units": 0.0
+						}
+					},
+					"rooms": 0,
+					"structures": 29,
+					"summary": {
+						"changes_per_hour": 0.0,
+						"idle_percent": 0.0,
+						"residents": 2,
+						"sample_minutes": 2522,
+						"work_per_resident": 0.0
+					}
+				}
+			],
+			"first_meeting": [
+				{
+					"text_args": {
+						"name": {
+							"text_args": {},
+							"text_key": "npc.core.first_neighbor.name"
+						}
+					},
+					"text_key": "meeting.introduce.open"
+				},
+				{
+					"text_args": {},
+					"text_key": "meeting.world.roof_hungry"
+				},
+				{
+					"text_args": {},
+					"text_key": "meeting.offer_food"
+				}
+			],
+			"first_roof_elapsed_minutes": 710,
+			"food_start": {
+				"player": 0,
+				"residents": {
+					"core:first_neighbor": 18
+				},
+				"storage": 0
+			},
+			"work_energy_cost": 0.33
+		}
+	],
+	"failures": 0,
+	"limitations": "Scripted ordinary-route control with walking, real harvest/craft/storage, initial roof, floor blueprints, conversations, eating and sleeping. No artificial replenishment. Floor queue does not constitute finished new rooms; no crop plot is scripted. This does not prove feel, evening target energy, seven days without all hunger, or the author's warehouse tempo."
+}

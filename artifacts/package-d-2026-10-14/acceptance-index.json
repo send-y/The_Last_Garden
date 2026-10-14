@@ -1,0 +1,195 @@
+{
+  "code_head": "e01e851256cfac9bfc442025af8bfb1d6b823a08",
+  "runs": [
+    {
+      "run": "tools-green",
+      "result": "artifacts/package-d-2026-10-14/tools-green/result.json",
+      "sha256": "ac1cb49a70c921c0045cb5caead76ed024d947f4bc7b4fc365d9777e009b2137",
+      "checks": [
+        {
+          "check": "package_d_tools_test.gd",
+          "exit": 0,
+          "passed": true
+        },
+        {
+          "check": "tool_tiers_test.gd",
+          "exit": 0,
+          "passed": true
+        },
+        {
+          "check": "playtest_npc_work_test.gd",
+          "exit": 0,
+          "passed": true
+        }
+      ]
+    },
+    {
+      "run": "food-final",
+      "result": "artifacts/package-d-2026-10-14/food-final/result.json",
+      "sha256": "1e71f1b2c0a56ad80899e91903717335cf98d15dbb7c23c0293ce4cb850b2abb",
+      "checks": [
+        {
+          "check": "package_d_food_metrics_test.gd",
+          "exit": 0,
+          "passed": true
+        },
+        {
+          "check": "item_food_actions_test.tscn",
+          "exit": 0,
+          "passed": true
+        },
+        {
+          "check": "package_d_save_test.gd",
+          "exit": 0,
+          "passed": true
+        }
+      ]
+    },
+    {
+      "run": "integration-final",
+      "result": "artifacts/package-d-2026-10-14/integration-final/result.json",
+      "sha256": "4af4abdc084fbfdcd488e59430ec38da6fd8753bfc26d4b62a3f6cdca5c9232c",
+      "checks": [
+        {
+          "check": "run_tests.gd",
+          "exit": 0,
+          "passed": true
+        },
+        {
+          "check": "package_d_meeting_test.gd",
+          "exit": 0,
+          "passed": true
+        },
+        {
+          "check": "package_d_shared_production_test.gd",
+          "exit": 0,
+          "passed": true
+        },
+        {
+          "check": "package_d_bench_request_test.gd",
+          "exit": 0,
+          "passed": true
+        },
+        {
+          "check": "package_d_lab_test.gd",
+          "exit": 0,
+          "passed": true
+        },
+        {
+          "check": "tool_tiers_test.gd",
+          "exit": 0,
+          "passed": true
+        },
+        {
+          "check": "npc_home_production_test.gd",
+          "exit": 0,
+          "passed": true
+        },
+        {
+          "check": "npc_home_projects_test.gd",
+          "exit": 0,
+          "passed": true
+        },
+        {
+          "check": "npc_work_query_cache_test.gd",
+          "exit": 0,
+          "passed": true
+        },
+        {
+          "check": "playtest_npc_work_test.gd",
+          "exit": 0,
+          "passed": true
+        },
+        {
+          "check": "playtest_npc_food_test.gd",
+          "exit": 0,
+          "passed": true
+        }
+      ]
+    },
+    {
+      "run": "review-green",
+      "result": "artifacts/package-d-2026-10-14/review-green/result.json",
+      "sha256": "1855bb5d2af09f2ae65aba313d37e1f5a9a9b044a08328b72a90a1a5547d3887",
+      "checks": [
+        {
+          "check": "package_d_meeting_test.gd",
+          "exit": 0,
+          "passed": true
+        },
+        {
+          "check": "package_d_save_test.gd",
+          "exit": 0,
+          "passed": true
+        },
+        {
+          "check": "package_d_shared_production_test.gd",
+          "exit": 0,
+          "passed": true
+        },
+        {
+          "check": "package_d_bench_request_test.gd",
+          "exit": 0,
+          "passed": true
+        }
+      ]
+    },
+    {
+      "run": "final-review-regressions",
+      "result": "artifacts/package-d-2026-10-14/final-review-regressions/result.json",
+      "sha256": "29092cc64ec1639f7c7df3e9f4c921fa8fdf8a153bf2ea55b71332b5a10f9179",
+      "checks": [
+        {
+          "check": "run_tests.gd",
+          "exit": 0,
+          "passed": true
+        },
+        {
+          "check": "generated_npcs_ui_test.tscn",
+          "exit": 0,
+          "passed": true
+        },
+        {
+          "check": "graphic:package_d_meeting_ui_test.tscn",
+          "exit": 0,
+          "passed": true
+        },
+        {
+          "check": "graphic:package_d_bench_ui_test.tscn",
+          "exit": 0,
+          "passed": true
+        },
+        {
+          "check": "graphic:package_d_lab_ui_test.tscn",
+          "exit": 0,
+          "passed": true
+        }
+      ]
+    },
+    {
+      "run": "snapshot-final",
+      "result": "artifacts/package-d-2026-10-14/snapshot-final/result.json",
+      "sha256": "22ab2241711907a8819fdd778a7b4012fa1f56feb359c8630261833538964c1c",
+      "checks": [
+        {
+          "check": "package_d_save_test.gd",
+          "exit": 0,
+          "passed": true
+        }
+      ]
+    },
+    {
+      "run": "seven-days-final",
+      "result": "artifacts/package-d-2026-10-14/seven-days-final/result.json",
+      "sha256": "3c7e919daae74bb7dd68d5dbc526e79c0a18b7a851b3c5cc2fef5a295b065d4b",
+      "checks": [
+        {
+          "check": "package_d_seven_days.gd",
+          "exit": 0,
+          "passed": true
+        }
+      ]
+    }
+  ],
+  "limitations": "Seven-day controller is not a manual playtest; late food and evening balance remain unverified. All recorded runner save checks preserve primary and backup."
+}

@@ -1,0 +1,27 @@
+{
+  "checks": [
+    {
+      "check": "package_d_tools_test.gd",
+      "exit": 0,
+      "passed": true
+    },
+    {
+      "check": "tool_tiers_test.gd",
+      "exit": 0,
+      "passed": true
+    },
+    {
+      "check": "playtest_npc_work_test.gd",
+      "exit": 0,
+      "passed": true
+    }
+  ],
+  "save_before": {
+    "C:\\Users\\Bohdan\\AppData\\Roaming\\Godot\\app_userdata\\The Last Garden\\first_night_save.json": "0b36a8a08c4bf70881460e7b222a8ca9d7570a808e2524521e724d338d6de7e8",
+    "C:\\Users\\Bohdan\\AppData\\Roaming\\Godot\\app_userdata\\The Last Garden\\first_night_save.json.bak": "cf0266280171625f3036026913812bffd2ff8f5600b18aff6737e0a528817dc0"
+  },
+  "save_after": {
+    "C:\\Users\\Bohdan\\AppData\\Roaming\\Godot\\app_userdata\\The Last Garden\\first_night_save.json": "0b36a8a08c4bf70881460e7b222a8ca9d7570a808e2524521e724d338d6de7e8",
+    "C:\\Users\\Bohdan\\AppData\\Roaming\\Godot\\app_userdata\\The Last Garden\\first_night_save.json.bak": "cf0266280171625f3036026913812bffd2ff8f5600b18aff6737e0a528817dc0"
+  }
+}
