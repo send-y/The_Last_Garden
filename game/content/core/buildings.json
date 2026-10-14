@@ -27,7 +27,7 @@
 	  "category_id": "core:wall",
 	  "footprint": {"width": 1, "height": 1},
 	  "texture_path": "res://assets/sprites/structures/wood_wall.png",
-	  "material_cost": {"core:plank": 30},
+	  "material_cost": {"core:plank": 20},
 	  "work_minutes": 25,
 	  "blocks_movement": true,
 	  "room_boundary": true
@@ -71,7 +71,7 @@
 	  "category_id": "core:furniture",
 	  "footprint": {"width": 1, "height": 1},
 	  "texture_path": "res://assets/sprites/structures/wood_door.png",
-	  "material_cost": {"core:plank": 25},
+	  "material_cost": {"core:plank": 15},
 	  "work_minutes": 15,
 	  "blocks_movement": false,
 	  "room_boundary": true

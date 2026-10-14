@@ -20,12 +20,19 @@ func run() -> void:
 		if sim.set_inventory_layout(layout).success: grid.present(sim.get_inventory_placements(),content)
 	)
 	grid.present(sim.get_inventory_placements(),content)
+	await get_tree().process_frame
 	var wood: Dictionary = grid._placements[0]
 	var stone: Dictionary = grid._placements[1]
 	var source: Vector2i = wood.origin
 	var target: Vector2i = stone.origin
 	grid._begin_hand(0,Vector2(source)*grid.CELL_SIZE+Vector2(10,10))
-	grid._finish_drag(target)
+	# Use the actual input entry point; it must not cancel the newly displaced hand.
+	var event := InputEventMouseButton.new()
+	event.button_index = MOUSE_BUTTON_LEFT
+	event.pressed = true
+	event.position = grid.get_global_transform_with_canvas() * (Vector2(target)*grid.CELL_SIZE+Vector2(10,10))
+	event.global_position = event.position
+	grid._input(event)
 	check(grid._placements[0].origin == target and grid._placements[1].origin == source,"Occupied equal shape swaps positions through simulation")
 	check(grid.is_holding_item() and grid._placements[grid._dragged_placement_index].item_id == stone.item_id,"Displaced item remains under cursor")
 	grid.return_held_item()

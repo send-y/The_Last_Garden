@@ -1,0 +1,957 @@
+{
+	"checks": [
+		{
+			"day": 1,
+			"energy": 100.0,
+			"restedness": 100.0,
+			"satiety": 90.0,
+			"time": "11:00"
+		},
+		{
+			"day": 1,
+			"energy": 96.0,
+			"restedness": 89.125,
+			"satiety": 89.6,
+			"time": "15:00"
+		},
+		{
+			"day": 1,
+			"energy": 98.0,
+			"restedness": 67.525,
+			"satiety": 94.08,
+			"time": "21:00"
+		},
+		{
+			"day": 2,
+			"energy": 98.0,
+			"restedness": 85.6,
+			"satiety": 92.505,
+			"time": "11:00"
+		},
+		{
+			"day": 2,
+			"energy": 99.75,
+			"restedness": 71.2,
+			"satiety": 94.54,
+			"time": "15:00"
+		},
+		{
+			"day": 2,
+			"energy": 99.25,
+			"restedness": 49.6,
+			"satiety": 94.06,
+			"time": "21:00"
+		},
+		{
+			"day": 3,
+			"energy": 94.0,
+			"restedness": 85.6,
+			"satiety": 78.415,
+			"time": "11:00"
+		},
+		{
+			"day": 3,
+			"energy": 98.0,
+			"restedness": 71.2,
+			"satiety": 92.015,
+			"time": "15:00"
+		},
+		{
+			"day": 3,
+			"energy": 96.0,
+			"restedness": 49.6,
+			"satiety": 93.22,
+			"time": "21:00"
+		},
+		{
+			"day": 4,
+			"energy": 98.25,
+			"restedness": 85.6,
+			"satiety": 91.785,
+			"time": "11:00"
+		},
+		{
+			"day": 4,
+			"energy": 100.0,
+			"restedness": 71.2,
+			"satiety": 91.385,
+			"time": "15:00"
+		},
+		{
+			"day": 4,
+			"energy": 100.0,
+			"restedness": 49.6,
+			"satiety": 93.46,
+			"time": "21:00"
+		},
+		{
+			"day": 5,
+			"energy": 100.0,
+			"restedness": 85.6,
+			"satiety": 94.18,
+			"time": "11:00"
+		},
+		{
+			"day": 5,
+			"energy": 100.0,
+			"restedness": 71.2,
+			"satiety": 92.86,
+			"time": "15:00"
+		},
+		{
+			"day": 5,
+			"energy": 100.0,
+			"restedness": 49.6,
+			"satiety": 92.8,
+			"time": "21:00"
+		}
+	],
+	"days": [
+		{
+			"day": 1,
+			"residents": {},
+			"storage_capacity_subcells": 64,
+			"storage_occupied_subcells": 20,
+			"summary": {
+				"changes_per_hour": 0.0,
+				"idle_percent": 0.0,
+				"residents": 0,
+				"sample_minutes": 0,
+				"work_per_resident": 0.0
+			}
+		},
+		{
+			"day": 2,
+			"residents": {
+				"core:first_neighbor": {
+					"blocked_minutes": 0,
+					"idle_minutes": 584,
+					"needs_minutes": 51,
+					"sample_minutes": 847,
+					"task_changes": 0,
+					"travel_minutes": 151,
+					"work_units": 24.0
+				}
+			},
+			"storage_capacity_subcells": 64,
+			"storage_occupied_subcells": 41,
+			"summary": {
+				"changes_per_hour": 0.0,
+				"idle_percent": 68.9492325855962,
+				"residents": 1,
+				"sample_minutes": 847,
+				"work_per_resident": 24.0
+			}
+		},
+		{
+			"day": 3,
+			"residents": {
+				"core:first_neighbor": {
+					"blocked_minutes": 0,
+					"idle_minutes": 751,
+					"needs_minutes": 510,
+					"sample_minutes": 1261,
+					"task_changes": 0,
+					"travel_minutes": 0,
+					"work_units": 0.0
+				},
+				"core:resident_1": {
+					"blocked_minutes": 0,
+					"idle_minutes": 797,
+					"needs_minutes": 43,
+					"sample_minutes": 840,
+					"task_changes": 0,
+					"travel_minutes": 0,
+					"work_units": 0.0
+				},
+				"core:resident_2": {
+					"blocked_minutes": 0,
+					"idle_minutes": 794,
+					"needs_minutes": 46,
+					"sample_minutes": 840,
+					"task_changes": 0,
+					"travel_minutes": 0,
+					"work_units": 0.0
+				}
+			},
+			"storage_capacity_subcells": 64,
+			"storage_occupied_subcells": 55,
+			"summary": {
+				"changes_per_hour": 0.0,
+				"idle_percent": 79.632777966678,
+				"residents": 3,
+				"sample_minutes": 2941,
+				"work_per_resident": 0.0
+			}
+		},
+		{
+			"day": 4,
+			"residents": {
+				"core:first_neighbor": {
+					"blocked_minutes": 0,
+					"idle_minutes": 160,
+					"needs_minutes": 1101,
+					"sample_minutes": 1261,
+					"task_changes": 0,
+					"travel_minutes": 0,
+					"work_units": 0.0
+				},
+				"core:resident_1": {
+					"blocked_minutes": 0,
+					"idle_minutes": 186,
+					"needs_minutes": 1075,
+					"sample_minutes": 1261,
+					"task_changes": 0,
+					"travel_minutes": 0,
+					"work_units": 0.0
+				},
+				"core:resident_2": {
+					"blocked_minutes": 0,
+					"idle_minutes": 310,
+					"needs_minutes": 951,
+					"sample_minutes": 1261,
+					"task_changes": 0,
+					"travel_minutes": 0,
+					"work_units": 0.0
+				}
+			},
+			"storage_capacity_subcells": 64,
+			"storage_occupied_subcells": 57,
+			"summary": {
+				"changes_per_hour": 0.0,
+				"idle_percent": 17.3407348665081,
+				"residents": 3,
+				"sample_minutes": 3783,
+				"work_per_resident": 0.0
+			}
+		},
+		{
+			"day": 5,
+			"residents": {
+				"core:first_neighbor": {
+					"blocked_minutes": 0,
+					"idle_minutes": 0,
+					"needs_minutes": 1261,
+					"sample_minutes": 1261,
+					"task_changes": 0,
+					"travel_minutes": 0,
+					"work_units": 0.0
+				},
+				"core:resident_1": {
+					"blocked_minutes": 0,
+					"idle_minutes": 0,
+					"needs_minutes": 1261,
+					"sample_minutes": 1261,
+					"task_changes": 0,
+					"travel_minutes": 0,
+					"work_units": 0.0
+				},
+				"core:resident_2": {
+					"blocked_minutes": 0,
+					"idle_minutes": 0,
+					"needs_minutes": 1261,
+					"sample_minutes": 1261,
+					"task_changes": 0,
+					"travel_minutes": 0,
+					"work_units": 0.0
+				}
+			},
+			"storage_capacity_subcells": 64,
+			"storage_occupied_subcells": 57,
+			"summary": {
+				"changes_per_hour": 0.0,
+				"idle_percent": 0.0,
+				"residents": 3,
+				"sample_minutes": 3783,
+				"work_per_resident": 0.0
+			}
+		}
+	],
+	"end_npcs": {
+		"core:first_neighbor": {
+			"active": true,
+			"activity_id": "core:going_to_rest",
+			"activity_started_minute": 1260,
+			"appearance": {
+				"body": "core:body_warm",
+				"boots": "core:boots_brown",
+				"cloak": "core:cloak_moss",
+				"hair": "core:hair_short_dark",
+				"held_item": "core:held_none",
+				"pants": "core:pants_dark",
+				"scarf": "core:scarf_green",
+				"shirt": "core:shirt_moss"
+			},
+			"appearance_seed": 10438,
+			"carried_instance_id": "",
+			"facing": [
+				0.0,
+				-1.0
+			],
+			"furniture_target": [],
+			"furniture_use": {},
+			"home_expansion": {},
+			"home_goal": {},
+			"home_goals_completed": [],
+			"home_goals_declined": [],
+			"id": "core:first_neighbor",
+			"initiative_choice_index": 2,
+			"initiative_job": {},
+			"known": true,
+			"known_facts": {},
+			"meal_trip": {},
+			"memories": [],
+			"moving": true,
+			"needs": {
+				"energy": 72.0,
+				"hunger": 0.0,
+				"restedness": 9.54
+			},
+			"next_home_goal_minute": 4950,
+			"next_initiative_minute": 0,
+			"personal_inventory": {
+				"core:food": 0
+			},
+			"position": [
+				656.0,
+				880.0
+			],
+			"psychology": {
+				"effects": [],
+				"mood": 25.122,
+				"wellbeing": 55.3794
+			},
+			"talk_count": 0,
+			"target_cell": [
+				25,
+				23
+			],
+			"work_cargo": {},
+			"work_commitment": {},
+			"work_options": {
+				"build": true,
+				"gather": true,
+				"water": true
+			}
+		},
+		"core:resident_1": {
+			"active": true,
+			"activity_id": "core:going_to_rest",
+			"activity_started_minute": 1260,
+			"appearance": {
+				"body": "core:body_light",
+				"boots": "core:boots_brown",
+				"cloak": "core:cloak_none",
+				"hair": "core:hair_short_dark",
+				"held_item": "core:held_tool_bundle",
+				"pants": "core:pants_ash",
+				"scarf": "core:scarf_green",
+				"shirt": "core:shirt_moss"
+			},
+			"appearance_seed": 25094,
+			"arrival_minute": 3300,
+			"carried_instance_id": "",
+			"facing": [
+				1.0,
+				0.0
+			],
+			"furniture_target": [],
+			"furniture_use": {},
+			"home_expansion": {},
+			"home_goal": {},
+			"home_goals_completed": [],
+			"home_goals_declined": [],
+			"id": "core:resident_1",
+			"initiative_choice_index": 0,
+			"initiative_job": {},
+			"known": false,
+			"known_facts": {},
+			"meal_trip": {},
+			"memories": [],
+			"moving": true,
+			"needs": {
+				"energy": 72.0,
+				"hunger": 0.0,
+				"restedness": 9.54
+			},
+			"next_home_goal_minute": 0,
+			"next_initiative_minute": 0,
+			"personal_inventory": {
+				"core:food": 0
+			},
+			"position": [
+				752.0,
+				912.0
+			],
+			"psychology": {
+				"effects": [],
+				"mood": 25.122,
+				"wellbeing": 56.3087
+			},
+			"residency": "visitor",
+			"talk_count": 0,
+			"target_cell": [
+				27,
+				23
+			],
+			"work_cargo": {},
+			"work_commitment": {},
+			"work_options": {
+				"build": false,
+				"gather": false,
+				"water": false
+			}
+		},
+		"core:resident_2": {
+			"active": true,
+			"activity_id": "core:going_to_rest",
+			"activity_started_minute": 1260,
+			"appearance": {
+				"body": "core:body_warm",
+				"boots": "core:boots_brown",
+				"cloak": "core:cloak_moss",
+				"hair": "core:hair_short_brown",
+				"held_item": "core:held_tool_bundle",
+				"pants": "core:pants_ash",
+				"scarf": "core:scarf_none",
+				"shirt": "core:shirt_green"
+			},
+			"appearance_seed": 94,
+			"arrival_minute": 3300,
+			"carried_instance_id": "",
+			"facing": [
+				1.0,
+				0.0
+			],
+			"furniture_target": [],
+			"furniture_use": {},
+			"home_expansion": {},
+			"home_goal": {},
+			"home_goals_completed": [],
+			"home_goals_declined": [],
+			"id": "core:resident_2",
+			"initiative_choice_index": 0,
+			"initiative_job": {},
+			"known": true,
+			"known_facts": {},
+			"meal_trip": {},
+			"memories": [],
+			"moving": true,
+			"needs": {
+				"energy": 72.0,
+				"hunger": 0.0,
+				"restedness": 9.54
+			},
+			"next_home_goal_minute": 5100,
+			"next_initiative_minute": 5100,
+			"personal_inventory": {
+				"core:food": 0
+			},
+			"position": [
+				720.0,
+				912.0
+			],
+			"psychology": {
+				"effects": [],
+				"mood": 25.122,
+				"wellbeing": 56.342
+			},
+			"residency": "visitor",
+			"talk_count": 0,
+			"target_cell": [
+				26,
+				23
+			],
+			"work_cargo": {},
+			"work_commitment": {},
+			"work_options": {
+				"build": true,
+				"gather": true,
+				"water": true
+			}
+		}
+	},
+	"end_storage": [
+		{
+			"amount": 1,
+			"cell": [
+				22,
+				22
+			],
+			"instance_id": "core:item_instance_000003",
+			"item_id": "core:mallet",
+			"origin": [
+				0,
+				0
+			],
+			"placement_id": "core:mallet:0",
+			"rotation": 0,
+			"stack_index": 0
+		},
+		{
+			"amount": 5,
+			"cell": [
+				22,
+				22
+			],
+			"item_id": "core:pinecone",
+			"origin": [
+				2,
+				0
+			],
+			"placement_id": "core:pinecone:0",
+			"rotation": 0,
+			"stack_index": 0
+		},
+		{
+			"amount": 10,
+			"cell": [
+				22,
+				22
+			],
+			"item_id": "core:plank",
+			"origin": [
+				0,
+				1
+			],
+			"placement_id": "core:plank:0",
+			"rotation": 0,
+			"stack_index": 0
+		},
+		{
+			"amount": 10,
+			"cell": [
+				22,
+				22
+			],
+			"item_id": "core:plank",
+			"origin": [
+				0,
+				3
+			],
+			"placement_id": "core:plank:1",
+			"rotation": 1,
+			"stack_index": 1
+		},
+		{
+			"amount": 10,
+			"cell": [
+				23,
+				22
+			],
+			"item_id": "core:plank",
+			"origin": [
+				2,
+				0
+			],
+			"placement_id": "core:plank:0",
+			"rotation": 0,
+			"stack_index": 0
+		},
+		{
+			"amount": 1,
+			"cell": [
+				22,
+				22
+			],
+			"instance_id": "core:item_instance_000004",
+			"item_id": "core:axe",
+			"origin": [
+				2,
+				1
+			],
+			"placement_id": "core:axe:0",
+			"rotation": 0,
+			"stack_index": 0
+		},
+		{
+			"amount": 5,
+			"cell": [
+				22,
+				22
+			],
+			"item_id": "core:wood",
+			"origin": [
+				3,
+				3
+			],
+			"placement_id": "core:wood:0",
+			"rotation": 0,
+			"stack_index": 0
+		},
+		{
+			"amount": 5,
+			"cell": [
+				23,
+				22
+			],
+			"item_id": "core:wood",
+			"origin": [
+				3,
+				0
+			],
+			"placement_id": "core:wood:0",
+			"rotation": 0,
+			"stack_index": 0
+		},
+		{
+			"amount": 5,
+			"cell": [
+				23,
+				22
+			],
+			"item_id": "core:wood",
+			"origin": [
+				3,
+				1
+			],
+			"placement_id": "core:wood:1",
+			"rotation": 0,
+			"stack_index": 1
+		},
+		{
+			"amount": 5,
+			"cell": [
+				23,
+				22
+			],
+			"item_id": "core:wood",
+			"origin": [
+				1,
+				2
+			],
+			"placement_id": "core:wood:2",
+			"rotation": 0,
+			"stack_index": 2
+		},
+		{
+			"amount": 10,
+			"cell": [
+				23,
+				22
+			],
+			"item_id": "core:plank",
+			"origin": [
+				2,
+				2
+			],
+			"placement_id": "core:plank:1",
+			"rotation": 0,
+			"stack_index": 1
+		},
+		{
+			"amount": 10,
+			"cell": [
+				23,
+				22
+			],
+			"item_id": "core:plank",
+			"origin": [
+				1,
+				0
+			],
+			"placement_id": "core:plank:2",
+			"rotation": 0,
+			"stack_index": 2
+		},
+		{
+			"amount": 5,
+			"cell": [
+				23,
+				22
+			],
+			"item_id": "core:pinecone",
+			"origin": [
+				0,
+				1
+			],
+			"placement_id": "core:pinecone:0",
+			"rotation": 0,
+			"stack_index": 0
+		},
+		{
+			"amount": 5,
+			"cell": [
+				23,
+				22
+			],
+			"item_id": "core:wood",
+			"origin": [
+				0,
+				2
+			],
+			"placement_id": "core:wood:3",
+			"rotation": 0,
+			"stack_index": 3
+		},
+		{
+			"amount": 4,
+			"cell": [
+				23,
+				22
+			],
+			"item_id": "core:wood",
+			"origin": [
+				3,
+				2
+			],
+			"placement_id": "core:wood:4",
+			"rotation": 0,
+			"stack_index": 4
+		},
+		{
+			"amount": 1,
+			"cell": [
+				22,
+				23
+			],
+			"instance_id": "core:item_instance_000005",
+			"item_id": "core:axe",
+			"origin": [
+				0,
+				0
+			],
+			"placement_id": "core:axe:0",
+			"rotation": 0,
+			"stack_index": 0
+		},
+		{
+			"amount": 10,
+			"cell": [
+				23,
+				22
+			],
+			"item_id": "core:plank",
+			"origin": [
+				0,
+				3
+			],
+			"placement_id": "core:plank:3",
+			"rotation": 1,
+			"stack_index": 3
+		},
+		{
+			"amount": 10,
+			"cell": [
+				22,
+				23
+			],
+			"item_id": "core:plank",
+			"origin": [
+				2,
+				0
+			],
+			"placement_id": "core:plank:0",
+			"rotation": 0,
+			"stack_index": 0
+		},
+		{
+			"amount": 2,
+			"cell": [
+				23,
+				22
+			],
+			"item_id": "core:pinecone",
+			"origin": [
+				3,
+				3
+			],
+			"placement_id": "core:pinecone:1",
+			"rotation": 0,
+			"stack_index": 1
+		},
+		{
+			"amount": 10,
+			"cell": [
+				22,
+				23
+			],
+			"item_id": "core:plank",
+			"origin": [
+				3,
+				0
+			],
+			"placement_id": "core:plank:1",
+			"rotation": 0,
+			"stack_index": 1
+		},
+		{
+			"amount": 10,
+			"cell": [
+				22,
+				23
+			],
+			"item_id": "core:plank",
+			"origin": [
+				1,
+				2
+			],
+			"placement_id": "core:plank:2",
+			"rotation": 0,
+			"stack_index": 2
+		},
+		{
+			"amount": 10,
+			"cell": [
+				22,
+				23
+			],
+			"item_id": "core:plank",
+			"origin": [
+				2,
+				2
+			],
+			"placement_id": "core:plank:3",
+			"rotation": 0,
+			"stack_index": 3
+		},
+		{
+			"amount": 10,
+			"cell": [
+				22,
+				23
+			],
+			"item_id": "core:plank",
+			"origin": [
+				3,
+				2
+			],
+			"placement_id": "core:plank:4",
+			"rotation": 0,
+			"stack_index": 4
+		},
+		{
+			"amount": 10,
+			"cell": [
+				23,
+				23
+			],
+			"item_id": "core:plank",
+			"origin": [
+				0,
+				0
+			],
+			"placement_id": "core:plank:0",
+			"rotation": 0,
+			"stack_index": 0
+		},
+		{
+			"amount": 10,
+			"cell": [
+				23,
+				23
+			],
+			"item_id": "core:plank",
+			"origin": [
+				1,
+				0
+			],
+			"placement_id": "core:plank:1",
+			"rotation": 0,
+			"stack_index": 1
+		},
+		{
+			"amount": 10,
+			"cell": [
+				23,
+				23
+			],
+			"item_id": "core:plank",
+			"origin": [
+				2,
+				0
+			],
+			"placement_id": "core:plank:2",
+			"rotation": 0,
+			"stack_index": 2
+		},
+		{
+			"amount": 10,
+			"cell": [
+				23,
+				23
+			],
+			"item_id": "core:plank",
+			"origin": [
+				3,
+				0
+			],
+			"placement_id": "core:plank:3",
+			"rotation": 0,
+			"stack_index": 3
+		},
+		{
+			"amount": 10,
+			"cell": [
+				23,
+				23
+			],
+			"item_id": "core:plank",
+			"origin": [
+				0,
+				2
+			],
+			"placement_id": "core:plank:4",
+			"rotation": 0,
+			"stack_index": 4
+		},
+		{
+			"amount": 10,
+			"cell": [
+				23,
+				23
+			],
+			"item_id": "core:plank",
+			"origin": [
+				1,
+				2
+			],
+			"placement_id": "core:plank:5",
+			"rotation": 0,
+			"stack_index": 5
+		}
+	],
+	"end_tool_locations": [
+		{
+			"instance_id": "core:item_instance_000002",
+			"item_id": "core:axe",
+			"location": {
+				"id": "",
+				"kind": "inventory"
+			},
+			"state": {}
+		},
+		{
+			"instance_id": "core:item_instance_000003",
+			"item_id": "core:mallet",
+			"location": {
+				"id": "core:mallet:0",
+				"kind": "storage"
+			},
+			"state": {}
+		},
+		{
+			"instance_id": "core:item_instance_000004",
+			"item_id": "core:axe",
+			"location": {
+				"id": "core:axe:0",
+				"kind": "storage"
+			},
+			"state": {}
+		},
+		{
+			"instance_id": "core:item_instance_000005",
+			"item_id": "core:axe",
+			"location": {
+				"id": "core:axe:0",
+				"kind": "storage"
+			},
+			"state": {}
+		}
+	],
+	"failures": 0,
+	"first_roof_after_game_minutes": 50,
+	"limitations": "Scripted control with considerable waiting, no furniture projects/farm beds; not a manual playtest, not a proof of 14-16 hours continuous work, new-room completion or NPC productivity under an expanded queue.",
+	"schedule": "Day 1: ordinary axe, harvest, hand-crafted mallet, workbench, boards, starter roof and bed, two crafted communal axes. Days 1-5: every 120 minutes harvest if wood<15; at +30 saw boards; production stops once warehouse uses 56/64 subcells. Before harvest/after sawing store planks, pinecones and spare food across pantry cells; +60 forage/eat; otherwise wait. Covered sleep after 21. Day 2 acquaintance enables work; day 3 generated resident arrives. Walking uses actual movement speed and paths.",
+	"seed": 1337
+}

@@ -390,9 +390,11 @@ func _load_objects() -> void:
 		var rule: Dictionary = (rules[kind_variant] as Dictionary).duplicate(true)
 		rule["item_id"] = normalize_item_id(String(rule.get("item_id", "")))
 		var errors := validate_item_references([{ "source_path": OBJECTS_PATH, "owner_id": kind, "field": "collect_rules.item_id", "item_id": rule.item_id }])
+		errors.append_array(validate_stump_amount(kind,rule))
 		report_reference_errors(errors)
 		if errors.is_empty():
 			_collect_rules[kind] = rule
+
 
 	var map: Dictionary = data.get("map", {}) as Dictionary
 	if int(map.get("cell_size", CELL_SIZE)) != CELL_SIZE:
@@ -402,6 +404,15 @@ func _load_objects() -> void:
 		push_error("First-night content map size does not match runtime constant.")
 	if not is_equal_approx(float(map.get("interaction_range", INTERACTION_RANGE)), INTERACTION_RANGE):
 		push_error("First-night content interaction range does not match runtime constant.")
+
+
+static func validate_stump_amount(kind: String, rule: Dictionary) -> Array[String]:
+	var errors: Array[String] = []
+	if not rule.has("stump_amount"): return errors
+	var amount: Variant = rule.stump_amount
+	if kind != "wood" or not (amount is int or amount is float) or not is_finite(float(amount)) or float(amount) != floorf(float(amount)) or float(amount) < 0 or float(amount) > 100:
+		errors.append("%s: collect_rules.%s.stump_amount must be a whole wood yield from 0 to 100" % [OBJECTS_PATH,kind])
+	return errors
 
 
 func _load_progression() -> void:

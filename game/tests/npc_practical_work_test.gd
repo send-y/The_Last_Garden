@@ -140,24 +140,18 @@ func _test_cancellation_and_recovery() -> void:
 	npc.work_cargo = {"core:wood": 2}
 	sim.set_npc_work_enabled("core:first_neighbor", "gather", false)
 	sim.advance_minutes(1)
-	check(String(npc.carried_instance_id).is_empty() and npc.work_cargo.is_empty(), "Hungry cancellation releases communal tool and cargo without food")
-	var instance: Dictionary = sim.get_item_instance(tool_id)
-	check(String(instance.get("location", {}).get("kind", "")) == "world_drop", "Interrupted tool is recoverable beside the resident")
-	var drop_id := String(instance.get("location", {}).get("id", ""))
-	sim.advance_minutes(sim.WORLD_DROP_LIFETIME_MINUTES + 5)
+	check(String(npc.carried_instance_id) == tool_id and int(npc.work_cargo.get("core:wood",0)) == 2, "Hungry cancellation retains physical tool and paid cargo")
+	check(String(sim.get_item_instance(tool_id).location.kind) == "npc", "Interrupted tool is still owned by the resident")
 	sim = World.new(JSON.parse_string(JSON.stringify(sim.export_state())) as Dictionary)
-	check(not sim.get_item_instance(tool_id).is_empty(), "Recovery tool survives normal expiry and disk reload")
-	var recovered := 0
+	check(String(sim.state.npcs["core:first_neighbor"].carried_instance_id) == tool_id, "Suspended tool survives disk reload")
+	sim.advance_minutes(160)
+	check(String(sim.get_item_instance(tool_id).location.kind) == "storage", "After eating the resident returns the exact borrowed tool")
+	var stored_wood := 0
+	for record: Dictionary in sim.state.storage_items:
+		if String(record.item_id) == "core:wood": stored_wood += int(record.amount)
+	check(stored_wood == 2, "Interrupted cargo is deposited without loss")
 	for drop: Dictionary in sim.state.world_drops:
-		if bool(drop.get("npc_recovery", false)) and String(drop.item_id) == "core:wood":
-			recovered += int(drop.amount)
-	check(recovered == 2, "Interrupted cargo survives normal expiry and reload")
-	for drop: Dictionary in sim.state.world_drops:
-		if String(drop.drop_id) == drop_id:
-			sim.set_player_position(Vector2(float(drop.position[0]), float(drop.position[1])))
-			break
-	check(bool(sim.try_pickup_world_drop(drop_id).success), "Player can recover the exact borrowed physical tool")
-	check(String(sim.get_item_instance(tool_id).location.kind) == "inventory", "Recovered tool keeps its identity")
+		check(String(drop.get("instance_id","")) != tool_id, "Normal return does not discard the tool on ground")
 
 func _test_tools_and_material_limits() -> void:
 	var sim = fixture()

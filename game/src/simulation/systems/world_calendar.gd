@@ -110,6 +110,7 @@ static func _advance_clock(sim, amount: int, notify: bool = true, player_activit
 		)
 		Diagnostic.end(span)
 		span = Diagnostic.begin("clock.observe_home_projects") if Diagnostic.enabled else 0
+		sim.work_metrics.observe_minute(sim)
 		for id: String in sim.npc_catalog.definition_ids():
 			var resident: Dictionary = sim.state.npcs.get(id,{})
 			if bool(resident.get("active",false)): sim.NpcHomeProjects.observe(sim,resident)

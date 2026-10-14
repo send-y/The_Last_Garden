@@ -283,8 +283,7 @@ func _input(event: InputEvent) -> void:
 			return
 		if _point_is_visible_in(self, pointer):
 			if _is_drag_target_valid(_cursor_target_cell()):
-				_finish_drag(_cursor_target_cell())
-				_cancel_hand()
+				if not _finish_drag(_cursor_target_cell()): _cancel_hand()
 			get_viewport().set_input_as_handled()
 			return
 		if external_drop_boundary != null and external_drop_boundary.get_global_rect().has_point(pointer):
@@ -319,7 +318,7 @@ func _hotbar_slot_at_global_position(global_position: Vector2) -> int:
 	return -1
 
 
-func _finish_drag(target_cell: Vector2i) -> void:
+func _finish_drag(target_cell: Vector2i) -> bool:
 	var dragged := _placements[_dragged_placement_index]
 	var swapped_index := _swap_target_index(target_cell)
 	if swapped_index >= 0:
@@ -342,8 +341,8 @@ func _finish_drag(target_cell: Vector2i) -> void:
 		for index: int in range(_placements.size()):
 			if _placement_key(_placements[index]) == _placement_key(displaced) and _placements[index].origin == old_origin:
 				_begin_hand(index,Vector2(old_origin+original_grab)*CELL_SIZE+original_offset)
-				return
-		return
+				return true
+		return false
 	var candidate_layout: Array[Dictionary] = []
 	for index: int in range(_placements.size()):
 		if index == _dragged_placement_index:
@@ -358,6 +357,7 @@ func _finish_drag(target_cell: Vector2i) -> void:
 		candidate_layout.append(_layout_entry(moved))
 		layout_changed.emit(candidate_layout)
 	queue_redraw()
+	return false
 
 
 func _cancel_hand() -> void:
@@ -393,6 +393,16 @@ func _is_drag_target_valid(target_cell: Vector2i) -> bool:
 
 var _swap_in_flight := false
 func is_swapping() -> bool: return _swap_in_flight
+
+func hold_replacement(item_id: String, instance_id: String, stack_index: int) -> void:
+	for index: int in range(_placements.size()):
+		var placement := _placements[index]
+		if String(placement.item_id) != item_id or int(placement.stack_index) != stack_index: continue
+		if not instance_id.is_empty() and String(placement.get("instance_id","")) != instance_id: continue
+		var grab := _drag_grab_cell
+		var offset := _drag_grab_offset
+		_begin_hand(index,Vector2(placement.origin+grab)*CELL_SIZE+offset)
+		return
 
 func _swap_target_index(target_cell: Vector2i) -> int:
 	if _dragged_placement_index < 0: return -1
@@ -473,6 +483,7 @@ func _layout_entry(placement: Dictionary) -> Dictionary:
 		"stack_index": int(placement.get("stack_index", 0)),
 		"origin": [origin.x, origin.y],
 		"rotation": int(placement.get("rotation", 0)),
+		"amount": int(placement.get("amount",1)),
 	}
 
 

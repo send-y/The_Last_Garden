@@ -1,0 +1,8 @@
+Godot Engine v4.7.stable.mono.official.5b4e0cb0f - https://godotengine.org
+
+LAB_READY scenario=fresh_start day=1 time=11:00
+FAIL: Cells retain native size at (640, 360)
+FAIL: Cells retain native size at (1920, 1080)
+FAIL: Cells retain native size at (1280, 720)
+FAIL: Cells retain native size at (1270, 640)
+INVENTORY_LAB_LAYOUT: 4 failures

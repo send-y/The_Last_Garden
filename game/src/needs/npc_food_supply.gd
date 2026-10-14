@@ -23,6 +23,19 @@ static func find_meal(sim, npc: Dictionary) -> Dictionary:
 			var seat: Dictionary = sim.furniture.find_seat(sim,String(npc.id),true)
 			return {"source": "storage", "item_id": id, "cell": stored.cell.duplicate(),
 				"placement_id": stored.placement_id, "target_cell": [target.x, target.y],"seat":seat,"carry":not seat.is_empty()}
+	return _wild_meal(sim,npc,npc_cell,player_cell)
+
+static func _wild_meal(sim, npc: Dictionary, from: Vector2i, player_cell: Vector2i) -> Dictionary:
+	var bushes: Array[Dictionary] = sim.get_surface_berry_bushes()
+	var position: Vector2 = sim.get_npc_position(String(npc.id),Vector2.ZERO)
+	bushes.sort_custom(func(a: Dictionary,b: Dictionary) -> bool: return position.distance_squared_to(a.position) < position.distance_squared_to(b.position))
+	for bush: Dictionary in bushes:
+		if position.distance_squared_to(bush.position) > pow(24*sim.content.CELL_SIZE,2): break
+		if sim.should_hide_interactable(String(bush.id),"food") or not sim.farming.berry_ready(sim,String(bush.id)): continue
+		var cell: Vector2i = sim._world_position_to_cell(bush.position)
+		var at: Vector2i = sim.npc_autonomy.find_construction_work_cell(cell,from,player_cell)
+		if at == sim.npc_autonomy.INVALID_CELL: continue
+		return {"source":"wild","object_id":String(bush.id),"item_id":String(sim.content.get_collect_rule("food").item_id),"cell":[cell.x,cell.y],"target_cell":[at.x,at.y],"carry":true}
 	return {}
 
 static func _personal_meal(sim, npc: Dictionary, item_id: String) -> Dictionary:
@@ -57,6 +70,8 @@ static func fulfil(sim, effect: Dictionary) -> bool:
 	var profile: Dictionary = sim.needs.food_profile(id, sim.content)
 	if profile.is_empty():
 		return false
+	if String(meal.get("source","")) == "wild":
+		return bool(preload("res://src/needs/wild_food_harvest.gd").harvest(sim,String(npc.id),String(meal.get("object_id",""))).success)
 	if String(meal.get("source", "")) == "personal":
 		if int(npc.personal_inventory.get(id, 0)) <= 0:
 			return false

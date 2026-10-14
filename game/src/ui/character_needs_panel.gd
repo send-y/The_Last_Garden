@@ -228,6 +228,8 @@ func refresh() -> void:
 			_work_buttons[kind].disabled = not known
 			_work_buttons[kind].set_pressed_no_signal(bool(work.get("options", {}).get(kind, false)))
 		_work_hint.text = Localized.resolve("npc.work.permissions_hint" if known else "npc.work.meet_first")
+		if not String(work.get("job",{}).get("blocked_reason","")).is_empty():
+			_work_hint.text += "\n" + Localized.resolve("npc.work.blocked.storage")
 	var lines: Array[String] = []
 	if is_player:
 		for key: String in Status.KEYS:

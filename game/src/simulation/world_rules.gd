@@ -46,7 +46,7 @@ const RoomTopologyScript := preload(
 const WaterMapScript := preload("res://src/world/water_map.gd")
 const FarmingScript := preload("res://src/farming/farming_system.gd")
 
-const SAVE_VERSION: int = 37
+const SAVE_VERSION: int = 38
 const LEGACY_WALL_MATERIAL_MIGRATION_CUTOFF: int = 22
 const PLAYER_ENERGY_SAVE_VERSION: int = 24
 const PLAYER_ENERGY_MAX: float = 100.0
@@ -54,8 +54,8 @@ const PLAYER_WORK_ENERGY_COST: float = 1.0
 const PLAYER_POOR_SLEEP_ENERGY: float = 60.0
 const STORAGE_COLUMNS: int = 3
 const STORAGE_ROWS: int = 2
-const FLOORED_STORAGE_COLUMNS: int = 3
-const FLOORED_STORAGE_ROWS: int = 3
+const FLOORED_STORAGE_COLUMNS: int = 4
+const FLOORED_STORAGE_ROWS: int = 4
 const STARTER_PANTRY_ZONE_ID: String = "core:storage_zone_0001"
 const STARTER_PANTRY_CELLS: Array[Vector2i] = [
 	Vector2i(22, 22), Vector2i(23, 22),

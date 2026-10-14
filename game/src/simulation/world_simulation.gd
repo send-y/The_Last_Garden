@@ -27,6 +27,7 @@ const WorldDropsSystem := preload("res://src/simulation/systems/world_drops.gd")
 const NpcPracticalWork := preload("res://src/npc_work/npc_practical_work.gd")
 const NpcWorkQueries := preload("res://src/npc_work/npc_work_queries.gd")
 var work_queries := NpcWorkQueries.new()
+var work_metrics := preload("res://src/dev/npc_work_metrics.gd").new()
 const NpcHomeProjects := preload("res://src/npc_work/npc_home_projects.gd")
 
 const Housing := preload("res://src/housing/housing_system.gd")

@@ -140,12 +140,14 @@ func _build_ui() -> void:
 	)
 	_request_help_button.pressed.connect(_request_mira_construction_help)
 
-	_status_label = _make_label(
-		panel,
-		Vector2(8.0, 193.0),
-		Vector2(222.0, 90.0),
-		9
-	)
+	var status_scroll := ScrollContainer.new()
+	status_scroll.position = Vector2(8,193)
+	status_scroll.size = Vector2(222,90)
+	status_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	panel.add_child(status_scroll)
+	_status_label = _make_label(status_scroll,Vector2.ZERO,Vector2(210,90),9)
+	_status_label.custom_minimum_size.x = 210
+	_status_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_status_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 
 
@@ -236,6 +238,7 @@ func _load_scenario(scenario_id: StringName) -> void:
 	_loading_scenario = false
 	if not loaded:
 		return
+	Session.simulation.work_metrics.enabled = true
 	_active_scenario_id = scenario_id
 	_stress_participants.assign(result.get("participants", []))
 	_set_stress_overview(false)
@@ -416,6 +419,8 @@ func _refresh_status() -> void:
 		float(relationship.get("respect", 0.0)),
 		event_text,
 	]
+	var work: Dictionary = Session.simulation.work_metrics.summary(Session.get_day())
+	_status_label.text += "\nРабота/житель %.1f · простой %.0f%%\nСмен/час %.1f · наблюдений %d мин" % [float(work.work_per_resident),float(work.idle_percent),float(work.changes_per_hour),int(work.sample_minutes)]
 
 
 func _make_label(

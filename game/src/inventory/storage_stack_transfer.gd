@@ -55,6 +55,10 @@ static func store_stack(sim, cell: Vector2i, selected: Dictionary, current_layou
 	candidate[item_id] = int(candidate[item_id])-moved
 	var layout: Array = current_layout
 	if remaining == 0: layout = Changes.without_stack(layout,item_id,int(selected.stack_index))
+	else:
+		layout = layout.duplicate(true)
+		for entry: Dictionary in layout:
+			if String(entry.item_id) == item_id and int(entry.stack_index) == int(selected.stack_index): entry.amount = remaining
 	var packed := Packer.pack_with_layout(candidate,sim.content,layout,4,4)
 	if not packed.overflow.is_empty(): return sim._emit_result(false,"ui.inventory.move.invalid")
 	sim.state.storage_items = items

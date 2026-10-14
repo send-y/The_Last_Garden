@@ -341,6 +341,10 @@ static func _collect_resource(sim, object_id: String, kind: String) -> Dictionar
 	var item_id: String = String(rule.get("item_id", ""))
 	var amount: int = int(rule.get("amount", 0))
 	var repeatable: bool = kind == "food" or bool(rule.get("repeatable", false))
+	if kind == "food":
+		var harvest: Dictionary = preload("res://src/needs/wild_food_harvest.gd").harvest(sim,PLAYER_ACTOR_ID,object_id)
+		if not bool(harvest.success): return sim._emit_result(false,"first_night.inventory.no_space" if String(harvest.reason) == "inventory_full" else "farming.berry.wait")
+		return sim._emit_result(true,String(rule.get("message_key","first_night.collect.generic.success")),true,false,{"amount":int(harvest.amount)})
 
 	if not repeatable and sim.is_collected(object_id):
 		return sim._emit_result(
@@ -357,8 +361,6 @@ static func _collect_resource(sim, object_id: String, kind: String) -> Dictionar
 		var collected: Dictionary = state["collected"] as Dictionary
 		collected[content.normalize_object_id(object_id)] = true
 	sim._add_item(item_id, amount)
-	if kind == "food":
-		state.farming.berry_ready_at[object_id] = sim.get_elapsed_game_minutes() + int(farming.catalog.settings.berry_regrow_minutes)
 	return sim._emit_result(
 		true,
 		String(rule.get("message_key", "first_night.collect.generic.success")),

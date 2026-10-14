@@ -24,6 +24,14 @@ static func transfer_inventory_stack_to_storage(sim,
 			break
 	if selected.is_empty():
 		return sim._emit_result(false, "ui.storage.failure.none_to_store")
+	if destination_origin.x >= 0 and destination_origin.y >= 0:
+		var stock: Dictionary = preload("res://src/inventory/inventory_storage_exchange.gd").at(sim.get_storage_layout(cell),destination_origin,content)
+		if not stock.is_empty() and (stock.item_id != normalized_id or content.item_is_instance_based(normalized_id)):
+			for described: Dictionary in sim.get_inventory_placements():
+				if described.item_id == normalized_id and int(described.stack_index) == stack_index: selected = described; break
+			var exchange: Dictionary = preload("res://src/inventory/inventory_storage_exchange.gd").exchange(sim,cell,selected,stock,selected.origin,posmod(destination_rotation,4),destination_origin,int(stock.rotation),false)
+			if bool(exchange.success): return exchange
+			return sim._emit_result(false,"ui.storage.failure.no_capacity")
 	if not content.item_is_instance_based(normalized_id):
 		return preload("res://src/inventory/storage_stack_transfer.gd").store_stack(sim,cell,selected,packed.layout,destination_origin,destination_rotation)
 	var used: Dictionary = {}
@@ -114,6 +122,14 @@ static func transfer_storage_stack_to_inventory(sim,
 		var item_id := String(item.get("item_id", ""))
 		var amount := int(item.get("amount", 0))
 		var item_instance_id := String(item.get("instance_id", ""))
+		if destination_origin.x >= 0 and destination_origin.y >= 0:
+			var bag: Dictionary = preload("res://src/inventory/inventory_storage_exchange.gd").at(sim.get_inventory_placements(),destination_origin,content)
+			if not bag.is_empty() and (bag.item_id != item_id or content.item_is_instance_based(item_id)):
+				var exchange: Dictionary = preload("res://src/inventory/inventory_storage_exchange.gd").exchange(sim,cell,bag,item,destination_origin,int(bag.rotation),Vector2i(int(item.origin[0]),int(item.origin[1])),posmod(destination_rotation,4),true)
+				if bool(exchange.success): return exchange
+				return sim._emit_result(false,"ui.storage.failure.inventory_full")
+		if not content.item_is_instance_based(item_id):
+			return preload("res://src/inventory/storage_stack_return.gd").take(sim,item,index,destination_origin,destination_rotation)
 		if not sim._can_add_item(item_id, amount):
 			return sim._emit_result(false, "ui.storage.failure.inventory_full")
 		var candidate_inventory: Dictionary = sim.get_inventory()
@@ -131,6 +147,20 @@ static func transfer_storage_stack_to_inventory(sim,
 		):
 			return sim._emit_result(false, "ui.storage.failure.inventory_full")
 		var candidate_layout: Array[Dictionary] = packed_candidate.get("layout", [])
+		if not item_instance_id.is_empty():
+			var ids_by_old_index: Dictionary = {}
+			for placement: Dictionary in sim.get_inventory_placements():
+				if placement.item_id == item_id: ids_by_old_index[int(placement.stack_index)] = String(placement.instance_id)
+			ids_by_old_index[previous_amount] = item_instance_id
+			var future_indices: Dictionary = {}
+			var next_index := 0
+			for instance: Dictionary in state.item_instances:
+				if instance.item_id != item_id: continue
+				if instance.instance_id != item_instance_id and instance.location.kind != "inventory": continue
+				future_indices[String(instance.instance_id)] = next_index
+				next_index += 1
+			for entry: Dictionary in candidate_layout:
+				if entry.item_id == item_id: entry.stack_index = int(future_indices[ids_by_old_index[int(entry.stack_index)]])
 		state["inventory"] = sim._inventory_counts_without_instances(candidate_inventory)
 		state["inventory_layout"] = candidate_layout
 		preload("res://src/crafting/recipe_learning.gd").discover(sim, item_id)

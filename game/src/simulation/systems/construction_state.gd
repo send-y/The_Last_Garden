@@ -5,7 +5,8 @@ extends "res://src/simulation/world_rules.gd"
 static func _normalize_blueprints(sim,
 	value: Variant,
 	allow_multiple_layers: bool = false,
-	migrate_legacy_wall_material: bool = false
+	migrate_legacy_wall_material: bool = false,
+	track_refund: bool = true
 ) -> Array[Dictionary]:
 	var building_catalog: BuildingCatalog = sim.building_catalog
 	var normalized: Array[Dictionary] = []
@@ -81,6 +82,7 @@ static func _normalize_blueprints(sim,
 		if typeof(delivered_value) == TYPE_DICTIONARY:
 			raw_delivered = delivered_value as Dictionary
 
+		var saved_required: Dictionary = _as_dictionary(blueprint.get("required_materials", {}))
 		var delivered_materials: Dictionary = {}
 		for item_variant: Variant in required_materials.keys():
 			var item_id: String = String(item_variant)
@@ -88,7 +90,9 @@ static func _normalize_blueprints(sim,
 			delivered_materials[item_id] = clampi(
 				_safe_int(raw_delivered.get(item_id), 0),
 				0,
-				required_amount
+				preload("res://src/construction/building_cost_history.gd").delivered_limit(
+					building_id, item_id, required_amount, saved_required, migrate_legacy_wall_material
+				)
 			)
 		if (
 			migrate_legacy_wall_material
@@ -100,8 +104,16 @@ static func _normalize_blueprints(sim,
 			converted_planks += maxi(0, _safe_int(raw_delivered.get("core:wood"), 0)) * 2
 			delivered_materials["core:plank"] = mini(
 				converted_planks,
-				int(required_materials.get("core:plank", 0))
+				preload("res://src/construction/building_cost_history.gd").delivered_limit(
+					building_id, "core:plank", int(required_materials.get("core:plank", 0)), saved_required, true
+				)
 			)
+		var price_refund: Dictionary = {}
+		for item_id: String in delivered_materials:
+			var excess := maxi(0, int(delivered_materials[item_id]) - int(required_materials[item_id]))
+			if excess > 0:
+				price_refund[item_id] = excess
+				delivered_materials[item_id] = int(required_materials[item_id])
 
 		var work_progress_minutes: float = preload("res://src/items/tool_work_progress.gd").normalize(blueprint.get("work_progress_minutes", 0), required_work_minutes)
 		normalized.append({
@@ -113,6 +125,8 @@ static func _normalize_blueprints(sim,
 			"required_work_minutes": required_work_minutes,
 			"work_progress_minutes": preload("res://src/items/tool_work_progress.gd").stored(work_progress_minutes),
 		})
+		if track_refund and not price_refund.is_empty():
+			normalized.back()["price_refund"] = price_refund
 		var home_project_id: Variant = blueprint.get("home_project_id", "")
 		if home_project_id is String and not home_project_id.is_empty() and home_project_id.length() <= 160:
 			normalized.back()["home_project_id"] = home_project_id
@@ -121,7 +135,7 @@ static func _normalize_blueprints(sim,
 
 
 static func _normalize_structures(sim, value: Variant) -> Array[Dictionary]:
-	var normalized: Array[Dictionary] = sim._normalize_blueprints(value, true)
+	var normalized: Array[Dictionary] = _normalize_blueprints(sim, value, true, false, false)
 
 	for structure: Dictionary in normalized:
 		if String(structure.building_id) == "core:torch":

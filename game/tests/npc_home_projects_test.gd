@@ -180,7 +180,7 @@ func _test_interrupt_and_cancel() -> void:
 	npc.needs.hunger = 30.0
 	sim.advance_minutes(1)
 	check(npc.home_goal.cell == goal.cell and String(npc.home_goal.status) == "pending","Hunger interrupts work but preserves intention")
-	check(npc.work_cargo.is_empty(),"Interrupted project releases its real cargo")
+	check(not npc.work_cargo.is_empty(),"Interrupted project retains real cargo for resumption")
 	npc.needs.hunger = 100.0
 	npc.needs.energy = 100.0
 	npc.needs.restedness = 100.0

@@ -96,17 +96,6 @@ static func execute_resource_work(sim,
 		not required_action.is_empty()
 		and not sim.actor_tool_supports(actor_id, required_action)
 	):
-		if current_work > 0 and work_tool_instances.has(normalized_id):
-			resource_work.erase(normalized_id)
-			work_tool_instances.erase(normalized_id)
-			sim.event_emitted.emit({"type": "state_changed"})
-			return {
-				"success": false,
-				"changed": true,
-				"reason_id": "core:resource_work_tool_changed",
-				"required_tool_item_id": required_tool_item_id,
-			"required_tool_action": required_action,
-			}
 		return {
 			"success": false,
 			"changed": false,
@@ -116,23 +105,6 @@ static func execute_resource_work(sim,
 		}
 
 	if not required_action.is_empty():
-		var work_tool_instance_id := String(
-			work_tool_instances.get(normalized_id, "")
-		)
-		if (
-			not work_tool_instance_id.is_empty()
-			and work_tool_instance_id != active_tool_instance_id
-		):
-			resource_work.erase(normalized_id)
-			work_tool_instances.erase(normalized_id)
-			sim.event_emitted.emit({"type": "state_changed"})
-			return {
-				"success": false,
-				"changed": true,
-				"reason_id": "core:resource_work_tool_changed",
-				"required_tool_item_id": required_tool_item_id,
-			"required_tool_action": required_action,
-			}
 		work_tool_instances[normalized_id] = active_tool_instance_id
 
 	if actor_id == PLAYER_ACTOR_ID:
@@ -142,6 +114,7 @@ static func execute_resource_work(sim,
 	else:
 		sim.needs.spend_work(sim.state.npcs[actor_id].needs)
 	var next_work: float = minf(current_work + content.item_tool_work_rate(String(active_tool.get("item_id", ""))), float(required_work))
+	sim.work_metrics.record_work(sim,actor_id,next_work-current_work)
 
 	if next_work < required_work:
 		resource_work[normalized_id] = WorkProgress.stored(next_work)
@@ -179,7 +152,7 @@ static func execute_resource_work(sim,
 	if not tree_node.is_empty():
 		drop_amount = int(tree_node.get("yield_amount", drop_amount))
 	if presentation_id == "surface_stump":
-		drop_amount = 0
+		drop_amount = maxi(0,int(rule.get("stump_amount",2)))
 	if presentation_id == "surface_boulder":
 		drop_amount = int(target.get("yield_amount", drop_amount))
 	var drop_origin: Vector2 = target_position

@@ -96,7 +96,7 @@ static func set_inventory_layout(sim, layout: Array[Dictionary]) -> Dictionary:
 		expected_ids["%s:%d" % [
 			String(placement.get("item_id", "")),
 			int(placement.get("stack_index", 0)),
-		]] = true
+		]] = int(placement.amount)
 	var supplied_ids: Dictionary = {}
 	for entry: Dictionary in layout:
 		var key := "%s:%d" % [
@@ -115,12 +115,20 @@ static func set_inventory_layout(sim, layout: Array[Dictionary]) -> Dictionary:
 			return sim._emit_result(false, "ui.inventory.move.invalid")
 		supplied_ids[key] = true
 	var result: Dictionary = InventoryPackerScript.pack_with_layout(
-		sim.get_inventory(), content, layout, 4, 4
+		sim.get_inventory(), content, _layout_with_current_amounts(layout,expected_ids), 4, 4
 	)
 	if not bool(result.get("requested_layout_valid", false)):
 		return sim._emit_result(false, "ui.inventory.move.invalid")
 	state["inventory_layout"] = result.get("layout", [])
 	return sim._emit_result(true, "ui.inventory.move.success", true)
+
+static func _layout_with_current_amounts(layout: Array[Dictionary], amounts: Dictionary) -> Array[Dictionary]:
+	var result: Array[Dictionary] = []
+	for value: Dictionary in layout:
+		var entry := value.duplicate(true)
+		entry.amount = int(amounts["%s:%d" % [String(entry.item_id),int(entry.stack_index)]])
+		result.append(entry)
+	return result
 
 
 static func _can_add_item(sim, item_id: String, amount: int) -> bool:

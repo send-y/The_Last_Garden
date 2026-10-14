@@ -159,6 +159,12 @@ static func _normalize_state(sim) -> void:
 		normalized_blueprints,
 		normalized_structures
 	)
+	for blueprint: Dictionary in state["blueprints"]:
+		var price_refund: Dictionary = blueprint.get("price_refund", {})
+		for item_id: String in price_refund:
+			sim._create_resource_drops("core:building_price_refund", item_id,
+				int(price_refund[item_id]), Content.cell_center(int(blueprint.cell[0]), int(blueprint.cell[1])) + Vector2(0, 40))
+		blueprint.erase("price_refund")
 	state["crafting_projects"] = sim._normalize_crafting_projects(
 		state.get("crafting_projects", []),
 		normalized_structures

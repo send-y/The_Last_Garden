@@ -901,8 +901,11 @@ func _on_storage_transfer_requested(
 			int(placement.get("rotation", 0))
 		)
 	if bool(result.get("success", false)):
-		if int(result.get("remaining_source",0)) == 0: _storage_panel.return_held_items()
+		if int(result.get("remaining_source",0)) == 0 and not bool(result.get("exchanged",false)): _storage_panel.return_held_items()
 		_storage_panel.refresh(_storage_cell)
+		if bool(result.get("exchanged",false)):
+			var grid: InventoryGrid = _storage_panel._storage_grid if from_storage else _storage_panel._inventory_grid
+			grid.hold_replacement(String(result.held_item_id),String(result.held_instance_id),int(result.held_stack_index))
 
 
 func _on_storage_layout_changed(layout: Array[Dictionary]) -> void:

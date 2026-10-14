@@ -32,6 +32,7 @@ static func normalize(npc: Dictionary, content) -> void:
 		else:
 			job = {}
 		if not job.is_empty():
+			if String(raw.get("blocked_reason","")) == "storage_full_or_unreachable": job.blocked_reason = "storage_full_or_unreachable"
 			if String(job.phase) in ["craft_take", "craft"]:
 				var station: Variant = raw.get("station_cell", [])
 				if not station is Array or station.size() != 2 or String(raw.get("recipe_id", "")) != "core:saw_planks" or not valid_cell_coordinate(station[0]) or not valid_cell_coordinate(station[1]):

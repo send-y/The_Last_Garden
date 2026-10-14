@@ -55,8 +55,8 @@ func _run() -> void:
 	var panel := hud.get_node("StoragePanel") as StoragePanel
 	var inventory_grid := panel.get_node("Margin/Column/ItemsScroll/Grids/InventoryColumn/InventoryGrid") as InventoryGrid
 	var storage_grid := panel.get_node("Margin/Column/ItemsScroll/Grids/StorageColumn/StorageGrid") as InventoryGrid
-	if storage_grid.grid_columns != 3 or storage_grid.grid_rows != 3:
-		_fail("a wooden floor storage cell must expand to a 3x3 grid")
+	if storage_grid.grid_columns != 4 or storage_grid.grid_rows != 4:
+		_fail("a wooden floor storage cell must expand to a 4x4 grid")
 		return
 	hud.toggle_inventory()
 	await get_tree().process_frame

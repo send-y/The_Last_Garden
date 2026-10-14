@@ -1,0 +1,12 @@
+{
+  "checks": [
+    {
+      "name": "playtest_inventory_test.gd",
+      "graphic": false,
+      "exit": 0,
+      "passed": true
+    }
+  ],
+  "save_before": "1f6d55b5732216898fffc34132083326db849cde8b99269f01e2fc3275db7436",
+  "save_after": "1f6d55b5732216898fffc34132083326db849cde8b99269f01e2fc3275db7436"
+}

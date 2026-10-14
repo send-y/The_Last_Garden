@@ -4,6 +4,7 @@ const Supply := preload("res://src/npc_work/npc_work_supplies.gd")
 const Planner := preload("res://src/npc_work/npc_work_planner.gd")
 const Water := preload("res://src/world/water_map.gd")
 const Diagnostic := preload("res://src/dev/diagnostic_trace.gd")
+const WorkSession := preload("res://src/npc_work/npc_work_session.gd")
 const INVALID := Vector2i(-1, -1)
 
 static func set_enabled(sim, npc_id: String, kind: String, enabled: bool) -> Dictionary:
@@ -48,12 +49,7 @@ static func prepare(sim) -> Dictionary:
 			job = npc.initiative_job
 		var urgent_need: bool = float(npc.needs.hunger) <= 55 or float(npc.needs.energy) <= 18 or sim.get_minute_of_day() >= 21 * 60 or sim.get_minute_of_day() < 7 * 60
 		if urgent_need and (not job.is_empty() or not String(npc.carried_instance_id).is_empty() or not npc.work_cargo.is_empty()):
-			# Needs interrupt work without trapping communal supplies on a hungry resident.
-			for zone: Dictionary in sim.state.storage_zones:
-				for value: Array in zone.cells:
-					Supply.deposit_at(sim, npc, Vector2i(int(value[0]), int(value[1])))
-			Supply.drop_remaining(sim, npc)
-			finish(sim, npc)
+			# Eating/resting outranks work. Keep its real tool and paid cargo for resumption.
 			continue
 		if not requested and not job.is_empty() and String(job.phase) != "return" and not bool(npc.work_options.get(String(job.kind), false)):
 			cancel(npc)
@@ -90,6 +86,10 @@ static func _context_for(sim, npc: Dictionary) -> Dictionary:
 		cancel(npc)
 		return context_for(sim,npc) if not npc.initiative_job.is_empty() else {}
 	var phase := String(job.phase)
+	if String(job.kind) in ["water","gather"] and phase in ["borrow","work","refill"] and not WorkSession.target_available(sim,job):
+		if WorkSession.next_target(sim,npc): return context_for(sim,npc)
+		cancel(npc)
+		return context_for(sim,npc) if not npc.initiative_job.is_empty() else {}
 	# A ready blueprint still requires a real tool, including personal home projects
 	# and explicit player requests. Borrowing uses the existing warehouse route.
 	if phase in ["build", "take_materials"] and not sim.actor_tool_supports(String(npc.id), "build"):
@@ -124,6 +124,7 @@ static func _context_for(sim, npc: Dictionary) -> Dictionary:
 				context.water_cell = source.duplicate()
 		"work", "deliver", "build", "switch_on":
 			if String(job.kind) == "build" and phase != "switch_on" and sim._find_blueprint(job.cell).is_empty():
+				if WorkSession.next_target(sim,npc): return context_for(sim,npc)
 				cancel(npc)
 				return {}
 			var goal: Dictionary = npc.home_goal
@@ -166,6 +167,7 @@ static func _context_for(sim, npc: Dictionary) -> Dictionary:
 					context.drop = drop
 					break
 			if target == INVALID or Supply.cargo_size(npc) >= Supply.CARRY_LIMIT:
+				if target == INVALID and WorkSession.next_target(sim,npc): return context_for(sim,npc)
 				job.phase = "return"
 				return context_for(sim, npc)
 		"return":
@@ -193,9 +195,9 @@ static func _context_for(sim, npc: Dictionary) -> Dictionary:
 				if target != INVALID:
 					break
 			if target == INVALID:
-				Supply.drop_remaining(sim, npc)
-				finish(sim, npc)
+				job.blocked_reason = "storage_full_or_unreachable"
 				return {}
+			job.erase("blocked_reason")
 	if context.has("target_cell"):
 		target = Vector2i(int(context.target_cell[0]), int(context.target_cell[1]))
 	if target == INVALID:
@@ -247,7 +249,8 @@ static func fulfil(sim, effect: Dictionary) -> bool:
 			if String(job.kind) == "water":
 				if sim.farming.water_for_actor(sim, String(npc.id), cell).success:
 					sim.needs.spend_work(npc.needs)
-				job.phase = "return"
+					sim.work_metrics.record_work(sim,String(npc.id),1.0)
+				if not WorkSession.next_target(sim,npc): job.phase = "return"
 			else:
 				var result: Dictionary = sim.execute_resource_work(String(npc.id), String(job.target_id))
 				for id: String in result.get("created_drop_ids", []):
@@ -291,7 +294,7 @@ static func fulfil(sim, effect: Dictionary) -> bool:
 						sim._record_first_shared_wall_memory(npc, job.cell, sim.get_minute_of_day())
 					if npc.work_commitment.get("target_cell", []) == job.cell:
 						npc.work_commitment = {}
-					cancel(npc)
+					if not WorkSession.next_target(sim,npc): cancel(npc)
 				elif not bool(result.get("changed", false)):
 					cancel(npc)
 		"switch_on":

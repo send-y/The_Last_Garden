@@ -589,7 +589,7 @@ func _test_player_energy_and_roof_sleep() -> void:
 	for minute: int in range(4):
 		var work := working.execute_resource_work(Simulation.PLAYER_ACTOR_ID, "wood_north")
 		_expect(bool(work.get("success", false)), "resource work remains available when player energy reaches zero")
-		_expect(is_equal_approx(working.get_player_energy(), maxf(0.0, 3.0 - float(minute + 1))), "successful player resource minutes spend energy once and clamp at zero")
+		_expect(is_equal_approx(working.get_player_energy(), maxf(0.0, 3.0 - float(minute + 1) * float(working.needs.config.work_energy_cost))), "successful player resource minutes spend energy once and clamp at zero")
 	var rejected_energy := working.get_player_energy()
 	working.set_player_position(Vector2.ZERO)
 	var distant_work := working.execute_resource_work(Simulation.PLAYER_ACTOR_ID, "wood_north")
@@ -992,7 +992,7 @@ func _surface_route_build_workbench(simulation: World) -> Vector2i:
 	_expect(String(result.get("reason_id", "")) == "core:structure_completed", "ordinary route finishes its own workbench")
 	_expect(simulation.get_current_objective_key() == "first_night.objective.saw_planks", "completed workbench points to the existing board recipe")
 	_expect(simulation.get_elapsed_game_minutes() - started_at == required, "ordinary workbench construction consumes its elapsed work minutes")
-	_expect(is_equal_approx(simulation.get_player_energy(), maxf(0.0, starting_energy - float(required))), "successful player construction minutes spend energy exactly once")
+	_expect(is_equal_approx(simulation.get_player_energy(), maxf(0.0, starting_energy - float(required) * float(simulation.needs.config.work_energy_cost))), "successful player construction minutes spend energy exactly once")
 	return chosen
 
 
@@ -1022,7 +1022,7 @@ func _surface_route_saw_planks(simulation: World, workbench_cell: Vector2i) -> b
 	_expect(String(result.get("reason_id", "")) == "core:crafting_completed", "ordinary route completes its first board recipe")
 	_expect(simulation.get_current_objective_key() == "first_night.objective.pick_up_planks" and simulation.get_resource_search_hint().is_empty(), "physical board outputs point to pickup without requesting more logs")
 	_expect(simulation.get_elapsed_game_minutes() - started_at == required, "ordinary plank crafting consumes its elapsed work minutes")
-	_expect(is_equal_approx(simulation.get_player_energy(), maxf(0.0, starting_energy - float(required))), "successful player crafting minutes spend energy exactly once")
+	_expect(is_equal_approx(simulation.get_player_energy(), maxf(0.0, starting_energy - float(required) * float(simulation.needs.config.work_energy_cost))), "successful player crafting minutes spend energy exactly once")
 	return _surface_route_pick_drops(simulation, result.get("created_drop_ids", []) as Array)
 
 
@@ -1083,7 +1083,7 @@ func _surface_route_harvest(simulation: World, resources: Array[Dictionary]) -> 
 		for drop_id: Variant in result.get("created_drop_ids", []) as Array:
 			all_drop_ids.append(String(drop_id))
 	_expect(simulation.get_elapsed_game_minutes() - started_at == required, "ordinary resource work consumes its actual elapsed game minutes")
-	_expect(is_equal_approx(simulation.get_player_energy(), maxf(0.0, starting_energy - float(required))), "successful player gathering minutes spend energy exactly once")
+	_expect(is_equal_approx(simulation.get_player_energy(), maxf(0.0, starting_energy - float(required) * float(simulation.needs.config.work_energy_cost))), "successful player gathering minutes spend energy exactly once")
 	_expect(String(result.get("reason_id", "")) == "core:resource_depleted", "ordinary resource work completes before pickup")
 	_expect(not all_drop_ids.is_empty(), "ordinary resource work creates physical world drops")
 	return _surface_route_pick_drops(simulation, all_drop_ids)
@@ -1324,7 +1324,7 @@ func _test_resource_work_requires_selected_physical_tools() -> void:
 	_expect(
 		bool(started.get("success", false))
 			and simulation.get_resource_work_progress(tree_id) == 1
-			and is_equal_approx(simulation.get_player_energy(), initial_energy - 1.0),
+			and is_equal_approx(simulation.get_player_energy(), initial_energy - float(simulation.needs.config.work_energy_cost)),
 		"selected axe allows work on a tree"
 	)
 
@@ -1332,11 +1332,11 @@ func _test_resource_work_requires_selected_physical_tools() -> void:
 	simulation.select_hotbar_slot(0)
 	var interrupted := simulation.execute_resource_work("core:player", tree_id)
 	_expect(
-		String(interrupted.get("reason_id", "")) == "core:resource_work_tool_changed"
-			and simulation.get_resource_work_progress(tree_id) == 0
+		String(interrupted.get("reason_id", "")) == "core:resource_tool_not_selected"
+			and simulation.get_resource_work_progress(tree_id) == 1
 			and not simulation.is_collected(tree_id)
 			and is_equal_approx(simulation.get_player_energy(), energy_before_switch),
-		"switching tools during work stops it before changing the tree"
+		"wrong tool stops work without erasing completed target progress"
 	)
 	var removed_tool_simulation: World = Simulation.new()
 	removed_tool_simulation.set_player_position(
@@ -1357,10 +1357,10 @@ func _test_resource_work_requires_selected_physical_tools() -> void:
 	)
 	_expect(
 		String(removed_result.get("reason_id", ""))
-			== "core:resource_work_tool_changed"
-			and removed_tool_simulation.get_resource_work_progress(tree_id) == 0
+			== "core:resource_tool_not_selected"
+			and removed_tool_simulation.get_resource_work_progress(tree_id) == 1
 			and not removed_tool_simulation.is_collected(tree_id),
-		"removing the selected axe during work interrupts without felling the tree"
+		"removing selected axe refuses work and retains target progress"
 	)
 
 	simulation.select_hotbar_slot(1)
@@ -2378,12 +2378,13 @@ func _test_storage_transfers_preserve_backpack_layout() -> void:
 	var blocked_return := World.new(blocked_return_state)
 	blocked_return.set_player_position(Content.cell_center(10, 10))
 	var blocked_placement: Dictionary = blocked_return.get_storage_layout(Vector2i(10, 10))[0]
+	var before_refusal := blocked_return.export_state()
 	var rejected_return := blocked_return.transfer_storage_stack_to_inventory(
 		Vector2i(10, 10),
 		String(blocked_placement.get("placement_id", "")),
-		Vector2i(3, 3)
+		Vector2i(4, 3)
 	)
-	_expect(not bool(rejected_return.get("success", false)), "returning a partial stack into another item's occupied slot is rejected")
+	_expect(not bool(rejected_return.get("success", false)), "returning a partial stack outside the grid is rejected")
 	var unchanged_state := blocked_return.export_state()
 	_expect(
 		int((unchanged_state["inventory"] as Dictionary).get("core:wood", 0)) == 3
@@ -2391,7 +2392,7 @@ func _test_storage_transfers_preserve_backpack_layout() -> void:
 		"rejected stack placement leaves backpack counts unchanged"
 	)
 	_expect(
-		(unchanged_state["inventory_layout"] as Array) == blocked_return_state["inventory_layout"]
+		(unchanged_state["inventory_layout"] as Array) == before_refusal["inventory_layout"]
 		and (unchanged_state["storage_items"] as Array).size() == 1,
 		"rejected stack placement preserves all positions and keeps the stored logs"
 	)
@@ -3044,6 +3045,8 @@ func _test_mira_needs_schedule_and_personal_food() -> void:
 	var simulation: World = Simulation.new()
 	_complete_first_night_for_test(simulation)
 	var start_position: Vector2 = simulation.get_npc_position("core:first_neighbor", Vector2.ZERO)
+	# This fixture isolates the two carried portions; wild foraging has its own test.
+	for id: String in simulation._food_object_ids: simulation.state.removed_bushes[id] = true
 	var start_needs: Dictionary = simulation.get_npc_needs("core:first_neighbor")
 	_expect(simulation.get_npc_personal_food("core:first_neighbor") == 2, "Mira arrives with two personal food portions")
 
@@ -3262,14 +3265,14 @@ func _test_mira_completes_construction_commitment() -> void:
 		int((mira_after_acceptance.get("personal_inventory", {}) as Dictionary).get(
 			"core:plank",
 			0
-		)) == 0,
-		"Mira transfers required carried planks into the blueprint"
+		)) == 10,
+		"Mira transfers only required carried planks into the blueprint"
 	)
 	_expect(
 		(simulation.get_blueprints()[0] as Dictionary).get(
 			"delivered_materials",
 			{}
-		) == {"core:plank": 30},
+		) == {"core:plank": 20},
 		"Mira's delivered planks become part of the blueprint"
 	)
 	_expect(
@@ -3825,7 +3828,7 @@ func _test_blueprint_command_execution() -> void:
 			"placed blueprint uses the blueprint stage"
 		)
 		_expect(
-			first_blueprint.get("required_materials", {}) == {"core:plank": 30},
+			first_blueprint.get("required_materials", {}) == {"core:plank": 20},
 			"placed wall blueprint snapshots its material requirement"
 		)
 		_expect(
@@ -3846,14 +3849,14 @@ func _test_blueprint_command_execution() -> void:
 	)
 	_expect(bool(delivery_result.get("success", false)), "player delivers carried wood")
 	_expect(
-		simulation.get_item_count("core:plank") == 69,
+		simulation.get_item_count("core:plank") == 79,
 		"delivered planks leave the player inventory"
 	)
 	_expect(
 		(simulation.get_blueprints()[0] as Dictionary).get(
 			"delivered_materials",
 			{}
-		) == {"core:plank": 30},
+		) == {"core:plank": 20},
 		"delivered planks become part of the blueprint"
 	)
 	var duplicate_delivery: Dictionary = simulation.execute_construction_command(
@@ -3927,7 +3930,7 @@ func _test_blueprint_command_execution() -> void:
 		"cancelling a blueprint returns only the materials that fit in the backpack"
 	)
 	var full_cancel_state: Dictionary = Simulation.create_new_state()
-	(full_cancel_state["inventory"] as Dictionary)["core:plank"] = 30
+	(full_cancel_state["inventory"] as Dictionary)["core:plank"] = 20
 	var full_cancel := World.new(full_cancel_state)
 	full_cancel.execute_construction_command(
 		ConstructionCommandScript.place_wall_blueprint(Vector2i(22, 29))
@@ -3959,7 +3962,7 @@ func _test_blueprint_command_execution() -> void:
 		var drop_position := Vector2(float(drop_position_data[0]), float(drop_position_data[1]))
 		if drop_position.distance_to(Content.cell_center(22, 29)) > 64.0:
 			cancellation_drop_near_blueprint = false
-	_expect(cancellation_drop_amount == 30, "overflow from cancellation remains as world loot")
+	_expect(cancellation_drop_amount == 20, "overflow from cancellation remains as world loot")
 	_expect(cancellation_drop_near_blueprint, "cancellation loot is dropped near the blueprint even when cancelled remotely")
 	var remaining_blueprints: Array = simulation.get_blueprints()
 	_expect(remaining_blueprints.size() == 1, "cancellation removes exactly one blueprint")
@@ -4192,7 +4195,7 @@ func _test_v9_blueprint_progress_is_migrated() -> void:
 	if migrated_blueprints.size() == 1:
 		var migrated_blueprint: Dictionary = migrated_blueprints[0] as Dictionary
 		_expect(
-			migrated_blueprint.get("required_materials", {}) == {"core:plank": 30},
+			migrated_blueprint.get("required_materials", {}) == {"core:plank": 20},
 			"v9 blueprint gains its catalog material requirement"
 		)
 		_expect(
@@ -4217,7 +4220,7 @@ func _test_v9_blueprint_progress_is_migrated() -> void:
 		normalized_progress.get_blueprints()[0] as Dictionary
 	)
 	_expect(
-		normalized_blueprint.get("delivered_materials", {}) == {"core:plank": 30},
+		normalized_blueprint.get("delivered_materials", {}) == {"core:plank": 20},
 		"blueprint delivery is clamped to its catalog requirement"
 	)
 	_expect(
@@ -4231,7 +4234,7 @@ func _test_building_catalog() -> void:
 	var wall: Dictionary = catalog.get_definition("core:wood_wall")
 	_expect(not wall.is_empty(), "building catalog loads the wooden wall")
 	_expect(
-		catalog.get_material_cost("core:wood_wall") == {"core:plank": 30},
+		catalog.get_material_cost("core:wood_wall") == {"core:plank": 20},
 		"wooden wall reads its material cost from content"
 	)
 	_expect(
@@ -4702,7 +4705,7 @@ func _test_lab_mira_resting() -> void:
 		simulation.get_npc_activity_id("core:first_neighbor") == NpcAutonomyScript.ACTIVITY_RESTING,
 		"resting Mira scenario reaches the real resting activity"
 	)
-	_expect(simulation.get_npc_personal_food("core:first_neighbor") == 0, "resting Mira scenario consumed two travel portions")
+	_expect(simulation.get_npc_personal_food("core:first_neighbor") == 0 or not simulation.state.farming.berry_ready_at.is_empty(), "resting Mira consumes travel food or obtains real wild food after it")
 	_expect(float(needs.get("hunger", 100.0)) >= 0.0, "resting Mira scenario exposes normalized hunger")
 
 

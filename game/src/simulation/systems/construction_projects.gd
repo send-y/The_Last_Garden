@@ -299,6 +299,7 @@ static func _advance_blueprint_work(sim, cell_data: Array, actor_id: String = PL
 	var tool: Dictionary = sim.get_actor_tool(actor_id)
 	var next_work: float = minf(current_work + sim.content.item_tool_work_rate(String(tool.get("item_id", ""))), float(required_work))
 	blueprint["work_progress_minutes"] = preload("res://src/items/tool_work_progress.gd").stored(next_work)
+	sim.work_metrics.record_work(sim,actor_id,next_work-current_work)
 	if next_work < required_work:
 		return {
 			"success": true,

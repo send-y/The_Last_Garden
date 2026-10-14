@@ -111,6 +111,7 @@
   "collect_rules": {
 	"wood": {
 	  "item_id": "core:wood",
+	  "stump_amount": 2,
 	  "amount": 3,
 	  "work_minutes": 8,
 	  "repeatable": false,

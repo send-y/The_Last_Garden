@@ -91,8 +91,8 @@ func add_effect(npc: Dictionary, id: String, now: int) -> void:
 func reasons(npc: Dictionary, covered: bool, now: int, home: Dictionary = {}, furniture: Dictionary = {}) -> Array[Dictionary]:
 	var result: Array[Dictionary] = []
 	var needs: Dictionary = npc.needs
-	result.append({"key": "needs.reason.fed" if float(needs.hunger) >= 55 else "needs.reason.hungry", "amount": 8 if float(needs.hunger) >= 55 else -18})
-	result.append({"key": "needs.reason.slept" if float(needs.restedness) >= 55 else "needs.reason.sleepy", "amount": 8 if float(needs.restedness) >= 55 else -18})
+	result.append({"key": "needs.reason.fed" if float(needs.hunger) >= 55 else "needs.reason.hungry", "amount": physical_mood_contribution(float(needs.hunger))})
+	result.append({"key": "needs.reason.slept" if float(needs.restedness) >= 55 else "needs.reason.sleepy", "amount": physical_mood_contribution(float(needs.restedness))})
 	result.append({"key": "needs.reason.home" if covered else "needs.reason.draft", "amount": 8 if covered else -6})
 	if bool(home.get("valid", false)):
 		var bed: bool = String(home.get("building_id", "")) == "core:bed"
@@ -103,6 +103,10 @@ func reasons(npc: Dictionary, covered: bool, now: int, home: Dictionary = {}, fu
 	if bool(furniture.get("seated",false)) and bool(furniture.get("dark",false)):
 		result.append({"key":"needs.reason.lit_seat" if bool(furniture.lit) else "needs.reason.dark_seat","amount":3 if bool(furniture.lit) else -3})
 	return result
+
+static func physical_mood_contribution(level: float) -> float:
+	var current := clampf(level,0,100)
+	return 8.0*(current-55.0)/45.0 if current >= 55.0 else -18.0*(55.0-current)/55.0
 
 func advance_psychology(npc: Dictionary, covered: bool, now: int, home: Dictionary = {}, furniture: Dictionary = {}) -> void:
 	var psychology: Dictionary = npc.psychology

@@ -1,0 +1,167 @@
+{
+  "checks": [
+    {
+      "name": "run_tests.gd",
+      "graphic": false,
+      "exit": 0,
+      "passed": true,
+      "report": "final-after-review.json"
+    },
+    {
+      "name": "tool_tiers_test.gd",
+      "graphic": false,
+      "exit": 0,
+      "passed": true,
+      "report": "integration-first.json"
+    },
+    {
+      "name": "storage_integration_test.tscn",
+      "graphic": false,
+      "exit": 0,
+      "passed": true,
+      "report": "integration-first.json"
+    },
+    {
+      "name": "starting_pantry_integration_test.tscn",
+      "graphic": false,
+      "exit": 0,
+      "passed": true,
+      "report": "integration-first.json"
+    },
+    {
+      "name": "indexed_consumers_test.gd",
+      "graphic": false,
+      "exit": 0,
+      "passed": true,
+      "report": "integration-first.json"
+    },
+    {
+      "name": "inventory_cell_anchor_test.tscn",
+      "graphic": false,
+      "exit": 0,
+      "passed": true,
+      "report": "hud-exchange-green.json"
+    },
+    {
+      "name": "npc_practical_work_test.gd",
+      "graphic": false,
+      "exit": 0,
+      "passed": true,
+      "report": "review-regressions.json"
+    },
+    {
+      "name": "npc_home_projects_test.gd",
+      "graphic": false,
+      "exit": 0,
+      "passed": true,
+      "report": "review-regressions.json"
+    },
+    {
+      "name": "playtest_inventory_test.gd",
+      "graphic": false,
+      "exit": 0,
+      "passed": true,
+      "report": "final-contracts.json"
+    },
+    {
+      "name": "playtest_motion_diagnostic.tscn",
+      "graphic": true,
+      "exit": 0,
+      "passed": true,
+      "report": "motion-control.json"
+    },
+    {
+      "name": "playtest_npc_motion_test.tscn",
+      "graphic": false,
+      "exit": 0,
+      "passed": true,
+      "report": "motion-control.json"
+    },
+    {
+      "name": "playtest_economy_test.gd",
+      "graphic": false,
+      "exit": 0,
+      "passed": true,
+      "report": "final-contracts.json"
+    },
+    {
+      "name": "playtest_npc_work_test.gd",
+      "graphic": false,
+      "exit": 0,
+      "passed": true,
+      "report": "review-regressions.json"
+    },
+    {
+      "name": "playtest_npc_food_test.gd",
+      "graphic": false,
+      "exit": 0,
+      "passed": true,
+      "report": "final-contracts.json"
+    },
+    {
+      "name": "playtest_work_metrics_test.gd",
+      "graphic": false,
+      "exit": 0,
+      "passed": true,
+      "report": "final-contracts.json"
+    },
+    {
+      "name": "npc_home_production_test.gd",
+      "graphic": false,
+      "exit": 0,
+      "passed": true,
+      "report": "review-regressions.json"
+    },
+    {
+      "name": "npc_work_query_cache_test.gd",
+      "graphic": false,
+      "exit": 0,
+      "passed": true,
+      "report": "review-regressions.json"
+    },
+    {
+      "name": "item_tool_water_test.gd",
+      "graphic": false,
+      "exit": 0,
+      "passed": true,
+      "report": "final-contracts.json"
+    },
+    {
+      "name": "item_source_references_test.gd",
+      "graphic": false,
+      "exit": 0,
+      "passed": true,
+      "report": "final-contracts.json"
+    },
+    {
+      "name": "inventory_lab_layout_test.tscn",
+      "graphic": false,
+      "exit": 0,
+      "passed": true,
+      "report": "review-regressions.json"
+    },
+    {
+      "name": "playtest_item_ui_test.tscn",
+      "graphic": true,
+      "exit": 0,
+      "passed": true,
+      "report": "review-regressions.json"
+    },
+    {
+      "name": "playtest_item_ui_test.tscn",
+      "graphic": false,
+      "exit": 0,
+      "passed": true,
+      "report": "review-ui-green-3.json"
+    },
+    {
+      "name": "playtest_five_days.gd",
+      "graphic": false,
+      "exit": 0,
+      "passed": true,
+      "report": "final-after-review.json"
+    }
+  ],
+  "save_sha256": "1f6d55b5732216898fffc34132083326db849cde8b99269f01e2fc3275db7436",
+  "notes": "Latest valid evidence per suite; intermediate red logs remain separate. No new execution for this index."
+}

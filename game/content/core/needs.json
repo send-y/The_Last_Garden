@@ -6,7 +6,7 @@
   "sleep_energy_gain": 0.25,
   "rest_energy_gain": 0.4,
   "poor_sleep_cap": 60,
-  "work_energy_cost": 1,
+  "work_energy_cost": 0.25,
   "mood_change_per_minute": 0.1,
   "wellbeing_response_minutes": 10080,
   "bed_sleep_speed": 1.35,

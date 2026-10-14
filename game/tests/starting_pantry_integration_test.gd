@@ -19,7 +19,7 @@ func run() -> void:
 	var sim = Session.simulation
 	check(sim.state.item_instances.size() == 1 and sim.state.item_instances[0].item_id == "core:axe", "Ordinary world has exactly one wooden axe")
 	check(sim.get_storage_zones().size() == 1 and sim.get_storage_zones()[0].cells.size() == 4, "Ordinary pantry still has four useful floor cells")
-	for cell: Vector2i in World.STARTER_PANTRY_CELLS: check(sim.get_storage_grid_size(cell) == Vector2i(3,3), "Pantry floor has its real 3x3 storage")
+	for cell: Vector2i in World.STARTER_PANTRY_CELLS: check(sim.get_storage_grid_size(cell) == Vector2i(4,4), "Pantry floor has its real 4x4 storage")
 	check(sim.should_hide_interactable("core:old_tools","tools"), "Legacy source cannot duplicate starter tools")
 	sim.set_player_position(Content.cell_center(22,22))
 	var main := Main.instantiate()

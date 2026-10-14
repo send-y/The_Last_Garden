@@ -2,7 +2,7 @@ class_name InteractableView
 extends Area2D
 
 const CharacterVisualScene := preload("res://src/characters/character_visual.gd")
-const NPC_PRESENTATION_SPEED: float = 30.0
+const NPC_PRESENTATION_SPEED: float = FirstNightContent.CELL_SIZE * preload("res://src/simulation/world_rules.gd").GAME_MINUTES_PER_SECOND
 const NPC_SNAP_DISTANCE: float = 96.0
 const Localized := preload(
 	"res://src/localization/localized_text.gd"
@@ -110,6 +110,8 @@ func _physics_process(delta: float) -> void:
 	if kind != "npc" or not visible or Session.is_paused():
 		return
 	var distance: float = position.distance_to(_target_position)
+	if preload("res://src/dev/diagnostic_trace.gd").enabled:
+		preload("res://src/dev/diagnostic_trace.gd").motion_sample(object_id,Session.simulation.is_npc_moving(object_id),distance,delta)
 	if _character_visual != null:
 		_character_visual.set_sitting(distance <= 0.25 and not Session.simulation.furniture.comfort(Session.simulation,object_id).is_empty())
 	if distance <= 0.25:

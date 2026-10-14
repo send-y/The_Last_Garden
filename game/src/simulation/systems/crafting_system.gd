@@ -320,6 +320,7 @@ static func work_npc_project(sim, npc: Dictionary, cell: Array, recipe_id: Strin
 	var next := mini(int(project.work_progress_minutes)+1,int(project.required_work_minutes))
 	project.work_progress_minutes = next
 	sim.needs.spend_work(npc.needs)
+	sim.work_metrics.record_work(sim,String(npc.id),1.0)
 	if next < int(project.required_work_minutes): return {"success":true,"reason_id":"core:crafting_work_progressed"}
 	for id: String in outputs:
 		var amount := int(outputs[id])

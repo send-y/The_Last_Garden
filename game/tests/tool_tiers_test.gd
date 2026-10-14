@@ -58,7 +58,7 @@ func run() -> void:
 		farm.set_player_position(Content.cell_center(18, 29))
 		var before: float = farm.get_player_energy()
 		check(farm.execute_farming_command({"actor_id":"core:player","action_id":"till","cell":[18,29]}).success, "Actual single bed tilled")
-		check(is_equal_approx(before - farm.get_player_energy(), float(energy[tier])), "Actual hoe energy discount")
+		check(is_equal_approx(before - farm.get_player_energy(), float(energy[tier]) * float(farm.needs.config.work_energy_cost)), "Actual hoe energy discount")
 		check(farm.get_farm_beds().size() == 1, "Hoe tills exactly one bed")
 	var builder = World.new()
 	var cell := Vector2i(17, 29)

@@ -6,12 +6,29 @@ static var spans: Dictionary = {}
 static var stack: Array[Dictionary] = []
 static var counters: Dictionary = {}
 static var slow_paths: Array[Dictionary] = []
+static var motion: Dictionary = {}
+static var slow_frames: Array[Dictionary] = []
 
 static func reset() -> void:
 	spans.clear()
 	stack.clear()
 	counters.clear()
 	slow_paths.clear()
+	motion.clear()
+	slow_frames.clear()
+
+static func motion_sample(id: String, moving: bool, distance: float, delta: float) -> void:
+	if not enabled: return
+	if not motion.has(id): motion[id] = {"samples":0,"moving_seconds":0.0,"waiting_while_moving_seconds":0.0}
+	var row: Dictionary = motion[id]
+	row.samples += 1
+	if moving:
+		row.moving_seconds += delta
+		if distance <= 0.25: row.waiting_while_moving_seconds += delta
+
+static func frame_sample(ms: float, minute: int) -> void:
+	if not enabled or ms <= 50: return
+	if slow_frames.size() < 100: slow_frames.append({"ms":ms,"elapsed_game_minute":minute})
 
 static func begin(label: String) -> int:
 	if not enabled: return 0
@@ -45,4 +62,4 @@ static func path_sample(from: Vector2i, to: Vector2i, size: int, elapsed_us: int
 
 static func snapshot() -> Dictionary:
 	assert(stack.is_empty(), "Unclosed diagnostic span")
-	return {"spans": spans.duplicate(true), "counters": counters.duplicate(), "slow_paths": slow_paths.duplicate(true)}
+	return {"spans": spans.duplicate(true), "counters": counters.duplicate(), "slow_paths": slow_paths.duplicate(true),"motion":motion.duplicate(true),"slow_frames":slow_frames.duplicate(true)}

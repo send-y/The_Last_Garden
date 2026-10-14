@@ -24,7 +24,7 @@ func run() -> void:
 	var second := sim.get_inventory_instance_id("test:axe_variant", 1)
 	sim.select_inventory_item("test:axe_variant", second)
 	work = sim.execute_resource_work("core:player", target)
-	check(work.reason_id == "core:resource_work_tool_changed" and not sim.is_collected(target) and sim.get_resource_work_progress(target) == 0, "Changing physical copy resets progress")
+	check(work.success and not sim.is_collected(target) and sim.get_resource_work_progress(target) == 2, "Changing physical copy preserves shared target progress")
 	check(sim.execute_resource_work("core:player", target).success, "New copy starts next work")
 	sim.select_inventory_item("", "")
 	check(not sim.execute_resource_work("core:player", target).success, "Backpack ownership is insufficient")
@@ -53,7 +53,7 @@ func run() -> void:
 	sim.set_player_position(sim.content.get_interactable(target).position)
 	check(sim.execute_resource_work("core:player", target).success, "Variant starts before switching model")
 	sim.select_inventory_item("core:axe", base_id)
-	check(sim.execute_resource_work("core:player", target).reason_id == "core:resource_work_tool_changed", "Different compatible model also resets physical progress")
+	check(sim.execute_resource_work("core:player", target).success and sim.get_resource_work_progress(target) == 2, "Different compatible model contributes to existing target progress")
 	sim.select_inventory_item("test:axe_variant", variant_id)
 	for step: int in range(sim.get_resource_work_required(target)):
 		sim.execute_resource_work("core:player", target)

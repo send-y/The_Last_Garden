@@ -1,0 +1,11 @@
+Godot Engine v4.7.stable.mono.official.5b4e0cb0f - https://godotengine.org
+
+WARNING: Save version 28 migrated into prototype version 38.
+   at: push_warning (core/variant/variant_utility.cpp:1033)
+   GDScript backtrace (most recent call first):
+       [0] _normalize_state (res://src/simulation/systems/save_migrations.gd:203)
+       [1] _normalize_state (res://src/simulation/world_simulation.gd:967)
+       [2] _init (res://src/simulation/world_simulation.gd:93)
+       [3] _test_old_resource_position (res://tests/npc_practical_work_test.gd:279)
+       [4] _run (res://tests/npc_practical_work_test.gd:42)
+PASS: NPC practical watering, physical resource work, hauling, blueprint construction, needs and persistence

@@ -28,6 +28,9 @@ static func pack_with_layout(
 	var stack_indices: Dictionary = {}
 	var requested_layout_valid := true
 	var reserved_fits: Dictionary = {}
+	var amounts_by_item := {}
+	for item_id: String in content_data.item_ids():
+		amounts_by_item[item_id] = preload("res://src/inventory/inventory_stack_amounts.gd").partitions(item_id,maxi(0,int(inventory.get(item_id,0))),content_data.item_max_stack(item_id),preferred_layout,content_data.item_is_instance_based(item_id))
 	# Reserve every surviving manual placement before fitting any new stack.
 	for preference_variant: Variant in preferred_layout:
 		if typeof(preference_variant) != TYPE_DICTIONARY:
@@ -37,7 +40,7 @@ static func pack_with_layout(
 		if not content_data.has_item(item_id):
 			continue
 		var stack_index := int(preference.get("stack_index", -1))
-		var stack_count := ceili(float(maxi(0, int(inventory.get(item_id, 0)))) / content_data.item_max_stack(item_id))
+		var stack_count: int = amounts_by_item[item_id].size()
 		if stack_index < 0 or stack_index >= stack_count:
 			continue
 		var key := "%s:%d" % [item_id, stack_index]
@@ -63,10 +66,7 @@ static func pack_with_layout(
 		while remaining > 0:
 			var stack_index := int(stack_indices.get(item_id, 0))
 			stack_indices[item_id] = stack_index + 1
-			var stack_amount: int = mini(
-				remaining,
-				content_data.item_max_stack(item_id)
-			)
+			var stack_amount: int = amounts_by_item[item_id][stack_index]
 			var base_footprint: Array[Vector2i] = (
 				content_data.item_footprint(item_id)
 			)
@@ -138,5 +138,6 @@ static func _layout_from_placements(placements: Array[Dictionary]) -> Array[Dict
 			"stack_index": int(placement.get("stack_index", 0)),
 			"origin": [origin.x, origin.y],
 			"rotation": int(placement.get("rotation", 0)),
+			"amount": int(placement.amount),
 		})
 	return layout

@@ -164,7 +164,7 @@ needs.reason.lit_seat,Еда или отдых в освещённом мест�
 needs.reason.dark_seat,Еда или отдых в темноте
 npc.activity.chair_resting,Отдыхает на стуле
 npc.activity.table_eating,Ест за столом
-npc.activity.collecting_meal,Берёт порцию еды со склада
+npc.activity.collecting_meal,Собирает еду
 building.core.bedroll.name,Спальник
 housing.manage,Назначить жильё
 housing.title,Жильё
@@ -317,7 +317,7 @@ npc.activity.outdoors,Гуляет неподалёку
 npc.activity.evening,Проводит вечер у костра
 npc.activity.going_to_meal,Идёт поесть
 npc.activity.eating,Ест
-npc.activity.waiting_for_food,Ищет еду
+npc.activity.waiting_for_food,Не нашёл доступную еду
 npc.activity.going_to_rest,Идёт отдыхать
 npc.activity.resting,Отдыхает
 npc.activity.blocked,Не может пройти
@@ -809,3 +809,4 @@ ui.inventory.tool_speed, · Работа ×{speed}
 npc.work_request.failure.mallet,Для стройки нужна киянка у жителя или на доступном складе.
 tool.learning.objective.gather_wood,Срубите дерево топором и подберите древесину для первых инструментов.
 tool.learning.objective.make_mallet,Откройте рюкзак → «Изготовить в руках» и сделайте киянку для верстака.
+npc.work.blocked.storage,Нет доступного места на складе. Инструмент и груз сохранены у жителя.

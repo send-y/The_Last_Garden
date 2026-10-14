@@ -27,12 +27,12 @@ func _test_storage() -> void:
 	var catalog := CountingCatalog.new()
 	sim.building_catalog = catalog
 	for _query: int in range(10):
-		check(sim.get_storage_grid_size(Vector2i(41,31)) == Vector2i(3,3),"Floor grants the larger real storage grid")
+		check(sim.get_storage_grid_size(Vector2i(41,31)) == Vector2i(4,4),"Floor grants the larger real storage grid")
 		check(sim.get_storage_grid_size(Vector2i(7,10)) == Vector2i(3,2),"Bare ground retains the smaller storage grid")
 		check(sim._storage_cell_has_floor(Vector2i(41,31)),"Storage floor membership reads the actual floor")
 	check(catalog.reads == 0,"Warm storage floor queries do not inspect structure definitions")
 	sim.add_structure({"building_id":"core:wood_floor","cell":[7,10]})
-	check(sim.get_storage_grid_size(Vector2i(7,10)) == Vector2i(3,3),"New floor expands storage immediately")
+	check(sim.get_storage_grid_size(Vector2i(7,10)) == Vector2i(4,4),"New floor expands storage immediately")
 	sim.remove_structure({"building_id":"core:wood_floor","cell":[7,10]})
 	check(sim.get_storage_grid_size(Vector2i(7,10)) == Vector2i(3,2),"Removed floor shrinks storage immediately")
 func _test_furniture_and_light() -> void:

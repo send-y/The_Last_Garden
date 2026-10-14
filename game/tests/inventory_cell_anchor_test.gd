@@ -175,11 +175,11 @@ func check_real_stack_transfer() -> void:
 	source.hide()
 	destination.hide()
 	var state := Simulation.create_new_state()
-	state.inventory = {"core:wood":3,"core:stone":1}
+	state.inventory = {"core:wood":3,"core:bucket":1}
 	state.item_instances = []
 	state.inventory_layout = [
 		{"item_id":"core:wood","stack_index":0,"origin":[0,0],"rotation":0},
-		{"item_id":"core:stone","stack_index":0,"origin":[1,0],"rotation":0},
+		{"item_id":"core:bucket","stack_index":0,"origin":[1,0],"rotation":0},
 	]
 	state.storage_zones = [{"id":"core:storage_zone_0001","cells":[[10,10]]}]
 	state.storage_items = [{"cell":[10,10],"item_id":"core:wood","amount":2,"origin":[0,0],"rotation":0,"stack_index":0,"placement_id":"core:wood:0"}]
@@ -198,9 +198,25 @@ func check_real_stack_transfer() -> void:
 	click(point(stock,Vector2i.ZERO,Vector2(2,2)))
 	await settle()
 	check(stock.is_holding_item(),"Real stock stack attaches to cursor")
-	click(point(backpack,Vector2i(1,0),Vector2(63,1)))
+	click(point(backpack,Vector2i(1,0),Vector2(10,1)))
 	await settle()
 	check(stock.is_holding_item() and Session.simulation.get_item_count("core:wood") == 3 and Session.get_storage_layout(Vector2i(10,10)).size() == 1,"Authoritative refusal preserves cursor and contents")
 	click(point(backpack,Vector2i.ZERO,Vector2(63,1)))
 	await settle()
 	check(Session.simulation.get_item_count("core:wood") == 5 and Session.get_storage_layout(Vector2i(10,10)).is_empty() and not stock.is_holding_item(),"Returning wood to a partial stack still merges through the simulation")
+	Session.simulation.try_pickup_item("core:stone",1)
+	var layout: Array = Session.get_inventory_layout()
+	for entry: Dictionary in layout:
+		if entry.item_id == "core:stone": entry.origin = [2,0]
+	Session.simulation.set_inventory_layout(layout)
+	Session.simulation.state.storage_items.append({"cell":[10,10],"item_id":"core:wood","amount":2,"origin":[0,0],"rotation":0,"stack_index":0,"placement_id":"core:wood:0"})
+	storage.refresh(Vector2i(10,10))
+	await settle()
+	click(point(stock,Vector2i.ZERO,Vector2(2,2)))
+	click(point(backpack,Vector2i(2,0),Vector2(2,2)))
+	await settle()
+	check(stock.is_holding_item() and stock._placements[stock._dragged_placement_index].item_id == "core:stone","Real HUD exchange keeps displaced warehouse stack on cursor")
+	check(Session.simulation.get_item_count("core:stone") == 0 and Session.simulation.get_item_count("core:wood") == 7,"Real HUD exchange preserves both quantities")
+	click(point(backpack,Vector2i(2,0),Vector2(2,2)))
+	await settle()
+	check(stock.is_holding_item() and stock._placements[stock._dragged_placement_index].item_id == "core:wood" and Session.simulation.get_item_count("core:stone") == 1,"Displaced cursor item can exchange back through same HUD path")

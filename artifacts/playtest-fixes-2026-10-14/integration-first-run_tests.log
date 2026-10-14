@@ -1,0 +1,247 @@
+Godot Engine v4.7.stable.mono.official.5b4e0cb0f - https://godotengine.org
+
+ERROR: Assertion failed: successful player gathering minutes spend energy exactly once
+   at: push_error (core/variant/variant_utility.cpp:1023)
+   GDScript backtrace (most recent call first):
+       [0] _expect (res://tests/run_tests.gd:5060)
+       [1] _surface_route_harvest (res://tests/run_tests.gd:1086)
+       [2] _test_stocked_first_night_regression (res://tests/run_tests.gd:260)
+       [3] _run (res://tests/run_tests.gd:89)
+ERROR: Assertion failed: successful player gathering minutes spend energy exactly once
+   at: push_error (core/variant/variant_utility.cpp:1023)
+   GDScript backtrace (most recent call first):
+       [0] _expect (res://tests/run_tests.gd:5060)
+       [1] _surface_route_harvest (res://tests/run_tests.gd:1086)
+       [2] _test_stocked_first_night_regression (res://tests/run_tests.gd:267)
+       [3] _run (res://tests/run_tests.gd:89)
+ERROR: Assertion failed: successful player construction minutes spend energy exactly once
+   at: push_error (core/variant/variant_utility.cpp:1023)
+   GDScript backtrace (most recent call first):
+       [0] _expect (res://tests/run_tests.gd:5060)
+       [1] _surface_route_build_workbench (res://tests/run_tests.gd:995)
+       [2] _test_stocked_first_night_regression (res://tests/run_tests.gd:272)
+       [3] _run (res://tests/run_tests.gd:89)
+ERROR: Assertion failed: successful player crafting minutes spend energy exactly once
+   at: push_error (core/variant/variant_utility.cpp:1023)
+   GDScript backtrace (most recent call first):
+       [0] _expect (res://tests/run_tests.gd:5060)
+       [1] _surface_route_saw_planks (res://tests/run_tests.gd:1025)
+       [2] _test_stocked_first_night_regression (res://tests/run_tests.gd:275)
+       [3] _run (res://tests/run_tests.gd:89)
+ERROR: Assertion failed: successful player gathering minutes spend energy exactly once
+   at: push_error (core/variant/variant_utility.cpp:1023)
+   GDScript backtrace (most recent call first):
+       [0] _expect (res://tests/run_tests.gd:5060)
+       [1] _surface_route_harvest (res://tests/run_tests.gd:1086)
+       [2] _continue_stocked_farming_route (res://tests/run_tests.gd:388)
+       [3] _test_stocked_first_night_regression (res://tests/run_tests.gd:361)
+       [4] _run (res://tests/run_tests.gd:89)
+PASS: stocked roof/farming regression -> actual wood/planks/study table -> wild berry seeds -> watered crop -> own seeds -> replanted second harvest
+ERROR: Assertion failed: successful player resource minutes spend energy once and clamp at zero
+   at: push_error (core/variant/variant_utility.cpp:1023)
+   GDScript backtrace (most recent call first):
+       [0] _expect (res://tests/run_tests.gd:5060)
+       [1] _test_player_energy_and_roof_sleep (res://tests/run_tests.gd:592)
+       [2] _run (res://tests/run_tests.gd:90)
+ERROR: Assertion failed: successful player resource minutes spend energy once and clamp at zero
+   at: push_error (core/variant/variant_utility.cpp:1023)
+   GDScript backtrace (most recent call first):
+       [0] _expect (res://tests/run_tests.gd:5060)
+       [1] _test_player_energy_and_roof_sleep (res://tests/run_tests.gd:592)
+       [2] _run (res://tests/run_tests.gd:90)
+ERROR: Assertion failed: successful player resource minutes spend energy once and clamp at zero
+   at: push_error (core/variant/variant_utility.cpp:1023)
+   GDScript backtrace (most recent call first):
+       [0] _expect (res://tests/run_tests.gd:5060)
+       [1] _test_player_energy_and_roof_sleep (res://tests/run_tests.gd:592)
+       [2] _run (res://tests/run_tests.gd:90)
+ERROR: Assertion failed: successful player resource minutes spend energy once and clamp at zero
+   at: push_error (core/variant/variant_utility.cpp:1023)
+   GDScript backtrace (most recent call first):
+       [0] _expect (res://tests/run_tests.gd:5060)
+       [1] _test_player_energy_and_roof_sleep (res://tests/run_tests.gd:592)
+       [2] _run (res://tests/run_tests.gd:90)
+WARNING: Save version 23 migrated into prototype version 38.
+   at: push_warning (core/variant/variant_utility.cpp:1033)
+   GDScript backtrace (most recent call first):
+       [0] _normalize_state (res://src/simulation/systems/save_migrations.gd:203)
+       [1] _normalize_state (res://src/simulation/world_simulation.gd:967)
+       [2] _init (res://src/simulation/world_simulation.gd:93)
+       [3] _test_player_energy_save_migration (res://tests/run_tests.gd:665)
+       [4] _run (res://tests/run_tests.gd:91)
+WARNING: Save version 13 migrated into prototype version 38.
+   at: push_warning (core/variant/variant_utility.cpp:1033)
+   GDScript backtrace (most recent call first):
+       [0] _normalize_state (res://src/simulation/systems/save_migrations.gd:203)
+       [1] _normalize_state (res://src/simulation/world_simulation.gd:967)
+       [2] _init (res://src/simulation/world_simulation.gd:93)
+       [3] _test_surface_boulders_are_seeded_and_workable (res://tests/run_tests.gd:1460)
+       [4] _run (res://tests/run_tests.gd:98)
+WARNING: Save version 13 migrated into prototype version 38.
+   at: push_warning (core/variant/variant_utility.cpp:1033)
+   GDScript backtrace (most recent call first):
+       [0] _normalize_state (res://src/simulation/systems/save_migrations.gd:203)
+       [1] _normalize_state (res://src/simulation/world_simulation.gd:967)
+       [2] _init (res://src/simulation/world_simulation.gd:93)
+       [3] _test_resource_layout_versions_preserve_existing_saves (res://tests/run_tests.gd:757)
+       [4] _run (res://tests/run_tests.gd:103)
+WARNING: Save version 22 migrated into prototype version 38.
+   at: push_warning (core/variant/variant_utility.cpp:1033)
+   GDScript backtrace (most recent call first):
+       [0] _normalize_state (res://src/simulation/systems/save_migrations.gd:203)
+       [1] _normalize_state (res://src/simulation/world_simulation.gd:967)
+       [2] _init (res://src/simulation/world_simulation.gd:93)
+       [3] _test_resource_layout_versions_preserve_existing_saves (res://tests/run_tests.gd:779)
+       [4] _run (res://tests/run_tests.gd:103)
+WARNING: Save version 21 migrated into prototype version 38.
+   at: push_warning (core/variant/variant_utility.cpp:1033)
+   GDScript backtrace (most recent call first):
+       [0] _normalize_state (res://src/simulation/systems/save_migrations.gd:203)
+       [1] _normalize_state (res://src/simulation/world_simulation.gd:967)
+       [2] _init (res://src/simulation/world_simulation.gd:93)
+       [3] _test_bucket_instances_hotbar_and_transfers (res://tests/run_tests.gd:1683)
+       [4] _run (res://tests/run_tests.gd:106)
+WARNING: Save version 16 migrated into prototype version 38.
+   at: push_warning (core/variant/variant_utility.cpp:1033)
+   GDScript backtrace (most recent call first):
+       [0] _normalize_state (res://src/simulation/systems/save_migrations.gd:203)
+       [1] _normalize_state (res://src/simulation/world_simulation.gd:967)
+       [2] _init (res://src/simulation/world_simulation.gd:93)
+       [3] _test_storage_zones_and_physical_transfers (res://tests/run_tests.gd:2173)
+       [4] _run (res://tests/run_tests.gd:116)
+WARNING: Save version 18 migrated into prototype version 38.
+   at: push_warning (core/variant/variant_utility.cpp:1033)
+   GDScript backtrace (most recent call first):
+       [0] _normalize_state (res://src/simulation/systems/save_migrations.gd:203)
+       [1] _normalize_state (res://src/simulation/world_simulation.gd:967)
+       [2] _init (res://src/simulation/world_simulation.gd:93)
+       [3] _test_storage_zones_and_physical_transfers (res://tests/run_tests.gd:2179)
+       [4] _run (res://tests/run_tests.gd:116)
+ERROR: Assertion failed: returning a partial stack into another item's occupied slot is rejected
+   at: push_error (core/variant/variant_utility.cpp:1023)
+   GDScript backtrace (most recent call first):
+       [0] _expect (res://tests/run_tests.gd:5060)
+       [1] _test_storage_transfers_preserve_backpack_layout (res://tests/run_tests.gd:2386)
+       [2] _run (res://tests/run_tests.gd:117)
+ERROR: Assertion failed: rejected stack placement leaves backpack counts unchanged
+   at: push_error (core/variant/variant_utility.cpp:1023)
+   GDScript backtrace (most recent call first):
+       [0] _expect (res://tests/run_tests.gd:5060)
+       [1] _test_storage_transfers_preserve_backpack_layout (res://tests/run_tests.gd:2388)
+       [2] _run (res://tests/run_tests.gd:117)
+ERROR: Assertion failed: rejected stack placement preserves all positions and keeps the stored logs
+   at: push_error (core/variant/variant_utility.cpp:1023)
+   GDScript backtrace (most recent call first):
+       [0] _expect (res://tests/run_tests.gd:5060)
+       [1] _test_storage_transfers_preserve_backpack_layout (res://tests/run_tests.gd:2393)
+       [2] _run (res://tests/run_tests.gd:117)
+PASS: 50-structure open-map room search (16.51 ms)
+PASS: room enclosure, size limits, requirements, designation, and persistence
+WARNING: Save version 1 migrated into prototype version 38.
+   at: push_warning (core/variant/variant_utility.cpp:1033)
+   GDScript backtrace (most recent call first):
+       [0] _normalize_state (res://src/simulation/systems/save_migrations.gd:203)
+       [1] _normalize_state (res://src/simulation/world_simulation.gd:967)
+       [2] _init (res://src/simulation/world_simulation.gd:93)
+       [3] _test_legacy_save_ids_are_migrated (res://tests/run_tests.gd:2773)
+       [4] _run (res://tests/run_tests.gd:125)
+WARNING: Save version 3 migrated into prototype version 38.
+   at: push_warning (core/variant/variant_utility.cpp:1033)
+   GDScript backtrace (most recent call first):
+       [0] _normalize_state (res://src/simulation/systems/save_migrations.gd:203)
+       [1] _normalize_state (res://src/simulation/world_simulation.gd:967)
+       [2] _init (res://src/simulation/world_simulation.gd:93)
+       [3] _test_v3_outcomes_are_migrated (res://tests/run_tests.gd:2795)
+       [4] _run (res://tests/run_tests.gd:126)
+WARNING: Save version 4 migrated into prototype version 38.
+   at: push_warning (core/variant/variant_utility.cpp:1033)
+   GDScript backtrace (most recent call first):
+       [0] _normalize_state (res://src/simulation/systems/save_migrations.gd:203)
+       [1] _normalize_state (res://src/simulation/world_simulation.gd:967)
+       [2] _init (res://src/simulation/world_simulation.gd:93)
+       [3] _test_v4_npc_state_is_migrated (res://tests/run_tests.gd:2839)
+       [4] _run (res://tests/run_tests.gd:127)
+WARNING: Save version 5 migrated into prototype version 38.
+   at: push_warning (core/variant/variant_utility.cpp:1033)
+   GDScript backtrace (most recent call first):
+       [0] _normalize_state (res://src/simulation/systems/save_migrations.gd:203)
+       [1] _normalize_state (res://src/simulation/world_simulation.gd:967)
+       [2] _init (res://src/simulation/world_simulation.gd:93)
+       [3] _test_v5_blueprints_are_migrated (res://tests/run_tests.gd:2857)
+       [4] _run (res://tests/run_tests.gd:128)
+WARNING: Save version 6 migrated into prototype version 38.
+   at: push_warning (core/variant/variant_utility.cpp:1033)
+   GDScript backtrace (most recent call first):
+       [0] _normalize_state (res://src/simulation/systems/save_migrations.gd:203)
+       [1] _normalize_state (res://src/simulation/world_simulation.gd:967)
+       [2] _init (res://src/simulation/world_simulation.gd:93)
+       [3] _test_v6_structures_are_migrated (res://tests/run_tests.gd:2903)
+       [4] _run (res://tests/run_tests.gd:129)
+WARNING: Save version 7 migrated into prototype version 38.
+   at: push_warning (core/variant/variant_utility.cpp:1033)
+   GDScript backtrace (most recent call first):
+       [0] _normalize_state (res://src/simulation/systems/save_migrations.gd:203)
+       [1] _normalize_state (res://src/simulation/world_simulation.gd:967)
+       [2] _init (res://src/simulation/world_simulation.gd:93)
+       [3] _test_v7_work_commitments_are_migrated (res://tests/run_tests.gd:4109)
+       [4] _run (res://tests/run_tests.gd:130)
+WARNING: Save version 8 migrated into prototype version 38.
+   at: push_warning (core/variant/variant_utility.cpp:1033)
+   GDScript backtrace (most recent call first):
+       [0] _normalize_state (res://src/simulation/systems/save_migrations.gd:203)
+       [1] _normalize_state (res://src/simulation/world_simulation.gd:967)
+       [2] _init (res://src/simulation/world_simulation.gd:93)
+       [3] _test_v8_memories_are_migrated (res://tests/run_tests.gd:4146)
+       [4] _run (res://tests/run_tests.gd:131)
+WARNING: Save version 9 migrated into prototype version 38.
+   at: push_warning (core/variant/variant_utility.cpp:1033)
+   GDScript backtrace (most recent call first):
+       [0] _normalize_state (res://src/simulation/systems/save_migrations.gd:203)
+       [1] _normalize_state (res://src/simulation/world_simulation.gd:967)
+       [2] _init (res://src/simulation/world_simulation.gd:93)
+       [3] _test_v9_blueprint_progress_is_migrated (res://tests/run_tests.gd:4185)
+       [4] _run (res://tests/run_tests.gd:132)
+WARNING: Save version 19 migrated into prototype version 38.
+   at: push_warning (core/variant/variant_utility.cpp:1033)
+   GDScript backtrace (most recent call first):
+       [0] _normalize_state (res://src/simulation/systems/save_migrations.gd:203)
+       [1] _normalize_state (res://src/simulation/world_simulation.gd:967)
+       [2] _init (res://src/simulation/world_simulation.gd:93)
+       [3] _test_v19_wall_materials_migrate_to_planks (res://tests/run_tests.gd:4345)
+       [4] _run (res://tests/run_tests.gd:133)
+WARNING: Save version 22 migrated into prototype version 38.
+   at: push_warning (core/variant/variant_utility.cpp:1033)
+   GDScript backtrace (most recent call first):
+       [0] _normalize_state (res://src/simulation/systems/save_migrations.gd:203)
+       [1] _normalize_state (res://src/simulation/world_simulation.gd:967)
+       [2] _init (res://src/simulation/world_simulation.gd:93)
+       [3] _test_v19_wall_materials_migrate_to_planks (res://tests/run_tests.gd:4363)
+       [4] _run (res://tests/run_tests.gd:133)
+ERROR: Assertion failed: Mira uses both travel portions across the day
+   at: push_error (core/variant/variant_utility.cpp:1023)
+   GDScript backtrace (most recent call first):
+       [0] _expect (res://tests/run_tests.gd:5060)
+       [1] _test_mira_needs_schedule_and_personal_food (res://tests/run_tests.gd:3064)
+       [2] _run (res://tests/run_tests.gd:137)
+ERROR: Assertion failed: Mira transfers required carried planks into the blueprint
+   at: push_error (core/variant/variant_utility.cpp:1023)
+   GDScript backtrace (most recent call first):
+       [0] _expect (res://tests/run_tests.gd:5060)
+       [1] _test_mira_completes_construction_commitment (res://tests/run_tests.gd:3261)
+       [2] _run (res://tests/run_tests.gd:140)
+ERROR: Assertion failed: delivered planks leave the player inventory
+   at: push_error (core/variant/variant_utility.cpp:1023)
+   GDScript backtrace (most recent call first):
+       [0] _expect (res://tests/run_tests.gd:5060)
+       [1] _test_blueprint_command_execution (res://tests/run_tests.gd:3848)
+       [2] _run (res://tests/run_tests.gd:152)
+ERROR: Assertion failed: resting Mira scenario consumed two travel portions
+   at: push_error (core/variant/variant_utility.cpp:1023)
+   GDScript backtrace (most recent call first):
+       [0] _expect (res://tests/run_tests.gd:5060)
+       [1] _test_lab_mira_resting (res://tests/run_tests.gd:4705)
+       [2] _run (res://tests/run_tests.gd:158)
+ERROR: FAIL: 16 first-night simulation assertion(s)
+   at: push_error (core/variant/variant_utility.cpp:1023)
+   GDScript backtrace (most recent call first):
+       [0] _run (res://tests/run_tests.gd:170)
