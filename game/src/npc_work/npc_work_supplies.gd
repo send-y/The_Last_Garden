@@ -67,6 +67,8 @@ static func _find_stock(sim, npc: Dictionary, id: String) -> Dictionary:
 	return {}
 
 static func find_tool_stock(sim, npc: Dictionary, action_id: String) -> Dictionary:
+	var best: Dictionary = {}
+	var best_score := -INF
 	for record: Dictionary in sim.state.storage_items:
 		if int(record.get("amount", 0)) != 1 or not sim.content.item_tool_supports(String(record.get("item_id", "")), action_id):
 			continue
@@ -78,8 +80,14 @@ static func find_tool_stock(sim, npc: Dictionary, action_id: String) -> Dictiona
 		if sim._storage_zone_index_at_cell(cell) < 0 or not sim._storage_cell_has_floor(cell) or sim._storage_cell_has_blocking_structure(cell): continue
 		var target := work_cell(sim, npc, cell)
 		if target != Vector2i(-1, -1):
-			return {"record": record.duplicate(true), "target_cell": [target.x, target.y]}
-	return {}
+			var id := String(record.item_id)
+			var score: float = sim.content.item_tool_work_rate(id)
+			if action_id == "till": score = 1.0 / sim.content.item_tool_energy_multiplier(id)
+			if action_id == "water": score = float(sim.content.item_tool_capacity(id))
+			if score > best_score:
+				best_score = score
+				best = {"record": record.duplicate(true), "target_cell": [target.x, target.y]}
+	return best
 
 static func borrow_tool(sim, npc: Dictionary, source: Dictionary, action_id: String) -> bool:
 	if not String(npc.carried_instance_id).is_empty() or source.is_empty(): return false
