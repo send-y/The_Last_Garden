@@ -1,0 +1,133 @@
+{
+  "base": "780cbca",
+  "reviewed_head": "06f9799",
+  "report": "docs/implementation/npc-sowing-2026-10-14.md",
+  "runs": [
+    {
+      "run": "sowing-reviewed-final-01",
+      "result": {
+        "checks": [
+          {
+            "check": "run_tests.gd",
+            "exit": 0,
+            "passed": true
+          },
+          {
+            "check": "npc_sowing_reload_test.gd",
+            "exit": 0,
+            "passed": true
+          },
+          {
+            "check": "npc_sowing_rules_test.gd",
+            "exit": 0,
+            "passed": true
+          },
+          {
+            "check": "npc_sowing_work_test.gd",
+            "exit": 0,
+            "passed": true
+          },
+          {
+            "check": "farming_integration_test.tscn",
+            "exit": 0,
+            "passed": true
+          },
+          {
+            "check": "storage_integration_test.tscn",
+            "exit": 0,
+            "passed": true
+          }
+        ],
+        "save_before": {
+          "C:\\Users\\Bohdan\\AppData\\Roaming\\Godot\\app_userdata\\The Last Garden\\first_night_save.json": "0b36a8a08c4bf70881460e7b222a8ca9d7570a808e2524521e724d338d6de7e8",
+          "C:\\Users\\Bohdan\\AppData\\Roaming\\Godot\\app_userdata\\The Last Garden\\first_night_save.json.bak": "cf0266280171625f3036026913812bffd2ff8f5600b18aff6737e0a528817dc0"
+        },
+        "save_after": {
+          "C:\\Users\\Bohdan\\AppData\\Roaming\\Godot\\app_userdata\\The Last Garden\\first_night_save.json": "0b36a8a08c4bf70881460e7b222a8ca9d7570a808e2524521e724d338d6de7e8",
+          "C:\\Users\\Bohdan\\AppData\\Roaming\\Godot\\app_userdata\\The Last Garden\\first_night_save.json.bak": "cf0266280171625f3036026913812bffd2ff8f5600b18aff6737e0a528817dc0"
+        }
+      }
+    },
+    {
+      "run": "sowing-final-01",
+      "result": {
+        "checks": [
+          {
+            "check": "npc_sowing_rules_test.gd",
+            "exit": 0,
+            "passed": true
+          },
+          {
+            "check": "npc_sowing_work_test.gd",
+            "exit": 0,
+            "passed": true
+          },
+          {
+            "check": "run_tests.gd",
+            "exit": 1,
+            "passed": false
+          },
+          {
+            "check": "npc_crop_harvest_rules_test.gd",
+            "exit": 0,
+            "passed": true
+          },
+          {
+            "check": "npc_crop_harvest_work_test.gd",
+            "exit": 0,
+            "passed": true
+          },
+          {
+            "check": "npc_crop_harvest_food_test.gd",
+            "exit": 0,
+            "passed": true
+          },
+          {
+            "check": "npc_crop_harvest_seed_report_test.gd",
+            "exit": 0,
+            "passed": true
+          },
+          {
+            "check": "npc_sowing_seven_days.gd",
+            "exit": 0,
+            "passed": true
+          },
+          {
+            "check": "graphic:npc_sowing_ui_test.tscn",
+            "exit": 0,
+            "passed": true
+          }
+        ],
+        "save_before": {
+          "C:\\Users\\Bohdan\\AppData\\Roaming\\Godot\\app_userdata\\The Last Garden\\first_night_save.json": "0b36a8a08c4bf70881460e7b222a8ca9d7570a808e2524521e724d338d6de7e8",
+          "C:\\Users\\Bohdan\\AppData\\Roaming\\Godot\\app_userdata\\The Last Garden\\first_night_save.json.bak": "cf0266280171625f3036026913812bffd2ff8f5600b18aff6737e0a528817dc0"
+        },
+        "save_after": {
+          "C:\\Users\\Bohdan\\AppData\\Roaming\\Godot\\app_userdata\\The Last Garden\\first_night_save.json": "0b36a8a08c4bf70881460e7b222a8ca9d7570a808e2524521e724d338d6de7e8",
+          "C:\\Users\\Bohdan\\AppData\\Roaming\\Godot\\app_userdata\\The Last Garden\\first_night_save.json.bak": "cf0266280171625f3036026913812bffd2ff8f5600b18aff6737e0a528817dc0"
+        }
+      }
+    },
+    {
+      "run": "sowing-source-save-green-01",
+      "result": {
+        "checks": [
+          {
+            "check": "npc_sowing_work_test.gd",
+            "exit": 0,
+            "passed": true
+          }
+        ],
+        "save_before": {
+          "C:\\Users\\Bohdan\\AppData\\Roaming\\Godot\\app_userdata\\The Last Garden\\first_night_save.json": "0b36a8a08c4bf70881460e7b222a8ca9d7570a808e2524521e724d338d6de7e8",
+          "C:\\Users\\Bohdan\\AppData\\Roaming\\Godot\\app_userdata\\The Last Garden\\first_night_save.json.bak": "cf0266280171625f3036026913812bffd2ff8f5600b18aff6737e0a528817dc0"
+        },
+        "save_after": {
+          "C:\\Users\\Bohdan\\AppData\\Roaming\\Godot\\app_userdata\\The Last Garden\\first_night_save.json": "0b36a8a08c4bf70881460e7b222a8ca9d7570a808e2524521e724d338d6de7e8",
+          "C:\\Users\\Bohdan\\AppData\\Roaming\\Godot\\app_userdata\\The Last Garden\\first_night_save.json.bak": "cf0266280171625f3036026913812bffd2ff8f5600b18aff6737e0a528817dc0"
+        }
+      }
+    }
+  ],
+  "note": "Early core failure in sowing-final-01 superseded by reviewed-final core success; immutable evidence retained."
+}
