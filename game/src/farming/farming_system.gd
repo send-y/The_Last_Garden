@@ -229,6 +229,7 @@ func _eat(sim, item_id: String) -> Dictionary:
 		return _result(sim, false, "ui.inventory.food.none")
 	var physical: Dictionary = sim.get_player_needs()
 	sim.needs.feed(physical, profile)
+	sim.work_metrics.record_meal(sim,"core:player",item_id)
 	sim.state.player_energy = physical.energy
 	sim.state.player_needs.hunger = physical.hunger
 	return _result(sim, true, "farming.eaten", {"energy": profile.energy, "satiety": profile.satiety})

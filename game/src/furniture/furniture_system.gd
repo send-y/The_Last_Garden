@@ -297,6 +297,7 @@ func execute(sim, cell: Vector2i, action: String, item: String = "") -> Dictiona
 	if action == "eat":
 		var physical: Dictionary = sim.get_player_needs()
 		sim.needs.feed(physical,sim.needs.food_profile(item,sim.content))
+		sim.work_metrics.record_meal(sim,"core:player",item)
 		sim.state.player_energy = physical.energy
 		sim.state.player_needs.hunger = physical.hunger
 		sim.WorldCalendarSystem._advance_clock(sim,5,true,"resting_on_chair")

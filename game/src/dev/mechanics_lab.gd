@@ -421,6 +421,11 @@ func _refresh_status() -> void:
 	]
 	var work: Dictionary = Session.simulation.work_metrics.summary(Session.get_day())
 	_status_label.text += "\nРабота/житель %.1f · простой %.0f%%\nСмен/час %.1f · наблюдений %d мин" % [float(work.work_per_resident),float(work.idle_percent),float(work.changes_per_hour),int(work.sample_minutes)]
+	var meals: Dictionary = Session.simulation.work_metrics.food_snapshot(Session.get_day())
+	var count := 0
+	for items: Dictionary in meals.values():
+		for amount: Variant in items.values(): count += int(amount)
+	_status_label.text += "\nСъедено сегодня: %d шт." % count
 
 
 func _make_label(

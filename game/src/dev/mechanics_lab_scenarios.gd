@@ -8,6 +8,7 @@ const ConstructionCommand := preload(
 const NpcWorkRequest := preload("res://src/simulation/npc_work_request.gd")
 const FirstNightContent := preload("res://src/content/first_night_content.gd")
 const ResidentHomes := preload("res://src/dev/resident_homes_scenario.gd")
+const PackageD := preload("res://src/dev/package_d_scenarios.gd")
 const SettlementStress := preload("res://src/dev/settlement_stress_scenario.gd")
 const SETTLEMENT_STRESS: StringName = &"settlement_stress"
 const STRESS_PRODUCTION: StringName = &"stress_production"
@@ -28,8 +29,12 @@ const BUCKET_HOTBAR: StringName = &"bucket_hotbar"
 const PREPARED_MINUTE: int = 17 * 60 + 50
 
 
-static func definitions() -> Array[Dictionary]:
-	return [
+static func definitions(include_historical: bool = false) -> Array[Dictionary]:
+	var all: Array[Dictionary] = [
+		{"id":&"day_three","label":"День 3: готовый склад 3×3","description":"Искусственный старт, не копия сейва.\nСклад, верстак и два жителя."},
+		{"id":&"first_meeting_hungry","label":"Первая встреча: оба голодны","description":"Незнакомая Мира с припасами.\nПроверь разговор и передачу еды."},
+		{"id":&"communal_production","label":"Доски для общей стены","description":"Есть древесина и верстак.\nМира делает доски и строит стену."},
+		{"id":&"missing_workbench","label":"Просьба о верстаке","description":"Общая стена без досок и верстака.\nМира подходит с просьбой."},
 		{"id": PLAYER_CHECKPOINT, "label": "Архив плейтеста: день 5", "description": "Реальная копия мира 14 октября.\nПауза; обычный сейв защищён."},
 		{"id": SETTLEMENT_STRESS, "label": "30 жителей: стресс поселения", "description": "30 домов · 60 грядок · все работы.\nСклад пополняется. Пробел — пауза."},
 		{"id": STRESS_PRODUCTION, "label": "30 жителей: нужны доски", "description": "30 домов · нужны доски для мебели.\nСырьё и еда пополняются."},
@@ -39,8 +44,8 @@ static func definitions() -> Array[Dictionary]:
 		{"id": GENERATED_RESIDENTS, "label":"Три случайных жителя", "description":"Три незнакомых человека рядом с домом: разговор, ночлег и работа."},
 		{
 			"id": FRESH_START,
-			"label": "Начало первого дня",
-			"description": "День 1, 11:00. Чистое начало среза.",
+			"label": "Обычная новая игра",
+			"description": "День 1, 11:00. Действующий старт игры.",
 		},
 		{
 			"id": PREPARED_EVENING,
@@ -78,10 +83,13 @@ static func definitions() -> Array[Dictionary]:
 			"description": "Два ведра с разным наполнением у доступного берега.",
 		},
 	]
+	if include_historical: return all
+	var obsolete := [PREPARED_EVENING,MORNING_WITH_MIRA,MIRA_RESTING,MIRA_AFTER_SHARED_WALL,SETTLEMENT_STRESS,STRESS_PRODUCTION,STRESS_GATHER]
+	return all.filter(func(entry: Dictionary) -> bool: return not obsolete.has(StringName(entry.id)))
 
 
 static func get_definition(scenario_id: StringName) -> Dictionary:
-	for definition: Dictionary in definitions():
+	for definition: Dictionary in definitions(true):
 		if StringName(definition.get("id", &"")) == scenario_id:
 			return definition.duplicate(true)
 	return {}
@@ -104,6 +112,11 @@ static func build(scenario_id: StringName, stress_count: int = 30) -> Dictionary
 		stress.definition = definition
 		stress.steps = []
 		return stress
+	if scenario_id in [&"day_three",&"first_meeting_hungry",&"communal_production",&"missing_workbench"]:
+		var current := PackageD.build(scenario_id)
+		current.scenario_id = scenario_id
+		current.definition = definition
+		return current
 	if scenario_id == PLAYER_CHECKPOINT:
 		var base := "res://tests/fixtures/package_d/"
 		var manifest: Variant = JSON.parse_string(FileAccess.get_file_as_string(base + "manifest.json"))
@@ -115,6 +128,7 @@ static func build(scenario_id: StringName, stress_count: int = 30) -> Dictionary
 		var checkpoint := Simulation.new(saved)
 		return {"success": true, "scenario_id": scenario_id, "definition": definition, "simulation": checkpoint, "state": checkpoint.export_state(), "steps": []}
 	var initial_state: Dictionary = Simulation.create_new_state()
+	if scenario_id == FRESH_START: initial_state = Simulation.create_new_game_state()
 	if scenario_id in [RESIDENT_HOMES,HOME_PRODUCTION]: initial_state = ResidentHomes.initial_state()
 	if scenario_id == HOME_PRODUCTION:
 		initial_state.structures.append({"building_id":"core:workbench","cell":[36,34],"stage_id":"core:complete"})

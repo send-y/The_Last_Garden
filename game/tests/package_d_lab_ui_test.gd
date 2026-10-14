@@ -1,0 +1,20 @@
+extends "res://tests/package_d_meeting_ui_test.gd"
+const Lab := preload("res://src/dev/mechanics_lab.tscn")
+const Scenarios := preload("res://src/dev/mechanics_lab_scenarios.gd")
+func _ready() -> void:
+	get_tree().create_timer(45).timeout.connect(func() -> void: get_tree().quit(1))
+	var lab := Lab.instantiate()
+	add_child(lab)
+	await frames()
+	check(lab._scenario_select.item_count == Scenarios.definitions().size(),"Visible menu contains only current scenarios")
+	for entry: Dictionary in Scenarios.definitions():
+		lab._load_scenario(StringName(entry.id))
+		await frames(2)
+		check(lab._active_scenario_id == StringName(entry.id),"Actual lab loads current menu entry: " + String(entry.id))
+		check(Session.is_paused() and Session.is_mechanics_lab_active(),"Scenario opens safely paused with ordinary saving blocked")
+	lab._load_scenario(&"communal_production")
+	lab._set_lab_panel_open(true)
+	await frames()
+	await screenshot("mechanics-lab.png")
+	print("PACKAGE_D_LAB_UI: %d failures" % failures)
+	get_tree().quit(0 if failures == 0 else 1)

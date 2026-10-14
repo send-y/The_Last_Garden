@@ -2628,7 +2628,7 @@ func _test_corrupt_nested_state_uses_defaults() -> void:
 		"NPC target cell is clamped to the map"
 	)
 	_expect(
-		normalized_npc.get_npc_personal_food("core:first_neighbor") == 2,
+		normalized_npc.get_npc_personal_food("core:first_neighbor") == 18,
 		"invalid personal food uses default"
 	)
 	_expect(
@@ -2846,7 +2846,7 @@ func _test_v4_npc_state_is_migrated() -> void:
 	)
 	_expect(typeof(mira.get("needs")) == TYPE_DICTIONARY, "v4 NPC gains normalized needs")
 	_expect(String(mira.get("activity_id", "")).contains(":"), "v4 NPC gains stable activity id")
-	_expect(int((mira.get("personal_inventory", {}) as Dictionary).get("core:food", -1)) == 2, "v4 NPC gains initial personal food")
+	_expect(int((mira.get("personal_inventory", {}) as Dictionary).get("core:food", -1)) == 18, "v4 NPC gains initial personal food without duplicate migration stock")
 	_expect(typeof(mira.get("target_cell")) == TYPE_ARRAY, "v4 NPC gains a target cell")
 
 
@@ -3045,10 +3045,12 @@ func _test_mira_needs_schedule_and_personal_food() -> void:
 	var simulation: World = Simulation.new()
 	_complete_first_night_for_test(simulation)
 	var start_position: Vector2 = simulation.get_npc_position("core:first_neighbor", Vector2.ZERO)
-	# This fixture isolates the two carried portions; wild foraging has its own test.
+	# Explicit fixture isolates two carried portions; the new welcome stock has
+	# its own transaction test. Wild foraging has a separate test too.
+	simulation.state.npcs["core:first_neighbor"].personal_inventory["core:food"] = 2
 	for id: String in simulation._food_object_ids: simulation.state.removed_bushes[id] = true
 	var start_needs: Dictionary = simulation.get_npc_needs("core:first_neighbor")
-	_expect(simulation.get_npc_personal_food("core:first_neighbor") == 2, "Mira arrives with two personal food portions")
+	_expect(simulation.get_npc_personal_food("core:first_neighbor") == 2, "Isolated autonomy fixture has two personal food portions")
 
 	simulation.advance_minutes(5 * 60)
 	var midday_position: Vector2 = simulation.get_npc_position("core:first_neighbor", Vector2.ZERO)
@@ -4556,7 +4558,7 @@ func _test_lab_fresh_start() -> void:
 	if not bool(result.get("success", false)):
 		return
 	var simulation: World = result["simulation"] as World
-	_expect(simulation.export_state() == Simulation.new().export_state(), "fresh lab scenario matches a new game")
+	_expect(simulation.export_state() == Simulation.new(Simulation.create_new_game_state()).export_state(), "fresh lab scenario matches the ordinary new game")
 	_expect(simulation.get_day() == 1, "fresh lab scenario starts on day 1")
 	_expect(simulation.get_time_text() == "11:00", "fresh lab scenario starts at 11:00")
 	_expect(

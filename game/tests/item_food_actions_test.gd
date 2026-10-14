@@ -49,9 +49,8 @@ func _test_player_and_seeds() -> void:
 	var amount: int = rng.randi_range(2, 4)
 	check(sim.execute_farming_command({"actor_id": "core:player", "action_id": "extract", "item_id": "core:food"}).success, "Berry extraction still works before study")
 	check(sim.get_item_count(String(crop.seed_id)) == amount and sim.state.farming.roll_index == 1, "Committed berry result preserves original RNG stream")
-	var restored = World.new(JSON.parse_string(JSON.stringify(sim.export_state())) as Dictionary)
-	restored.content = Fixture.catalog()
-	check(restored.state.version == 36 and restored.get_item_count("test:ration") == 1, "New food inventory survives unchanged save format")
+	var restored = World.new(JSON.parse_string(JSON.stringify(sim.export_state())) as Dictionary,Fixture.catalog())
+	check(restored.state.version == sim.state.version and restored.get_item_count("test:ration") == 1, "New food inventory survives unchanged save format with the live catalog")
 
 func _test_non_edible_crop() -> void:
 	var sim = Fixture.world()

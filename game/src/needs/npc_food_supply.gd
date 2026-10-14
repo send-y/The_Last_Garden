@@ -111,4 +111,5 @@ static func fulfil(sim, effect: Dictionary) -> bool:
 	if seat.is_empty():
 		npc.furniture_target = []
 	sim.needs.feed(npc.needs, profile)
+	sim.work_metrics.record_meal(sim,String(npc.id),id)
 	return true

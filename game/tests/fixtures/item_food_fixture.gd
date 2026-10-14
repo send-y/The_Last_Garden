@@ -36,6 +36,5 @@ static func world(dining: bool = false):
 	if dining:
 		state.structures.append({"building_id": "core:table", "cell": [22, 20]})
 		state.structures.append({"building_id": "core:chair", "cell": [22, 21]})
-	var sim = World.new(state)
-	sim.content = catalog()
+	var sim = World.new(state,catalog())
 	return sim
