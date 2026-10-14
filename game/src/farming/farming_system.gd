@@ -160,7 +160,7 @@ func execute(sim, command: Dictionary) -> Dictionary:
 			if not bed.is_empty() or not _soil_allowed(sim, cell):
 				return _result(sim, false, "farming.failure.soil")
 			sim.state.farming.beds.append({"cell": [cell.x, cell.y], "crop_id": "", "growth": 0,
-				"wet_until": 0, "last_update": sim.get_elapsed_game_minutes(), "harvests": 0, "shared_harvest": false})
+				"wet_until": 0, "last_update": sim.get_elapsed_game_minutes(), "harvests": 0, "shared_harvest": false,"maintain_crop":false,"planned_crop_id":"","planting_id":0})
 			sim._spend_player_work_energy(sim.content.item_tool_energy_multiplier(String(sim.get_actor_tool("core:player").get("item_id", ""))))
 			return _result(sim, true, "farming.tilled")
 		"plant":

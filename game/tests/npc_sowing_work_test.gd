@@ -76,5 +76,32 @@ func run() -> void:
 		place_npc(sim,Vector2i(int(meal.target_cell[0]),int(meal.target_cell[1])))
 		check(preload("res://src/needs/npc_food_supply.gd").fulfil(sim,{"npc_id":ID,"meal":meal}),"Actual hungry worker eats carried food")
 		check(not npc.work_cargo.has("core:food"),"Meal consumes real food once")
+	var laboratory: Dictionary = preload("res://src/dev/mechanics_lab_scenarios.gd").build(&"shared_crop_sowing")
+	check(bool(laboratory.success) and String(laboratory.definition.description).contains("Искусственный"),"New lab checkpoint labels synthetic preparation")
+	sim = laboratory.simulation
+	drive(sim)
+	var potatoes := 0
+	for bed: Dictionary in sim.get_farm_beds():
+		if String(bed.crop_id)=="potato": potatoes += 1
+	check(potatoes==1,"Lab checkpoint demonstrates real seed sowing")
+	sim = fixture(); cell = empty_bed(sim); npc = sim.state.npcs[ID]
+	sim.set_npc_work_enabled(ID,"sow",true)
+	var contexts: Dictionary = Practical.prepare(sim)
+	var stale: Dictionary = contexts.get(ID,{})
+	check(not stale.is_empty() and npc.initiative_job.get("phase","")=="seed_forage","Actual food source chosen")
+	if not stale.is_empty():
+		var target_id := String(npc.initiative_job.target_id)
+		sim.state.farming.berry_ready_at[target_id] = sim.get_elapsed_game_minutes()+100
+		place_npc(sim,Vector2i(int(stale.target_cell[0]),int(stale.target_cell[1])))
+		check(not Practical.fulfil(sim,{"npc_id":ID,"context":stale}),"Consumed source refuses stale arrival")
+		check(npc.work_cargo.is_empty() and int(sim.state.farming.roll_index)==0,"Stale source creates nothing")
+	sim = fixture(); cell = empty_bed(sim); npc = sim.state.npcs[ID]
+	sim.set_npc_work_enabled(ID,"sow",true)
+	var job: Dictionary = preload("res://src/npc_work/npc_sowing.gd").choose(sim,npc)
+	for phase: String in ["take_seed","sow","seed_forage","seed_collect","seed_extract","return"]:
+		job.phase = phase; job.food_id = "core:food"; job.drop_id = "pending-food"
+		npc.initiative_job = job.duplicate(true)
+		var restored = World.new(sim.export_state())
+		check(restored.state.npcs[ID].initiative_job==npc.initiative_job,"Save retains sow phase and source: "+phase)
 	print("PASS: physical sowing work and seed foraging" if failures==0 else "FAIL: sowing work")
 	quit(0 if failures==0 else 1)
