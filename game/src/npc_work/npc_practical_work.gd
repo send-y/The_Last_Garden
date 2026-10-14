@@ -104,6 +104,12 @@ static func context_for(sim, npc: Dictionary) -> Dictionary:
 
 static func _context_for(sim, npc: Dictionary) -> Dictionary:
 	var job: Dictionary = npc.initiative_job
+	if String(job.get("kind",""))=="sow" and String(job.get("phase",""))!="return":
+		var sowing_context: Dictionary = preload("res://src/npc_work/npc_sowing.gd").context(sim,npc)
+		if sowing_context.is_empty():
+			cancel(npc)
+			return context_for(sim,npc) if not npc.initiative_job.is_empty() else {}
+		return sowing_context
 	if String(job.get("kind", "")) == "build" and String(job.get("phase", "")) != "return" and not Supply.HomeStock.can_work(sim,job.get("cell",[])):
 		cancel(npc)
 		return context_for(sim,npc) if not npc.initiative_job.is_empty() else {}
@@ -260,6 +266,11 @@ static func fulfil(sim, effect: Dictionary) -> bool:
 		return false
 	var job: Dictionary = npc.initiative_job
 	var phase := String(job.phase)
+	if String(job.kind)=="sow" and phase!="return":
+		if not preload("res://src/npc_work/npc_sowing.gd").fulfil(sim,npc,context):
+			cancel(npc)
+			return false
+		return true
 	if String(job.kind) == "build" and phase != "return" and not Supply.HomeStock.can_work(sim,job.cell):
 		cancel(npc)
 		return false

@@ -142,14 +142,14 @@ static func take_material(sim, npc: Dictionary, source: Dictionary, missing: int
 		sim.state.storage_items.erase(record)
 	return true
 
-static func collect(sim, npc: Dictionary, drop: Dictionary) -> bool:
+static func collect(sim, npc: Dictionary, drop: Dictionary, max_amount: int = CARRY_LIMIT) -> bool:
 	var id := String(drop.get("item_id", ""))
 	var pos: Array = drop.get("position", [])
 	if pos.size() != 2 or sim.content.item_is_instance_based(id) or not sim.state.world_drops.has(drop):
 		return false
 	if sim.get_npc_position(String(npc.id), Vector2.ZERO).distance_to(Vector2(float(pos[0]), float(pos[1]))) > Content.INTERACTION_RANGE:
 		return false
-	var amount := mini(int(drop.amount), CARRY_LIMIT - cargo_size(npc))
+	var amount := mini(max_amount,mini(int(drop.amount), CARRY_LIMIT - cargo_size(npc)))
 	if amount <= 0:
 		return false
 	npc.work_cargo[id] = int(npc.work_cargo.get(id, 0)) + amount
