@@ -121,5 +121,50 @@ func run() -> void:
 	custom_state.npcs[ID].crop_food_trip = {"cell":[cell.x,cell.y],"crop_id":"carrot","item_id":"test:ration","phase":"delivery","drops":[]}
 	var custom = World.new(custom_state,preload("res://tests/fixtures/item_food_fixture.gd").catalog())
 	check(int(custom.state.npcs[ID].work_cargo.get("test:ration",0))==2 and custom.state.npcs[ID].crop_food_trip.get("item_id","")=="test:ration","Pending cargo/trip normalization uses the actual live item catalog")
+	_test_review_transitions()
 	print("PASS: crop food, rest priority, retained work and physical leftovers" if failures==0 else "FAIL: crop food")
 	quit(0 if failures==0 else 1)
+
+func _test_review_transitions() -> void:
+	for reload_case: bool in [false,true]:
+		var sim = fixture(); var cell := add_crop(sim); var npc: Dictionary = sim.state.npcs[ID]
+		npc.needs.hunger = 100.0
+		sim.set_npc_work_enabled(ID,"harvest",true); Practical.prepare(sim)
+		var at := {"target_cell":[cell.x,cell.y]}
+		arrive(sim,at); Practical.fulfil(sim,{"npc_id":ID,"context":at})
+		for step: int in range(10):
+			var context: Dictionary = Practical.context_for(sim,npc)
+			if npc.initiative_job.get("phase","")!="collect": break
+			arrive(sim,context); Practical.fulfil(sim,{"npc_id":ID,"context":context})
+		check(npc.initiative_job.get("phase","")=="return" and npc.initiative_job.get("drops",[]).is_empty(),"Review fixture has fully collected crop")
+		sim.set_npc_work_enabled(ID,"harvest",false)
+		npc.needs.hunger = 20.0
+		if reload_case: sim = World.new(sim.export_state()); npc = sim.state.npcs[ID]
+		var meal: Dictionary = Food.find_meal(sim,npc)
+		check(meal.get("source","")=="crop" and meal.get("phase","")=="cargo","Disabled harvester sees own collected food, reload="+str(reload_case))
+		if not meal.is_empty():
+			arrive(sim,meal); Food.fulfil(sim,{"npc_id":ID,"meal":meal})
+			check(int(npc.personal_inventory.get("core:potato",0))==1 and int(npc.work_cargo.get("core:potato",0))==2,"Cancelled cargo supplies one unit, retains remainder")
+		var reserved_sim = fixture(); cell = add_crop(reserved_sim); npc = reserved_sim.state.npcs[ID]
+		reserved_sim.set_npc_work_enabled(ID,"harvest",true)
+		Food.find_meal(reserved_sim,npc)
+		check(npc.crop_food_trip.get("phase","")=="harvest","Unperformed crop goal is recorded")
+		npc.personal_inventory["core:food"] = 1
+		meal = Food.find_meal(reserved_sim,npc)
+		check(npc.crop_food_trip.is_empty(),"Switching to real personal food releases unharvested crop")
+		arrive(reserved_sim,meal); Food.fulfil(reserved_sim,{"npc_id":ID,"meal":meal})
+		reserved_sim.set_npc_work_enabled(ID,"harvest",false)
+		if reload_case: reserved_sim = World.new(reserved_sim.export_state()); npc = reserved_sim.state.npcs[ID]
+		var second := reserved_sim.create_generated_npc(923,Vector2i(35,32))
+		reserved_sim.arrive_npc(String(second.npc_id),Vector2i(35,32))
+		var other: Dictionary = reserved_sim.state.npcs[String(second.npc_id)]
+		other.known = true; other.personal_inventory = {"core:food":0}; other.needs = {"hunger":20.0,"energy":100.0,"restedness":100.0}
+		reserved_sim.set_npc_work_enabled(String(other.id),"harvest",true)
+		check(not preload("res://src/npc_work/npc_crop_harvest.gd").choose(reserved_sim,other,true).is_empty(),"Released crop becomes available to another resident, reload="+str(reload_case))
+	var inedible = fixture(); var cell := add_crop(inedible); var npc: Dictionary = inedible.state.npcs[ID]
+	var active = World.new(inedible.export_state(),preload("res://tests/fixtures/item_food_fixture.gd").catalog("core:potato"))
+	npc = active.state.npcs[ID]; npc.work_options.harvest = true
+	npc.work_cargo = {"core:potato":3}
+	npc.initiative_job = {"kind":"harvest","phase":"return","cell":[cell.x,cell.y],"crop_id":"potato","planting_id":0,"drops":[]}
+	check(Food.find_meal(active,npc).is_empty(),"Inedible crop output is not advertised as a meal from ordinary cargo")
+	check(int(npc.work_cargo.get("core:potato",0))==3,"Nonfood crop cargo is preserved for delivery")

@@ -4,6 +4,7 @@ extends RefCounted
 static func find_meal(sim, npc: Dictionary) -> Dictionary:
 	var use: Dictionary = npc.get("furniture_use",{})
 	if String(use.get("kind","")) == "meal" and int(use.get("until",0)) > sim.get_elapsed_game_minutes() and not sim.furniture.comfort(sim,String(npc.id)).is_empty():
+		preload("res://src/npc_work/npc_crop_harvest.gd").release_unharvested(npc)
 		return {}
 	var trip: Dictionary = npc.get("meal_trip",{})
 	if not trip.is_empty() and int(npc.personal_inventory.get(String(trip.item_id),0)) > 0:
@@ -20,10 +21,12 @@ static func find_meal(sim, npc: Dictionary) -> Dictionary:
 		var cell := Vector2i(int(stored.cell[0]), int(stored.cell[1]))
 		var target: Vector2i = sim.npc_autonomy.find_construction_work_cell(cell, npc_cell, player_cell)
 		if target != sim.npc_autonomy.INVALID_CELL:
+			preload("res://src/npc_work/npc_crop_harvest.gd").release_unharvested(npc)
 			var seat: Dictionary = sim.furniture.find_seat(sim,String(npc.id),true)
 			return {"source": "storage", "item_id": id, "cell": stored.cell.duplicate(),
 				"placement_id": stored.placement_id, "target_cell": [target.x, target.y],"seat":seat,"carry":not seat.is_empty()}
 	var wild := _wild_meal(sim,npc,npc_cell,player_cell)
+	if not wild.is_empty(): preload("res://src/npc_work/npc_crop_harvest.gd").release_unharvested(npc)
 	return wild if not wild.is_empty() else preload("res://src/npc_work/npc_crop_harvest.gd").find_meal(sim,npc)
 
 static func _wild_meal(sim, npc: Dictionary, from: Vector2i, player_cell: Vector2i) -> Dictionary:
@@ -40,6 +43,7 @@ static func _wild_meal(sim, npc: Dictionary, from: Vector2i, player_cell: Vector
 	return {}
 
 static func _personal_meal(sim, npc: Dictionary, item_id: String) -> Dictionary:
+	preload("res://src/npc_work/npc_crop_harvest.gd").release_unharvested(npc)
 	var seat: Dictionary = sim.furniture.find_seat(sim,String(npc.id),true)
 	var cell: Vector2i = sim._world_position_to_cell(sim.get_npc_position(String(npc.id),Vector2.ZERO))
 	var target: Array = [cell.x,cell.y]

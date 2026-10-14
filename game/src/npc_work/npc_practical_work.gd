@@ -14,6 +14,7 @@ static func set_enabled(sim, npc_id: String, kind: String, enabled: bool) -> Dic
 	if npc.is_empty() or not bool(npc.get("active", false)) or not bool(npc.get("known", false)) or not preload("res://src/npc_work/npc_work_state.gd").KINDS.has(kind):
 		return {"success": false}
 	npc.work_options[kind] = enabled
+	if kind=="harvest" and not enabled: CropHarvest.release_unharvested(npc)
 	npc.next_initiative_minute = 0
 	if not enabled and String(npc.initiative_job.get("kind", "")) == kind:
 		cancel(npc)
@@ -30,6 +31,9 @@ static func status(sim, npc_id: String) -> Dictionary:
 static func cancel(npc: Dictionary) -> void:
 	if String(npc.initiative_job.get("kind",""))=="harvest" and not npc.initiative_job.get("drops",[]).is_empty():
 		npc.initiative_job.phase = "collect"
+		return
+	if String(npc.initiative_job.get("kind",""))=="harvest" and (not npc.work_cargo.is_empty() or not String(npc.carried_instance_id).is_empty()):
+		npc.initiative_job.phase = "return"
 		return
 	if not String(npc.carried_instance_id).is_empty() or not npc.work_cargo.is_empty():
 		npc.initiative_job = {"kind": String(npc.initiative_job.get("kind", "gather")), "phase": "return", "cell": [0, 0], "drops": []}

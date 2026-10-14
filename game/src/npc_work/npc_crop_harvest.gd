@@ -10,7 +10,7 @@ static func reserved(sim, npc_id: String, cell: Array) -> bool:
 		var job: Dictionary = other.get("initiative_job",{})
 		if job.get("kind","")=="harvest" and job.get("phase","")=="work" and job.get("cell",[])==cell: return true
 		var meal: Dictionary = other.get("crop_food_trip",{})
-		if meal.get("phase","")=="harvest" and meal.get("cell",[])==cell: return true
+		if meal.get("phase","")=="harvest" and meal.get("cell",[])==cell and food_goal_active(sim,other,meal): return true
 	return false
 
 static func storage_available(sim, npc: Dictionary, item_id: String) -> bool:
@@ -55,6 +55,12 @@ static func can_acquire(sim, npc: Dictionary) -> bool:
 	if not bool(npc.get("active",false)) or not bool(npc.get("known",false)) or minute>=autonomy.REST_START or minute<7*60 or float(npc.needs.energy)<=autonomy.CRITICAL_ENERGY_THRESHOLD: return false
 	return not (String(npc.get("activity_id","")) in [autonomy.ACTIVITY_RESTING,autonomy.ACTIVITY_SLEEPING,autonomy.ACTIVITY_CHAIR_RESTING] and float(npc.needs.energy)<autonomy.RESTED_THRESHOLD)
 
+static func release_unharvested(npc: Dictionary) -> void:
+	if npc.get("crop_food_trip",{}).get("phase","")=="harvest": npc.crop_food_trip = {}
+
+static func food_goal_active(sim, npc: Dictionary, trip: Dictionary) -> bool:
+	return can_acquire(sim,npc) and float(npc.needs.hunger)<=sim.npc_autonomy.HUNGRY_THRESHOLD and target_available(sim,npc,trip) and not sim.needs.food_profile(String(trip.get("item_id","")),sim.content).is_empty()
+
 static func find_drop(sim, id: String) -> Dictionary:
 	for drop: Dictionary in sim.state.world_drops:
 		if String(drop.drop_id)==id: return drop
@@ -72,17 +78,20 @@ static func pending_drop(sim, npc: Dictionary, trip: Dictionary) -> Dictionary:
 	return {}
 
 static func find_meal(sim, npc: Dictionary) -> Dictionary:
-	if not can_acquire(sim,npc): return {}
+	if not can_acquire(sim,npc) or float(npc.needs.hunger)>sim.npc_autonomy.HUNGRY_THRESHOLD:
+		release_unharvested(npc)
+		return {}
 	var trip: Dictionary = npc.get("crop_food_trip",{})
 	if trip.is_empty():
 		var job: Dictionary = npc.get("initiative_job",{})
 		if job.get("kind","")=="harvest" and job.get("phase","") in ["collect","return"]:
 			var crop: Dictionary = sim.farming.catalog.find(String(job.get("crop_id","")))
-			if not crop.is_empty():
+			if not crop.is_empty() and not sim.needs.food_profile(String(crop.product_id),sim.content).is_empty():
 				var item := String(crop.product_id)
 				if int(npc.work_cargo.get(item,0))>0 or not job.get("drops",[]).is_empty():
 					trip = {"cell":job.cell.duplicate(),"crop_id":String(crop.id),"planting_id":int(job.get("planting_id",0)),"item_id":item,"phase":"collect","drops":job.get("drops",[]).duplicate()}
 					npc.crop_food_trip = trip
+	if not trip.is_empty() and sim.needs.food_profile(String(trip.get("item_id","")),sim.content).is_empty(): return {}
 	if trip.get("phase","") in ["collect","delivery"]:
 		var item := String(trip.get("item_id",""))
 		if int(npc.work_cargo.get(item,0))>0:
@@ -112,7 +121,7 @@ static func fulfil_meal(sim, npc: Dictionary, meal: Dictionary) -> bool:
 	if trip.is_empty() or item!=String(trip.get("item_id","")) or sim.needs.food_profile(item,sim.content).is_empty(): return false
 	var phase := String(meal.get("phase",""))
 	if phase=="harvest":
-		if trip.get("phase","")!="harvest" or meal.get("cell",[])!=trip.cell or int(meal.get("planting_id",0))!=int(trip.get("planting_id",0)) or not target_available(sim,npc,trip) or reserved(sim,String(npc.id),trip.cell): return false
+		if trip.get("phase","")!="harvest" or meal.get("cell",[])!=trip.cell or int(meal.get("planting_id",0))!=int(trip.get("planting_id",0)) or not food_goal_active(sim,npc,trip) or reserved(sim,String(npc.id),trip.cell): return false
 		var result: Dictionary = sim.farming.harvest_for_actor(sim,String(npc.id),Vector2i(int(trip.cell[0]),int(trip.cell[1])))
 		if not bool(result.success): return false
 		trip.drops = result.created_drop_ids.duplicate(); trip.phase = "collect"
@@ -142,7 +151,10 @@ static func fulfil_meal(sim, npc: Dictionary, meal: Dictionary) -> bool:
 
 static func prepare_delivery(sim, npc: Dictionary) -> Dictionary:
 	var trip: Dictionary = npc.get("crop_food_trip",{})
-	if trip.is_empty() or trip.get("phase","")=="harvest": return {}
+	if trip.is_empty(): return {}
+	if trip.get("phase","")=="harvest":
+		if not food_goal_active(sim,npc,trip): release_unharvested(npc)
+		return {}
 	var item := String(trip.get("item_id",""))
 	var pending := pending_drop(sim,npc,trip)
 	if not pending.is_empty() and Supply.cargo_size(npc)<Supply.CARRY_LIMIT:
