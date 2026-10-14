@@ -11,6 +11,7 @@ signal quick_transfer_requested(placement: Dictionary)
 signal hotbar_drop_requested(placement: Dictionary, slot_index: int)
 
 const CELL_SIZE: float = 64.0
+var cell_size: float = CELL_SIZE
 const CELL_GAP: float = 0.0
 const FirstNightContent := preload("res://src/content/first_night_content.gd")
 const PlacementRules := preload("res://src/inventory/inventory_placement_rules.gd")
@@ -95,10 +96,21 @@ func configure_grid(columns: int, rows: int) -> void:
 	queue_redraw()
 
 
+func configure_cell_size(pixels: float) -> bool:
+	var next_size := clampf(floorf(pixels),16.0,CELL_SIZE)
+	if is_equal_approx(next_size,cell_size): return false
+	# Resizing returns only the UI cursor; physical inventory is unchanged.
+	return_held_item()
+	cell_size = next_size
+	_update_grid_minimum_size()
+	queue_redraw()
+	return true
+
+
 func _update_grid_minimum_size() -> void:
 	custom_minimum_size = Vector2(
-		grid_columns * CELL_SIZE + (grid_columns - 1) * CELL_GAP,
-		grid_rows * CELL_SIZE + (grid_rows - 1) * CELL_GAP
+		grid_columns * cell_size + (grid_columns - 1) * CELL_GAP,
+		grid_rows * cell_size + (grid_rows - 1) * CELL_GAP
 	)
 	set_process_input(true)
 
@@ -271,7 +283,7 @@ func _input(event: InputEvent) -> void:
 		if _point_is_visible_in(external_transfer_target, pointer):
 			var target_grid := external_transfer_target as InventoryGrid
 			var target_pointer := external_transfer_target.get_global_transform_with_canvas().affine_inverse() * pointer
-			var target_cell := _origin_for_pointer(target_pointer)
+			var target_cell := _origin_for_pointer(target_pointer,target_grid.cell_size)
 			# Bounds are geometric; stacking and occupancy are decided by the
 			# simulation. The caller clears the cursor only after acceptance.
 			if PlacementRules.can_place(_dragged_footprint(), target_cell, {}, target_grid.grid_columns, target_grid.grid_rows):
@@ -340,7 +352,7 @@ func _finish_drag(target_cell: Vector2i) -> bool:
 		# Re-presentation comes only after simulation accepts both placements.
 		for index: int in range(_placements.size()):
 			if _placement_key(_placements[index]) == _placement_key(displaced) and _placements[index].origin == old_origin:
-				_begin_hand(index,Vector2(old_origin+original_grab)*CELL_SIZE+original_offset)
+				_begin_hand(index,Vector2(old_origin+original_grab)*cell_size+original_offset)
 				return true
 		return false
 	var candidate_layout: Array[Dictionary] = []
@@ -401,7 +413,7 @@ func hold_replacement(item_id: String, instance_id: String, stack_index: int) ->
 		if not instance_id.is_empty() and String(placement.get("instance_id","")) != instance_id: continue
 		var grab := _drag_grab_cell
 		var offset := _drag_grab_offset
-		_begin_hand(index,Vector2(placement.origin+grab)*CELL_SIZE+offset)
+		_begin_hand(index,Vector2(placement.origin+grab)*cell_size+offset)
 		return
 
 func _swap_target_index(target_cell: Vector2i) -> int:
@@ -440,7 +452,7 @@ func _begin_hand(placement_index: int, mouse_position: Vector2) -> void:
 	_drag_mouse_position = mouse_position
 	_cursor_pointer_global = get_global_transform_with_canvas() * mouse_position
 	_drag_grab_cell = _cell_at_position(mouse_position) - _drag_start_origin
-	_drag_grab_offset = mouse_position - Vector2(_drag_start_origin + _drag_grab_cell) * CELL_SIZE
+	_drag_grab_offset = mouse_position - Vector2(_drag_start_origin + _drag_grab_cell) * cell_size
 	_update_cursor_visual()
 	queue_redraw()
 
@@ -449,9 +461,10 @@ func _cursor_target_cell() -> Vector2i:
 	return _origin_for_pointer(_drag_mouse_position)
 
 
-func _origin_for_pointer(pointer: Vector2) -> Vector2i:
+func _origin_for_pointer(pointer: Vector2, target_cell_size: float = 0.0) -> Vector2i:
 	# Snap the grabbed cell to the pointer cell, not the item's pixel corner.
-	return Vector2i(floori(pointer.x / CELL_SIZE), floori(pointer.y / CELL_SIZE)) - _drag_grab_cell
+	var pixels := cell_size if target_cell_size<=0.0 else target_cell_size
+	return Vector2i(floori(pointer.x / pixels), floori(pointer.y / pixels)) - _drag_grab_cell
 
 
 func _process(_delta: float) -> void:
@@ -464,9 +477,9 @@ func _update_cursor_visual() -> void:
 		return
 	var screen_scale := get_global_transform_with_canvas().get_scale().abs()
 	_drag_mouse_position = get_global_transform_with_canvas().affine_inverse() * _cursor_pointer_global
-	var extent := Vector2(_footprint_bounds(_dragged_footprint()).size) * CELL_SIZE * screen_scale
+	var extent := Vector2(_footprint_bounds(_dragged_footprint()).size) * cell_size * screen_scale
 	_cursor_visual.size = extent
-	_cursor_visual.position = _cursor_pointer_global - (Vector2(_drag_grab_cell) * CELL_SIZE + _drag_grab_offset) * screen_scale
+	_cursor_visual.position = _cursor_pointer_global - (Vector2(_drag_grab_cell) * cell_size + _drag_grab_offset) * screen_scale
 	_cursor_visual.set("texture", _placement_icon(_placements[_dragged_placement_index]))
 	_cursor_visual.set("rotation_steps", _drag_rotation)
 	_cursor_visual.set("icon_scale", _placements[_dragged_placement_index].get("icon_scale", Vector2.ZERO))
@@ -600,7 +613,7 @@ func _draw_placement_amount(placement: Dictionary) -> void:
 	var bounds := _footprint_bounds(placement.get("footprint", []) as Array)
 	var footprint_rect := Rect2(
 		_cell_rect(origin + bounds.position).position,
-		Vector2(bounds.size) * CELL_SIZE + (Vector2(bounds.size) - Vector2.ONE) * CELL_GAP
+		Vector2(bounds.size) * cell_size + (Vector2(bounds.size) - Vector2.ONE) * CELL_GAP
 	)
 	var badge_rect := Rect2(
 		footprint_rect.end - Vector2(20.0, 16.0),
@@ -627,7 +640,7 @@ func _draw_placement_icon(placement: Dictionary) -> void:
 	var bounds := _footprint_bounds(placement.get("footprint", []) as Array)
 	var footprint_rect := Rect2(
 		_cell_rect(origin + bounds.position).position,
-		Vector2(bounds.size) * CELL_SIZE + (Vector2(bounds.size) - Vector2.ONE) * CELL_GAP
+		Vector2(bounds.size) * cell_size + (Vector2(bounds.size) - Vector2.ONE) * CELL_GAP
 	)
 	_draw_rotated_icon(texture, footprint_rect, int(placement.get("rotation", 0)), Color.WHITE, placement.get("icon_scale", Vector2.ZERO))
 
@@ -724,7 +737,7 @@ func _on_mouse_exited() -> void:
 func _cell_at_position(local_position: Vector2) -> Vector2i:
 	if local_position.x < 0.0 or local_position.y < 0.0:
 		return Vector2i(-1, -1)
-	var stride := CELL_SIZE + CELL_GAP
+	var stride := cell_size + CELL_GAP
 	var cell := Vector2i(
 		int(floor(local_position.x / stride)),
 		int(floor(local_position.y / stride))
@@ -734,14 +747,14 @@ func _cell_at_position(local_position: Vector2) -> Vector2i:
 	if cell.y < 0 or cell.y >= grid_rows:
 		return Vector2i(-1, -1)
 	var within_cell := local_position - Vector2(cell) * stride
-	if within_cell.x >= CELL_SIZE or within_cell.y >= CELL_SIZE:
+	if within_cell.x >= cell_size or within_cell.y >= cell_size:
 		return Vector2i(-1, -1)
 	return cell
 
 
 func _cell_rect(cell: Vector2i) -> Rect2:
-	var position := Vector2(cell) * (CELL_SIZE + CELL_GAP)
-	return Rect2(position, Vector2(CELL_SIZE, CELL_SIZE))
+	var position := Vector2(cell) * (cell_size + CELL_GAP)
+	return Rect2(position, Vector2(cell_size, cell_size))
 
 
 func _single_side_rotation(exposed: Dictionary) -> float:

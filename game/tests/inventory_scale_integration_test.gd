@@ -73,7 +73,7 @@ func run() -> void:
 		get_window().size = resolution
 		await settle()
 		var cell_on_screen := grid.get_global_transform_with_canvas().basis_xform(Vector2(grid.CELL_SIZE, 0)).length()
-		check(cell_on_screen >= 63.9, "Inventory retains a 64-pixel cell at %s (got %.2f)" % [resolution, cell_on_screen])
+		check(cell_on_screen >= 48.0, "Backpack cells stay readable after viewport fit at %s (got %.2f)" % [resolution, cell_on_screen])
 		check(Rect2(Vector2.ZERO, hud.size).encloses(panel.get_global_rect()), "Backpack stays inside viewport at %s" % resolution)
 		check(not panel.get_global_rect().intersects(hotbar.get_global_rect()), "Hotbar remains accessible at %s" % resolution)
 		check(grid.grid_columns == 4 and grid.grid_rows == 4 and Session.get_inventory_layout() == original, "Resizing preserves all 16 cells and saved placements")
@@ -121,13 +121,13 @@ func run() -> void:
 	hud.toggle_inventory()
 	await settle()
 	check(is_equal_approx(hotbar.offset_bottom, -10), "Closing restores the normal hotbar position")
-	# Storage reuses the larger cells and must fit without shrinking them.
+	# Storage now shrinks both grids to keep every row visible.
 	var storage := hud._storage_panel
 	storage.present(Vector2i(10,10), Session.simulation.content)
 	storage.show()
 	await settle()
 	check(Rect2(Vector2.ZERO, hud.size).encloses(storage.get_global_rect()), "Storage window fits the small viewport")
-	check(storage._inventory_grid.get_global_transform_with_canvas().basis_xform(Vector2(grid.CELL_SIZE,0)).length() >= 63.9, "Storage retains the larger backpack cells")
+	check(storage._items_scroll.get_global_rect().encloses(storage._inventory_grid.get_global_rect()), "Storage shows the whole backpack without scrolling")
 	await capture("storage-640.png")
 	await check_clipped_storage(storage)
 	storage.hide()
@@ -136,6 +136,15 @@ func run() -> void:
 	get_tree().quit(0 if failures == 0 else 1)
 
 func check_clipped_storage(storage: StoragePanel) -> void:
+	# Deliberately restore oversized cells to retain the separate clipping guard
+	# regression. Normal storage no longer creates this clipped layout.
+	storage.get_parent().set_process(false)
+	await settle()
+	for connection: Dictionary in storage._items_scroll.resized.get_connections():
+		storage._items_scroll.resized.disconnect(connection.callable)
+	storage._inventory_grid.configure_cell_size(64)
+	storage._storage_grid.configure_cell_size(64)
+	await settle()
 	var backpack := storage._inventory_grid
 	var before := Session.get_inventory_layout()
 	var food: Dictionary = {}

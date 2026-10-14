@@ -79,6 +79,7 @@ func _ready() -> void:
 	_items_scroll.name = "ItemsScroll"
 	_items_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
 	_items_scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	_items_scroll.resized.connect(func() -> void: _fit_grid_cells.call_deferred())
 	column.add_child(_items_scroll)
 	_grids.reparent(_items_scroll)
 	_grids.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -143,7 +144,7 @@ func _select_tab(reserves: bool) -> void:
 func fit_to_viewport(available: Vector2) -> void:
 	if not is_node_ready(): return
 	available = available.min(get_viewport_rect().size)
-	custom_minimum_size = Vector2(minf(400, available.x - 16), 0)
+	custom_minimum_size = Vector2(minf(600, available.x - 16), 0)
 	_reserve_scroll.custom_minimum_size.y = 0
 	_items_scroll.custom_minimum_size.y = 0
 	var overhead := get_combined_minimum_size().y
@@ -153,6 +154,22 @@ func fit_to_viewport(available: Vector2) -> void:
 	size = Vector2(custom_minimum_size.x, 0)
 	size.y = get_combined_minimum_size().y
 	position = (available - size) * 0.5
+	_fit_grid_cells.call_deferred()
+
+
+func _fit_grid_cells() -> void:
+	if _reserves_open or _items_scroll.size.x<=0 or _items_scroll.size.y<=0: return
+	var headings := maxf(_inventory_title.size.y+8,_storage_title.size.y+8)
+	var rows := maxi(_inventory_grid.grid_rows,_storage_grid.grid_rows)
+	var columns := _inventory_grid.grid_columns+_storage_grid.grid_columns
+	var width_limit := (_items_scroll.size.x-float(_grids.get_theme_constant("separation"))-2.0)/columns
+	var height_limit := (_items_scroll.size.y-headings-2.0)/rows
+	var pixels := minf(InventoryGrid.CELL_SIZE,minf(width_limit,height_limit))
+	var changed := _inventory_grid.configure_cell_size(pixels)
+	changed = _storage_grid.configure_cell_size(pixels) or changed
+	if changed:
+		_items_scroll.scroll_vertical = 0
+		fit_to_viewport(get_parent_control().size if get_parent_control()!=null else get_viewport_rect().size)
 
 
 func _configure_storage_grid(cell: Vector2i) -> void:

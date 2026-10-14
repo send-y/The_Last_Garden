@@ -45,7 +45,7 @@ func rotate() -> void:
 func bucket(turns: int = 0) -> Dictionary:
 	return {"item_id":"core:bucket","instance_id":"anchor:bucket","amount":1,"origin":Vector2i.ZERO,"rotation":turns,"footprint":content.item_footprint("core:bucket",turns),"icon_path":content.item_icon_path("core:bucket",{"charges":2})}
 func point(grid: InventoryGrid, cell: Vector2i, offset: Vector2) -> Vector2:
-	return grid.get_global_transform_with_canvas() * (Vector2(cell)*grid.CELL_SIZE+offset)
+	return grid.get_global_transform_with_canvas() * (Vector2(cell)*grid.cell_size+offset*(grid.cell_size/Grid.CELL_SIZE))
 func run() -> void:
 	Session.set_mechanics_lab_active(true)
 	Session.set_process(false)
@@ -58,6 +58,7 @@ func run() -> void:
 	destination.position = Vector2(340,42)
 	destination.scale = Vector2.ONE*0.85
 	add_child(destination)
+	destination.configure_cell_size(32)
 	source.external_transfer_target = destination
 	source.layout_changed.connect(func(layout: Array[Dictionary]) -> void: layouts.append(layout.back()))
 	source.cross_grid_drop_requested.connect(func(placement: Dictionary, origin: Vector2i) -> void:
