@@ -47,7 +47,7 @@ func run() -> void:
 			check(int(comparable.inventory[id]) == 0, "New catalog entry must not create player stock")
 			comparable.inventory.erase(id)
 	check(comparable == control.export_state(), "Additive catalogs preserve all existing normalized player progress")
-	for field: String in ["item_instances", "inventory_placements", "storage_items", "structures", "blueprints", "crafting_projects"]:
+	for field: String in ["item_instances", "inventory_layout", "storage_items", "structures", "blueprints", "crafting_projects"]:
 		check(expanded.state.get(field, null) == control.state.get(field, null), "Physical progress survives addition: " + field)
 	var reloaded = script.new(JSON.parse_string(JSON.stringify(expanded.export_state())), content, recipe_path)
 	check(reloaded.export_state() == expanded.export_state(), "Second JSON round trip preserves all progress")

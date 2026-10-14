@@ -58,6 +58,10 @@ static func choose(sim, npc: Dictionary) -> Dictionary:
 			if ready or not material_source(sim, npc, blueprint).is_empty():
 				choices.append({"kind": "build", "phase": "build" if ready else "take_materials", "cell": blueprint.cell.duplicate(), "drops": []})
 				break
+			var production: Dictionary = sim.NpcHomeProjects.Production.choose_shared(sim,npc,blueprint)
+			if not production.is_empty():
+				choices.append(production)
+				break
 	if choices.is_empty():
 		return {}
 	var rng := RandomNumberGenerator.new()

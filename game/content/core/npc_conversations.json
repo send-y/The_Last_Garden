@@ -1,15 +1,16 @@
 {
   "schema_version": 1,
   "topics": [
+	{"id":"bench_accept","label_key":"workshop.action.accept","pages":[]},
+	{"id":"bench_decline","label_key":"workshop.action.decline","pages":[]},
 	{"id":"overview","label_key":"meeting.overview","hidden":true,"pages":[]},
 	{"id":"take_supplies","label_key":"meeting.action.take","pages":[]},
 	{"id":"decline_supplies","label_key":"meeting.action.decline","pages":[]},
-	{"id":"greeting","label_key":"conversation.topic.greeting","min_talks":0,"wait_minutes":0,"pages":[
-	  {"text_key":"conversation.introduction","args":{"name":"name"},"facts":["name"]},
-	  {"text_key":"conversation.experience","args":{"experience":"experience_id"},"facts":["experience_id"]}]},
+	{"id":"greeting","label_key":"conversation.topic.greeting","min_talks":0,"wait_minutes":0,"pages":[]},
 	{"id":"chat","label_key":"conversation.topic.chat","min_talks":1,"wait_minutes":0,"pages":[
 	  {"text_key":"npc.generated.repeat","args":{},"facts":[]}]},
 	{"id":"work","label_key":"conversation.topic.work","min_talks":1,"wait_minutes":0,"pages":[
+	  {"text_key":"conversation.experience","args":{"experience":"experience_id"},"facts":["experience_id"]},
 	  {"text_key":"conversation.aspiration","args":{"aspiration":"aspiration_id"},"facts":["aspiration_id"]}]},
 	{"id":"home","label_key":"conversation.topic.home","min_talks":1,"wait_minutes":0,"pages":[
 	  {"text_key":"conversation.home","args":{},"facts":[]}]},

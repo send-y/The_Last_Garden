@@ -5,6 +5,7 @@ const Planner := preload("res://src/npc_work/npc_work_planner.gd")
 const Water := preload("res://src/world/water_map.gd")
 const Diagnostic := preload("res://src/dev/diagnostic_trace.gd")
 const WorkSession := preload("res://src/npc_work/npc_work_session.gd")
+const WorkshopRequest := preload("res://src/npc_work/npc_workbench_request.gd")
 const INVALID := Vector2i(-1, -1)
 
 static func set_enabled(sim, npc_id: String, kind: String, enabled: bool) -> Dictionary:
@@ -39,6 +40,7 @@ static func prepare(sim) -> Dictionary:
 		var npc: Dictionary = sim.state.npcs.get(id, {})
 		if npc.is_empty() or not bool(npc.active) or not bool(npc.known):
 			continue
+		WorkshopRequest.observe(sim,npc)
 		var span := Diagnostic.begin("npc_work.authority") if Diagnostic.enabled else 0
 		sim.NpcHomeProjects.refresh_authority(sim,npc)
 		Diagnostic.end(span)
@@ -58,6 +60,12 @@ static func prepare(sim) -> Dictionary:
 			cancel(npc)
 			job = npc.initiative_job
 		if job.is_empty():
+			# A pending approach is already chosen work, so it continues every
+			# minute instead of being interrupted by the next-choice cooldown.
+			var approaching := WorkshopRequest.prepare(sim,npc) if String(npc.get("workbench_request",{}).get("status","")) == "approaching" else {}
+			if not approaching.is_empty():
+				contexts[String(npc.id)] = approaching
+				continue
 			var minute: int = sim.get_minute_of_day()
 			if sim.get_elapsed_game_minutes() < int(npc.next_initiative_minute) or minute < 9 * 60 or minute >= 19 * 60 or float(npc.needs.hunger) <= 55 or float(npc.needs.energy) < 30 or float(npc.needs.restedness) < 25 or not npc.work_commitment.is_empty():
 				continue
@@ -68,6 +76,8 @@ static func prepare(sim) -> Dictionary:
 			npc.next_initiative_minute = sim.get_elapsed_game_minutes() + 30
 			job = npc.initiative_job
 		if job.is_empty():
+			var request_context := WorkshopRequest.prepare(sim,npc)
+			if not request_context.is_empty(): contexts[String(npc.id)] = request_context
 			continue
 		var context := context_for(sim, npc)
 		if not context.is_empty():
@@ -150,6 +160,7 @@ static func _context_for(sim, npc: Dictionary) -> Dictionary:
 				# batch for this same project, rather than returning it between batches.
 				var report: Dictionary = Supply.HomeStock.report(sim, npc, npc.home_goal)
 				var production: Dictionary = sim.NpcHomeProjects.Production.choose(sim, npc, report.missing)
+				if production.is_empty(): production = sim.NpcHomeProjects.Production.choose_shared(sim,npc,blueprint)
 				if not production.is_empty():
 					npc.initiative_job = production
 					return context_for(sim, npc)
@@ -213,6 +224,7 @@ static func _context_for(sim, npc: Dictionary) -> Dictionary:
 static func fulfil(sim, effect: Dictionary) -> bool:
 	var npc: Dictionary = sim.state.npcs.get(String(effect.get("npc_id", "")), {})
 	var context: Dictionary = effect.get("context", {})
+	if not npc.is_empty() and bool(context.get("workbench_request",false)): return WorkshopRequest.fulfil(sim,npc)
 	if npc.is_empty() or not bool(npc.active) or npc.initiative_job.is_empty() or context.is_empty():
 		return false
 	var current := Supply.cell_of(sim, npc)

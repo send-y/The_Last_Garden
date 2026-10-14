@@ -185,12 +185,15 @@ func normalize_states(raw_npcs: Dictionary, world_seed: int) -> Dictionary:
 			inventory["core:food"] = int(default_inventory.get("core:food", 0))
 		npc_state["personal_inventory"] = inventory
 		npc_state["first_meeting_complete"] = _safe_bool(raw_state.get("first_meeting_complete"), bool(raw_state.get("known",false)))
+		# Modal presentation is transient; it must never gate a reloaded world.
+		npc_state.erase("first_meeting_closed")
 		var gift_config: Dictionary = get_definition(npc_id).get("autonomy",{}).get("welcome_gift",{})
 		if not gift_config.is_empty():
 			if not raw_state.is_empty() and not raw_state.has("welcome_gift"):
 				# Additive one-time stock migration, leaving all existing knowledge intact.
 				var gift_id := String(gift_config.item_id)
-				inventory[gift_id] = int(inventory.get(gift_id,0)) + int(gift_config.amount) + int(gift_config.keep)
+				if inventory_value is Dictionary and inventory_value.has(gift_id) and (inventory_value[gift_id] is int or inventory_value[gift_id] is float) and is_finite(float(inventory_value[gift_id])) and float(inventory_value[gift_id]) >= 0:
+					inventory[gift_id] = int(inventory.get(gift_id,0)) + int(gift_config.amount) + int(gift_config.keep)
 			var saved_gift: Dictionary = raw_state.get("welcome_gift",{}) if raw_state.get("welcome_gift",{}) is Dictionary else {}
 			npc_state["welcome_gift"] = _initial_gift(gift_config)
 			npc_state.welcome_gift.remaining = clampi(_safe_int(saved_gift.get("remaining"),int(gift_config.amount)),0,int(gift_config.amount))

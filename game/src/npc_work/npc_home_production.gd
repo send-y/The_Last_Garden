@@ -4,10 +4,30 @@ const Supply := preload("res://src/npc_work/npc_work_supplies.gd")
 const RECIPE := "core:saw_planks"
 const PHASES := ["craft_take", "craft"]
 
+static func goal(sim, npc: Dictionary) -> Dictionary:
+	var job: Dictionary = npc.get("initiative_job",{})
+	if String(job.get("production_scope","")) == "communal":
+		var blueprint: Dictionary = sim._find_blueprint(job.get("cell",[]))
+		if blueprint.is_empty() or not Supply.HomeStock.owner(sim,blueprint.cell).is_empty(): return {}
+		return {"cell":blueprint.cell,"building_id":blueprint.building_id,"status":"pending","action":"build","room_id":""}
+	return npc.get("home_goal",{})
+
+static func choose_shared(sim, npc: Dictionary, blueprint: Dictionary) -> Dictionary:
+	if not Supply.HomeStock.owner(sim,blueprint.cell).is_empty(): return {}
+	var missing := int(blueprint.required_materials.get("core:plank",0)) - int(blueprint.delivered_materials.get("core:plank",0)) - int(npc.work_cargo.get("core:plank",0))
+	if missing <= 0: return {}
+	var candidate := npc.duplicate(true)
+	candidate.initiative_job = {"kind":"build","phase":"craft_take","cell":blueprint.cell.duplicate(),"production_scope":"communal"}
+	var chosen := choose(sim,candidate,{"core:plank":missing})
+	if not chosen.is_empty(): chosen.production_scope = "communal"
+	return chosen
+
 static func authorized(sim, npc: Dictionary) -> bool:
 	if sim.crafting_catalog.get_definition(RECIPE).is_empty(): return false
-	var goal: Dictionary = npc.get("home_goal", {})
-	return bool(npc.get("active", false)) and bool(npc.get("known", false)) and bool(npc.get("work_options", {}).get("build", false)) and not goal.is_empty() and String(goal.status) == "pending" and String(goal.action) == "build" and sim.HomePolicy.may_furnish(sim,npc,String(goal.room_id)) and matches_goal_blueprint(sim,goal)
+	var current := goal(sim,npc)
+	if not bool(npc.get("active", false)) or not bool(npc.get("known", false)) or not bool(npc.get("work_options", {}).get("build", false)) or current.is_empty(): return false
+	if String(npc.get("initiative_job",{}).get("production_scope","")) == "communal": return true
+	return String(current.status) == "pending" and String(current.action) == "build" and sim.HomePolicy.may_furnish(sim,npc,String(current.room_id)) and matches_goal_blueprint(sim,current)
 
 static func matches_goal_blueprint(sim, goal: Dictionary) -> bool:
 	if not bool(goal.get("tracked",false)): return true
@@ -21,24 +41,24 @@ static func release_invalid_projects(sim) -> void:
 		var id := String(project.get("owner_id", ""))
 		if id.is_empty(): continue
 		var npc: Dictionary = sim.state.npcs.get(id, {})
-		if npc.is_empty() or not authorized(sim,npc) or npc.home_goal.cell != project.get("home_cell", []):
+		if npc.is_empty() or not authorized(sim,npc) or goal(sim,npc).get("cell",[]) != project.get("home_cell", []):
 			# Keep the paid inputs and progress as a normal unfinished player project.
 			project.erase("owner_id")
 			project.erase("home_cell")
 
 static func own_project(sim, npc: Dictionary) -> Dictionary:
 	for project: Dictionary in sim.state.crafting_projects:
-		if String(project.get("owner_id", "")) == String(npc.id) and project.get("home_cell", []) == npc.home_goal.get("cell", []) and String(project.recipe_id) == RECIPE:
+		if String(project.get("owner_id", "")) == String(npc.id) and project.get("home_cell", []) == goal(sim,npc).get("cell", []) and String(project.recipe_id) == RECIPE:
 			return project
 	return {}
 
 static func station_free(sim, npc: Dictionary, cell: Array) -> bool:
 	var project: Dictionary = sim._find_crafting_project(cell)
 	if not project.is_empty():
-		return String(project.get("owner_id", "")) == String(npc.id) and project.get("home_cell", []) == npc.home_goal.get("cell", []) and String(project.recipe_id) == RECIPE
+		return String(project.get("owner_id", "")) == String(npc.id) and project.get("home_cell", []) == goal(sim,npc).get("cell", []) and String(project.recipe_id) == RECIPE
 	for other: Dictionary in sim.state.npcs.values():
 		var job: Dictionary = other.get("initiative_job", {})
-		if String(other.get("id", "")) != String(npc.id) and authorized(sim,other) and PHASES.has(String(job.get("phase", ""))) and job.get("station_cell", []) == cell and job.get("cell",[]) == other.home_goal.cell:
+		if String(other.get("id", "")) != String(npc.id) and authorized(sim,other) and PHASES.has(String(job.get("phase", ""))) and job.get("station_cell", []) == cell and job.get("cell",[]) == goal(sim,other).get("cell",[]):
 			return false
 	return true
 
@@ -58,7 +78,7 @@ static func report(sim, npc: Dictionary, missing: Dictionary) -> Dictionary:
 	if not authorized(sim,npc): return {}
 	var project := own_project(sim,npc)
 	var job: Dictionary = npc.initiative_job
-	if not project.is_empty() or PHASES.has(String(job.get("phase", ""))):
+	if not project.is_empty() or (PHASES.has(String(job.get("phase", ""))) and job.has("station_cell")):
 		return {"reason":"working", "current":int(project.get("work_progress_minutes",0)), "total":sim.crafting_catalog.get_work_minutes(RECIPE), "station_cell":project.get("cell",job.get("station_cell",[])).duplicate()}
 	if int(missing.get("core:plank",0)) <= 0: return {}
 	var station := find_station(sim,npc)
@@ -75,7 +95,9 @@ static func choose(sim, npc: Dictionary, missing: Dictionary) -> Dictionary:
 	var project := own_project(sim,npc)
 	var station := find_station(sim,npc)
 	if not station.has("cell"): return {}
-	return {"kind":"build", "phase":"craft" if not project.is_empty() else "craft_take", "cell":npc.home_goal.cell.duplicate(), "station_cell":station.cell, "recipe_id":RECIPE, "drops":[]}
+	var result := {"kind":"build", "phase":"craft" if not project.is_empty() else "craft_take", "cell":goal(sim,npc).cell.duplicate(), "station_cell":station.cell, "recipe_id":RECIPE, "drops":[]}
+	if String(npc.get("initiative_job",{}).get("production_scope","")) == "communal": result.production_scope = "communal"
+	return result
 
 static func context(sim, npc: Dictionary) -> Dictionary:
 	var job: Dictionary = npc.initiative_job

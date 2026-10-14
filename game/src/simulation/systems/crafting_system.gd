@@ -314,7 +314,7 @@ static func work_npc_project(sim, npc: Dictionary, cell: Array, recipe_id: Strin
 		for id: String in inputs:
 			npc.work_cargo[id] = int(npc.work_cargo[id]) - int(inputs[id])
 			if int(npc.work_cargo[id]) == 0: npc.work_cargo.erase(id)
-		project = {"cell":cell.duplicate(),"recipe_id":recipe_id,"reserved_inputs":inputs.duplicate(true),"required_work_minutes":sim.crafting_catalog.get_work_minutes(recipe_id),"work_progress_minutes":0,"owner_id":String(npc.id),"home_cell":npc.home_goal.cell.duplicate()}
+		project = {"cell":cell.duplicate(),"recipe_id":recipe_id,"reserved_inputs":inputs.duplicate(true),"required_work_minutes":sim.crafting_catalog.get_work_minutes(recipe_id),"work_progress_minutes":0,"owner_id":String(npc.id),"home_cell":Production.goal(sim,npc).cell.duplicate()}
 		sim.state.crafting_projects.append(project)
 		return {"success":true,"reason_id":"core:crafting_project_started"}
 	var next := mini(int(project.work_progress_minutes)+1,int(project.required_work_minutes))

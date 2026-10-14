@@ -4,6 +4,7 @@ const KINDS := ["water", "gather", "build"]
 const PHASES := ["borrow", "refill", "work", "collect", "take_materials", "deliver", "build", "return", "switch_on", "craft_take", "craft"]
 
 static func normalize(npc: Dictionary, content) -> void:
+	preload("res://src/npc_work/npc_workbench_request.gd").normalize(npc)
 	var raw: Variant = npc.get("work_options", {})
 	var options: Dictionary = {}
 	for kind: String in KINDS:
@@ -23,6 +24,7 @@ static func normalize(npc: Dictionary, content) -> void:
 	var job: Dictionary = {}
 	if raw is Dictionary and KINDS.has(String(raw.get("kind", ""))) and PHASES.has(String(raw.get("phase", ""))):
 		job = {"kind": String(raw.kind), "phase": String(raw.phase)}
+		if String(raw.get("production_scope","")) == "communal" and String(raw.kind) == "build": job.production_scope = "communal"
 		for key: String in ["tool_id", "target_id", "resource_item"]:
 			if raw.has(key):
 				job[key] = String(raw[key])

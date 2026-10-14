@@ -5,6 +5,7 @@ const Knowledge := preload("res://src/characters/npc_knowledge.gd")
 const Localized := preload("res://src/localization/localized_text.gd")
 const PATH := "res://content/core/npc_conversations.json"
 const Meeting := preload("res://src/characters/npc_first_meeting.gd")
+const WorkshopRequest := preload("res://src/npc_work/npc_workbench_request.gd")
 
 static func definitions() -> Array:
 	var data: Variant = JSON.parse_string(FileAccess.get_file_as_string(PATH))
@@ -14,9 +15,11 @@ static func available(sim, npc: Dictionary, topic: Dictionary) -> bool:
 	if String(topic.id) == "greeting":
 		return not Meeting.complete(npc)
 	if not Meeting.complete(npc): return false
+	if String(topic.id) in ["bench_accept","bench_decline"]: return WorkshopRequest.available(npc)
 	if String(topic.id) == "overview": return true
 	if String(topic.id) in ["take_supplies","decline_supplies"]: return Meeting.gift_available(npc)
-	if String(topic.id) in ["chat","home","past","values","heritage"] and not bool(npc.get("first_meeting_closed",true)): return false
+	var pending: Dictionary = sim._npc_conversation_pending
+	if String(topic.id) in ["chat","home","past","values","heritage"] and String(pending.get("npc_id","")) == String(npc.id) and bool(pending.get("first_encounter",false)): return false
 	if not bool(npc.get("known",false)): return false
 	if String(topic.id) == "stay" and String(npc.get("residency","resident")) != "visitor": return false
 	if sim.npc_catalog.get_profile(String(npc.id)).is_empty(): return String(topic.id) in ["home","chat"]
@@ -40,7 +43,7 @@ static func choose(sim, npc_id: String, topic_id: String) -> Dictionary:
 	for topic: Dictionary in definitions():
 		if String(topic.id) == topic_id: chosen = topic
 	if chosen.is_empty() or not available(sim,npc,chosen): return {"ok":false,"reason_key":"conversation.refuse.context"}
-	if topic_id not in ["greeting","overview","take_supplies","decline_supplies"] and (float(npc.needs.hunger) < 25 or float(npc.needs.energy) < 18):
+	if topic_id not in ["greeting","overview","take_supplies","decline_supplies","bench_accept","bench_decline"] and (float(npc.needs.hunger) < 25 or float(npc.needs.energy) < 18):
 		return {"ok":false,"reason_key":"conversation.refuse.needs"}
 	var profile: Dictionary = sim.npc_catalog.get_profile(npc_id)
 	var pages: Array[Dictionary] = []
@@ -48,7 +51,9 @@ static func choose(sim, npc_id: String, topic_id: String) -> Dictionary:
 	if topic_id == "greeting":
 		pages = Meeting.pages(sim,npc)
 	elif topic_id == "overview":
-		pages.append({"text_key":"meeting.overview", "text_args":{}, "facts":[]})
+		pages.append({"text_key":"workshop.reason" if WorkshopRequest.available(npc) else "meeting.overview", "text_args":{}, "facts":[]})
+	elif topic_id in ["bench_accept","bench_decline"]:
+		pages.append(WorkshopRequest.answer(sim,npc,topic_id == "bench_accept"))
 	elif topic_id in ["take_supplies","decline_supplies"]:
 		pages.append(Meeting.receive(sim,npc,topic_id == "decline_supplies"))
 	elif profile.is_empty():
@@ -80,8 +85,9 @@ static func choose(sim, npc_id: String, topic_id: String) -> Dictionary:
 			pages[0].text_key = "conversation.home.reserve"
 	var serial: int = int(sim._npc_conversation_pending.get("serial",0))+1
 	var utterance_id := "%s:%d" % [npc_id,serial]
+	var first_encounter := topic_id == "greeting" or (String(sim._npc_conversation_pending.get("npc_id","")) == npc_id and bool(sim._npc_conversation_pending.get("first_encounter",false)))
 	sim._npc_conversation_pending = {"serial":serial,"npc_id":npc_id,"utterance_id":utterance_id,"topic_id":topic_id,
-		"pages":pages.duplicate(true),"acknowledged":[],"complete":false,"memory_id":discussed_memory}
+		"pages":pages.duplicate(true),"acknowledged":[],"complete":false,"memory_id":discussed_memory,"first_encounter":first_encounter}
 	return {"ok":true,"npc_id":npc_id,"utterance_id":utterance_id,"pages":public_pages(pages),"name_key":sim.npc_catalog.get_label_key(sim.state.npcs,npc_id,"npc.generic.traveler.name")}
 
 static func public_pages(pages: Array[Dictionary]) -> Array[Dictionary]:
@@ -116,7 +122,6 @@ static func acknowledge(sim, npc_id: String, utterance_id: String, page_index: i
 		pending.complete = true
 		if String(pending.topic_id) == "greeting":
 			npc.first_meeting_complete = true
-			npc.first_meeting_closed = false
 		npc.talk_count = int(npc.get("talk_count",0))+1
 		sim.needs.add_effect(npc,"conversation",sim.get_elapsed_game_minutes())
 		if String(pending.topic_id) == "stay": sim.set_npc_resident(npc_id,true)

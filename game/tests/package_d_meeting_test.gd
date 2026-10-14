@@ -4,6 +4,7 @@ const Content := preload("res://src/content/first_night_content.gd")
 const NPC := "core:first_neighbor"
 const Meeting := preload("res://src/characters/npc_first_meeting.gd")
 const Localized := preload("res://src/localization/localized_text.gd")
+const HomeFixture := preload("res://tests/fixtures/resident_home_fixture.gd")
 var failures := 0
 func _initialize() -> void: call_deferred("run")
 func check(ok: bool, label: String) -> void:
@@ -53,6 +54,7 @@ func run() -> void:
 		var loaded = World.new(JSON.parse_string(JSON.stringify(sim.export_state())))
 		loaded.choose_npc_conversation(NPC,"take_supplies")
 		check(loaded.get_item_count("core:food") == 10 and int(loaded.state.npcs[NPC].personal_inventory["core:food"]) == 8,"Reload and repeated response never duplicate supplies")
+		check(has_topic(loaded,"chat"),"Completed gift saved before closing cannot lock future conversations after reload")
 		check(not bool(loaded.choose_npc_conversation(NPC,"past").ok),"Ordinary long conversation retains its needs/context restrictions")
 	sim = fixture()
 	finish(sim,sim.choose_npc_conversation(NPC,"greeting"))
@@ -89,6 +91,20 @@ func run() -> void:
 	sim.npc_catalog._profiles[id].habit_ids = ["core:habit_try"]
 	var direct: Dictionary = sim.choose_npc_conversation(id,"greeting")
 	check(careful.get("pages",[]) != direct.get("pages",[]),"Existing different habits produce different introductions")
+	finish(sim,direct)
+	check(not sim.state.npcs[id].known_facts.has("experience_id"),"First meeting does not force a biography")
+	finish(sim,sim.choose_npc_conversation(id,"work"))
+	check(sim.state.npcs[id].known_facts.has("experience_id"),"Later work conversation preserves discovery of real experience")
+	var home = HomeFixture.create()
+	home.state.sleep_assignments.erase(NPC)
+	check(bool(home.assign_sleep_place("core:player","core:bedroll@40,30").success),"Actual built house assigned to player")
+	home.state.flags.repair_stage = 0
+	home.state.npcs[NPC].known = false
+	home.state.npcs[NPC].first_meeting_complete = false
+	home.set_player_position(home.get_npc_position(NPC,Vector2.ZERO)+Vector2(32,0))
+	check(bool(home.get_character_home("core:player").covered),"Actual home is covered even without old shelter repair")
+	var actual_roof: Dictionary = home.choose_npc_conversation(NPC,"greeting")
+	check(actual_roof.get("pages",[]).size() > 1 and actual_roof.pages[1].text_key == covered.pages[1].text_key,"Opening recognizes real assigned housing beyond the old shelter")
 	# Legacy familiarity and heard facts must survive the additive gift migration.
 	var raw: Dictionary = fixture().export_state()
 	raw.npcs[NPC].known = true

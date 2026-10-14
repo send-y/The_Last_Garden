@@ -42,7 +42,9 @@ static func pages(sim, npc: Dictionary) -> Array[Dictionary]:
 			tone = String(data.habit_tones[habit])
 			break
 	var name_key := String(sim.npc_catalog.get_definition(String(npc.id)).name_key)
-	var world := ("roof" if sim.is_roof_covered() else "open") + ("_food" if player_has_food(sim) else "_hungry")
+	var home: Dictionary = sim.get_character_home("core:player")
+	var has_roof: bool = sim.is_roof_covered() or (bool(home.get("valid",false)) and bool(home.get("covered",false)))
+	var world := ("roof" if has_roof else "open") + ("_food" if player_has_food(sim) else "_hungry")
 	var result: Array[Dictionary] = [
 		{"text_key": tone, "text_args": {"name": Localized.text_reference(name_key)}, "facts": ["name"]},
 		{"text_key": String(data.world_lines[world]), "text_args": {}, "facts": []}]

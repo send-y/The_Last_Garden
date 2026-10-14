@@ -33,6 +33,7 @@ const CONSTRUCTION_WORK_MINUTES: int = 12
 const INVALID_CELL: Vector2i = Vector2i(-1, -1)
 
 const ACTIVITY_KEYS: Dictionary = {
+	"core:workshop_request": "npc.activity.workshop_request",
 	"core:work_craft_take": "npc.activity.work_craft_take",
 	"core:work_craft": "npc.activity.work_craft",
 	"core:work_travel": "npc.activity.work_travel",

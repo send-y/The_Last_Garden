@@ -54,7 +54,7 @@ func _ready() -> void:
 		get_viewport().get_texture().get_image().save_png(directory+"/conversation-greeting.png")
 	await click(panel.get_node("Margin/Column").find_child("NextButton",true,false))
 	await frames(5)
-	check(Session.simulation.state.npcs[id].known_facts.has("experience_id"),"Second page learned")
+	check(Session.simulation.state.npcs[id].first_meeting_complete and not Session.simulation.state.npcs[id].known_facts.has("experience_id"),"First meeting completes without forcing a biography; work topic reveals experience later")
 	var topics: Node = panel.get_node("Margin/Column/Topics/Choices")
 	check(topics.get_child_count() >= 2,"Prepared topics shown")
 	var before_history: int = Session.simulation.state.npcs[id].conversation_history.size()
