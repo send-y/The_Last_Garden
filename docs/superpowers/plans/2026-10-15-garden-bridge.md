@@ -23,12 +23,12 @@ Logger хранит ограниченный буфер ошибок и backtrac
 
 ## Выполнение
 
-- [ ] RED: Python discovery/path/stdio tests и Godot runtime contract.
-- [ ] Реализовать IPC, diagnostics, state/tree/capture и stdio tools.
-- [ ] GREEN: живой MCP handshake, вызовы в headless и графической игре,
+- [x] RED: Python discovery/path/stdio tests и Godot runtime contract.
+- [x] Реализовать IPC, diagnostics, state/tree/capture и stdio tools.
+- [x] GREEN: живой MCP handshake, вызовы в headless и графической игре,
   screenshot inspection, stale/ambiguous session, запрет неизвестных методов.
-- [ ] Настроить project MCP, документацию; свежий итоговый review и исправления.
-- [ ] Локальный коммит, push и проверка remote HEAD. items.json не включать.
+- [x] Настроить project MCP, документацию; свежий итоговый review и исправления.
+- [x] Локальный коммит, push и проверка remote HEAD. items.json не включать.
 
 Проверки не запускают FPS/стресс-замеры. Дополнительный регрессионный прогон
 выбирается по новой autoload-интеграции; обычные тесты должны оставаться без IPC.

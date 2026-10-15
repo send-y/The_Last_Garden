@@ -1,0 +1,17 @@
+{
+  "feature_head": "bf6958d",
+  "reviewed_range": "3c331c6..a0d37d7",
+  "live_result": {
+    "passed": true,
+    "save_before": {
+      "C:\\Users\\Bohdan\\AppData\\Roaming\\Godot\\app_userdata\\The Last Garden\\first_night_save.json": "7407d6eb7fcbc7ba9139f5792ac438befe0f2c1487cdf9bd7717b7d40cde3081",
+      "C:\\Users\\Bohdan\\AppData\\Roaming\\Godot\\app_userdata\\The Last Garden\\first_night_save.json.bak": "0b36a8a08c4bf70881460e7b222a8ca9d7570a808e2524521e724d338d6de7e8"
+    },
+    "save_after": {
+      "C:\\Users\\Bohdan\\AppData\\Roaming\\Godot\\app_userdata\\The Last Garden\\first_night_save.json": "7407d6eb7fcbc7ba9139f5792ac438befe0f2c1487cdf9bd7717b7d40cde3081",
+      "C:\\Users\\Bohdan\\AppData\\Roaming\\Godot\\app_userdata\\The Last Garden\\first_night_save.json.bak": "0b36a8a08c4bf70881460e7b222a8ca9d7570a808e2524521e724d338d6de7e8"
+    }
+  },
+  "result_sha256": "f00212b4401771b750c57137d960c768712befff3fb97566f11cb470e75b5d6e",
+  "report": "docs/implementation/garden-bridge-2026-10-15.md"
+}
