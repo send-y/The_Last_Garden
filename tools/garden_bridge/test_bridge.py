@@ -61,6 +61,12 @@ class BridgeTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             client.call("get_state", {"path":"C:/secret"})
 
+    def test_corrupt_manifest_does_not_break_other_sessions(self):
+        self.session("100-abcdef01")
+        bad = self.session("200-abcdef02")
+        (bad/"manifest.json").write_text('[]')
+        self.assertEqual(len(self.bridge.Client(self.root).sessions()),1)
+
 
 if __name__ == '__main__':
     unittest.main()

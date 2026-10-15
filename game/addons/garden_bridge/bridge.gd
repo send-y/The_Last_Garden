@@ -53,8 +53,12 @@ func _process(delta: float) -> void:
 		var id := filename.trim_suffix(".json")
 		if id.length()!=32 or not id.is_valid_hex_number(false): continue
 		var path := folder.path_join("requests").path_join(filename)
-		if FileAccess.get_file_as_bytes(path).size()>8192: DirAccess.remove_absolute(path); continue
-		var raw: Variant = JSON.parse_string(FileAccess.get_file_as_string(path))
+		var file := FileAccess.open(path,FileAccess.READ)
+		if file==null: continue
+		if file.get_length()>8192:
+			file.close(); DirAccess.remove_absolute(path); continue
+		var raw: Variant = JSON.parse_string(file.get_as_text())
+		file.close()
 		DirAccess.remove_absolute(path)
 		_busy = true; _handle(id,raw); break
 
@@ -64,6 +68,10 @@ func _handle(id: String, raw: Variant) -> void:
 		response.error = "Invalid or unsupported bridge request"
 	else:
 		var params: Dictionary = raw.get("params",{})
+		if not _valid_params(String(raw.method),params):
+			_write_json(folder.path_join("responses").path_join(id+".json"),{"id":id,"error":"Invalid bridge parameters"})
+			_busy = false
+			return
 		match String(raw.method):
 			"get_state": response.result = state_snapshot()
 			"inspect_tree": response.result = tree_snapshot(params)
@@ -71,16 +79,52 @@ func _handle(id: String, raw: Variant) -> void:
 			"capture_frame":
 				if DisplayServer.get_name()=="headless": response.error = "Screenshot unavailable in headless mode"
 				else:
-					await RenderingServer.frame_post_draw
-					var image_path := folder.path_join("captures").path_join(id+".png")
-					var snapshot_path := folder.path_join("captures").path_join(id+".json")
-					var hud := get_tree().root.find_child("Hud",true,false)
-					var tree_params := {"root":String(hud.get_path()),"max_nodes":600,"max_depth":12} if hud!=null else {}
-					var snapshot := {"frame_id":Engine.get_process_frames(),"state":state_snapshot(),"tree":tree_snapshot(tree_params),"errors":_errors.snapshot()}
-					if get_viewport().get_texture().get_image().save_png(image_path)!=OK or not _write_json(snapshot_path,snapshot): response.error = "Could not write capture"
-					else: response.result = {"frame_id":snapshot.frame_id,"image_path":image_path,"snapshot_path":snapshot_path,"session_id":session_id}
+					_capture_when_drawn(id)
+					return
 	_write_json(folder.path_join("responses").path_join(id+".json"),response)
 	_busy = false
+
+func _capture_when_drawn(id: String) -> void:
+	# A suspended renderer must not block state/errors forever. Both callbacks
+	# run on the main thread; done makes late draws/timers harmless.
+	var done := [false]
+	var on_draw := func() -> void:
+		if done[0]: return
+		done[0] = true
+		_capture_now(id)
+	RenderingServer.frame_post_draw.connect(on_draw,CONNECT_ONE_SHOT)
+	get_tree().create_timer(2.0,true,false,true).timeout.connect(func() -> void:
+		if done[0]: return
+		done[0] = true
+		if RenderingServer.frame_post_draw.is_connected(on_draw): RenderingServer.frame_post_draw.disconnect(on_draw)
+		_write_json(folder.path_join("responses").path_join(id+".json"),{"id":id,"error":"Renderer did not produce a frame before timeout"})
+		_busy = false
+	)
+
+func _capture_now(id: String) -> void:
+	var image_path := folder.path_join("captures").path_join(id+".png")
+	var snapshot_path := folder.path_join("captures").path_join(id+".json")
+	var hud := get_tree().root.find_child("Hud",true,false)
+	var tree_params := {"root":String(hud.get_path()),"max_nodes":600,"max_depth":12} if hud!=null else {}
+	var snapshot := {"frame_id":Engine.get_process_frames(),"state":state_snapshot(),"tree":tree_snapshot(tree_params),"errors":_errors.snapshot()}
+	var response := {"id":id}
+	if get_viewport().get_texture().get_image().save_png(image_path)!=OK or not _write_json(snapshot_path,snapshot): response.error = "Could not write capture"
+	else: response.result = {"frame_id":snapshot.frame_id,"image_path":image_path,"snapshot_path":snapshot_path,"session_id":session_id}
+	_write_json(folder.path_join("responses").path_join(id+".json"),response)
+	_busy = false
+
+func _valid_params(method: String, params: Dictionary) -> bool:
+	var allowed: Array = ["root","max_nodes","max_depth"] if method=="inspect_tree" else (["limit"] if method=="get_errors" else [])
+	for key: String in params:
+		if not allowed.has(key): return false
+		var value: Variant = params[key]
+		if key=="root":
+			if not value is String or value.length()>512: return false
+		else:
+			if not (value is int or value is float) or not is_finite(float(value)) or float(value)!=floorf(float(value)): return false
+			var maximum := 600 if key=="max_nodes" else (12 if key=="max_depth" else 128)
+			if int(value)<1 or int(value)>maximum: return false
+	return true
 
 func state_snapshot() -> Dictionary:
 	var sim = Session.simulation

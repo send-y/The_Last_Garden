@@ -41,6 +41,7 @@ class Client:
                 if path.stat().st_size>65536 or not SESSION.fullmatch(path.parent.name) or path.parent.resolve().parent!=self.root:
                     continue
                 row = json.loads(path.read_text(encoding="utf-8"))
+                if not isinstance(row,dict): continue
                 if row.get("session_id")==path.parent.name and -2<=time.time()-float(row["heartbeat"])<=5:
                     result.append(row)
             except (OSError, ValueError, KeyError, TypeError):

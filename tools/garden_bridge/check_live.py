@@ -17,12 +17,13 @@ SAVE = pathlib.Path.home()/"AppData/Roaming/Godot/app_userdata/The Last Garden/f
 def hashes():
     return {str(p): hashlib.sha256(p.read_bytes()).hexdigest() if p.exists() else None for p in [SAVE,pathlib.Path(str(SAVE)+'.bak')]}
 
-def check(out, graphical):
-    mode = out/('graphic' if graphical else 'headless'); mode.mkdir()
+def check(out, graphical, no_render=False):
+    mode = out/('suspended-render' if no_render else 'graphic' if graphical else 'headless'); mode.mkdir()
     ipc = mode/'ipc'; log = mode/'game.log'
     command = [GODOT,'--path',str(REPO/'game'),'--max-fps','60']
     command += ['--rendering-method','gl_compatibility'] if graphical else ['--headless']
     command += ['res://tests/garden_bridge_host.tscn','--','--test-save-path='+str(mode/'session.json'),'--garden-bridge-dir='+str(ipc)]
+    if no_render: command.append('--bridge-test-no-render')
     with log.open('wb') as stream:
         game = subprocess.Popen(command,stdout=stream,stderr=subprocess.STDOUT)
         server = None
@@ -63,8 +64,16 @@ def check(out, graphical):
             deadline = time.monotonic()+3; answer = folder/'responses'/f'{request_id}.json'
             while not answer.exists() and time.monotonic()<deadline: time.sleep(.03)
             assert 'error' in json.loads(answer.read_text())
+            malformed_id = uuid.uuid4().hex
+            (folder/'requests'/f'{malformed_id}.json').write_text(json.dumps({'id':malformed_id,'method':'get_errors','params':{'limit':{}}}))
+            malformed_answer = folder/'responses'/f'{malformed_id}.json'
+            deadline = time.monotonic()+3
+            while not malformed_answer.exists() and time.monotonic()<deadline: time.sleep(.03)
+            assert malformed_answer.exists(), 'Malformed IPC blocked diagnostics instead of returning an error'
+            assert 'error' in json.loads(malformed_answer.read_text())
+            assert call('get_state')['paused'], 'Valid request after malformed IPC failed'
             capture = request('tools/call',{'name':'capture_frame','arguments':{}})
-            if graphical:
+            if graphical and not no_render:
                 assert not capture.get('isError'), capture
                 data = json.loads(capture['content'][0]['text'])
                 assert base64.b64decode(capture['content'][1]['data']).startswith(b'\x89PNG')
@@ -72,7 +81,7 @@ def check(out, graphical):
                 assert snapshot['frame_id']==data['frame_id']==snapshot['state']['frame_id']==snapshot['tree']['frame_id']
                 (mode/'capture-result.json').write_text(json.dumps(data,indent=2),encoding='utf-8')
             else:
-                assert capture['isError'] and 'headless' in capture['content'][0]['text']
+                assert capture['isError'] and ('render' in capture['content'][0]['text'].lower() if no_render else 'headless' in capture['content'][0]['text'])
             last = call('get_state')
             first.pop('frame_id'); last.pop('frame_id')
             assert first==last, 'Reading diagnostics changed simulation'
@@ -81,7 +90,8 @@ def check(out, graphical):
             assert game.wait(timeout=20)==0
             assert client.sessions()==[]
             assert 'ERROR:' not in log.read_text(encoding='utf-8')
-            print(('graphic' if graphical else 'headless')+': PASS',flush=True)
+            assert 'BRIDGE_READ_ONLY_PASS' in log.read_text(encoding='utf-8')
+            print(mode.name+': PASS',flush=True)
         finally:
             if server and server.poll() is None: server.kill(); server.wait()
             if game.poll() is None: game.kill(); game.wait()
@@ -92,7 +102,7 @@ if __name__=='__main__':
     out = REPO/'artifacts/garden-bridge-2026-10-15'/args.run_id; out.mkdir(parents=True,exist_ok=False)
     before = hashes(); passed = False
     try:
-        check(out,False); check(out,True); passed = True
+        check(out,False); check(out,True); check(out,True,True); passed = True
     finally:
         after = hashes()
         (out/'result.json').write_text(json.dumps({'passed':passed,'save_before':before,'save_after':after},indent=2))

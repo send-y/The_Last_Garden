@@ -13,5 +13,11 @@ func _ready() -> void:
 	game.get_node("Hud/HudRoot").open_storage(Vector2i(int(cell[0]),int(cell[1])))
 	for i: int in range(8): await get_tree().process_frame
 	push_warning("GARDEN_BRIDGE_TEST_MARKER")
+	if OS.get_cmdline_user_args().has("--bridge-test-no-render"): RenderingServer.render_loop_enabled = false
+	var before := JSON.stringify(Session.simulation.export_state())
 	print("BRIDGE_HOST_READY")
-	get_tree().create_timer(12).timeout.connect(func() -> void: get_tree().quit())
+	get_tree().create_timer(12).timeout.connect(func() -> void:
+		var unchanged := before==JSON.stringify(Session.simulation.export_state())
+		print("BRIDGE_READ_ONLY_PASS" if unchanged else "FAIL: diagnostics changed full simulation state")
+		get_tree().quit(0 if unchanged else 1)
+	)
