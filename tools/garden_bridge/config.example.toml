@@ -1,0 +1,6 @@
+# Project-local .codex/config.toml; replace the path with your checkout path.
+[mcp_servers.garden_bridge]
+command = "python"
+args = ["D:/The_Last_Garden/tools/garden_bridge/server.py"]
+startup_timeout_sec = 10
+tool_timeout_sec = 15

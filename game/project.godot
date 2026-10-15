@@ -18,6 +18,7 @@ config/icon="res://icon.svg"
 [autoload]
 
 Session="*res://src/autoload/session.gd"
+GardenDebugBridge="*res://addons/garden_bridge/bridge.gd"
 
 [display]
 

@@ -4,6 +4,9 @@
 # Project-local copies of Codex/agent skills
 .agents/
 .superpowers/
+.garden_bridge/
+.codex/config.toml
+__pycache__/
 skills-lock.json
 
 # Unrelated local Deadlock configuration stored beside source art
