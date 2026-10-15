@@ -76,7 +76,7 @@ static func exchange(sim, cell: Vector2i, bag: Dictionary, stock: Dictionary,
 	sim.state.storage_items = storage_items
 	if not bag_instance.is_empty():
 		sim._set_instance_location(bag_instance,"storage",new_key)
-		sim._clear_hotbar_instance(bag_instance)
+		sim._clear_hotbar_instance(bag_instance,true)
 	if not stock_instance.is_empty(): sim._set_instance_location(stock_instance,"inventory")
 	sim.state.inventory = sim._inventory_counts_without_instances(candidate)
 	sim.state.inventory_layout = packed.layout

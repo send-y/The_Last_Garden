@@ -94,7 +94,7 @@ static func transfer_inventory_stack_to_storage(sim,
 	if not item_instance_id.is_empty():
 		stored_item["instance_id"] = item_instance_id
 		sim._set_instance_location(item_instance_id, "storage", placement_id)
-		sim._clear_hotbar_instance(item_instance_id)
+		sim._clear_hotbar_instance(item_instance_id,true)
 	(state["storage_items"] as Array).append(stored_item)
 	if not item_instance_id.is_empty():
 		state["inventory_layout"] = InventoryPackerScript.pack_with_layout(

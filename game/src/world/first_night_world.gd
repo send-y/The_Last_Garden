@@ -238,7 +238,13 @@ func interact_with_selection(continuous_work: bool = false) -> void:
 		if _player.global_position.distance_to(farm_position) > Catalog.INTERACTION_RANGE:
 			Session.notify_player_key("interaction.failure.too_far")
 			return
-		farming_interaction_requested.emit(_selected_cell)
+		# E uses the direct action; RMB retains access to bed management.
+		var action: Dictionary = Session.simulation.farming.primary_action(Session.simulation,_selected_cell) if continuous_work else {}
+		if action.is_empty(): farming_interaction_requested.emit(_selected_cell)
+		else:
+			action.actor_id = "core:player"
+			action.cell = [_selected_cell.x,_selected_cell.y]
+			Session.execute_farming_command(action)
 		return
 	if _selected == null and WaterMapScript.contains_cell(_selected_cell):
 		if Session.simulation.actor_tool_supports("core:player", "water"):
@@ -367,7 +373,7 @@ func _set_selected(value: InteractableView) -> void:
 		elif not Session.get_farm_bed(_selected_cell).is_empty():
 			selection_changed.emit({"kind": "structure", "label": Session.simulation.farming.status(Session.simulation, _selected_cell),
 				"in_range": _player.global_position.distance_to(Content.cell_center(_selected_cell.x, _selected_cell.y)) <= Content.INTERACTION_RANGE,
-				"status": Localized.resolve("farming.open_hint")})
+				"status": Session.simulation.farming.interaction_hint(Session.simulation,_selected_cell)})
 		else:
 			selection_changed.emit({
 				"kind": "cell",

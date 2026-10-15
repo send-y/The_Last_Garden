@@ -914,8 +914,8 @@ func _remove_item_instance(instance_id: String) -> bool:
 	return ItemInstancesSystem._remove_item_instance(self, instance_id)
 
 
-func _clear_hotbar_instance(instance_id: String) -> void:
-	ItemInstancesSystem._clear_hotbar_instance(self, instance_id)
+func _clear_hotbar_instance(instance_id: String, keep_binding: bool = false) -> void:
+	ItemInstancesSystem._clear_hotbar_instance(self, instance_id, keep_binding)
 
 
 func _inventory_counts_without_instances(inventory: Dictionary) -> Dictionary:

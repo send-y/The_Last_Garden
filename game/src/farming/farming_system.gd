@@ -188,6 +188,26 @@ func execute(sim, command: Dictionary) -> Dictionary:
 	return _result(sim, false, "farming.failure.action")
 
 
+func primary_action(sim, cell: Vector2i) -> Dictionary:
+	var bed := bed_at(sim,cell)
+	if bed.is_empty(): return {}
+	if harvest_ready(sim,cell): return {"action_id":"harvest"}
+	if not String(bed.get("crop_id","")).is_empty(): return {}
+	var held: Dictionary = sim.get_held_item()
+	var item_id := String(held.get("item_id",""))
+	var crop := catalog.find(item_id)
+	if not crop.is_empty() and String(crop.seed_id)==item_id:
+		return {"action_id":"plant","item_id":item_id}
+	return {}
+
+
+func interaction_hint(sim, cell: Vector2i) -> String:
+	var action := primary_action(sim,cell)
+	if String(action.get("action_id",""))=="plant": return Localized.resolve("farming.plant_hint")
+	if String(action.get("action_id",""))=="harvest": return Localized.resolve("farming.harvest_hint")
+	return Localized.resolve("farming.open_hint")
+
+
 func harvest_ready(sim, cell: Vector2i) -> bool:
 	var bed := bed_at(sim,cell)
 	var crop := catalog.find(String(bed.get("crop_id","")))

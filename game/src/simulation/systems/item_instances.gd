@@ -90,11 +90,12 @@ static func _remove_item_instance(sim, instance_id: String) -> bool:
 	return true
 
 
-static func _clear_hotbar_instance(sim, instance_id: String) -> void:
+static func _clear_hotbar_instance(sim, instance_id: String, keep_binding: bool = false) -> void:
 	var state: Dictionary = sim.state
 	var backpack_selection: Dictionary = state.get("selected_inventory_item", {}) as Dictionary
 	if String(backpack_selection.get("instance_id", "")) == instance_id:
 		state["selected_inventory_item"] = {}
+	if keep_binding: return
 	var slots: Array[String] = sim.get_hotbar_slots()
 	var selected: int = sim.get_active_hotbar_slot()
 	for index: int in range(slots.size()):
@@ -291,7 +292,6 @@ static func _normalize_hotbar_state(sim) -> void:
 			var instance := ItemInstanceRegistryScript.find(state, instance_id)
 			if (
 				instance_id.is_empty() or seen.has(instance_id) or instance.is_empty()
-				or String((instance.get("location", {}) as Dictionary).get("kind", "")) != "inventory"
 			):
 				continue
 			seen[instance_id] = true

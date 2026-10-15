@@ -614,6 +614,7 @@ func _refresh_hotbar() -> void:
 		var instance: Dictionary = Session.get_item_instance(instance_id) if not instance_id.is_empty() else {}
 		var item_id := String(instance.get("item_id", ""))
 		var instance_state: Dictionary = instance.get("state", {}) as Dictionary
+		var ghost := not instance.is_empty() and String(instance.get("location",{}).get("kind",""))!="inventory"
 		var icon_path := _content_data.item_icon_path(item_id, instance_state)
 		var icon_texture: Texture2D
 		if not icon_path.is_empty() and ResourceLoader.exists(icon_path):
@@ -623,9 +624,11 @@ func _refresh_hotbar() -> void:
 			else PlaceholderIcon.texture_for(item_id) if not item_id.is_empty()
 			else null
 		)
+		_hotbar_icons[index].self_modulate = Color(1,1,1,0.3) if ghost else Color.WHITE
 		var charges := int(instance_state.get("charges", 0))
-		_hotbar_charges[index].text = "%d/%d" % [charges, _content_data.item_tool_capacity(item_id)] if _content_data.item_tool_supports(item_id, "water") else ""
+		_hotbar_charges[index].text = "%d/%d" % [charges, _content_data.item_tool_capacity(item_id)] if not ghost and _content_data.item_tool_supports(item_id, "water") else ""
 		_hotbar_buttons[index].tooltip_text = Localized.resolve(_content_data.item_label_key(item_id)) if not item_id.is_empty() else "%d" % (index + 1)
+		if ghost: _hotbar_buttons[index].tooltip_text += "\n"+Localized.resolve("ui.hotbar.ghost")
 		_hotbar_buttons[index].modulate = Color("ffe59c") if index == active else Color.WHITE
 
 

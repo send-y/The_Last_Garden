@@ -93,7 +93,7 @@ static func drop_inventory_stack(sim, item_id: String, stack_index: int) -> Dict
 	if not dropped_instance_id.is_empty():
 		new_drop["instance_id"] = dropped_instance_id
 		sim._set_instance_location(dropped_instance_id, "world_drop", String(new_drop["drop_id"]))
-		sim._clear_hotbar_instance(dropped_instance_id)
+		sim._clear_hotbar_instance(dropped_instance_id,true)
 	(state["world_drops"] as Array).append(new_drop)
 	state["inventory_layout"] = InventoryPackerScript.pack_with_layout(
 		sim.get_inventory(), content,

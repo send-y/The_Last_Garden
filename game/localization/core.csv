@@ -683,6 +683,9 @@ npc.work.gather,Ресурсы
 npc.work.build,Стройка
 npc.work.harvest,Сбор урожая
 npc.work.sow,Посев
+ui.hotbar.ghost,Предмет вне рюкзака. Место закреплено за этим экземпляром.
+farming.plant_hint,E — посадить семена в руке · ПКМ — настройки грядки
+farming.harvest_hint,E — собрать спелый урожай · ПКМ — настройки грядки
 npc.activity.work_take_seed,Берёт семена на общем складе
 npc.activity.work_sow,Сеет общую грядку
 npc.activity.work_seed_forage,Собирает еду для получения семян

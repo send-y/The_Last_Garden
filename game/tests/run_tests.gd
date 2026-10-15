@@ -1759,7 +1759,7 @@ func _test_bucket_instances_hotbar_and_transfers() -> void:
 	loaded.set_player_position(_cell_center(storage_cell))
 	var store_result := loaded.transfer_inventory_stack_to_storage(storage_cell, "core:bucket", 0)
 	_expect(bool(store_result.get("success", false)), "individual bucket can move into physical storage")
-	_expect(loaded.get_hotbar_slots()[0].is_empty(), "a bucket moved into storage is removed from hotbar")
+	_expect(loaded.get_hotbar_slots()[0]==first_id and String(loaded.get_active_item_instance().get("instance_id",""))!=first_id, "stored bucket retains a ghost without becoming the active physical tool")
 	var stored_layout := loaded.get_storage_layout(storage_cell)
 	_expect(stored_layout.size() == 1 and String(stored_layout[0].get("instance_id", "")) == first_id, "storage contains the same bucket instance")
 	if stored_layout.is_empty():
